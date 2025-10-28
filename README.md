@@ -4,8 +4,15 @@ This milestone establishes a complete NLP preprocessing pipeline that transforms
 The project implements automated text extraction, cleaning, sentence segmentation, tokenization, normalization, lemmatization, and statistical analysis.
 
 ---
-
+QueryMinds Team
+- Mohammadali Dehghani 12432957
+- Amir Saadati 12434679
+- Amina Kadic 12439016
+- Meliha Kasapovic 12439367
+  
 ## Overview
+
+
 
 The developed pipeline enables:
 - Extraction of structured text from scientific PDFs.  
@@ -38,3 +45,19 @@ except:
     pass
 nltk.download('punkt')
 PY
+```
+## Project Pipeline 
+```bash
+# Download PDFs
+python scripts/download_papers.py
+# Extract and separate sections
+python scripts/extract_sections.py
+# Parse PDFs
+python scripts/parse_pdfs.py
+# Tokenize sentences
+python scripts/sent_tok.py
+# Normalize and convert to CONLL-U
+python scripts/normalize_and_conllu.py
+# Extract corpus statistics
+python scripts/corpus_stats.py
+```
