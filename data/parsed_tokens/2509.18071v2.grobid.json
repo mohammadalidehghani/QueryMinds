@@ -1,0 +1,1277 @@
+{
+  "title": [
+    {
+      "sentence": "Learning functions, operators and dynamical systems with kernels",
+      "tokens": [
+        "Learning",
+        "functions",
+        ",",
+        "operators",
+        "and",
+        "dynamical",
+        "systems",
+        "with",
+        "kernels"
+      ]
+    }
+  ],
+  "abstract": [
+    {
+      "sentence": "This expository article presents the approach to statistical machine learning based on reproducing kernel Hilbert spaces.",
+      "tokens": [
+        "This",
+        "expository",
+        "article",
+        "presents",
+        "the",
+        "approach",
+        "to",
+        "statistical",
+        "machine",
+        "learning",
+        "based",
+        "on",
+        "reproducing",
+        "kernel",
+        "Hilbert",
+        "spaces",
+        "."
+      ]
+    },
+    {
+      "sentence": "The basic framework is introduced for scalar-valued learning and then extended to operator learning.",
+      "tokens": [
+        "The",
+        "basic",
+        "framework",
+        "is",
+        "introduced",
+        "for",
+        "scalar-valued",
+        "learning",
+        "and",
+        "then",
+        "extended",
+        "to",
+        "operator",
+        "learning",
+        "."
+      ]
+    },
+    {
+      "sentence": "Finally, learning dynamical systems is formulated as a suitable operator learning problem, leveraging Koopman operator theory.",
+      "tokens": [
+        "Finally",
+        ",",
+        "learning",
+        "dynamical",
+        "systems",
+        "is",
+        "formulated",
+        "as",
+        "a",
+        "suitable",
+        "operator",
+        "learning",
+        "problem",
+        ",",
+        "leveraging",
+        "Koopman",
+        "operator",
+        "theory",
+        "."
+      ]
+    },
+    {
+      "sentence": "The manuscript collects supporting material for the corresponding course taught at the CIME school \"Machine Learning: From Data to Mathematical Understanding\" in Cetraro.",
+      "tokens": [
+        "The",
+        "manuscript",
+        "collects",
+        "supporting",
+        "material",
+        "for",
+        "the",
+        "corresponding",
+        "course",
+        "taught",
+        "at",
+        "the",
+        "CIME",
+        "school",
+        "``",
+        "Machine",
+        "Learning",
+        ":",
+        "From",
+        "Data",
+        "to",
+        "Mathematical",
+        "Understanding",
+        "''",
+        "in",
+        "Cetraro",
+        "."
+      ]
+    }
+  ],
+  "introduction": [
+    {
+      "sentence": "Learning from data The most fundamental problem in machine learning is estimating a function f from data, i.e., pairs of inputs and outputs (x 1 , y 1 ), .",
+      "tokens": [
+        "Learning",
+        "from",
+        "data",
+        "The",
+        "most",
+        "fundamental",
+        "problem",
+        "in",
+        "machine",
+        "learning",
+        "is",
+        "estimating",
+        "a",
+        "function",
+        "f",
+        "from",
+        "data",
+        ",",
+        "i.e.",
+        ",",
+        "pairs",
+        "of",
+        "inputs",
+        "and",
+        "outputs",
+        "(",
+        "x",
+        "1",
+        ",",
+        "y",
+        "1",
+        ")",
+        ",",
+        "."
+      ]
+    },
+    {
+      "sentence": ".",
+      "tokens": [
+        "."
+      ]
+    },
+    {
+      "sentence": ".",
+      "tokens": [
+        "."
+      ]
+    },
+    {
+      "sentence": ", (x n , y n ).",
+      "tokens": [
+        ",",
+        "(",
+        "x",
+        "n",
+        ",",
+        "y",
+        "n",
+        ")",
+        "."
+      ]
+    },
+    {
+      "sentence": "The key intuition is that the function f should give an estimate of the output for any new input, ideally satisfying f (x new ) ≈ y new .",
+      "tokens": [
+        "The",
+        "key",
+        "intuition",
+        "is",
+        "that",
+        "the",
+        "function",
+        "f",
+        "should",
+        "give",
+        "an",
+        "estimate",
+        "of",
+        "the",
+        "output",
+        "for",
+        "any",
+        "new",
+        "input",
+        ",",
+        "ideally",
+        "satisfying",
+        "f",
+        "(",
+        "x",
+        "new",
+        ")",
+        "≈",
+        "y",
+        "new",
+        "."
+      ]
+    },
+    {
+      "sentence": "The function to be learned can be interpreted as a task and the data as experience from which solving the task can be learned.",
+      "tokens": [
+        "The",
+        "function",
+        "to",
+        "be",
+        "learned",
+        "can",
+        "be",
+        "interpreted",
+        "as",
+        "a",
+        "task",
+        "and",
+        "the",
+        "data",
+        "as",
+        "experience",
+        "from",
+        "which",
+        "solving",
+        "the",
+        "task",
+        "can",
+        "be",
+        "learned",
+        "."
+      ]
+    },
+    {
+      "sentence": "The term \"learning\" arises from this perspective.",
+      "tokens": [
+        "The",
+        "term",
+        "``",
+        "learning",
+        "''",
+        "arises",
+        "from",
+        "this",
+        "perspective",
+        "."
+      ]
+    },
+    {
+      "sentence": "This idea is the so-called learning-from-examples paradigm.",
+      "tokens": [
+        "This",
+        "idea",
+        "is",
+        "the",
+        "so-called",
+        "learning-from-examples",
+        "paradigm",
+        "."
+      ]
+    },
+    {
+      "sentence": "We illustrate the generality of this approach with three different examples.",
+      "tokens": [
+        "We",
+        "illustrate",
+        "the",
+        "generality",
+        "of",
+        "this",
+        "approach",
+        "with",
+        "three",
+        "different",
+        "examples",
+        "."
+      ]
+    },
+    {
+      "sentence": "Example 1 (Regression) Regression is a supervised learning problem where the outputs are scalar-valued.",
+      "tokens": [
+        "Example",
+        "1",
+        "(",
+        "Regression",
+        ")",
+        "Regression",
+        "is",
+        "a",
+        "supervised",
+        "learning",
+        "problem",
+        "where",
+        "the",
+        "outputs",
+        "are",
+        "scalar-valued",
+        "."
+      ]
+    },
+    {
+      "sentence": "More precisely, consider the following data model, y i = f * (x i ) + ϵ i i = 1, .",
+      "tokens": [
+        "More",
+        "precisely",
+        ",",
+        "consider",
+        "the",
+        "following",
+        "data",
+        "model",
+        ",",
+        "y",
+        "i",
+        "=",
+        "f",
+        "*",
+        "(",
+        "x",
+        "i",
+        ")",
+        "+",
+        "ϵ",
+        "i",
+        "i",
+        "=",
+        "1",
+        ",",
+        "."
+      ]
+    },
+    {
+      "sentence": ".",
+      "tokens": [
+        "."
+      ]
+    },
+    {
+      "sentence": ".",
+      "tokens": [
+        "."
+      ]
+    },
+    {
+      "sentence": ", n. Here, for any i = 1, .",
+      "tokens": [
+        ",",
+        "n.",
+        "Here",
+        ",",
+        "for",
+        "any",
+        "i",
+        "=",
+        "1",
+        ",",
+        "."
+      ]
+    },
+    {
+      "sentence": ".",
+      "tokens": [
+        "."
+      ]
+    },
+    {
+      "sentence": ".",
+      "tokens": [
+        "."
+      ]
+    },
+    {
+      "sentence": ", n, x i ∈ R d , d ≥ 1, y i ∈ R, f * : R d → R is a unknown function to be learned, and, for any i = 1, .",
+      "tokens": [
+        ",",
+        "n",
+        ",",
+        "x",
+        "i",
+        "∈",
+        "R",
+        "d",
+        ",",
+        "d",
+        "≥",
+        "1",
+        ",",
+        "y",
+        "i",
+        "∈",
+        "R",
+        ",",
+        "f",
+        "*",
+        ":",
+        "R",
+        "d",
+        "→",
+        "R",
+        "is",
+        "a",
+        "unknown",
+        "function",
+        "to",
+        "be",
+        "learned",
+        ",",
+        "and",
+        ",",
+        "for",
+        "any",
+        "i",
+        "=",
+        "1",
+        ",",
+        "."
+      ]
+    },
+    {
+      "sentence": ".",
+      "tokens": [
+        "."
+      ]
+    },
+    {
+      "sentence": ".",
+      "tokens": [
+        "."
+      ]
+    },
+    {
+      "sentence": ", n, ϵ i ∼ N (0, σ 2 ).",
+      "tokens": [
+        ",",
+        "n",
+        ",",
+        "ϵ",
+        "i",
+        "∼",
+        "N",
+        "(",
+        "0",
+        ",",
+        "σ",
+        "2",
+        ")",
+        "."
+      ]
+    },
+    {
+      "sentence": "Both the function f * and the noise are fixed but unknown.",
+      "tokens": [
+        "Both",
+        "the",
+        "function",
+        "f",
+        "*",
+        "and",
+        "the",
+        "noise",
+        "are",
+        "fixed",
+        "but",
+        "unknown",
+        "."
+      ]
+    },
+    {
+      "sentence": "Given the data (x i , y i ) n i=1 , the goal is to compute an estimate f of f * .",
+      "tokens": [
+        "Given",
+        "the",
+        "data",
+        "(",
+        "x",
+        "i",
+        ",",
+        "y",
+        "i",
+        ")",
+        "n",
+        "i=1",
+        ",",
+        "the",
+        "goal",
+        "is",
+        "to",
+        "compute",
+        "an",
+        "estimate",
+        "f",
+        "of",
+        "f",
+        "*",
+        "."
+      ]
+    },
+    {
+      "sentence": "This model is illustrated in Figure 1 .",
+      "tokens": [
+        "This",
+        "model",
+        "is",
+        "illustrated",
+        "in",
+        "Figure",
+        "1",
+        "."
+      ]
+    },
+    {
+      "sentence": "As an example, we can think of x i as a set of features describing a house (e.g., size, number of rooms, location) and y i as its market price.",
+      "tokens": [
+        "As",
+        "an",
+        "example",
+        ",",
+        "we",
+        "can",
+        "think",
+        "of",
+        "x",
+        "i",
+        "as",
+        "a",
+        "set",
+        "of",
+        "features",
+        "describing",
+        "a",
+        "house",
+        "(",
+        "e.g.",
+        ",",
+        "size",
+        ",",
+        "number",
+        "of",
+        "rooms",
+        ",",
+        "location",
+        ")",
+        "and",
+        "y",
+        "i",
+        "as",
+        "its",
+        "market",
+        "price",
+        "."
+      ]
+    },
+    {
+      "sentence": "The task is to learn to predict house prices from given features.",
+      "tokens": [
+        "The",
+        "task",
+        "is",
+        "to",
+        "learn",
+        "to",
+        "predict",
+        "house",
+        "prices",
+        "from",
+        "given",
+        "features",
+        "."
+      ]
+    },
+    {
+      "sentence": "Example 2 (Operator learning) Operator learning is a supervised learning problem where inputs and outputs belong to Hilbert (or Banach) spaces.",
+      "tokens": [
+        "Example",
+        "2",
+        "(",
+        "Operator",
+        "learning",
+        ")",
+        "Operator",
+        "learning",
+        "is",
+        "a",
+        "supervised",
+        "learning",
+        "problem",
+        "where",
+        "inputs",
+        "and",
+        "outputs",
+        "belong",
+        "to",
+        "Hilbert",
+        "(",
+        "or",
+        "Banach",
+        ")",
+        "spaces",
+        "."
+      ]
+    },
+    {
+      "sentence": "More precisely, consider the following model, y i = F * (x i ) + ϵ i i = 1, .",
+      "tokens": [
+        "More",
+        "precisely",
+        ",",
+        "consider",
+        "the",
+        "following",
+        "model",
+        ",",
+        "y",
+        "i",
+        "=",
+        "F",
+        "*",
+        "(",
+        "x",
+        "i",
+        ")",
+        "+",
+        "ϵ",
+        "i",
+        "i",
+        "=",
+        "1",
+        ",",
+        "."
+      ]
+    },
+    {
+      "sentence": ".",
+      "tokens": [
+        "."
+      ]
+    },
+    {
+      "sentence": ".",
+      "tokens": [
+        "."
+      ]
+    },
+    {
+      "sentence": ", n. Here, for any i = 1, .",
+      "tokens": [
+        ",",
+        "n.",
+        "Here",
+        ",",
+        "for",
+        "any",
+        "i",
+        "=",
+        "1",
+        ",",
+        "."
+      ]
+    },
+    {
+      "sentence": ".",
+      "tokens": [
+        "."
+      ]
+    },
+    {
+      "sentence": ".",
+      "tokens": [
+        "."
+      ]
+    },
+    {
+      "sentence": ", n, x i ∈ X and y i ∈ Y , where X and Y are Hilbert spaces.",
+      "tokens": [
+        ",",
+        "n",
+        ",",
+        "x",
+        "i",
+        "∈",
+        "X",
+        "and",
+        "y",
+        "i",
+        "∈",
+        "Y",
+        ",",
+        "where",
+        "X",
+        "and",
+        "Y",
+        "are",
+        "Hilbert",
+        "spaces",
+        "."
+      ]
+    },
+    {
+      "sentence": "The function to be learned is a fixed but unknown linear operator F * : X → Y , and for any i = 1, .",
+      "tokens": [
+        "The",
+        "function",
+        "to",
+        "be",
+        "learned",
+        "is",
+        "a",
+        "fixed",
+        "but",
+        "unknown",
+        "linear",
+        "operator",
+        "F",
+        "*",
+        ":",
+        "X",
+        "→",
+        "Y",
+        ",",
+        "and",
+        "for",
+        "any",
+        "i",
+        "=",
+        "1",
+        ",",
+        "."
+      ]
+    },
+    {
+      "sentence": ".",
+      "tokens": [
+        "."
+      ]
+    },
+    {
+      "sentence": ".",
+      "tokens": [
+        "."
+      ]
+    },
+    {
+      "sentence": ", n, the noise term ϵ i is a zero-mean random variable.",
+      "tokens": [
+        ",",
+        "n",
+        ",",
+        "the",
+        "noise",
+        "term",
+        "ϵ",
+        "i",
+        "is",
+        "a",
+        "zero-mean",
+        "random",
+        "variable",
+        "."
+      ]
+    },
+    {
+      "sentence": "Given the data (x i , y i ) n i=1 , the goal is to compute an estimate F of F * .",
+      "tokens": [
+        "Given",
+        "the",
+        "data",
+        "(",
+        "x",
+        "i",
+        ",",
+        "y",
+        "i",
+        ")",
+        "n",
+        "i=1",
+        ",",
+        "the",
+        "goal",
+        "is",
+        "to",
+        "compute",
+        "an",
+        "estimate",
+        "F",
+        "of",
+        "F",
+        "*",
+        "."
+      ]
+    },
+    {
+      "sentence": "As an example, we can think of y i as images and x i as their blurred, noisy versions.",
+      "tokens": [
+        "As",
+        "an",
+        "example",
+        ",",
+        "we",
+        "can",
+        "think",
+        "of",
+        "y",
+        "i",
+        "as",
+        "images",
+        "and",
+        "x",
+        "i",
+        "as",
+        "their",
+        "blurred",
+        ",",
+        "noisy",
+        "versions",
+        "."
+      ]
+    },
+    {
+      "sentence": "The task is to learn to reconstruct sharp images from their degraded versions.",
+      "tokens": [
+        "The",
+        "task",
+        "is",
+        "to",
+        "learn",
+        "to",
+        "reconstruct",
+        "sharp",
+        "images",
+        "from",
+        "their",
+        "degraded",
+        "versions",
+        "."
+      ]
+    },
+    {
+      "sentence": "Example 3 (Dynamical systems learning) Dynamical systems learning is a supervised learning setting where the goal is to estimate a state transition function from observed trajectories.",
+      "tokens": [
+        "Example",
+        "3",
+        "(",
+        "Dynamical",
+        "systems",
+        "learning",
+        ")",
+        "Dynamical",
+        "systems",
+        "learning",
+        "is",
+        "a",
+        "supervised",
+        "learning",
+        "setting",
+        "where",
+        "the",
+        "goal",
+        "is",
+        "to",
+        "estimate",
+        "a",
+        "state",
+        "transition",
+        "function",
+        "from",
+        "observed",
+        "trajectories",
+        "."
+      ]
+    },
+    {
+      "sentence": "More precisely, consider the following model, for some initial condition s 0 , s t+1 = f * (s t , ω t ) t = 0, .",
+      "tokens": [
+        "More",
+        "precisely",
+        ",",
+        "consider",
+        "the",
+        "following",
+        "model",
+        ",",
+        "for",
+        "some",
+        "initial",
+        "condition",
+        "s",
+        "0",
+        ",",
+        "s",
+        "t+1",
+        "=",
+        "f",
+        "*",
+        "(",
+        "s",
+        "t",
+        ",",
+        "ω",
+        "t",
+        ")",
+        "t",
+        "=",
+        "0",
+        ",",
+        "."
+      ]
+    },
+    {
+      "sentence": ".",
+      "tokens": [
+        "."
+      ]
+    },
+    {
+      "sentence": ".",
+      "tokens": [
+        "."
+      ]
+    },
+    {
+      "sentence": ", T -1.",
+      "tokens": [
+        ",",
+        "T",
+        "-1",
+        "."
+      ]
+    },
+    {
+      "sentence": "Here, for any t = 0, .",
+      "tokens": [
+        "Here",
+        ",",
+        "for",
+        "any",
+        "t",
+        "=",
+        "0",
+        ",",
+        "."
+      ]
+    },
+    {
+      "sentence": ".",
+      "tokens": [
+        "."
+      ]
+    },
+    {
+      "sentence": ".",
+      "tokens": [
+        "."
+      ]
+    },
+    {
+      "sentence": ", T -1, s t ∈ S = R d is the system state, ω t is a random variable modeling stochasticity, and f * : S × Ω → S is a fixed but unknown function describing the state evolution.",
+      "tokens": [
+        ",",
+        "T",
+        "-1",
+        ",",
+        "s",
+        "t",
+        "∈",
+        "S",
+        "=",
+        "R",
+        "d",
+        "is",
+        "the",
+        "system",
+        "state",
+        ",",
+        "ω",
+        "t",
+        "is",
+        "a",
+        "random",
+        "variable",
+        "modeling",
+        "stochasticity",
+        ",",
+        "and",
+        "f",
+        "*",
+        ":",
+        "S",
+        "×",
+        "Ω",
+        "→",
+        "S",
+        "is",
+        "a",
+        "fixed",
+        "but",
+        "unknown",
+        "function",
+        "describing",
+        "the",
+        "state",
+        "evolution",
+        "."
+      ]
+    },
+    {
+      "sentence": "Given a trajectory (s 0 , s 1 , .",
+      "tokens": [
+        "Given",
+        "a",
+        "trajectory",
+        "(",
+        "s",
+        "0",
+        ",",
+        "s",
+        "1",
+        ",",
+        "."
+      ]
+    },
+    {
+      "sentence": ".",
+      "tokens": [
+        "."
+      ]
+    },
+    {
+      "sentence": ".",
+      "tokens": [
+        "."
+      ]
+    },
+    {
+      "sentence": ", s T -1 ), the goal is to compute an estimate f of f * .",
+      "tokens": [
+        ",",
+        "s",
+        "T",
+        "-1",
+        ")",
+        ",",
+        "the",
+        "goal",
+        "is",
+        "to",
+        "compute",
+        "an",
+        "estimate",
+        "f",
+        "of",
+        "f",
+        "*",
+        "."
+      ]
+    },
+    {
+      "sentence": "As an example, we can think of s t as the position and velocity of a robot and ω t as external disturbances, such as sensor noise or environmental factors.",
+      "tokens": [
+        "As",
+        "an",
+        "example",
+        ",",
+        "we",
+        "can",
+        "think",
+        "of",
+        "s",
+        "t",
+        "as",
+        "the",
+        "position",
+        "and",
+        "velocity",
+        "of",
+        "a",
+        "robot",
+        "and",
+        "ω",
+        "t",
+        "as",
+        "external",
+        "disturbances",
+        ",",
+        "such",
+        "as",
+        "sensor",
+        "noise",
+        "or",
+        "environmental",
+        "factors",
+        "."
+      ]
+    },
+    {
+      "sentence": "The task is to learn to predict the robot's next state based on past observations.",
+      "tokens": [
+        "The",
+        "task",
+        "is",
+        "to",
+        "learn",
+        "to",
+        "predict",
+        "the",
+        "robot",
+        "'s",
+        "next",
+        "state",
+        "based",
+        "on",
+        "past",
+        "observations",
+        "."
+      ]
+    },
+    {
+      "sentence": "The above examples show that Figure (1) provides a simple but potentially misleading illustration.",
+      "tokens": [
+        "The",
+        "above",
+        "examples",
+        "show",
+        "that",
+        "Figure",
+        "(",
+        "1",
+        ")",
+        "provides",
+        "a",
+        "simple",
+        "but",
+        "potentially",
+        "misleading",
+        "illustration",
+        "."
+      ]
+    },
+    {
+      "sentence": "The figure depicts a low-dimensional setting, real-world data can have tens, or even tens of thousands, of dimensions, and datasets can contain millions or even billions of samples.",
+      "tokens": [
+        "The",
+        "figure",
+        "depicts",
+        "a",
+        "low-dimensional",
+        "setting",
+        ",",
+        "real-world",
+        "data",
+        "can",
+        "have",
+        "tens",
+        ",",
+        "or",
+        "even",
+        "tens",
+        "of",
+        "thousands",
+        ",",
+        "of",
+        "dimensions",
+        ",",
+        "and",
+        "datasets",
+        "can",
+        "contain",
+        "millions",
+        "or",
+        "even",
+        "billions",
+        "of",
+        "samples",
+        "."
+      ]
+    },
+    {
+      "sentence": "Beyond these examples and observations, ensuring that the learning problem is well-posed requires assumptions about the data.",
+      "tokens": [
+        "Beyond",
+        "these",
+        "examples",
+        "and",
+        "observations",
+        ",",
+        "ensuring",
+        "that",
+        "the",
+        "learning",
+        "problem",
+        "is",
+        "well-posed",
+        "requires",
+        "assumptions",
+        "about",
+        "the",
+        "data",
+        "."
+      ]
+    },
+    {
+      "sentence": "Available data must be informative about new data.",
+      "tokens": [
+        "Available",
+        "data",
+        "must",
+        "be",
+        "informative",
+        "about",
+        "new",
+        "data",
+        "."
+      ]
+    },
+    {
+      "sentence": "As suggested in the previous examples, one possible assumption is the existence of a data-generating process.",
+      "tokens": [
+        "As",
+        "suggested",
+        "in",
+        "the",
+        "previous",
+        "examples",
+        ",",
+        "one",
+        "possible",
+        "assumption",
+        "is",
+        "the",
+        "existence",
+        "of",
+        "a",
+        "data-generating",
+        "process",
+        "."
+      ]
+    },
+    {
+      "sentence": "This is the perspective taken in the framework of statistical learning theory, which we describe next.",
+      "tokens": [
+        "This",
+        "is",
+        "the",
+        "perspective",
+        "taken",
+        "in",
+        "the",
+        "framework",
+        "of",
+        "statistical",
+        "learning",
+        "theory",
+        ",",
+        "which",
+        "we",
+        "describe",
+        "next",
+        "."
+      ]
+    }
+  ]
+}
