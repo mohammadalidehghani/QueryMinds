@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main"></title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">B6D597C4F64B8DC663B99ACA2D8C8CE1</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>Artificial Neural Network</term>
+					<term>Convolutional-Restricted-Boltzmann-Machine</term>
+					<term>Reinforcement learning</term>
+					<term>Deep learning</term>
+					<term>Temporal-related</term>
+					<term>Relational-order</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Recent works on recurrent neural network and deep learning architecture have shown the power of deep learning in modeling time dependent input sequences. Specific learning structure such as Higher-order boltzmann machine, gradient-based learning manifold, and Recurrent "grammar cell" reveal their ability to learn feature transformation between related input maps, and perform well in time-related learning &amp; prediction tasks in higher order cases. In this article, we extend the conventional convolutional-Restricted-Boltzmann-Machine to learn highly abstract features among abitrary number of time related input maps by constructing a layer of multiplicative units, which capture the relations among inputs. In some cases, we only care about how one map transforms into another, so the multiplicative unit takes features from only this two maps. In other cases, however, more than two maps are strongly related, so it is reasonable to make multiplicative unit learn relations among more input maps, in other words, to find the optimal relational-order(number of related input maps that the multiplicative unit extracts features from) of each unit. In order to enable our machine to learn relational order, we developed a reinforcement-learning method whose optimality is proven to train the network.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Ⅰ. INTRODUCTION</head><p>Unsupervised learning combined with deep architecture has unveiled part of the mystery of artificial intelligence. Such learning techniques have boarder applications in areas like visual recognition, natural language processing, audio detection, and cognitive analysis. With growing computational capabilities, deep learning framework like convolutional deep belief network <ref type="bibr" target="#b0">[1]</ref> can bring more contribution to cognitive science. Recently, researchers begin to take the next step, trying to develop model that can handle Manuscript received <ref type="bibr">October 16, 2016</ref> Zizhuang Wang is with Xiaogan Senior High School, China (email: 1012125144@qq.com ; web: <ref type="url" target="http://kingofspace0wzz.github.io/">http://kingofspace0wzz.github.io/</ref> ) time dependent learning tasks. Traditionally, recurrent neural network(RNN) has shown its efficiency in time-dependent recognition problems. For instance, RNN is widely used as an elegant framework to manipulate audio model <ref type="bibr" target="#b1">[2]</ref>, which is based on time-related inputs. Recent researches also combined RNN with the power of convolutional restricted boltzmann machine(CRBM), such as gated autocoder and factorized CRBM [3] <ref type="bibr" target="#b3">[4]</ref>.</p><p>Later, more attention has been driven to a special form of time-based model, in which a restricted boltzmann machine is built to learn feature transformations that describe relations between time-related input maps. In the model, which is similar to conventional RBM <ref type="bibr" target="#b4">[5]</ref>[6], a hidden stack of layers is constructed to describe conditional probabilistic distributions over inputs. The difference from traditional model is that the hidden layers take into account of several input maps at different time moment. That is , the hidden layers are able to extract features from a combination of several time-related maps. By doing so, we can extract features that are explained by hidden layers to represent correlation between inputs maps, in other words, to describe a matrix transformation from one map to another. Previous works <ref type="bibr" target="#b6">[7]</ref>[8][9] <ref type="bibr" target="#b9">[10]</ref> noted that multiplicative interaction is an effective way to correlate input maps. We use this method in our model to combine related inputs. With the learned hidden features, or transformation, our machine can predict later inputs based on conditional distributions that are learned and carried by the hidden layers of RBM. Also, with the power of high-order temporal dependencies that is describe by <ref type="bibr" target="#b9">[10]</ref>, we can learn features that are even more abstract. In orther words, we can learn the features of transformations of input maps. This can be achieved with more hidden layers to be constructed and through learning efficiency brought by deep learning architecture.</p><p>There are limitations in higher order temporal model. Since conventional multiplicative interaction only takes into account of two related maps, it lacks the ability to correlate more input maps (input maps sequence for instance) and therefore can only learn features from two related inputs. Theoretically, we can learn temporal dependence among inputs no matter how far they are through high-order training process. Thus, combining only two input maps through multiplicative interaction seems to be achievable and efficient. In practice, however, this will cause the number of layers and parameters that are needed to be learned to explode. Moreover, in some cases in which we may have a large amount of similar or strongly correlated Temporal-related convolutional-Restricted-Boltzmann-Machine capable of learning relational order via reinforcement learning procedure</p><p>Zizhuang Wang input maps sequence, it is wise to combine them all together and to use only one stack of hidden layers to describe their correlation, saving a lot of space for parameters and time for learning. To do this, we define the term "relational order" as the number of maps that one stack of hidden layers learn features from, in other words, the number of maps that we correlate with each other using multiplicative interactions. Finally, we developed a reinforcement-learning <ref type="bibr" target="#b10">[11]</ref> based method to learn the relational order at each time by minimizing reconstruction error. We then proved that it satisfies the sub-problem structure of dynamic programming [12][13] <ref type="bibr" target="#b13">[14]</ref>. Therefore, by finding the optimized reconstruction error at each group of related input maps, we get the globally optimal solution of the entire input sequence.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Ⅱ. RELATED WORK</head><p>Traditional temporal-dependent RBM is widely used to model language processing, audio recognition and other time-evolutional learning tasks . In <ref type="bibr" target="#b14">[15]</ref>[16], deep belief network has revealed advantages over Gaussian mixture models for automatic speech recognition. Recent works <ref type="bibr" target="#b16">[17]</ref> in image recognition show that a convolutional network (CNN) can dramatically enhance the power of artificial neural network. Basically, a CNN architecture includes hidden layers that are gained from convoluting high dimensional inputs with kernels, and a pooling layer to exclude noise in order to gain highly abstract features. By constructing a convolutional layer, CNN takes the advantage of local invariance and parameter sharing <ref type="bibr" target="#b17">[18]</ref>. In image classification tasks, since the objects that need to be recognized from the image input may show up at different locations and angles, it is crucial to equip the model with the translational invariance property. By sharing parameters, on the other hand, we reduce parametric redundancy and therefore save a lot of space. Thus, instead of defining independent hidden units learning features in different parts of the input space, we make hidden units share the same combination of weights to extract features that may come up from different locations. These advantages make CNN extremely efficient. Therefore in this article, we developed a model based on convolutional deep neural network that takes temporal dependency into account. Such model combines the power of deep convolution and the capability of time-based model that can handle temporal related inputs. We showed its efficiency in tasks of learning matrix transformations of related inputs.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Ⅲ. MODEL</head><p>Recently, convolutional Restricted Boltzmann Machine has been used to extract features from high dimensional and highly abstract dataset <ref type="bibr" target="#b0">[1]</ref>. In case of image processing, we extract features in the image by convoluting it with a 2d kernels and then construct a 2d layer of RBM <ref type="bibr" target="#b0">[1]</ref>. After updating the kernels using CD-k algorithm, we are able to perform the task of image recognition efficiently by sending the outputs to a classical discriministic layer, or to generate an image map sampling from the Joint distribution P(X,Z), where the latent variable Z is described by hidden layers of C-RBM [5] <ref type="bibr" target="#b5">[6]</ref>. Conventional recurrent network(RNN) has been proven to be a useful model that can handle time dependent learning tasks such as recognition and prediction for future outcomes based on previous inputs. In order to combine the power of deep learning and the ability to extract features from time sequence, researchers have developed structures that collaborate RBM with RNN. In [3], for example, stacks of hidden units have been used to model time evolution features, and then a hidden pooling layer computes the sum of these hidden units by a sigmoid function, and finally update the weights by minimizing the distance function between the real visible inputs and the generative visible variables sampled from conditional distribution of P(v|h). Such model provides the basic architecture for audio recognition and other time-evolved learning tasks. However, unlike the model of deep audio recognition framework, in which the input is a 1d time-related sequence and the machine constructs a distribution over hidden layer to capture time dependent features of sequenced audio signals, the 2d C-RBM lacks the ability to grab relations between time related sequence of images. Therefore In this article, we use a different framework, which combines the structure of high dimensional convolutional-neural-network with restricted boltzmann machine by constructing only one stack of hidden variables. The idea is, instead of building stacks of hidden layers, that the model constructs multiplicative units relating the present input with the previous ones. In this model, hidden variables are viewed as a layer that portrays correlation among observations at different time t. For prediction, the hidden layer generates future maps based on the learned probabilistic distribution. In many cases (Bi-Temporal-related model, Section 4), each multiplicative unit takes account of two input maps. One major drawback of this framework, therefore, is that the model only takes correlated features among observations of specified length or time range. However, in natural brain system, cognitive processes are affected by wider range of inputs taken from sensors. Therefore, in order to make machine capable of learning optimal range of input maps that the multiplicative unit takes features from, a reinforcement learning model is specified over time range to help the machine take different length of inputs sequences by solving the optimal value of the reward function defined by the model.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Ⅳ. BI-TEMPORAL-RELATED MODEL</head><p>In Bi-related feature learning, machine extracts features from two related input maps. In order to combine the pair of two maps, a multiplicative unit is constructed to take the matrix multiplication of these maps as an input, and then is connected to a stack of hidden layers through k different kernels. Each hidden layer is constructed by sampling from a probabilistic distribution gained by convoluting the input with k kernels separately. The parameters of the model include k kernels and the biases associated with the hidden layers and the multiplicative unit respectively.</p><p>To describe the probabilistic distribution learned by model more explicitly, we redefine the traditional energy function of RBM [5][6] as</p><formula xml:id="formula_0">) (1 ) ( ) , , ( 2 1 , , 1 , 1 2 1 2 1             k k k k N j i N s r k ij s j r i k rs v bv h c h v v W h v v E h w</formula><p>where k is the index for hidden layers, n is the index for input maps, W represents the kernel matrix, and Nh NW denotes the dimensions( rows and cols) of the hidden layers and of kernel matrix respectively. In [5][6], the probabilistic model RBM based on energy above is defined by</p><formula xml:id="formula_1">                h h v E h v E v h v E h v E v h v E h v E h v E e e v P h v P v h P e e Z e Z e h P h v P h v P Z e h v P ) ,<label>( ) , ( ) , ( ) , ( ) , ( ) , ( ) , ( ) ( )</label></formula><formula xml:id="formula_2">, ( ) | ( , / / ) ( ) , ( ) | ( , ) , (</formula><p>Then, we can derive the form of conditional distribution of hidden layers over the combined input maps as</p><formula xml:id="formula_3">) )) ( (( ) , | 1 ( 2 1 2 1 k ij k k ij c v v W sigmoid v v h P    </formula><p>which defines the distribution of the ij th element of the k th hidden layer conditioned on two input maps. To see this, we let hxy z denote the xy th element of the z th hidden layer, and h(-1) denote the other elements. If we define</p><formula xml:id="formula_4">                          z k y x j i k ij k z k N y x j i N s r k ij s j r i k rs z N s r s y r x k rs z xy v bv h c h v v W h v B c v v W h A h w w 2 1 , , , ,<label>, 1 , 1 2 1 , 1 , 1 2 1 ) ( )) 1 ( , ( , ) ( ) (</label></formula><p>, then it is easy to show that</p><formula xml:id="formula_5">) )) ( * (( ) ( ) | 1 ( 2 1 0 ) ( )) 1 ( , ( 1 ) ( )) 1 ( ,<label>(</label></formula><formula xml:id="formula_6">)) 1 ( , ( ) ( z xy z z xy h A h v B h A h v B h v B h A z xy c v v W</formula><p>sigmoid A sigmoid e e e e e e v h P z xy z xy z xy</p><formula xml:id="formula_7">                 </formula><p>where we used notation "*" to represent valid convolution, in which the last term can be viewed as a convolutional kernel. We can also write it in matrix form if we refine "sigmoid" as an operation on each matrix's element as</p><formula xml:id="formula_8">) ) ( ( ) , | 1 ( 2 1 2 1 k k k c v v W sigmoid v v h P    </formula><p>Similarly, the conditional distribution of the multiplicative unit is</p><formula xml:id="formula_9">    k k k b h W sigmoid h v v P ) * ( ) | 1 ( 2 2 1</formula><p>After concating it with the original one, we get the full generative multiplicative-unit. We denote the or ginal and the generative multiplicative unit by O O, . The n, by approximating the generative multiplicative unit as</p><formula xml:id="formula_10">2 1 2 1 v v v v O  </formula><p>, we can use least squares to find the ap proximated version of each generative input maps. Ideally, we want to learn kernel and bias by maximizing the log likelihood in gradient ascent fashion given the conditional distributions above [5] <ref type="bibr" target="#b5">[6]</ref>. The gradient of the log likelihood for a CRBM based on energy model is</p><formula xml:id="formula_11">) 4 ( ) , ( ) , ( ) , ( ) | ( ) ln( ) ln( ) | ( ( , , ) , ( ) , (                      h v h h v h v E h h v E h v E h v P h v E v h P e e v P Ln       Unfo</formula><p>rtunately, computing this gradient involves an exponential number of terms. However, Hinton in [6] described a novel way, namely the so called contrastive divergence to approximate the gradient of (4), and then use this approximated gradient to update parameters via gradient ascent procedure. In contrastive divergence, for every iteration of updates, the multiplicative unit is sampled over hidden layers by m times. Take the k th kernel matrix for example, its gradient can be approximated as</p><formula xml:id="formula_12">) 5 ( ) , | 1 ( ) ( ) , | 1 ( ) ( ) | ( ( )<label>( 2 ) ( 1 ) ( 2 ) ( 1 ) 0 ( 2</label></formula><formula xml:id="formula_13">) 0 ( 1 ) 0 ( 2 ) 0 ( 1 m m k m m k k v v h P v v v v h P v v W v W P Ln        </formula><p>where the upper index over input layers means the original input maps and those sampled by m times respectively. The m-step CD procedure does converge as shown by Hinton <ref type="bibr" target="#b5">[6]</ref>. Similarly, the gradients associated with bias can be written as</p><formula xml:id="formula_14">) 6 ( ) | ( ( ) , | 1 ( ) , | 1 ( ) | ( ( )<label>( 2 ) ( 1 ) 0 ( 2 ) 0 ( 1 ) ( 2 ) ( 1 ) 0 ( 2</label></formula><formula xml:id="formula_15">) 0 ( 1 m m m m k k k v v v v b v P Ln v v h P v v h P c v P Ln            </formula><p>To see that the gradients we get have the matrix form we want. We denote the dimension of multiplicative unit, kernel, and hidden layers by NV, NW, NH. By the definition of convolution, NH=NV-NW+1. According to <ref type="bibr" target="#b4">(5)</ref>, the gradient of the kernel is gained by take the difference between two convolution, in which the hidden layer acts as a kernel. Therefore, by definition, the dimension of the gradient is Ng=NV-(NV-NW+1)+1=NW. Similarly, it is easy to show that the dimension of bias's gradients are equal to that of bias. Thus, we verified that the gradients have the correct form. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Ⅴ. Tri-Temporal-Related Model</head><p>As we have discussed, bi-related model is sufficient to handle temporal learning task with the advantage brought by deep CRBM. However, in practice we need to extend bi-multiplicative unit to learn correlation from more than two maps. The reason for making that extension is that in many image recognition problems, more that two maps are correlated. Therefore, constructing hidden layers to extract relation between only two maps is inefficient and space-consuming. Also, in other cases where the rate at which the frames are sent into the unit might be too fast for the model to manipulate. For example, in cases where we may want to predict the objects' locations in a video based on features captured by temporal CRBM from inputs that are gained by cutting video input into pieces of frames, each of which represents a input map, the model does not have enough time to train network completely on two-related input maps before next pair of related maps shows up. Therefore, we have no options by to keep the rate of frames down. In other words, we need to slow down the rate at which video input is cut by frames into the model to give our machine more time to learn features from any pair of maps. However, this is extremely time-consuming.</p><p>In this section, we introduce a more general structure to address these problems. Recall that we have defined the term relational-order as the number of input maps that the hidden layers capture features from, we want machine to break the constrain of extracting features from limited number of maps by combining more related maps together, boosting up learning efficiency and reducing the unnecessary waste of learning space for parameters and hidden layers that are constructed during the training process. More specifically, in a typical tri-relational model, each multiplicative units takes account of three subsequent maps instead of two, and a stack of hidden layers being constructed to learn correlation among these three maps. Since the energy function and the conditional distribution in bi-related model do not hold for tr-related model, we need to slightly change the form of ( <ref type="formula" target="#formula_4">1</ref>), ( <ref type="formula" target="#formula_12">2</ref>), (3) to</p><p>) 10 ( ) , ( ) 9 ( ) ) , ( , ( ) 8 ( ) , ) (( 7 ) ( ) , , , ( 2 1 3 3 1 2 3 2 1 3 2 1</p><p>, ,</p><formula xml:id="formula_16">1 , 1 3 2 1 3 2 1 O v v lstsq v O v lstsq v lstsq v O v v lstsq v v v bv h c h v v v W h v v v E T T T T T T k k k k N j i N s r k ij s j r i k rs h w              ) (</formula><p>Then we are able to train the model by Algorithm 1 with m-step constrastive divergence, in which for each step, input maps are sampled over conditional distributions ( <ref type="formula">8</ref>) - <ref type="bibr" target="#b9">(10)</ref>. Figure .2 shows the structural difference between Bi-related and Tri-related model.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Ⅵ . Higher-Temporal-Related Model based on Reinforcement learning procedure</head><p>We then extend tr-temporal-related CRBM to higher-temporal-related CRBM with relational-order higher than three. Assume we are now using N-relational-order CRBM, we write conditional distributions of each input maps as</p><formula xml:id="formula_17">) 15 ( ) , ( ) 14 ( ) ) , ) (( , ( ) 13 ( ) ) , ) (( , ( ) 12 ( ) , ) (( 11 ) ( ) , , , , ( 1 2 1 5 4 2 1 3 4 3 1 2 3 2 1 3 2 1 , , 1 , 1 3 2 1 3 2 1 O v v v lstsq v O v v v lstsq v v lstsq v O v v v lstsq v lstsq v O v v v lstsq v v v v bv h c h v v v v W h v v v v E N N T T T N T T T N T T T N k N n N k k k N j i N s r k ij s j r i N k rs N h w                         ) (</formula><p>Then we use algorithm 1 to train the model by constructing a multiplicative unit O that learns features from N maps. Figure.2: Bi-related model vs Tri-related model Algorithm 2: Higher order temporal CRBM Initialize learning rate η = 0.2, For t = 1, 1+N, 1+2N, ... for i = 0, 1, 2, 3, ..., m Set multiplicative unit O(i) := Vt(i)×Vt+1(i)...×Vt+N (i) For k = 0, 1, 2, 3, ..., K H k (t)= Bernoulli( P( h k (t)=1|O ) ) If (i==0) Gradient(0)k=O(i) P( h k (t)=1|O(i) ) If (i==m) Gradient(m)k=O(i)*P (h k (t)=1|O(i)) End for Vt(i) = P( Vt(i)|h(t) ) Vt+1(i) = P( Vt+1(i)|h(t) ) ... VN(i) = P( VN(i)|h(t) ) Through equation (12) -(15) End for For k = 0, 1, 2, 3, ..., k W k = W k + η(Gradient(0)k -Gradient(m)k) Ck = ck + (P(h k (t)=1|O(0) -P(h k (t)=1|O(m)) End for bt = bt + Vt(0) -Vt(m) bt+1 = bt+1 + Vt+1(0) -Vt+1(m) ... bN = bN + VN(0) -VN(m) In the algorithm, index k represents time, and the second index i represents the step of CD.</p><p>As we have discussed in Section 3, one major problem faced by specific relational-order CRBM is the lack of generality. Once the relational-order is determined, the model is constrained to learn features from specific number of maps during training process. However, in many cases, sequences of input maps and their correlations are not the same. For example, in some input sequences, the number strongly related maps might be three, but it may change to six later on. Therefore, it is reasonable to make relational order evolve through time. To do this, we first proved that the sub-sequence of a given sequence of input maps satisfies the sub-problem structure in dynamic programming. Then we develop a reinforcement learning procedure to learn the relational-order of each multiplicative unit by minimizing the reconstruction error of the whole sequence of inputs recursively through dynamic programming method that minimizes the reconstruction error of each sub-sequence input maps. Finally, we proved that the optimality is hold by this method.</p><p>We first denote a Markov decision process as (S, A, r), where "S" is the state-space, "A" is the action-space, and "r" represents the reward function [11][13]. r(s, a) is defined as the reward returned by taking action from state s. The task is to learn a policy  that maps from the current state to an action. One obvious approach to determine the overall value of a policy is to evaluate the cumulative reward through that policy over time. More formally, cumulative reward following a policy  from a given state s is defined as,</p><formula xml:id="formula_18">       0 1 1 0 , ) ( i i i t c r c s V </formula><p>, where c is a constant that determines the relative value versus immediate reward. More specifically, the importance of reward received at i time step is decreased exponentially by a factor c i . Based on definitions above, the best policy we want the model to learn is the policy that gives the biggest cumulative reward. That is,</p><formula xml:id="formula_19">) 16 ( ) ( max arg * t s V     .</formula><p>With that, the model can take the best action following the optimal policy defined above. Alternatively, we can base on cumulative reward function to choose "a" among actions as well. In that case, we redefine the best policy as</p><formula xml:id="formula_20">) 17 ( )} , ( { max arg )} ' ( ) , ( { max arg * * a s Q s cV a s r a a    </formula><p>where s' denotes the state after taking action a, and function Q is defined as the largest cumulative reward after taking action a at state s. By writing the relation between reward function and Q function more explicitly as</p><formula xml:id="formula_21">) ' , ( max ) ( ' * a s Q s V a  it is easy to see that Q can be defined as ) 18 ( ) ' , '<label>( max ) , ( ) , ( ' a s</label></formula><formula xml:id="formula_22">Q c a s r a s Q a  </formula><p>This recursive form of Q value function provides a basis for the algorithm that iteratively approximates value of Q efficiently <ref type="bibr" target="#b10">[11]</ref>. <ref type="bibr" target="#b10">[11]</ref> <ref type="bibr" target="#b12">[13]</ref> shows that the Q value gained by recursive method does converge to the optimal value.</p><p>To apply reinforcement-learning to our model, we view each relational-order as a state in "S". "A" contains three actions, "+1" ,"0", and "-1"(Here we assume that the relational-order can only change by one each time for simplicity). The goal is to minimize the average reconstruction error,</p><formula xml:id="formula_23">)) ( * / 2 1 ) ( 2 ) ( ) 0 ( , N f N v v N J m n n N n j i (    </formula><p>, where the upper index (0) represents the original map, and (m) represent the one reconstructed by m times through constrastive divergence. The function of dominator N is to normalize reconstruction error so J of each relational-order has the same scale. Since we'd like to make model choose higher-order so that it can model a sequence of inputs with fewer number of multiplicative units and thereby reduce the number of parameters, we multiply N with an monotone increasing function f with respect to relational-order N. When N increase, f(N) will also increase, and therefore if reconstruction error of each input maps do not change by much, the J value would decrease. We than define the reward function as</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>J R  </head><p>, so maximizing the reward is the same as minimizing the reconstruction error. In general procedure, we initialize all Q value to one, and choose the first relational order according to a gaussian distribution. After taking an action based on a probabilistic distribution defined as</p><formula xml:id="formula_24">  ' ) ' , ( ) , ( exp ) | ( a a s Q a s Q s a P</formula><p>, update the current Q(s,a) by <ref type="bibr" target="#b17">(18)</ref>, where a' denotes the action taken at the next state s'. Note that if the current state is two, then the model can only take the action "+1" or "0". Along this procedure, the model stores a table of Q value representing the reward at each relational-order state. Based on this table, the model can choose the relational-order itself that has the least reconstruction error at each training step by taking actions according to the distribution P(a|s). Also, we see that this brings the advantage of short-term memory, since the previously accumulative rewards added to Q will influence the state of the current training step. This also confirms the previous assumption that the relational-orders of nearby multiplicative units are also correlated. If the relational-order of current unit is 4, then that of the next unit would probably be around 4, instead of changing to 30 suddenly.</p><p>Reinforcement--learning procedure canhelp each multiplicative unit find its optimal relation-order along which minimizes the reconstruction error of the input maps. But, would minimizing the reconstruction error of each sub-sequences minimizes the reconstruction error of the whole sequence of input maps? We now show it indeed is. Assume that we have a sequence of input maps with length T. And we construct N multiplicative units, each of which has its relational-order n1,n2,,, nN. JT is defined as</p><formula xml:id="formula_25">nN n n T J J J J      2 1</formula><p>, which is the reconstruction error of the whole sequence. According to dynamic programming, we have</p><formula xml:id="formula_26">) (19 ) min min( ) min( 1 nN T T J J J    .</formula><p>We now prove it is sufficient by giving ) min min(</p><formula xml:id="formula_27">min 1 1 1 2 1 nN T nN T nN T nN n n T J J J J J J J J J J              </formula><p>Therefore, (19) does give the optimal reconstruction error. Then, using (19), we see that ) 20 ( min min min min ) min( ) min min( ) min( 2 1 ) 1 ( 2</p><formula xml:id="formula_28">1 nN n n nN N n T nN T T J J J J J J J J J              </formula><p>This confirms the statement before that the optimal of J of the whole sequence can be gained by finding the optimal J of each sub-sequence. This is the core of dynamic programming, and in artificial intelligence it is called reinforcement learning, which is what we have introduced earlier. Thus, we use our reinforcement-learning procedure to train the high-temporal-related model at each learning epoch. Set initial relational order s to arbitrary number that is greater than 1.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Below is the pseudocode</head><p>For epoch e = 0, 1, ,,, E For t = 0, 1, 2, ...,T Run algorithm 2 with relational-order n=S(t) Choose "a" according to P(a|S(t))</p><p>If "a" is "-1" &amp; S &gt; 2 Update state, S(t+1) := S(t)-1 If "a" is "0" Update state, S(t+1) := S(t) If "a" is "+1" Update state, S(t+1) := S(t)+1</p><p>Run algorithm 2 with relational-order N= S(e)</p><p>Set r(S(t), a) = -JN (set the reward at state S taking action a to the minus of reconstruction error) Update the value of Q(S(t), a) by equation ( <ref type="formula">18</ref>) End for End for</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Ⅶ. Experiments</head><p>This section focus on experiments that demonstrate the performance of temporal-related CRBM in practice. We will use the famous MINIST-dataset(<ref type="url" target="http://yann.lecun.com/exdb/mnist/">http://yann.lecun.com/exdb/mnist/</ref>). At each training process, we give the model a sequence of digit input maps. And than we apply TD-CRBM to learn the matrix transformations among the maps. Finally, we use the matrix transformations we learned to produce generative maps of each digit inputs and then measure the reconstruction error to show model performance.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Performance of Bi-Temporal-Related model in MINIST-dataset</head><p>We first test model's ability to capture simple transformation such as shifts and rotation of a single digit. We construct a bi-temporal model, which consists of a multiplicative unit with relational-order 2, each of which connects to a stack of K hidden layers. We then give the model 10 sequences of input maps of length 100, each of which consists of 100 digit maps of different angles towards the axis. We train the model following algorithm 1 and store each stack of hidden layers as feature maps that describe the correlation between each pair of digit inputs. After each training epoch is finished, we calculate the reconstruction error between the generative digit inputs and the original ones. We see that as the training epoch increases, the reconstruction error drops out exponentially, which confirms the efficiency and ability of bi-related model. Figure .3 shows the performance of Bi-related model in the task of learning transformation between pair of MINIST-digit maps.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Higher-related with Q-learning VS Bi-&amp; Tri-related</head><p>As our discussion in previous sections, higher-related model is more practical and can reduces the amount of parameters that must be learned. In this section, we implemented an experiment that shows different performance of higher, tri, and bi-temporal-related models.</p><p>Again, we give each model 10 sequences of maps, each of which consists of 100 digit maps of the same number digit. We constraint on the amplitude of the transformation between pair of inputs. More specifically, the rotation from the last map do not exceed 20 degrees, and the shift of the centroid do not exceed 2. We then use algorithm 1 to train bi-related model, algorithm 2 with relational-order 3 to train tri-related model, and algorithm 3 with initial order 5 to train higher-related model . </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. Results and conclusion</head><p>We first analyze bi-related model. We see from Figure In tri-related model, however, we see even though it has roughly the same training epoch to that of bi-related, it does not perform well when there is no constraint on the transformation between each pair of maps. And the reconstruction error is still above "170" even after 1400 training epochs. This is true because when there is no limitation on transformation, the least number of highly related maps is only two. Each multiplicative unit can only learn features from two maps with one transformation. When a 3 rd relational-order unit is constructed to learn transformation from three maps with two far different transformation, the error goes up. For example, consider a sequence of three maps, the first map rotates 90 degrees clockwise into the second map, and the second rotates 120 degrees counterclockwise into map three. In this case, bi-related model constructs two multi-units, each of which learns the feature map of one rotation. The Tri-related model, however, will not perform well because one multi-unit can not learn two different transformations at the same learning epoch.</p><p>We see that higher-order model with reinforcement--learning procedure is more flexible. It can choose the optimal relational-order for each multi-units to give the least reconstruction error. In Figure .3, when each map is highly related, higher-order model constructs multi-units with relational-order higher than 5, thereby reducing the number of parameters dramatically. Then in Figure <ref type="figure">4</ref>, when there is no constraint on transformation, we see that even though its error during early steps of training is Figure.4: Performance of the three model when there is no constraint on transformation</p><p>far higher that those of other two models, high-order model can adjust the relational-order to the optimal that gives the least reconstruction error. After 400 training epochs, it outperforms tri-related model. After 1400 training epochs, it reduce its reconstruction error to roughly the same scale to that of bi-related model.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Ⅷ. Conclusion: Limitation &amp; Further research</head><p>In this article, we introduced a CRBM structure that models temporal-dependent input sequences by constructing multiplicative units and hidden layers to learn features of correlation among related input maps. We then combined this model with reinforcement--learning procedure. By doing so, we made our model capable of learning the optimal relational-order for each multiplicative units to give the least amount of errors. From the experiment, we see that the model with reinforcement--learning procedure is more flexible on choosing the relational-order. And it reconstructs the generative maps with the same accuracy to that of bi-related model in the long-term.</p><p>However, reinforcement--learning strategy increases the complexity of computation and the amount of training time dramatically. We see that it takes about 1400 training epochs for the model to reduce its reconstruction error down to 100. Its performance only catches up with that of bi-related model in the long-term. Therefore, further researches to reduce the training period are needed.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><figDesc>we have used "lstsq()" as the notation of least square method that solves the equation ) , ( B A lstsq x B Ax   the bar above O means the generative version of multiplicative unit, and "T" represents matrix transpose.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><figDesc>Pseudocode of m-step constrastive divergence for training bi-related C-RBM is provided in algorithm 1. Algorithm 1: Bi-temporal-related CRBM using m-step contrastive divergence Initialize learning rate η = 0.2, For t=0, 1, 2, 3 ...,T for i = 0, 1, 2, 3, ..., m Set multiplicative unit O(i) := Vt(i)×Vt+1(i) For k = 0, 1, 2, 3, ..., K H k = Bernoulli(P(h k =1|O)) If (i==0) Gradient(0)k = O(i) * P( h k (t)=1|O(i) ) If (i==m) Gradient(m)k=O(i) * P( h k (t)=1|O(i) ) End for Vt(i) = P( Vt(i)|h(t) ) Vt+1(i) = P( Vt+1(i)|h(t) ) End for For k = 0, 1, 2, 3, ..., k W k =W k + η(Gradient(0)k -Gradient(m)k) Ck = ck + ( P(h k =1|O(0) -P(h k =1|O(m)) ) End for bt = bt + Vt(0) -Vt(m) Bt+1 = bt+1 + Vt+1(0) -Vt+1(m) End for End for In the algorithm, index k represents time, and the second index i represents the step of CD. Figure.1 below shows the general structure of Bi-related model. I. HELPFUL HINTS</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure. 1 :</head><label>1</label><figDesc>Figure.1: Bi-temporal-related model</figDesc><graphic coords="4,56.88,280.80,219.72,130.68" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Algorithm 3 :</head><label>3</label><figDesc>Higher-related modelInitialize all Q(s,a) and r(s,a) to one Initialize all weights and bias by gaussian distribution with mean 0 and variance 1.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Figure. 3</head><label>3</label><figDesc>and .4 summarizes the results of the experiment, from which we can evaluate the performance of three different models.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><figDesc>.3 and Figure.4 that performance of bi-related model are the same in each case. This is because 2rd relational-order multiplicative unit is the most basic one. And the feature map learned by each unit can well describe the relationship between pair of input maps, no matter how much one map transform into another.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head>Figure. 3 :</head><label>3</label><figDesc>Figure.3: Performance of the three models when nearby inputs are highly correlated</figDesc><graphic coords="7,67.80,437.64,170.16,128.28" type="bitmap" /></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Convolutional deep belief networks for scalable unsupervised learning of hierarchical representations</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Lee</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Machine Learning</title>
+		<imprint>
+			<date type="published" when="2009-06">2009. June</date>
+			<biblScope unit="page" from="609" to="616" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Unsupervised feature learning for audio classification using convolutional deep belief networks</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">T</forename><surname>Pham</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Yan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">Y</forename><surname>Ng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<biblScope unit="volume">22</biblScope>
+			<biblScope unit="page" from="1096" to="1104" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Rnn language model with word clustering and class-based output layer[J]</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Shi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">Q</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">T</forename><surname>Johnson</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Eurasip Journal on Audio Speech &amp; Music Processing</title>
+		<imprint>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="7" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Factored Conditional Restricted Boltzmann Machines for Modeling Motion Style</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Taylor</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Machine Learning</title>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+			<biblScope unit="page" from="1025" to="1032" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Fuzzy Restricted Boltzmann Machine for the Enhancement of Deep Learning[J]</title>
+		<author>
+			<persName><forename type="first">，cy</forename><surname>Clp Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">，l</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">，m</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Gan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Fuzzy Systems</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="99" to="99" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Training restricted boltzmann machines: an introduction[J]</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Fischer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Igel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Pattern Recognition</title>
+		<imprint>
+			<biblScope unit="volume">47</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="25" to="39" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Higher-order boltzmann machines[J]</title>
+		<author>
+			<persName><forename type="first">Terrence</forename><forename type="middle">J</forename><surname>Sejnowski</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Aip Conference 151 on Neural Networks for Computing</title>
+		<imprint>
+			<date type="published" when="1987">1987</date>
+			<biblScope unit="volume">151</biblScope>
+			<biblScope unit="page" from="398" to="403" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Learning to represent spatial transformations with factored higher-order boltzmann machines [J]</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Memisevic</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural Computation</title>
+		<imprint>
+			<biblScope unit="volume">22</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="1473" to="1492" />
+			<date type="published" when="1989">1989</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Learning to relate images</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Memisevic</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Pattern Analysis &amp; Machine Intelligence IEEE Transactions</title>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="volume">35</biblScope>
+			<biblScope unit="page" from="1829" to="1846" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Modeling deep temporal dependencies with recurrent &quot;grammar cells[J]</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Michalski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Memisevic</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Konda</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="page" from="1925" to="1933" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Reinforcement learning : an introduction[J]</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Sutton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Barto</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">G</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural Networks IEEE Transactions</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="1054" to="1054" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Dynamic programming[J]</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Howard</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Management Science</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="317" to="348" />
+			<date type="published" when="1966">1966</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Markov decison processes: discrete stochastic dynamic programming[J]</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Puterman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Technometrics</title>
+		<imprint>
+			<biblScope unit="volume">37</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="353" to="353" />
+			<date type="published" when="1994">1994</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Dynamic Programming and Optimal Control[J]</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Bertsekas</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Athena Scientific</title>
+		<imprint>
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Making Deep Belief Networks effective for large vocabulary continuous speech recognition</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Sainath</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Kingsbury</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Ramabhadran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Fousek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Automatic Speech Recognition and Understanding</title>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+			<biblScope unit="page" from="30" to="35" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Modeling spectral envelopes using restricted boltzmann machines and deep belief networks for statistical parametric speech synthesis[J]</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Ling</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Deng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Audio Speech &amp; Language Processing</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page" from="2129" to="2139" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<monogr>
+		<title level="m" type="main">Convolutional neural network</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Chumerin</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<title level="m" type="main">Introduction to machine learning</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Alpaydin</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+			<biblScope unit="page">169</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title level="m" type="main">Zizhuang Wang is a Chinese high school student entering his 12 th grade in year of 2016 . After finishing all school courses with a perfect GPA and won multiple school scientific competitions at 11 th grade, he started to focus on researches of artificial intelligence and mathematics. Wang&apos;s major research interest lies in machine learning, neural networks, bayesian inference, applied mathematics, and quantum computation. (email: 1012125144@qq</title>
+		<ptr target="http://kingofspace0wzz.github.io/" />
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

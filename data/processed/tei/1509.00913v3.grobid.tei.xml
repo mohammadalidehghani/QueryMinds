@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">On-the-Fly Learning in a Perpetual Learning Machine</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Andrew</forename><forename type="middle">J R</forename><surname>Simpson</surname></persName>
+							<email>andrew.simpson@surrey.ac.uk</email>
+							<affiliation key="aff0">
+								<orgName type="department">Centre for Vision, Speech and Signal Processing</orgName>
+								<orgName type="institution">University of Surrey</orgName>
+								<address>
+									<country key="GB">UK</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">On-the-Fly Learning in a Perpetual Learning Machine</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">751993338D22F322C54A82DDA6A87CC1</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:04+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>Index terms-Perpetual Learning Machine</term>
+					<term>Perpetual Stochastic Gradient Descent</term>
+					<term>self-supervised learning</term>
+					<term>parallel dither</term>
+					<term>Yin and Yang</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Despite the promise of brain-inspired machine learning, deep neural networks (DNN) have frustratingly failed to bridge the deceptively large gap between learning and memory. Here, we introduce a Perpetual Learning Machine; a new type of DNN that is capable of brain-like dynamic 'on the fly' learning because it exists in a self-supervised state of Perpetual Stochastic Gradient Descent. Thus, we provide the means to unify learning and memory within a machine learning framework. We also explore the elegant duality of abstraction and synthesis: the Yin and Yang of deep learning.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>I. INTRODUCTION</head><p>It is an embarassing fact that while deep neural networks (DNN) are frequently compared to the brain, and even their performance found to be similar in specific static tasks, there remains a critical difference; DNN do not exhibit the fluid and dynamic learning of the brain but are static once trained. For example, to add a new class of data to a trained DNN it is necessary to add the respective new training data to the preexisting training data and re-train (probably from scratch) to account for the new class. By contrast, learning is essentially additive in the brain -if we want to learn a new thing, we do.</p><p>Thus, whilst there is little doubt that the learning of the brain and machine learning are essentially the same, the learning of the brain involves the emergent phenomenon of memory which has failed to emerge from machine learning. Indeed, recent machine-inspired approaches to 'memory' have involved explicit add-on storage facilities [e.g., 1] which explicitly discriminate between learning (training -i.e., of weights) and memory (storage -i.e., of data). Thus, the problem has been brushed under the carpet.</p><p>In this article, we describe a novel form of supervised learning model, which we call a Perpetual Learning Machine, which gives rise to the basic properties of memory. Our model involves two DNNs, one for storage and the other for recall. The storage DNN learns the classes of some training images. The recall DNN learns to synthesise the same images from the same classes. Together, the two networks hold, encoded, the training set. We then place these pair of DNNs in a selfsupervised and homeostatic state of Perpetual Stochastic Gradient Descent (PSGD). During each step of PSGD, a random class is chosen and an image synthesised from the recall DNN. This randomly synthesised image is then used in combination with the random class to train both DNNs via non-batch SGD. I.e., the PSGD is driven by training data that is synthesised from memory according to random classes. We next demonstrate that new classes may be learned on the fly by introducing them, via 'new experience' SGD steps, into the path of PSGD. Over time, new classes are assimilated without disruption of earlier learning and hence we demonstrate a machine which both learns and remembers. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>II. METHOD</head><p>We chose the well-known MNIST hand-written digit dataset <ref type="bibr" target="#b1">[2]</ref>. First, we unpacked the images of 28x28 pixels into vectors of length 784. Example digits are given in Fig. <ref type="figure" target="#fig_0">1</ref>. Pixel intensities were normalized to zero mean.</p><p>Perpetual Memory. In order to test the idea of perpetual memory, through perpetual learning, we required our model to learn to identify a collection of images. We took the first 75 of the MNIST digits and assigned each to an arbitrary class (this is arbitrary associative learning). This gave 75 unique classes, each associated with a single, specific digit. The task of the model was to recognise the images and assign to them the correct (arbitrary) classes. We split the 75 digits into  The storage and recall DNNs were trained, independently, using only the first 50 images for 100 full-sweep iterations of typical non-batch SGD <ref type="bibr" target="#b3">[4,</ref><ref type="bibr" target="#b4">5]</ref>. Training was performed (regularised) using parallel (100x) dither w/ dropout [as in 5]. After 100 iterations, classification error was converged at 0.02% (1 mistake in 50) for the storage DNN, and at 0.02% for the storage DNN fed with the output of the recall DNN charged with synthesising the images of the respective test classes. Hence, the recall was suitably robust and was more or less visually indistinguishable from the original training images. Fig. <ref type="figure" target="#fig_0">1</ref> plots some example digits recalled (synthesised) using the recall DNN.</p><p>Perpetual Stochastic Gradient Descent. Once the pair of DNN were independently trained on the 50 training images, the training images were discarded and the DNN were placed in a mutually recurrent and perpetual circuit. Fig. <ref type="figure" target="#fig_4">3</ref> shows a schematic diagram of PSGD; For each iteration of the PSGD, a random class was chosen (from the total 75 possible). Next, using this random class, a respective image was synthesised using the recall DNN. This synthetic image was then combined with the random class and used together to train both DNNs in parallel (via non-batch SGD <ref type="bibr" target="#b4">[5]</ref>). I.e., given the random seed, the recall DNN synthesised -from memorythe relevant training image and used it for self-supervision. This step of non-batch SGD also employed parallel dither w/dropout (100x). As in <ref type="bibr" target="#b3">[4,</ref><ref type="bibr" target="#b4">5]</ref>, all dither was random noise of zero mean and unit scale and dropout <ref type="bibr" target="#b5">[6,</ref><ref type="bibr" target="#b4">5]</ref> was 50%.</p><p>Introduction and learning of new classes. After 1000 iterations of PSGD, during which time homeostatic convergence had occurred, we enter a 2000-iteration on-thefly-learning epoch. In this epoch, new classes (of the 25) were introduced at random. At each iteration of PSGD, one of the 25 new digits was chosen (at random) and both DNN were trained for an additional single step (using 100x parallel dither w/ dropout) using the respective training data. Thus, the new training data were introduced into the path of the PSGD.</p><p>Finally, at the end of the 2000-iterations on-the-fly-learning epoch, the introduction of new classes was stopped and the PSGD continued for a further 2000 iterations, during which time homeostatic convergence was reinstated (i.e., emerged).</p><p>To test the efficacy, on-the-fly dynamics and robustness of this perpetual memory, the classification accuracy of the storage DNN was tested at each iteration of PSGD. To do this, first the test classes were passed through the recall DNN to synthesise the 'remembered' images. These images were then classified using the storage DNN and the accuracy computed.  We note that (data not shown) no aspect of the current model trains successfully without regularisation via parallel dither (w/ dropout) <ref type="bibr" target="#b4">[5]</ref>. The attempt to train on the training set without parallel dither resulted in sufficiently poor performance that any form of PSGD did not succeed at all. Even if the initial training was done with parallel dither, if the PSGD was undertaken without parallel dither (i.e., either without any regularisation or with dropout) the result was a rapid explosion of error that did not recover. Hence, it appears that the regularisation provided by parallel dither (w/ dropout) is critical. In summary, we have shown how memory emerges from learning and hence we have provided a means to unify learning and memory within a machine learning framework. Unlike conventional 'memory' (storage) devices attached to neural networks (e.g., LSTM <ref type="bibr" target="#b0">[1]</ref>), this new class of Perpetual Learning Machine is able to store, retain, recall and add memories in perpetuity. Furthermore, unlike the conventional storage-based 'memory' devices (e.g., <ref type="bibr" target="#b0">[1]</ref>), the present unified architecture represents both learning and memory through the states of its weights. Hence, it seems possible that a similar principle may be responsible for both learning and memory within the brain.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>V. APPENDIX: THE YIN AND YANG OF DEEP LEARNING</head><p>At the heart of deep learning is the question: What is the inverse (or opposite) of abstraction? The answer is as simple as it is elegant: synthesis.</p><p>Deep neural networks are typically interpreted in one of two ways. The first is the Universal Approximation Theorem interpretation <ref type="bibr" target="#b6">[7]</ref><ref type="bibr" target="#b7">[8]</ref><ref type="bibr" target="#b8">[9]</ref><ref type="bibr" target="#b9">[10]</ref><ref type="bibr" target="#b10">[11]</ref>. The second is the Probabilistic interpretation <ref type="bibr" target="#b11">[12]</ref><ref type="bibr" target="#b12">[13]</ref><ref type="bibr" target="#b13">[14]</ref><ref type="bibr" target="#b14">[15]</ref> and usually involves inference. The former interpretation <ref type="bibr" target="#b6">[7]</ref><ref type="bibr" target="#b7">[8]</ref><ref type="bibr" target="#b8">[9]</ref><ref type="bibr" target="#b9">[10]</ref><ref type="bibr" target="#b10">[11]</ref> is concerned with characterising the nature of the function and is agnostic to the data or what the function might be useful for. The latter interpretation <ref type="bibr" target="#b11">[12]</ref><ref type="bibr" target="#b12">[13]</ref><ref type="bibr" target="#b13">[14]</ref><ref type="bibr" target="#b14">[15]</ref> is concerned with the utility of the function and is agnostic to the processing of the data by the function.</p><p>More recently, the discrete signal processing (DSP) interpretation <ref type="bibr" target="#b2">[3]</ref><ref type="bibr" target="#b3">[4]</ref><ref type="bibr" target="#b4">[5]</ref><ref type="bibr" target="#b15">[16]</ref><ref type="bibr" target="#b16">[17]</ref><ref type="bibr" target="#b17">[18]</ref> has been introduced. Critically, in contrast to the two prevailing interpretations (Universal Approximation and Probabilistic Inference), the DSP interpretation is concerned with the data (i.e., the signal) and how it is processed by the function. This interpretation is therefore agnostic to the function itself and to the utility of the function. Thus, we may leverage pure physics to interrogate both the data and the process of deep learning.</p><p>The Discrete Signal Processing Interpretation. In the DSP interpretation of deep neural networks <ref type="bibr" target="#b2">[3]</ref><ref type="bibr" target="#b3">[4]</ref><ref type="bibr" target="#b4">[5]</ref><ref type="bibr" target="#b15">[16]</ref><ref type="bibr" target="#b16">[17]</ref><ref type="bibr" target="#b17">[18]</ref>, the DNN is constructed of linear filters, followed by nonlinear activation functions. The linear filters are selective of features. The nonlinear activation functions act as demodulators of the features <ref type="bibr" target="#b2">[3,</ref><ref type="bibr" target="#b15">16]</ref>. Demodulation occurs in the activation function as a result of rectification <ref type="bibr" target="#b2">[3,</ref><ref type="bibr" target="#b15">16]</ref>. Demodulation is the process whereby we obtain the magnitude of the variance of the features of a signal [see <ref type="bibr" target="#b2">3,</ref><ref type="bibr" target="#b15">16]</ref>. In the opposite direction, we may restore the original signal by convolving the demodulated magnitude with the feature -this is synthesis <ref type="bibr" target="#b17">[18,</ref><ref type="bibr" target="#b18">19]</ref>.</p><p>We can sanity check this intuition with the following simple thought experiment. Let us consider the bounds on the inverse of abstraction -synthesis -by considering what happens if we try to synthesise a negative quantity of apples; In our physical reality, this does not make sense. This Yin-Yang intuition provides an interesting window into the nature of what is going on during learning (training) in a deep neural network.</p><p>Figure <ref type="figure" target="#fig_6">A4</ref> gives a schematic diagram, depicting the duality of abstraction and synthesis as it flows in opposing directions for training (feed back) and testing (feed forward). First, let us consider the case of a classifier -a feed-forward DNN whose task is to learn to abstract classes from images (upper diagram, Fig. <ref type="figure" target="#fig_6">A4</ref>). When we apply back-propagation gradient descent we first compute the error at the output layer. This error exists at the abstract level of 'classes' and, so, in order to propagate the error backwards towards the original feature-space of the input data, we must implicitly synthesise the weights.</p><p>Now, let us consider the opposite case of a synthesiser (as in Fig. <ref type="figure" target="#fig_2">2</ref>) -a feed-forward DNN whose task is to synthesise images from abstract classes (the lower diagram of Fig. <ref type="figure" target="#fig_6">A4</ref>). When we apply back-propagated gradient descent, we first compute the error in the non-abstract (i.e., native) feature space of the original image. Then, in order to propagate this error backwards (towards a higher level of abstraction of classes at the input layer), we are abstracting the error signal as we propagate downwards from the output layer. Thus, we apply demodulation, through the activation function, during back propagation in this network and synthesis during forward propagation.</p><p>These two opposing cases provide an elegant duality of intuition; In both networks there are opposing flows of abstraction and synthesis during feed-forward and feed-backward (back propagation). In both processes, abstraction occurs by demodulation and synthesis occurs by convolution (see <ref type="bibr" target="#b18">[19]</ref>). A further thought experiment might be useful to understand how the data place bounds on the depth of learning that can be attained with an arbitrary deep neural network. Let us consider what happens when we demodulate a pure magnitude:-because there is no variance to act as carrier signal (see <ref type="bibr" target="#b2">[3,</ref><ref type="bibr" target="#b15">16]</ref>), when we demodulate there is nothing left for us to apply selective filters to. Thus, we cannot demodulate beyond the highest (most abstract) available carrier (see <ref type="bibr" target="#b18">[19]</ref> for conservation of energy during demodulation).</p><p>Insights. This leads to two specific insights into the nature of deep learning:</p><p>Insight 1: It is the data which define the process as either synthesis or abstraction during both feed-forward and feed-backward directions of propagation.</p><p>Insight 2: The data define the depth we may abstract to or synthesise from and hence the data place bounds on the depth of learning that is possible (not the architecture -e.g., see Universal Approximation Theorem <ref type="bibr" target="#b6">[7]</ref><ref type="bibr" target="#b7">[8]</ref><ref type="bibr" target="#b8">[9]</ref><ref type="bibr" target="#b9">[10]</ref><ref type="bibr" target="#b10">[11]</ref>).</p><p>Finally, given that essentially the same argument may be made for the signal processing of the brain, it may be that the Yin and Yang of deep learning lays the ground work for a redefinition of (artificial) intelligence itself, based on the physics of the known universe and the limits of our sensory apparatus. Indeed, if the brain is interpreted as a universal function approximation device, then intelligence may be limited not by the brain but by the degree of abstraction in the physical world which may be captured by our sensory apparatus.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Fig. 1 .</head><label>1</label><figDesc>Fig. 1. Recall of training images. On the left are plotted MNIST digits and on the right are plotted the same digits synthesised using the recall DNN.</figDesc><graphic coords="1,371.28,294.84,119.16,195.12" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><figDesc>50 'learn during training' examples and 25 'learn later on the fly' test examples. The first 50 training examples were learned with typical SGD and discarded. Hence, they were not available for later use during assimilation of additional classes. The latter 25 examples were held back for insertion during PSGD.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Fig. 2 .</head><label>2</label><figDesc>Fig. 2. Self-supervision: PSGD schematic diagram. For each iteration of PSGD, a random class is chosen and from this input the recall DNN is used to synthesise the respective training image (from memory). This recalled training image is then used with the random class to train both networks for a single step of backprop SGD. Storage and Recall. We instantiated two DNN; the storage DNN was a typical classifier of size 784x100x75, with the softmax output layer corresponding to the 75-way classification problem. In addition to the 50 training classes, the 75 possible classes provides for 25 redundant (unused) classes to be learned later. The storage DNN took images as input and produced classes as output. The recall DNN was of size 75x100x784, took classes as input and synthesised the training images at output. Both DNNs used biased sigmoids [3] throughout (with zero bias in the output layer).The storage and recall DNNs were trained, independently, using only the first 50 images for 100 full-sweep iterations of typical non-batch SGD<ref type="bibr" target="#b3">[4,</ref><ref type="bibr" target="#b4">5]</ref>. Training was performed (regularised) using parallel (100x) dither w/ dropout [as in 5]. After 100 iterations, classification error was converged at 0.02% (1 mistake in 50) for the storage DNN, and at 0.02% for the storage DNN fed with the output of the recall DNN charged with synthesising the images of the respective test classes. Hence, the recall was suitably robust and was more or less visually indistinguishable from the original training images. Fig.1plots some example digits recalled (synthesised) using the recall DNN.Perpetual Stochastic Gradient Descent. Once the pair of DNN were independently trained on the 50 training images, the training images were discarded and the DNN were placed in a mutually recurrent and perpetual circuit. Fig.3shows a schematic diagram of PSGD; For each iteration of the PSGD, a random class was chosen (from the total 75 possible). Next, using this random class, a respective image was synthesised using the recall DNN. This synthetic image was then combined with the random class and used together to train both DNNs in parallel (via non-batch SGD<ref type="bibr" target="#b4">[5]</ref>). I.e., given the random seed, the recall DNN synthesised -from memorythe relevant training image and used it for self-supervision. This step of non-batch SGD also employed parallel dither</figDesc><graphic coords="2,125.04,99.60,355.92,200.88" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><figDesc>At each PSGD iteration, to test retention of the pre-learned training set, test error was computed for the 50 training examples. In addition, to test the assimilation of the new classes, test error was computed on the 25 new classes. Finally, test error was computed over the whole set. This gave three dynamic measures of memory and recall that could be plotted as a function of time.III. RESULTS Fig.3aplots the recall accuracy (classification error rate) of the storage DNN (via the recall DNN, as described above) as a function of PSGD iterations. Fig.3bplots the recall accuracy of the storage DNN via the recall DNN (as described above) as a function of PSGD iterations. Separate error functions are plotted for the training set of 50 (blue), the on-the-fly test set of 25 (green) and the entire set of 75 (red). In the case of the training set error function (blue), the first 1000 iterations demonstrate the homeostasis of perpetual learning -memory. The first 1000 iterations also demonstrate that classification accuracy in the on-the-fly test set (green) is at zero (error rate of 1) for the storage DNN (Fig.3a) and is around chance level for the storage-via-recall DNN (Fig.3b) and the combined full-set error rates are respective weighted averages of the two (red).At 1000 iterations begins the 2000-iteration on-the-flylearning epoch, where new classes are learned. During this epoch, each step of PSGD additionally involves a SGD step taken with a randomly selected element of the new test set (25) concurrently with the continuing self-supervised PSGD (random steps of self-supervision). Initially, the training set (blue) and full set (red) error functions deflect as the impact of the new classes causes adjustment of the paths of the pre-established training set. At the same time, classification accuracy on the on-the-fly test set (green) begins to fall rapidly until it converges. Within a few hundred iterations of PSGD homeostasis is reinstated, as is reflected across the various error functions. At the 3000 iterations point (the end of the on-the-fly-learning epoch) the introduction of new data ceases with no obvious effect (even for the new test set error), illustrating a homeostasis which results from all 75 classes being fully assimilated into the perpetual memory. Essentially, 25 new image classes were learned on the fly, and retained after the on-the-fly-learning epoch, with no significant loss in accuracy for the original, pre-learned 50strong training set.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Fig. 3 .</head><label>3</label><figDesc>Fig. 3. Perpetual memory and on-the-fly learning via PSGD. Various recall DNN error functions of PSGD iterations. a plots error for the storage DNN and b plots error for the storage DNN fed with images recalled from the recall DNN. The machine is in homeostasis for the first 1000 PSGD iterations, then begins the 2000-iteration on-the-fly-learning epoch within which randomly selected elements from the new test set are learned during the concurrent PSGD. Finally, at the 3000-iteration point, the on-the-fly-learning phase ends and homeostasis is reinstated.</figDesc><graphic coords="3,90.24,287.64,415.32,378.72" type="vector_box" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><figDesc>IV. DISCUSSION AND CONCLUSION We have demonstrated a powerful new class of selfsupervised deep neural network -a Perpetual Learning Machine -, capable of both maintaining perpetual memory and assimilating new classes into perpetual memory without the use of the original training set. To achieve this we have placed two feed-forward DNNs -one for storage (classification) and the other for recall (synthesis) -in a recurrent and selfsupervised state of Perpetual Stochastic Gradient Descent. Each iteration of PSGD involves parallel backpropagated SGD driven by random recall of the training set. We have demonstrated that new classes can be assimilated into the perpetual memory by inserting concurrent SGD steps training for new image classes. I.e., we have demonstrated both onthe-fly learning and the persistence of what is learned on-thefly.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><head>Fig. A4 .</head><label>A4</label><figDesc>Fig. A4. Yin and Yang: The duality of abstraction and synthesis. Schematic diagram indicating the flow of abstraction and synthesis for a classifier (which performs abstraction in feed-forward mode) and a synthesiser (which performs synthesis in feed-forward mode). Both feature both abstraction and synthesis but in opposing directions. This directionality is determined by the data, not the architecture.</figDesc><graphic coords="5,133.08,200.16,339.84,111.72" type="bitmap" /></figure>
+		</body>
+		<back>
+
+			
+			<div type="acknowledgement">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>ACKNOWLEDGMENT AJRS did this work on the weekends and was supported by his wife and children.</p></div>
+			</div>
+
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Long short-term memory</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Hochreiter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Schmidhuber</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural computation</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="page" from="1735" to="1780" />
+			<date type="published" when="1997">1997</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Gradient-based learning applied to document recognition</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lecun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Bottou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Haffner</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Proc. IEEE</title>
+		<imprint>
+			<biblScope unit="volume">86</biblScope>
+			<biblScope unit="page" from="2278" to="2324" />
+			<date type="published" when="1998">1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<title level="m" type="main">Abstract Learning via Demodulation in a Deep Neural Network</title>
+		<author>
+			<persName><forename type="first">Ajr</forename><surname>Simpson</surname></persName>
+		</author>
+		<idno>arxiv.org abs/1502.04042</idno>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">Dither is Better than Dropout for Regularising Deep Neural Networks</title>
+		<author>
+			<persName><forename type="first">Ajr</forename><surname>Simpson</surname></persName>
+		</author>
+		<idno>arxiv.org abs/1508.04826</idno>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<title level="m" type="main">Parallel Dither and Dropout for Regularising Deep Neural Networks</title>
+		<author>
+			<persName><forename type="first">Ajr</forename><surname>Simpson</surname></persName>
+		</author>
+		<idno>arxiv.org abs/1508.07130</idno>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Improving neural networks by preventing co-adaptation of feature detectors</title>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Hinton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Srivastava</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Krizhevsky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Sutskever</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Salakhutdinov</surname></persName>
+		</author>
+		<idno>abs/1207.0580</idno>
+	</analytic>
+	<monogr>
+		<title level="m">The Computing Research Repository (CoRR)</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Approximations by superpositions of sigmoidal functions</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Cybenko</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Mathematics of Control, Signals, and Systems</title>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="page" from="303" to="314" />
+			<date type="published" when="1989">1989</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">Approximation with artificial neural networks</title>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">C</forename><surname>Csáji</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2001">2001</date>
+			<biblScope unit="page">24</biblScope>
+			<pubPlace>Hungary</pubPlace>
+		</imprint>
+		<respStmt>
+			<orgName>Faculty of Sciences, Etvs Lornd University</orgName>
+		</respStmt>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Approximation Capabilities of Multilayer Feedforward Networks</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Hornik</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural Networks</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="page" from="251" to="257" />
+			<date type="published" when="1991">1991</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<author>
+			<persName><forename type="first">S</forename><surname>Haykin</surname></persName>
+		</author>
+		<title level="m">Neural Networks: A Comprehensive Foundation</title>
+		<imprint>
+			<publisher>Prentice Hall</publisher>
+			<date type="published" when="1998">1998</date>
+			<biblScope unit="volume">2</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">Fundamentals of Artificial Neural Networks</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Hassoun</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1995">1995</date>
+			<publisher>MIT Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Gradient-based learning applied to document recognition</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lecun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Bottou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Haffner</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Proc. IEEE</title>
+		<imprint>
+			<biblScope unit="volume">86</biblScope>
+			<biblScope unit="page" from="2278" to="2324" />
+			<date type="published" when="1998">1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">A Fast Learning Algorithm for Deep Belief Nets</title>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Hinton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Osindero</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><forename type="middle">W</forename><surname>Teh</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural Computation</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="page" from="1527" to="1554" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Learning deep architectures for AI</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Foundations and trends in Machine Learning</title>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="page" from="1" to="127" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Deep learning</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lecun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<biblScope unit="volume">521</biblScope>
+			<biblScope unit="page" from="436" to="444" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<title level="m" type="main">Taming the ReLU with Parallel Dither in a Deep Neural Network</title>
+		<author>
+			<persName><forename type="first">Ajr</forename><surname>Simpson</surname></persName>
+		</author>
+		<idno>arxiv.org abs/1509.05173</idno>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<monogr>
+		<title level="m" type="main">Over-Sampling in a Deep Neural Network</title>
+		<author>
+			<persName><forename type="first">Ajr</forename><surname>Simpson</surname></persName>
+		</author>
+		<idno>arxiv.org abs/1502.03648</idno>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<title level="m" type="main">Deep Transform: Error Correction via Probabilistic Re-Synthesis</title>
+		<author>
+			<persName><forename type="first">Ajr</forename><surname>Simpson</surname></persName>
+		</author>
+		<idno>arxiv.org abs/1502.04617</idno>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Invariant scattering convolution networks</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Bruna</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Mallat</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Pattern Analysis and Machine Intelligence</title>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="volume">35</biblScope>
+			<biblScope unit="page" from="1872" to="1886" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

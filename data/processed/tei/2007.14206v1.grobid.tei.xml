@@ -1,0 +1,1053 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Machine Learning Potential Repository</title>
+				<funder ref="#_wajFRA8">
+					<orgName type="full">unknown</orgName>
+				</funder>
+				<funder ref="#_qSGhPGa">
+					<orgName type="full">Japan Society for the Promotion of Science</orgName>
+					<orgName type="abbreviated">JSPS</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2020-07-29">July 29, 2020</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Atsuto</forename><surname>Seko</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Materials Science and Engineering</orgName>
+								<orgName type="institution">Kyoto University</orgName>
+								<address>
+									<postCode>606-8501</postCode>
+									<settlement>Kyoto</settlement>
+									<country key="JP">Japan</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Machine Learning Potential Repository</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2020-07-29">July 29, 2020</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">48D5A5CA4F345CD8CEB2241EAB414B8E</idno>
+					<idno type="arXiv">arXiv:2007.14206v1[physics.comp-ph]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>This paper introduces a machine learning potential repository that includes Pareto optimal machine learning potentials. It also shows the systematic development of accurate and fast machine learning potentials for a wide range of elemental systems. As a result, many Pareto optimal machine learning potentials are available in the repository from a website <ref type="bibr" target="#b0">[1]</ref>. Therefore, the repository will help many scientists to perform accurate and fast atomistic simulations.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>I. INTRODUCTION</head><p>Machine learning potential (MLP) has been increasingly required to perform crystal structure optimizations and large-scale atomistic simulations more accurately than with conventional interatomic potentials. Therefore, many recent studies have proposed a number of procedures to develop MLPs and have shown their applications . Simultaneously, MLPs themselves are necessary for their users to perform accurate atomistic simulations. Therefore, the development and distribution of MLPs for a wide range of systems should be useful, similarly to the conventional interatomic potentials distributed in several repositories <ref type="bibr" target="#b23">[24,</ref><ref type="bibr" target="#b24">25]</ref>.</p><p>This study demonstrates an MLP repository available from a website <ref type="bibr" target="#b0">[1]</ref>. The MLP repository includes Pareto optimal MLPs with different trade-offs between accuracy and computational efficiency because they are conflicting properties and there is no single optimal MLP <ref type="bibr" target="#b25">[26]</ref><ref type="bibr" target="#b26">[27]</ref><ref type="bibr" target="#b27">[28]</ref>. This study develops the repository by performing systematic density functional theory (DFT) calculations for approximately 460,000 structures and by combining them with existing DFT datasets in the literature <ref type="bibr" target="#b25">[26,</ref><ref type="bibr" target="#b28">29]</ref>. Polynomial-based potential energy models <ref type="bibr" target="#b25">[26,</ref><ref type="bibr" target="#b28">29]</ref> and their revisions are then systematically applied to the construction of MLPs for a wide range of elemental systems. Although the present version of the repository does not contain MLPs for multicomponent systems, the repository will be gradually updated. Moreover, a user package that combines MLPs in the repository with atomistic simulations using the lammps code <ref type="bibr" target="#b29">[30]</ref> is also available on a website <ref type="bibr" target="#b30">[31]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>II. POTENTIAL ENERGY MODELS</head><p>This section shows structural features and potential energy models used for developing MLPs in the repository. Given cutoff radius r c from atom i in a structure, the short-range part of the total energy for the structure * seko@cms.mtl.kyoto-u.ac.jp may be decomposed as</p><formula xml:id="formula_0">E = i E (i) ,<label>(1)</label></formula><p>where E (i) denotes the contribution of atom i or the atomic energy. The atomic energy is then given by a function of invariants for the O(3) group <ref type="bibr" target="#b25">[26,</ref><ref type="bibr" target="#b31">32]</ref> as</p><formula xml:id="formula_1">E (i) = F d (i) 1 , d (i) 2 , • • • ,<label>(2)</label></formula><p>where d</p><formula xml:id="formula_2">(i)</formula><p>n denotes an invariant derived from order parameters representing the neighboring atomic density of atom i. In the context of MLPs, invariants {d (i) n } can be called "structural features". Also, a number of functions are useful as function F to represent the relationship between the invariants and the atomic energy, such as artificial neural network models <ref type="bibr" target="#b1">[2,</ref><ref type="bibr" target="#b2">3,</ref><ref type="bibr" target="#b4">[5]</ref><ref type="bibr" target="#b5">[6]</ref><ref type="bibr" target="#b6">[7]</ref><ref type="bibr" target="#b7">[8]</ref>, Gaussian process models <ref type="bibr" target="#b3">[4,</ref><ref type="bibr" target="#b8">[9]</ref><ref type="bibr" target="#b9">[10]</ref><ref type="bibr" target="#b10">[11]</ref><ref type="bibr" target="#b11">[12]</ref>, and linear models <ref type="bibr" target="#b12">[13]</ref><ref type="bibr" target="#b13">[14]</ref><ref type="bibr" target="#b14">[15]</ref><ref type="bibr" target="#b15">[16]</ref><ref type="bibr" target="#b16">[17]</ref><ref type="bibr" target="#b17">[18]</ref><ref type="bibr" target="#b18">[19]</ref>. In the repository, linear models are explained as function F , which are shown in Sec. II B.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Structural features</head><p>A systematic procedure to derive a set of structural features that can control the accuracy and computational efficiency of MLPs (e.g., <ref type="bibr" target="#b25">[26,</ref><ref type="bibr" target="#b31">32]</ref>) plays an essential role in automatically generating fast and accurate MLPs. Therefore, the repository employs systematic sets of structural features derived from order parameters representing the neighboring atomic density in terms of a basis set. They are classified into a set of structural features derived only from radial functions and a set of structural features derived from radial and spherical harmonic functions.</p><p>A pairwise structural feature is expressed as</p><formula xml:id="formula_3">d (i) n0 = j∈neighbor f n (r ij ),<label>(3)</label></formula><p>where r ij denotes the distance between atoms i and j.</p><p>The repository adopts a finite basis set of Gaussian-type radial functions given by</p><formula xml:id="formula_4">f n (r) = exp -β n (r -r n ) 2 f c (r),<label>(4)</label></formula><p>where β n and r n denote parameters. Cutoff function f c ensures smooth decay of the radial function, and the repository employs a cosine-based cutoff function expressed as</p><formula xml:id="formula_5">f c (r) =    1 2 cos π r r c + 1 (r ≤ r c ) 0 (r &gt; r c ) . (<label>5</label></formula><formula xml:id="formula_6">)</formula><p>Another structural feature is a linearly independent polynomial invariant of the O(3) group, which is generated from order parameters representing the neighboring atomic density in terms of spherical harmonics. A pth-order polynomial invariant for a given radial number n and a given set of angular numbers { l 1 , l 2 , • • • , l p } is defined by a linear combination of products of p order parameters, expressed as</p><formula xml:id="formula_7">d (i) nl1l2•••lp,(σ) = { m1,m2,••• ,mp } C l1l2•••lp,(σ) m1m2•••mp a (i) nl1m1 a (i) nl2m2 • • • a (i) nlpmp ,<label>(6)</label></formula><p>where a</p><formula xml:id="formula_8">(i)</formula><p>nlm denotes the order parameter of component nlm representing the neighboring atomic density of atom i. The order parameters for atom i in a given structure are approximately calculated from its neighboring atomic density regardless of the orthonormality of the radial functions <ref type="bibr" target="#b25">[26]</ref> as</p><formula xml:id="formula_9">a (i) nlm = j∈neighbor f n (r ij )Y * lm (θ ij , φ ij ),<label>(7)</label></formula><p>where (r ij , θ ij , φ ij ) denotes the spherical coordinates of neighboring atom j centered at the position of atom i.</p><formula xml:id="formula_10">A coefficient set { C l1l2•••lp,(σ) m1m2•••mp</formula><p>} is determined by using a group-theoretical projection operator method <ref type="bibr" target="#b32">[33]</ref>, ensuring that the linear combination of Eqn. ( <ref type="formula" target="#formula_7">6</ref>) is invariant for arbitrary rotation <ref type="bibr" target="#b25">[26]</ref>. In terms of fourth-and higher-order polynomial invariants, there exist multiple invariants that are linearly independent for most of the set { l 1 , l 2 , • • • , l p }. Therefore, they are distinguished by index σ if necessary.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Energy models with respect to structural features</head><p>The repository uses polynomial functions as function F representing the relationship between the atomic energy and a given set of structural features,</p><formula xml:id="formula_11">D = { d 1 , d 2 , • • • }.</formula><p>The polynomial functions with regression coefficients { w } are given as follows.</p><formula xml:id="formula_12">F 1 (D) = i w i d i F 2,pow (D) = i w ii d i d i F 2 (D) = {i,j} w ij d i d j<label>(8)</label></formula><formula xml:id="formula_13">F 3,pow (D) = i w iii d i d i d i F 3 (D) = {i,j,k} w ijk d i d j d k . . .</formula><p>A potential energy model is identified with a combination of the polynomial functions and structural features. The repository introduces the following six potential energy models. When a set of pairwise structural features is described as</p><formula xml:id="formula_14">D (i) pair = { d (i)</formula><p>n0 }, the first model (model type = 1, feature type = pair) is composed of powers of the pairwise structural features as</p><formula xml:id="formula_15">E (i) = F 1 D (i) pair +F 2,pow D (i) pair +F 3,pow D (i) pair +• • • ,<label>(9)</label></formula><p>which is measured from the energy of the isolated state of atom i. This model was proposed in Refs. 13 and 14.</p><p>The second model (model type = 2, feature type = pair) is a polynomial of the pairwise structural features with their cross terms, expressed as</p><formula xml:id="formula_16">E (i) = F 1 D (i) pair +F 2 D (i) pair +F 3 D (i) pair +• • • . (10)</formula><p>This model can be regarded as a natural extension of embedded atom method (EAM) potentials as demonstrated in Ref. <ref type="bibr" target="#b14">15</ref>.</p><p>The other four models are derived from the polynomial invariants of Eqn. <ref type="bibr" target="#b5">(6)</ref>. When a set of the polynomial invariants is expressed by the union of sets of pth-order polynomial invariants as</p><formula xml:id="formula_17">D (i) = D (i) pair ∪ D (i) 2 ∪ D (i) 3 ∪ D (i) 4 ∪ • • • ,<label>(11)</label></formula><p>where</p><formula xml:id="formula_18">D (i) 2 = { d (i) nll } D (i) 3 = { d (i) nl1l2l3 }<label>(12)</label></formula><formula xml:id="formula_19">D (i) 4 = { d (i) nl1l2l3l4,(σ) } ,</formula><p>the third model (model type = 1, feature type = invariants) is expressed as</p><formula xml:id="formula_20">E (i) = F 1 D (i) + F 2,pow D (i) + F 3,pow D (i) + • • • . (<label>13</label></formula><p>) This model consists of the powers of the polynomial invariants. A linear polynomial form of the polynomial invariants, E (i) = F 1 D (i) , which was proposed in Ref. <ref type="bibr" target="#b25">26</ref>, is included in the third model. Note that a linear polynomial model with up to third-order invariants, expressed by</p><formula xml:id="formula_21">E (i) = F 1 D (i) pair ∪ D (i) 2 ∪ D (i) 3 ,<label>(14)</label></formula><p>is regarded as a spectral neighbor analysis potential (SNAP) <ref type="bibr" target="#b15">[16]</ref>.</p><p>The fourth model (model type = 2, feature type = invariants) is given by a polynomial of the polynomial invariants as</p><formula xml:id="formula_22">E (i) = F 1 D (i) + F 2 D (i) + F 3 D (i) + • • • . (15)</formula><p>A quadratic polynomial model of the polynomial invariants up to the third order, expressed as</p><formula xml:id="formula_23">E (i) = F 1 D (i) pair ∪ D (i) 2 ∪ D (i) 3 +F 2 D (i) pair ∪ D (i) 2 ∪ D (i) 3 , (<label>16</label></formula><p>) is regarded as a quadratic SNAP <ref type="bibr" target="#b33">[34]</ref>.</p><p>The fifth model (model type = 3, feature type = invariants) is the sum of a linear polynomial form of the polynomial invariants and a polynomial of pairwise structural features, described as</p><formula xml:id="formula_24">E (i) = f 1 D (i) + f 2 D (i) pair + f 3 D (i) pair + • • • . (17)</formula><p>The sixth model (model type = 4, feature type = invariants) is the sum of a linear polynomial form of the polynomial invariants and a polynomial of pairwise structural features and second-order polynomial invariants. This is written as</p><formula xml:id="formula_25">E (i) = f 1 D (i) + f 2 D (i) pair ∪ D (i) 2 + • • • . (<label>18</label></formula><formula xml:id="formula_26">)</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>III. DATASETS</head><p>Training and test datasets are generated from prototype structures, i.e., structure generators. The repository uses two sets of structure generators for elemental systems. One is composed of face-centered cubic (fcc), body-centered cubic (bcc), hexagonal close-packed (hcp), simple cubic (sc), ω, and β-tin structures, which was employed in Ref. <ref type="bibr" target="#b28">29</ref>. Hereafter, structures generated from the structure generator set are denoted by "dataset 1". The other is composed of prototype structures reported in the Inorganic Crystal Structure Database (ICSD) <ref type="bibr" target="#b34">[35]</ref>, which aims to generate a wide variety of structures. For elemental systems, only prototype structures composed of single elements with zero oxidation state are chosen from the ICSD. The total number of the structure generators is 86. A list of structure generators can be found in the Appendix of Ref. <ref type="bibr" target="#b25">26</ref>. Hereafter, structures generated from the second set are denoted by "dataset 2". Given a structure generator, the atomic positions and lattice constants of the structure generator are fully optimized by DFT calculation to obtain its equilibrium structure. Then, a new structure is constructed by random lattice expansion, random lattice distortion, and random atomic displacements into a supercell of the structure generator. For a given parameter ε controlling the degree of lattice expansion, lattice distortion, and atomic displacements, the lattice vectors of the new structure A ′ and the fractional coordinates of an atom in the new structure f ′ are given as</p><formula xml:id="formula_27">A ′ = A + εR (19) f ′ = f + εA ′-1 η,<label>(20)</label></formula><p>where the (3 × 3) matrix R and the three-dimensional vector η are composed of uniform random numbers ranging from -1 to 1. Matrix A and vector f represent the lattice vectors of the original supercell and the fractional coordinates of the atom in the original supercell, respectively.</p><p>For each elemental system, datasets 1 and 2 are composed of 3,000 and 10,000 structures, respectively, in addition to the equilibrium structures of the structure generators. Dataset 1 was developed in Ref. <ref type="bibr" target="#b28">29</ref>, whereas dataset 2, except for the case of elemental aluminum, is developed in this study. Each of the datasets is then randomly divided into a training dataset and a test dataset. In the repository, datasets 1 and 2 are available for 31 and 47 elements, respectively. This means that the repository contains MLPs developed from a total of 567,228 DFT calculations.</p><p>DFT calculations were performed using the planewave-basis projector augmented wave method <ref type="bibr" target="#b35">[36]</ref> within the Perdew-Burke-Ernzerhof exchange-correlation functional <ref type="bibr" target="#b36">[37]</ref> as implemented in the vasp code <ref type="bibr" target="#b37">[38]</ref><ref type="bibr" target="#b38">[39]</ref><ref type="bibr" target="#b39">[40]</ref>. The cutoff energy was set to 300 eV. The total energies converged to less than 10 -3 meV/supercell. The atomic positions and lattice constants of the structure generators were optimized until the residual forces were less than 10 -2 eV/ Å.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>IV. MODEL COEFFICIENT ESTIMATION</head><p>Coefficients of a potential energy model are estimated from all the total energies, forces, and stress tensors included in a training dataset. Given a potential energy model, therefore, the predictor matrix and observation vector are simply written in a submatrix form as</p><formula xml:id="formula_28">X =   X energy X force X stress   , y =   y energy y force y stress   . (<label>21</label></formula><formula xml:id="formula_29">)</formula><p>The predictor matrix X is divided into three submatrices, X energy , X force , and X stress , which contain structural features and their polynomial contributions to the total energies, the forces acting on atoms, and the stress tensors of structures in the training dataset, respectively. The observation vector y also has three components, y energy , y force , and y stress , which contain the total energy, the forces acting on atoms, and the stress tensors of structures in the training dataset, respectively, obtained from DFT calculations. Using the predictor matrix and the observation vector, coefficients of a potential energy model are estimated by linear ridge regression.</p><p>In the case of dataset 2 for elemental aluminum, the training data has 9,086, 1,314,879, and 54,516 entries for the energy, the force, and the stress tensor, respectively. Therefore, the predictor matrix X has a size of (1, 378, 481, n coeff ), where n coeff denotes the number of coefficients of the potential energy model and ranges from 10 to 32, 850 in the potential energy models of the repository.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>V. PARETO OPTIMALITY</head><p>The accuracy and computational efficiency of the present MLP strongly depend on the given input parameters. They are (1) the cutoff radius, (2) the type of structural features, (3) the type of potential energy model, (4) the number of radial functions, <ref type="bibr" target="#b4">(5)</ref> the polynomial order in the potential energy model, and (6) the truncation of the polynomial invariants, i.e, the maximum angular numbers of spherical harmonics, {l</p><formula xml:id="formula_30">(2) max , l (3) max , • • • , l (pmax)</formula><p>max } and the polynomial order of invariants, p max . Therefore, a systematic grid search is performed for each system to find their optimal values. The input parameters used for developing MLPs can be found in the repository.</p><p>However, it is difficult to find the optimal set of parameters because the accuracy and computational efficiency of an MLP are conflicting properties whose tradeoff should be optimized, as pointed out in Ref. <ref type="bibr" target="#b25">26</ref>. In this multiobjective optimization problem involving several conflicting objectives, there is no single optimal solution but a set of alternatives with different trade-offs between the accuracy and the computational efficiency. In such a case, Pareto optimal points can be optimal solutions with different trade-offs <ref type="bibr" target="#b40">[41]</ref>. Therefore, the repos- TABLE I. Model parameters of MLP1, MLP2, and MLP3 for elemental Al. MLP1 MLP2 MLP3 Number of coefficients 2410 1770 815 Feature type Invariants Pair Pair Cutoff radius 12.0 12.0 8.0 Number of radial functions 20 20 15 Model type 3 2 2 Polynomial order (function F ) 3 3 3 Polynomial order (invariants) 4</p><formula xml:id="formula_31">- - { l (2) max , l (3) max , • • • } [4,4,2] - -</formula><p>itory contains all Pareto optimal MLPs for each system and each dataset. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>VI. MLPS IN REPOSITORY</head><p>Figure <ref type="figure" target="#fig_0">1</ref> shows the prediction error and the computational efficiency of the Pareto optimal MLPs developed from dataset 1 for elemental Al. Figure <ref type="figure">2</ref> also shows the Pareto optimal MLPs for elemental Cu, Ga, Mg, Zn, Ti, Zr, Y, and Nb. The prediction error is estimated using the root mean square (RMS) error of the energy for the test dataset. The computational efficiency is estimated using the elapsed time to compute the energy, the forces and the stress tensors of a structure with 284 atoms. In Figs. <ref type="figure" target="#fig_0">1</ref> and <ref type="figure">2</ref>, the elapsed time is normalized by the number of atoms because it is proportional to the number of atoms as shown later. The behavior of the relationship between the prediction error and the computational efficiency for the other systems can be found in the repository.</p><p>Users of the repository can choose an appropriate MLP from the Pareto optimal ones according to their targets and purposes. The MLP with the lowest prediction error is denoted by "MLP1", whereas two Pareto optimal MLPs showing higher computational cost performance are denoted by "MLP2" and "MLP3". As can be seen in Figs. <ref type="figure" target="#fig_0">1</ref> and <ref type="figure">2</ref>, MLP2 and MLP3 exhibit high computational efficiency without significantly increasing the prediction error. This study introduces simple scores to evaluate the computational cost performance from the elapsed time t with the unit of ms/atom/step and the prediction error ∆E with the unit of meV/atom. MLP2 and MLP3 with higher computational cost performance minimize t + ∆E and 10t + ∆E, respectively.</p><p>Figure <ref type="figure" target="#fig_0">1</ref> shows the distribution of the prediction errors for structures in dataset 1. Table I also lists the values of the model parameters of MLP1, MLP2, and MLP3. This information for the other Pareto optimal MLPs and the other systems can be found in the repository.</p><p>Tables II and III list the prediction error and the computational efficiency of MLPs for each elemental system obtained from datasets 1 and 2, respectively. MLP2 and MLP3 exhibit high computational efficiency while avoiding a significant increase of the prediction error. Therefore, MLP2 and MLP3 can be regarded as better potentials than MLP1 for most practical purposes.</p><p>Figure <ref type="figure">3</ref> shows the elapsed times of single point calculations for structures with up to 32,000 atoms using the EAM potential <ref type="bibr" target="#b41">[42]</ref>, MLP1, MLP2, and MLP3 for elemental Al. Structures were made by the expansion of the fcc conventional unit cell with a lattice constant of 4 Å. As can be seen in Fig. <ref type="figure">3</ref>, linear scaling with respect to the number of atoms is achieved in all the MLPs. Although the performance for only three MLPs is shown here, the other MLPs also exhibit linear scaling with respect to the number of atoms. Therefore, the computational time required for a calculation of n step steps for a structure with n atom atoms can be estimated as t × n atom × n step , where t is the elapsed time per atom for a single point calculation listed in the repository. Dependence of the computational time required for a single point calculation on the number of atoms. The elapsed time is measured using a single core of Intel R Xeon R E5-2695 v4 (2.10 GHz).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>VII. CONCLUSION</head><p>An MLP repository developed by a systematic application of the procedure to obtain Pareto optimal MLPs has been demonstrated in this paper. In particular, MLPs with high computational cost performance, showing high computational efficiency without increasing the prediction error, are useful for most practical purposes. Currently, many Pareto optimal MLPs are available in the repository from the website, and the number of MLP entries in the repository is continuously increasing. Therefore, the repository should be useful in performing accurate and fast atomistic simulations.</p><p>TABLE II. Prediction error and computational efficiency of MLPs constructed from dataset 1 for 31 elemental systems. The normalized elapsed time for a single point calculation, the RMS error for the energy, and the RMS error for the force are denoted by t (s/atom/step), ∆E (meV/atom), and ∆f (eV/ Å), respectively. MLP1 shows the lowest prediction error of ∆E. MLP2 and MLP3 show the lowest values of t + ∆E and 10t + ∆E, respectively. MLP1 MLP2 MLP3 t ∆E ∆f t ∆E ∆f t ∆E ∆f Ag 10.71 1.9 0.004 0.07 2.0 0.008 0.03 2.2 0.011 Al 6.74 0.5 0.006 0.30 0.9 0.014 0.07 1.8 0.016 Au 21.65 0.5 0.006 0.66 0.7 0.012 0.05 1.8 0.027 Ba 5.79 1.0 0.005 0.30 1.2 0.011 0.10 1.8 0.013 Be 12.55 1.1 0.019 1.54 2.0 0.026 0.13 5.5 0.043 Ca 15.83 1.0 0.004 0.07 1.1 0.011 0.07 1.1 0.011 Cd 2.02 4.6 0.016 0.13 5.0 0.011 0.05 5.3 0.018 Cr 12.64 2.8 0.061 2.31 3.6 0.070 0.80 5.5 0.082 Cs 6.60 0.5 0.001 0.16 0.5 0.002 0.12 0.6 0.001 Cu 6.82 1.7 0.004 0.10 2.0 0.011 0.03 2.2 0.013 Ga 21.73 0.5 0.006 0.29 0.6 0.014 0.10 1.2 0.015 Hf 21.72 0.9 0.039 1.85 1.4 0.051 0.18 4.3 0.103 Hg 4.01 0.8 0.004 0.23 1.0 0.008 0.07 1.2 0.010 In 21.67 0.5 0.005 0.22 0.7 0.014 0.07 1.2 0.014 K 18.53 0.4 0.000 0.09 0.5 0.001 0.09 0.5 0.001 Li 6.89 0.1 0.001 0.13 0.2 0.003 0.03 0.7 0.005 Mg 21.71 0.4 0.002 0.18 0.5 0.006 0.10 0.6 0.007 Mo 21.69 2.4 0.065 2.16 3.3 0.078 0.15 9.3 0.138 Na 21.68 0.2 0.001 0.10 0.2 0.001 0.05 0.4 0.002 Nb 21.65 2.4 0.048 2.18 2.8 0.058 0.10 9.0 0.127 Rb 12.48 0.5 0.001 0.12 0.5 0.001 0.09 0.7 0.001 Sc 21.71 0.7 0.017 0.22 2.6 0.048 0.18 3.0 0.049 Sr 21.53 0.5 0.003 0.22 0.7 0.008 0.13 0.8 0.009 Ta 21.70 1.6 0.056 0.91 3.3 0.071 0.22 8.5 0.126 Ti 21.67 1.4 0.035 1.85 1.8 0.047 0.13 5.5 0.100 Tl 21.66 0.5 0.005 0.29 0.8 0.012 0.10 1.6 0.014 V 6.95 2.2 0.048 1.09 3.1 0.058 0.07 8.5 0.129 W 21.69 2.9 0.080 2.32 3.9 0.092 0.14 12.0 0.177 Y 12.77 0.8 0.016 0.29 2.2 0.040 0.13 3.3 0.044 Zn 3.27 2.3 0.008 0.18 2.5 0.011 0.07 2.7 0.014 Zr 6.71 1.4 0.044 1.84 2.4 0.055 0.05 11.0 0.116 TABLE III. Prediction error and computational efficiency of MLPs constructed from dataset 2 for 47 elemental systems. MLP1 MLP2 MLP3 t ∆E ∆f t ∆E ∆f t ∆E ∆f Ag 18.51 1.1 0.019 0.76 1.3 0.033 0.28 2.5 0.035 Al 28.69 1.8 0.033 1.11 3.0 0.040 0.28 7.3 0.061 As 23.39 5.1 0.125 1.98 8.5 0.144 0.58 13.5 0.178 Au 23.49 3.1 0.028 0.75 3.9 0.035 0.28 7.0 0.056 Ba 36.80 0.7 0.013 1.44 1.9 0.021 0.13 4.6 0.034 Be 8.69 3.8 0.078 1.10 5.7 0.088 0.28 11.8 0.132 Bi 23.45 2.8 0.130 2.06 4.6 0.121 0.62 9.4 0.166 Ca 23.66 0.4 0.006 0.93 1.1 0.013 0.17 3.5 0.030 Cd 23.41 0.7 0.011 0.75 1.8 0.018 0.28 3.2 0.026 Cr 13.95 6.7 0.221 2.59 8.3 0.226 0.35 18.2 0.324 Cs 37.17 0.4 0.001 0.22 0.6 0.002 0.09 0.9 0.003 Cu 23.20 8.2 0.022 0.28 8.8 0.034 0.10 9.5 0.051 Ga 23.38 1.1 0.028 1.12 1.8 0.039 0.27 4.5 0.044 Ge 23.45 2.7 0.058 1.11 5.0 0.067 0.58 7.6 0.076 Hf 13.65 4.2 0.121 2.51 6.0 0.137 0.75 8.6 0.148 Hg 23.61 3.6 0.014 0.75 4.7 0.020 0.13 6.5 0.038 In 23.59 0.7 0.016 0.93 1.2 0.021 0.28 2.8 0.028 Ir 22.64 9.0 0.251 3.19 10.8 0.260 0.75 16.8 0.295 K 7.10 0.1 0.001 0.22 0.4 0.002 0.08 0.7 0.003 La 37.02 2.5 0.057 1.96 3.8 0.069 0.69 6.4 0.079 Li 23.59 0.2 0.004 0.75 0.9 0.010 0.10 1.7 0.019 Mg 23.62 0.3 0.006 0.75 0.8 0.009 0.14 2.9 0.029 Mo 18.21 7.3 0.211 3.48 8.6 0.226 0.75 15.6 0.266 Na 3.20 1.5 0.196 0.71 2.0 0.197 0.17 2.7 0.226 Nb 36.63 6.5 0.182 2.55 7.6 0.183 0.75 11.8 0.212 Os 14.15 10.2 0.304 3.21 11.4 0.300 0.75 18.8 0.348 P 23.76 7.3 0.176 1.98 9.8 0.186 1.11 11.8 0.192 Pb 23.98 1.2 0.028 0.94 2.4 0.037 0.17 5.0 0.057 Pd 14.51 2.6 0.073 0.99 4.0 0.080 0.28 7.6 0.096 Pt 23.19 5.3 0.137 1.11 7.3 0.148 0.72 8.2 0.156 Rb 36.57 0.0 0.000 0.13 0.5 0.002 0.07 0.9 0.004 Re 37.20 9.8 0.274 1.98 13.5 0.291 0.71 18.4 0.320 Rh 13.78 6.4 0.186 1.98 8.5 0.192 0.71 12.6 0.217 Ru 23.43 8.5 0.234 3.19 9.9 0.237 0.75 16.4 0.279 Sb 23.50 3.4 0.120 2.00 6.0 0.411 0.75 8.7 0.124 Sc 23.92 3.0 0.211 1.98 4.0 0.234 0.75 5.9 0.135 Si 23.58 4.1 0.077 1.11 7.2 0.088 0.75 8.9 0.095 Sn 23.45 1.7 0.036 1.12 3.5 0.049 0.58 5.5 0.061 Sr 11.80 0.7 0.007 0.76 1.6 0.014 0.18 3.2 0.022 Ta 22.94 6.5 0.190 3.17 7.7 0.195 0.75 12.3 0.221 Ti 13.20 4.4 0.143 1.98 6.4 0.146 0.69 9.2 0.163 Tl 24.14 0.8 0.015 0.72 2.2 0.023 0.15 5.0 0.060 V 14.23 6.4 0.188 2.54 8.4 0.196 0.71 12.3 0.228 W 22.71 8.3 0.247 3.17 9.8 0.254 0.99 14.7 0.286 Y 36.55 2.6 0.050 1.98 3.9 0.062 0.71 6.7 0.070 Zn 23.62 1.1 0.017 0.99 1.9 0.024 0.27 4.6 0.038 Zr 14.57 5.9 0.130 0.82 9.0 0.139 0.75 9.1 0.140</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>FIG. 1 .</head><label>1</label><figDesc>FIG.1. Distribution of MLPs in a grid search to find optimal parameters controlling the accuracy and the computational efficiency of the MLP for elemental Al. The elapsed time for a single point calculation is estimated using a single core of Intel R Xeon R E5-2695 v4 (2.10 GHz). The red closed circles show the Pareto optimal points of the distribution obtained using a non-dominated sorting algorithm. The cyan closed circles indicate the MLP with the lowest prediction error and two Pareto optimal MLPs with higher computational cost performance. The distribution of the prediction errors for dataset 1 is also shown.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>2 2 FIG. 2 .</head><label>222</label><figDesc>FIG. 2. Distribution of MLPs in a grid search for elemental Cu, Ga, Mg, Zn, Ti, Zr, Y, and Nb. The closed red circles show the Pareto optimal points of the distribution.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><figDesc>FIG. 3.Dependence of the computational time required for a single point calculation on the number of atoms. The elapsed time is measured using a single core of Intel R Xeon R E5-2695 v4 (2.10 GHz).</figDesc></figure>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>ACKNOWLEDGMENTS</head><p>This work was supported by a <rs type="grantName">Grant-in-Aid for Scientific Research (B) (Grant Number</rs> <rs type="grantNumber">19H02419</rs>) and a <rs type="grantName">Grant-in-Aid for Scientific Research on Innovative Areas (Grant Number</rs> <rs type="grantNumber">19H05787</rs>) from the <rs type="funder">Japan Society for the Promotion of Science (JSPS)</rs>.</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_wajFRA8">
+					<idno type="grant-number">19H02419</idno>
+					<orgName type="grant-name">Grant-in-Aid for Scientific Research (B) (Grant Number</orgName>
+				</org>
+				<org type="funding" xml:id="_qSGhPGa">
+					<idno type="grant-number">19H05787</idno>
+					<orgName type="grant-name">Grant-in-Aid for Scientific Research on Innovative Areas (Grant Number</orgName>
+				</org>
+			</listOrg>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<author>
+			<persName><forename type="first">A</forename><surname>Seko</surname></persName>
+		</author>
+		<ptr target="https://sekocha.github.io/repository/index-e.html" />
+		<title level="m">Machine Learning Potential Repository at Kyoto University</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">S</forename><surname>Lorenz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Groß</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Scheffler</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.cplett.2004.07.076</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Chem. Phys. Lett</title>
+		<imprint>
+			<biblScope unit="volume">395</biblScope>
+			<biblScope unit="page">210</biblScope>
+			<date type="published" when="2004">2004</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">J</forename><surname>Behler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Parrinello</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Phys. Rev. Lett</title>
+		<imprint>
+			<biblScope unit="volume">98</biblScope>
+			<biblScope unit="page">146401</biblScope>
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">P</forename><surname>Bartók</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">C</forename><surname>Payne</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Kondor</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Csányi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Phys. Rev. Lett</title>
+		<imprint>
+			<biblScope unit="volume">104</biblScope>
+			<biblScope unit="page">136403</biblScope>
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">J</forename><surname>Behler</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Chem. Phys</title>
+		<imprint>
+			<biblScope unit="volume">134</biblScope>
+			<biblScope unit="page">74106</biblScope>
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">J</forename><surname>Han</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Car</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Weinan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Commun. Comput. Phys</title>
+		<imprint>
+			<biblScope unit="volume">23</biblScope>
+			<biblScope unit="page">629</biblScope>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">N</forename><surname>Artrith</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Urban</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.commatsci.2015.11.047</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Comput. Mater. Sci</title>
+		<imprint>
+			<biblScope unit="volume">114</biblScope>
+			<biblScope unit="page">135</biblScope>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">N</forename><surname>Artrith</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Urban</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Ceder</surname></persName>
+		</author>
+		<idno type="DOI">10.1103/PhysRevB.96.014112</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Phys. Rev. B</title>
+		<imprint>
+			<biblScope unit="volume">96</biblScope>
+			<biblScope unit="page">14112</biblScope>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">J</forename><surname>Szlachta</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">P</forename><surname>Bartók</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Csányi</surname></persName>
+		</author>
+		<idno type="DOI">10.1103/PhysRevB.90.104108</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Phys. Rev. B</title>
+		<imprint>
+			<biblScope unit="volume">90</biblScope>
+			<biblScope unit="page">104108</biblScope>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">P</forename><surname>Bartók</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Kermode</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Bernstein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Csányi</surname></persName>
+		</author>
+		<idno type="DOI">10.1103/PhysRevX.8.041048</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Phys. Rev. X</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="page">41048</biblScope>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">R</forename><surname>Kermode</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">De</forename><surname>Vita</surname></persName>
+		</author>
+		<idno type="DOI">10.1103/PhysRevLett.114.096405</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Phys. Rev. Lett</title>
+		<imprint>
+			<biblScope unit="volume">114</biblScope>
+			<biblScope unit="page">96405</biblScope>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">A</forename><surname>Glielmo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Sollich</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">De</forename><surname>Vita</surname></persName>
+		</author>
+		<idno type="DOI">10.1103/PhysRevB.95.214302</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Phys. Rev. B</title>
+		<imprint>
+			<biblScope unit="volume">95</biblScope>
+			<biblScope unit="page">214302</biblScope>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">A</forename><surname>Seko</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Takahashi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Tanaka</surname></persName>
+		</author>
+		<idno type="DOI">10.1103/PhysRevB.90.024101</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Phys. Rev. B</title>
+		<imprint>
+			<biblScope unit="volume">90</biblScope>
+			<biblScope unit="page">24101</biblScope>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">A</forename><surname>Seko</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Takahashi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Tanaka</surname></persName>
+		</author>
+		<idno type="DOI">10.1103/PhysRevB.92.054113</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Phys. Rev. B</title>
+		<imprint>
+			<biblScope unit="volume">92</biblScope>
+			<biblScope unit="page">54113</biblScope>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">A</forename><surname>Takahashi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Seko</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Tanaka</surname></persName>
+		</author>
+		<idno type="DOI">10.1103/PhysRevMaterials.1.063801</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Phys. Rev. Mater</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="page">63801</biblScope>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">A</forename><surname>Thompson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Swiler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Trott</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Foiles</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Tucker</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.jcp.2014.12.018</idno>
+	</analytic>
+	<monogr>
+		<title level="j">J. Comput. Phys</title>
+		<imprint>
+			<biblScope unit="volume">285</biblScope>
+			<biblScope unit="page">316</biblScope>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A</forename><surname>Wood</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">P</forename><surname>Thompson</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Chem. Phys</title>
+		<imprint>
+			<biblScope unit="volume">148</biblScope>
+			<biblScope unit="page">241721</biblScope>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">C</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Deng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Tran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Tang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I.-H</forename><surname>Chu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">P</forename><surname>Ong</surname></persName>
+		</author>
+		<idno type="DOI">10.1103/PhysRevMaterials.1.043603</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Phys. Rev. Mater</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="page">43603</biblScope>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">V</forename><surname>Shapeev</surname></persName>
+		</author>
+		<idno type="DOI">10.1137/15M1054183</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Multiscale Model. Simul</title>
+		<imprint>
+			<biblScope unit="volume">14</biblScope>
+			<biblScope unit="page">1153</biblScope>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">L</forename><surname>Deringer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">J</forename><surname>Pickard</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Csányi</surname></persName>
+		</author>
+		<idno type="DOI">10.1103/PhysRevLett.120.156001</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Phys. Rev. Lett</title>
+		<imprint>
+			<biblScope unit="volume">120</biblScope>
+			<biblScope unit="page">156001</biblScope>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">V</forename><surname>Podryabinkin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">V</forename><surname>Tikhonov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">V</forename><surname>Shapeev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">R</forename><surname>Oganov</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1802.07605</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">K</forename><surname>Gubaev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">V</forename><surname>Podryabinkin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">L</forename><surname>Hart</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">V</forename><surname>Shapeev</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.commatsci.2018.09.031</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Comput. Mater. Sci</title>
+		<imprint>
+			<biblScope unit="volume">156</biblScope>
+			<biblScope unit="page">148</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">T</forename><surname>Mueller</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Hernandez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Wang</surname></persName>
+		</author>
+		<idno type="DOI">10.1063/1.5126336</idno>
+	</analytic>
+	<monogr>
+		<title level="j">J. Chem. Phys</title>
+		<imprint>
+			<biblScope unit="volume">152</biblScope>
+			<biblScope unit="page">50902</biblScope>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<monogr>
+		<ptr target="http://www.ctcms.nist.gov/potentials" />
+		<title level="m">NIST Interatomic Potentials Repository</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<monogr>
+		<author>
+			<persName><forename type="first">E</forename><surname>Tadmor</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Elliott</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Sethna</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Miller</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Becker</surname></persName>
+		</author>
+		<ptr target="https://openkim.org" />
+		<title level="m">Knowledgebase of interatomic models (KIM)</title>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">A</forename><surname>Seko</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Togo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Tanaka</surname></persName>
+		</author>
+		<idno type="DOI">10.1103/PhysRevB.99.214108</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Phys. Rev. B</title>
+		<imprint>
+			<biblScope unit="volume">99</biblScope>
+			<biblScope unit="page">214108</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">A</forename><surname>Hernandez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Balasubramanian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Yuan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">A</forename><surname>Mason</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Mueller</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Comput. Mater</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="page">1</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Zuo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Deng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Behler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Csányi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">V</forename><surname>Shapeev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">P</forename><surname>Thompson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A</forename><surname>Wood</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">P</forename><surname>Ong</surname></persName>
+		</author>
+		<idno type="DOI">10.1021/acs.jpca.9b08723</idno>
+	</analytic>
+	<monogr>
+		<title level="j">J. Phys. Chem. A</title>
+		<imprint>
+			<biblScope unit="volume">124</biblScope>
+			<biblScope unit="page">31916773</biblScope>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">A</forename><surname>Takahashi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Seko</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Tanaka</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Chem. Phys</title>
+		<imprint>
+			<biblScope unit="volume">148</biblScope>
+			<biblScope unit="page">234106</biblScope>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<monogr>
+		<ptr target="http://lammps.sandia.gov" />
+		<title level="m">LAMMPS code</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">A</forename><surname>Seko</surname></persName>
+		</author>
+		<ptr target="https://github.com/sekocha/lammps-mlip-package" />
+		<imprint>
+			<biblScope unit="page">lammps-mlip-package</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">P</forename><surname>Bartók</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Kondor</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Csányi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Phys. Rev. B</title>
+		<imprint>
+			<biblScope unit="volume">87</biblScope>
+			<biblScope unit="page">184115</biblScope>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<monogr>
+		<author>
+			<persName><forename type="first">M</forename><surname>El-Batanouny</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Wooten</surname></persName>
+		</author>
+		<idno type="DOI">10.1017/CBO9780511755736</idno>
+		<title level="m">Symmetry and Condensed Matter Physics: A Computational Approac</title>
+		<imprint>
+			<publisher>Cambridge University Press</publisher>
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A</forename><surname>Wood</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">P</forename><surname>Thompson</surname></persName>
+		</author>
+		<idno type="DOI">10.1063/1.5017641</idno>
+	</analytic>
+	<monogr>
+		<title level="j">J. Chem. Phys</title>
+		<imprint>
+			<biblScope unit="volume">148</biblScope>
+			<biblScope unit="page">241721</biblScope>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<monogr>
+		<author>
+			<persName><forename type="first">G</forename><surname>Bergerhoff</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">D</forename><surname>Brown</surname></persName>
+		</author>
+		<title level="m">Crystallographic Databases</title>
+		<editor>
+			<persName><forename type="first">F</forename><forename type="middle">H</forename><surname>Allen</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Chester</addrLine></address></meeting>
+		<imprint>
+			<publisher>International Union of Crystallography</publisher>
+			<date type="published" when="1987">1987</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">E</forename><surname>Blöchl</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Phys. Rev. B</title>
+		<imprint>
+			<biblScope unit="volume">50</biblScope>
+			<biblScope unit="page">17953</biblScope>
+			<date type="published" when="1994">1994</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">P</forename><surname>Perdew</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Burke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Ernzerhof</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Phys. Rev. Lett</title>
+		<imprint>
+			<biblScope unit="volume">77</biblScope>
+			<biblScope unit="page">3865</biblScope>
+			<date type="published" when="1996">1996</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">G</forename><surname>Kresse</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Hafner</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Phys. Rev. B</title>
+		<imprint>
+			<biblScope unit="volume">47</biblScope>
+			<biblScope unit="page">558</biblScope>
+			<date type="published" when="1993">1993</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">G</forename><surname>Kresse</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Furthmüller</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Phys. Rev. B</title>
+		<imprint>
+			<biblScope unit="volume">54</biblScope>
+			<biblScope unit="page">11169</biblScope>
+			<date type="published" when="1996">1996</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">G</forename><surname>Kresse</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Joubert</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Phys. Rev. B</title>
+		<imprint>
+			<biblScope unit="volume">59</biblScope>
+			<biblScope unit="page">1758</biblScope>
+			<date type="published" when="1999">1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<monogr>
+		<author>
+			<persName><forename type="first">J</forename><surname>Branke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Branke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Deb</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Miettinen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Slowiński</surname></persName>
+		</author>
+		<title level="m">Multiobjective optimization: Interactive and evolutionary approaches</title>
+		<imprint>
+			<publisher>Springer Science &amp; Business Media</publisher>
+			<date type="published" when="2008">2008</date>
+			<biblScope unit="volume">5252</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">W</forename><surname>Jacobsen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">K</forename><surname>Norskov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">J</forename><surname>Puska</surname></persName>
+		</author>
+		<idno type="DOI">10.1103/PhysRevB.35.7423</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Phys. Rev. B</title>
+		<imprint>
+			<biblScope unit="volume">35</biblScope>
+			<biblScope unit="page">7423</biblScope>
+			<date type="published" when="1987">1987</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

@@ -1,0 +1,498 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">PSL is Dead. Long Live PSL</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2022-05-27">27 May 2022</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Kevin</forename><surname>Smith</surname></persName>
+							<email>kwsmith@rice.edu</email>
+							<affiliation key="aff0">
+								<orgName type="institution">Rice University Houston</orgName>
+								<address>
+									<country key="US">U.S.A</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Hai</forename><surname>Lin</surname></persName>
+							<email>halin@paloaltonetworks.com</email>
+							<affiliation key="aff1">
+								<orgName type="institution">Palo Alto Networks Santa Clara</orgName>
+								<address>
+									<country key="US">U.S.A</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Praveen</forename><surname>Tiwari</surname></persName>
+							<email>prtiwari@paloaltonetworks.com</email>
+							<affiliation key="aff2">
+								<orgName type="institution">Palo Alto Networks Santa Clara</orgName>
+								<address>
+									<country key="US">U.S.A</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Marjorie</forename><surname>Sayer</surname></persName>
+							<email>msayer@paloaltonetworks.com</email>
+							<affiliation key="aff3">
+								<orgName type="institution">Palo Alto Networks Santa Clara</orgName>
+								<address>
+									<country key="US">U.S.A</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Claudionor</forename><surname>Coelho</surname></persName>
+							<email>ccoelho@paloaltonetworks.com</email>
+							<affiliation key="aff4">
+								<orgName type="institution">Palo Alto Networks Santa Clara</orgName>
+								<address>
+									<country key="US">U.S.A</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">PSL is Dead. Long Live PSL</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2022-05-27">27 May 2022</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">77107840C75811EDB68160D5EDA67B5C</idno>
+					<idno type="arXiv">arXiv:2205.14136v1[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>formal methods</term>
+					<term>PSL</term>
+					<term>anomaly detection</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Property Specification Language (PSL) is a form of temporal logic that has been mainly used in discrete domains (e.g. formal hardware verification). In this paper, we show that by merging machine learning techniques with PSL monitors, we can extend PSL to work on continuous domains. We apply this technique in machine learning-based anomaly detection to analyze scenarios of real-time streaming events from continuous variables in order to detect abnormal behaviors of a system. By using machine learning with formal models, we leverage the strengths of both machine learning methods and formal semantics of time. On one hand, machine learning techniques can produce distributions on continuous variables, where abnormalities can be captured as deviations from the distributions. On the other hand, formal methods can characterize discrete temporal behaviors and relations that cannot be easily learned by machine learning techniques. Interestingly, the anomalies detected by machine learning and the underlying time representation used are discrete events. We implemented a temporal monitoring package (TEF) that operates in conjunction with normal data science packages for anomaly detection machine learning systems, and we show that TEF can be used to perform accurate interpretation of temporal correlation between events.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>I. INTRODUCTION</head><p>Property Specification Language (PSL) is a form of temporal logic that is designed to capture temporal relations between discrete variables over discrete time. Due to this nature, PSL has been mainly used in hardware design and verification since it was standardized by IEEE in 2004 <ref type="bibr" target="#b0">[1]</ref>, <ref type="bibr" target="#b1">[2]</ref>, <ref type="bibr" target="#b7">[8]</ref>. There have been attempts to extend PSL to deal with continuous variables over continuous time <ref type="bibr" target="#b5">[6]</ref>. Due to its inherent limitation of expressibility, there have not been many successful applications.</p><p>In recent years, anomaly detection has been widely used in practice <ref type="bibr" target="#b2">[3]</ref>, <ref type="bibr" target="#b12">[13]</ref>. There are many applications where realtime streaming events are monitored and analyzed in order to detect abnormal behaviors. For example, if the amount of free memory of a computer is below a certain threshold, it can be considered as an anomaly. As another example, if there is an anomalous drop in purchase of a product in an online store, it is possible that the product is out of stock, which needs attention. The state-of-the-art technique Fig. <ref type="figure">1</ref>. A New Framework for Anomaly Detection for anomaly detection is machine learning <ref type="bibr" target="#b3">[4]</ref>, <ref type="bibr" target="#b6">[7]</ref>, <ref type="bibr" target="#b8">[9]</ref>, <ref type="bibr" target="#b10">[11]</ref>, <ref type="bibr" target="#b11">[12]</ref>, <ref type="bibr" target="#b13">[14]</ref>. Machine learning techniques learn distributions on continuous variables. Anomaly events can be captured as deviations from established patterns (distributions). However, there are certain temporal behaviors and relations that cannot be easily learned by machine learning techniques, but can be easily characterized by formal languages such as PSL.</p><p>In this paper, we propose a new framework called TEmporal Filtering (TEF) for anomaly detection (Fig. <ref type="figure">1</ref>). The idea is to merge machine learning with PSL monitors. The machine learning module takes as input a number of continuous variables x 1 , x 2 , . . . . . . , x m , and outputs some discrete events y 1 , y 2 , . . . . . . , y n , which become the input of the PSL monitor. The PSL monitor encodes a user-defined temporal relation, which filters the output from the machine learning module. In this new framework, machine learning techniques extend the capability of PSL by discretizing continuous time and events; the PSL monitor refines the results produced by the machine learning module. This combination of machine learning and formal methods yields a whole that is greater than the sum of its parts.</p><p>The rest of this paper is organized as follows. In Section II, we give a brief introduction to anomaly detection. Section III discusses the overall architecture of TEF. In Section IV, we describe how TEF is implemented. Section V illustrates how TEF can be used to capture temporal relations. Section VI summarizes the conclusions of the paper and future work.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>II. ANOMALY DETECTION</head><p>Anomaly detection is the process of identifying events that deviate from established patterns. Anomaly detection is widely used in many applications such as detecting cyber intrusions, credit card fraud, and health monitoring. In many applications, input variables have continuous values that vary with time, such as temperature. A time series anomaly detection model learns baseline behavior from training data and predicts a discrete set of anomalies. In time series anomaly detection the discretizing mechanism is simply that input timestamps are taken from discrete measurements, and there will always be a minimum nonzero granularity of inputs. These models provide a rich set of examples where a continuous valued problem maps to a discrete space, where formal methods can be applied.</p><p>Anomaly detection modeling faces two major challenges. One, unbalanced data sets: anomalies are rare, and thus data sets will have few examples of anomalies which the model can learn. Two, characterization of anomalies: different types of models detect different types of anomalies. Level based methods find metric outliers. Distribution based methods find anomalies in distributions. Features might not contain the signal needed to detect anomalies. Being able to characterize anomalies helps, but unseen anomalies cannot be characterized. In such cases, model selection is difficult. The next sections describe some common types of anomaly detection models.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Level-Based Anomaly Detection</head><p>In these types of models, anomalies in continuous data are defined as values beyond a specific threshold. The threshold level is typically calibrated to the expected fraction of anomalies to be detected. A level that is too low results in false negatives, and one that is high results in false positives. Often an immediate limitation of level based models is they do not account for the frequency of threshold crossings. But threshold crossings and the timestamps they occur do make up a discrete event space for study.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Distribution-Based Anomaly Detection</head><p>Distribution based models learn the statistical distribution of data in a baseline or normal state. Anomalies are categorized as events whose predicted probabilities are lower than a learned threshold. These models can learn more sophisticated behavior than level-based models -in particular, nonlinear decision boundaries between anomalous and normal events can be learned. The challenge of tuning the model remains: both the parameters that affect the machine learning of the model, and the final tuning of the anomaly probability thresholds. These challenges are documented in <ref type="bibr" target="#b9">[10]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. Forecasting Error Methods</head><p>A wide range of time series forecasting methods, such as ARIMA, can be used to predict probable events from past data. Predictions from a recent past period can be compared with actual data values to determine if the actual values are anomalous. The comparison of prediction and truth can in turn be level based or distribution based.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>D. Template-based Anomaly Detection</head><p>If anomalies follow templates of behavior, established rules of feature interaction and evolution through time, it's reasonable to hope that a machine learning model will learn the rules. The success of machine learning in many applications has led to extensive efforts in applying machine learning models to anomaly detection. Given enough features, enough data, enough compute power, the reasoning goes, a machine learning model will learn all of the intricate influences that distinguish anomalous behavior from normal. First, we demonstrate that there are cases where enough data is theoretically impossible. For instance, in a time stream of data, the event consisting of repeated events a followed by an event b are not possible to learn from a finite dataset. Second, while it may be possible to learn an underlying template for anomalies, the amount of data and compute resources required for sufficiently accurate results might be prohibitive.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>E. A Hybrid Method</head><p>Because anomaly detection models create discrete sets of events they naturally can be described using PSL. Machine learning can make PSL relevant in continuous applications. Because PSL can easily characterize infinite sets such as the "arbitrary stream of a followed by b" example as a simple PSL expression: a[+]; b, machine learning anomaly detection can be enhanced. We aim to show in this paper that time series anomaly detection together with TEF can improve overall model performance.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>III. TEF OVERVIEW</head><p>TEF implements a subset of PSL. PSL is an extension of linear temporal logic and adds a number of operators to express temporal constraints. In particular, PSL makes use of Sequential Extended Regular Expressions (SEREs), defined below. If a PSL formula is composed entirely of SEREs, it is said to be written in SERE-style PSL. TEF implements most of SERE-style PSL.</p><p>Propositional formulas (i.e., boolean variables closed under conjunction, disjunction, and negation) are the atoms of SEREs. SEREs are SERE atoms closed under the SERE operators, which are analogous to the operators of regular expressions and also include supplemental operators representing useful syntactic sugar. Just as regular expressions are used to match strings, SEREs are used to match traces, that is, sequences of truth assignments. A SERE atom matches a truth assignment when the truth assignment makes the atom true. The semantics of compound SEREs are shown in Fig. <ref type="figure">3</ref> and Fig. <ref type="figure">4</ref>.</p><p>One of the advantages in using a temporal logic to specify properties is that logics are declarative. The result can be precisely described without the use of control flow or statements that modify a program's state. This allows those without a background in software engineering to write useful properties.</p><p>However, the operators of linear temporal logic, although conceptually simple, are not trivial to use in practice, and most people are unfamiliar with them. An advantage of SERE-style PSL is that the functionality of LTL operators is subsumed by the SERE operators and so familiarity with LTL is not a requirement to writing properties. The close resemblance between SEREs and standard regular expressions make the former exceptionally easy to learn if one is familiar with the latter. And regular expressions are common currency not just in software engineering, but in data analysis and related fields as well. This makes SERE-style PSL easily accessible to those with a wide variety of backgrounds.</p><p>So SERE-style PSL is a natural choice for TEF, which aims to provide a simple and accessible way to express and evaluate temporal constraints. In fact, TEF extends SERE-style PSL in an intuitive and useful way by allowing the use of Boolean expressions wherever Boolean variables may occur in SEREs. Another natural choice is the decision to package TEF as an extension to Pandas, which is also common currency in the Python world.</p><p>TEF makes use of Python's regex engine, which takes as input a regex pattern (regular expression) and a string. The regex engine reports all segments of the string that match the regex pattern. Python's regex engine is highly optimized and efficient. Fig. <ref type="figure">3</ref> lists the main temporal operators, which TEF implements, and compares them with Python's regex patterns. In this table, r values are SEREs, s values are sequences of rows in a DataFrame, r values are regex patterns, s values are strings. Readers are referred to <ref type="bibr" target="#b14">[15]</ref> for the formal semantics of SERE-style expressions.</p><p>At a high level, TEF takes advantage of the highly efficient regex engine and the similarity between SERE expressions and regex patterns (shown in Fig. <ref type="figure">3</ref>). TEF reduces the problem of checking if a SERE expression matches rows of a data frame to checking if a regex expression matches a string (Fig. <ref type="figure" target="#fig_3">2</ref>). The reduction is based on the following observation. Let E be the set of all SERE expressions, R be the set of sequences of rows in a data frame, P be the set of all regex patterns, and S be the set of strings. There exist two functions f : E → P and g : R → S s.t. ∀e : E, r : R. matches(e, r) ↔ matches(f (e), g(r)). Intuitively, Fig. <ref type="figure">3</ref> justifies this observation. Fig. <ref type="figure" target="#fig_3">2</ref>. How TEF is implemented TEF also implements some additional operators as syntatic sugar (shown in Fig. <ref type="figure">4</ref>). TEF also adds the "[]" operator for use in Boolean expressions, which allows further flexibility in the expression of temporal relations. It functions in the following way. Suppose we have a data frame with a column c. Then c[-1] refers to the value at the previous row in column c. Also, c <ref type="bibr" target="#b0">[1]</ref> refers to the value at the next row in column c. In general, if i is the index of the current row and j is an integer, then c[j] refers to the value at row i + j of column c. return the disjunction of truth assignments that make b true, in string form.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>4:</head><p>else if e is r 1 ; r 2 then 5:</p><formula xml:id="formula_0">s 1 ← PSL TO REGEX(r 1 ) 6: s 2 ← PSL TO REGEX(r 2 ) 7: return '(' + s 1 + s 2 + ')' 8:</formula><p>else if e is r 1 |r 2 then 9:</p><formula xml:id="formula_1">s 1 ← PSL TO REGEX(r 1 ) 10: s 2 ← PSL TO REGEX(r 2 ) 11: return '(' + s 1 + '|' +s 2 + ')' 12:</formula><p>else if e is r 1 &amp;r 2 then 36: end if 37: end function SERE Syntax Meaning Regex Syntax Meaning r 1 ; r 2 matches s if s = s 1 s 2 , r 1 matches s 1 and r 2 matches s 2 r 1 r 2 matches s if s = s 1 s 2 , r 1 matches s 1 and r 2 matches s 2 r 1 |r 2 matches s if r 1 matches s or r 2 matches s r 1 |r 2 matches s if r 1 matches s or r 2 matches s r 1 &amp;r 2 matches s if r 1 matches s and r 2 matches s ? = r matches s if r matches s , butitdoesnotconsumeanyr r[ * ] matches s if 0 or more concatenations of r matches s r * matches s if 0 or more concatenations of r matches s r[+] matches s if 1 or more concatenations of r matches s r + matches s if 1 or more concatenations of r matches s r[ * n] matches s if n concatenations of r matches s r {n} matches s if n concatenations of r matches s r[ * n..m] matches s if between n and m concatenations of r matches s r {n, m} matches s if between n and m concatenations of r matches s r[ * n..] matches s if n or more concatenations of r matches s r {n, } matches s if n or more concatenations of r matches s r[ * ..m] matches s if m or fewer concatenations of r matches s r{0, m} matches s if m or fewer concatenations of r matches s Syntax Intuitive Meaning [+] True[+] [ * ] True[ * ] [ * n] True[ * n..] [ * n..m] True[ * n..m] [ * n..] True[ * n..] [ * ..m] True[ * ..m] r[-&gt;] !r[ * ]; r r[-&gt; n] !r[ * ]; r[ * n] r[-&gt; n..m] !r[ * ]; r[ * n..m] r[= n] (!r[ * ]; r)[ * n]; !r[ * ] r[= n..m] (!r[ * ]; r)[ * n..m]; !r[ * ] r[= n..] (!r[ * ]; r)[ * n..]; !r[ * ] r[= ..m] (!r[ * ]; r)[ * ..m]; !r[ * ] Fig. 4. Additional SERE-style operators</p><p>IV. TEF IMPLEMENTATION TEF shadows the Pandas DataFrame eval method. It takes as input a SERE-style PSL property in the form of a string, and it matches it against the DataFrame, which is interpreted as a trace. As we discussed in Section III, TEF reduces the problem of checking if a SERE expression matches rows of a data frame to checking if a Python regex pattern matches a string. In order to make the reduction work, we just need to build two functions: (1) f which converts a SERE expression to a regex pattern. (2) g which converts a data frame to a string.</p><p>To build the function f , we use a simple recursion based on how the SERE expression is constructed. The simplest SERE expression is a Boolean expression. To convert a Boolean expression to a regex pattern, we rewrite the expression in the form of the disjunction of its set of satisfying truth assignments, in string form. As a result, the length of the pattern is exponential in the number of distinct boolean expressions used in the property. In practice we have found that many problems need make use of only a few expressions. Often only a single expression is used to express a useful property. To convert more complicated SERE expressions involving SERE operators, the individual pieces are converted recursively, then the results are combined based on the SERE operator. For example, suppose that we want to convert r 1 ; r 2 . We first recursively convert r 1 and r 2 , get two regex strings, and then concatenate the two regex strings. The details of converting a SERE expression into a Python regex pattern is shown in Algorithm 1.</p><p>To build the function g, TEF does two steps:</p><p>• Step 1 (Booleanize a data frame) TEF identifies all the Boolean expressions used in the property, and evaluates them with respect to each row in the data frame. It keeps track of the results in a new data frame, in which the results of each Boolean expression are kept in new columns. The details of Booleanizing a data frame is shown in Algorithm 2. • Step 2 (convert to a string) The Booleanized DataFrame is converted to a string by using ',' to seperate columns and using '()' to group characters within the same rows. After converting a SERE expression into a regex pattern and converting a data frame into a string, Python's regex engine is used to find matches. Results are returned in the form of a list of index pairs indicating where in the trace the property is satisfied. Initialize b df to be an empty data frame.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>3:</head><p>for all row r in df do</p><p>4:</p><p>Initialize r to be an empty row.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>5:</head><p>for all atom a in e do 6:</p><p>Evaluate a w.r.t. r, add the result to r</p><p>7: end for 8: Add r to b df 9: end for 10: return b df 11: end function</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>V. CASE STUDIES</head><p>A. Analyzing Weather Patterns using TEF Figure <ref type="figure">5</ref> shows a data frame containing the weather information in Amarillo, TX, in April 2021. The weather data is taken from <ref type="bibr">[16]</ref>. We make the following queries to the data frame. Pandas DataFrame eval method can handle queries involving only one row. If the query refers to multiple rows, we need to use TEF eval method.</p><p>1. Find all individual days, when the temperature is either too hot (temp high ≥ 80) or too cold(temp low ≤ 40). We can use Pandas DataFrame eval method, which returns the set of individual rows, where the constraint is satisfied (Fig. <ref type="figure">7</ref>). Fig. 6. Booleanized Data Frame: b df Fig. 7. Query using Pandas DataFrame eval method</p><p>2. Find two consecutive days where a hot day (temp high ≥ 80) is followed by a cold day (temp low ≤ 40). The Pandas DataFrame eval method cannot handle this query, since it cannot reason about temporal relations involving multiple rows of a data frame. We use TEF eval method instead. TEF does the following 3 steps to evaluate "temp high ≥ 80; temp low ≤ 40" against the data frame df (Fig. <ref type="figure">5</ref>).</p><p>• Step 1: As discussed in Section IV, TEF identifies all the Boolean expressions used in the property, and evaluates them with respect to each row in df. This particular query contains two Boolean expressions "high temperature ≥ 80" and "low temperature ≤ 40". The Booleanized data Fig. <ref type="figure">8</ref>. Query using TEF eval method frame b df (Fig. <ref type="figure">6</ref>) has two columns and has the same number of rows as df. b df is transformed into the following string by using ',' to seperate columns and using '()' to group characters within the same rows.</p><p>(0,1)(0,0)(0,0)(0,0)(1,0)(1,0)(0,0)(0,0)(0,0)(0,1)(1,0) (0,1)(0,1)(0,0)(0,0)(0,1)(0,1)(0,1)(0,1)(0,1)(0,1)(0,1) (0,0)(0,0)(1,0)(1,0)(0,0)(0,0)(0,0)(0,0)  B. Analyzing Dow Jones Industrial Average (DJIA) index using TEF In this section, we show how TEF can be used to analyze patterns in Dow Jones Industrial Average (DJIA) index. This dataset contains data from 01/01/1980 to 12/31/2012, and is taken from [17]. All experiments are done on a Macbook, with 2.6 GHz 6-Core Intel Core i7 and 16 GB 2667 MHz DDR4. 1. [Rise after Drop] Find all periods where the index has been dropping for 5 consecutive days and rises on the next day. The result is shown in Fig. 10. 2. [Fluctuation] Find all periods where the index decreases on one day and increases on the next day, and this pattern repeats for at least 5 times. The result is shown in Fig. 11.   entire dataset collection consists of 250 datasets from domains such as medical monitoring, motion sensors, and weather. We identified 130 examples where the model output could be improved by a rule based filter. In Fig. <ref type="figure" target="#fig_13">14</ref> the anomaly is difficult to detect as it has similar amplitude and frequency to the baseline pattern. But the detected anomalies are clustered in time and anomalies that are farther apart could be ruled out by a simple rule filter. We can use TEF to specify that within a cluster, the total number of anomalies needs to reach a certain threshold. For example, cluster 2,5 = "anomaly[-2] + anomaly[-1] + anomaly + anomaly <ref type="bibr" target="#b0">[1]</ref> + anomaly[2] ≥ 2" specifies that at least 2 anomalies need to occur within a cluster of width 5. The width of the cluster and the threshold can be adjusted for different applications. Fig. <ref type="figure" target="#fig_14">15</ref> is an example where the anomaly can be detected by a gap that follows detected anomalies. In order to specify that a gap of width x needs to follow a detected anomaly, we can use: "[ * ]; anomaly; !anomaly[ * x]". The original data, shown in the upper graph, has an anomaly that is difficult to characterize.</p><formula xml:id="formula_2">•</formula><p>As a final example, Fig. <ref type="figure">16</ref> shows a case where a suitable filtering rule would take into account both cluster and gap behavior. "cluster 2,5 ; !anomaly[ * 5]; cluster 2,5 " specifies a sequence of events: at least 2 anomalies occur within a cluster of width 5, followed by a gap of width 5, followed by at least 2 anomalies occurring within a cluster of width 5. Again, the width of the cluster and the width of the gap can be adjusted for different applications. Fig. 16. Identify by gap</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>VI. CONCLUSIONS AND FUTURE WORK</head><p>For many years, the use of PSL has been limited to hardware design and verification, since PSL is designed to deal with discrete variables over discrete time. In this paper, we propose that PSL can be used in continuous domain for anomaly detection. The idea is to merge PSL with machine learning and use a hybrid framework for anomaly detection. This hybrid framework consists of a machine learning module and a PSL monitor. The machine learning module outputs anomalies in the form of discrete time and events. The PSL monitor further refines the output of the machine learning module by checking if some user-defined temporal relation is satisfied. We implemented a temporal monitoring package (TEF), and we show that TEF can be used to perform accurate interpretation of temporal correlation between events.</p><p>For future work we are experimenting with the following cases: multivariate anomaly detection problems, and TEF in conjunction with ensemble models. With TEF, we have the opportunity to transform anomaly characterization rules into data, and develop models from there.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Algorithm 1 2 :</head><label>12</label><figDesc>As syntactic sugar, c may be used as an abbreviation for c[0]. An illustrative example of a property making use of the "[]" operator is (c &gt; c[-1])[ * 5], which matches all segments of the trace in which the value at c increases five times consecutively. An algorithm for converting a SERE expression e to a regex expression 1: function PSL TO REGEX(e) if e is a Boolean expression b then 3:</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>13 : s 1 ←s 2 ←</head><label>1312</label><figDesc>PSL TO REGEX(r 1 ) 14: PSL TO REGEX(r 2 ) 15: left = '(' + '(?=' + s 1 + ')' + s 2 + ')' 16: right = '(' + '(?=' + s 2 + ')' + s 1 + ')' 17: return '(' + left + '|' + right + ')' 18: else if e is r[ * ] then 19: s ← PSL TO REGEX(r) 20: return '(' + s + '*' + ')' 21: else if e is r[+] then 22: s ← PSL TO REGEX(r) 23: return '(' + s + '+' + ')' 24: else if e is r[ * n] then 25: s ← PSL TO REGEX(r) 26: return '((' + s + ')' + '{' + n + '}' + ')' 27: else if e is r[ * n..m] then 28: s ← PSL TO REGEX(r) 29: return '((' + s + ')' + '{' + n + ',' + m + '}' + ')' 30: else if e is r[ * n..] then 31: s ← PSL TO REGEX(r) 32: return '((' + s + ')' + '{' + n + ',' + '}' + ')' 33: else if e is r[ * ..m] then 34: s ← PSL TO REGEX(r) 35: return '((' + s + ')' + '{0' + ',' + m + '}' + ')'</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Fig. 3 .Fig. 4 .</head><label>34</label><figDesc>Fig. 3. SERE expressions and Python's regex patterns</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Algorithm 2</head><label>2</label><figDesc>An algorithm for Booleanizing a data frame df w.r.t. a compound Boolean expression e 1: function BOOLEANIZE DATAFRAME(df, e)2:</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><head>Fig. 5 .Fig. 6 .Fig. 7 .</head><label>567</label><figDesc>Fig. 5. Data Frame: df</figDesc><graphic coords="5,55.54,50.54,111.04,340.16" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head>Step 2 :</head><label>2</label><figDesc>The PSL property is compiled to a Python regex pattern: (\ (1, 0\) |\ (1, 1\))(\ (0, 1\) |\ (1, 1\)). • Step 3: Python's regex engine is used to find matches. The result is shown in Fig. 8. 3. Find two consecutive days when (1) temp high ≤ 80 and temp low ≥ 40 (2) humidity ≥ 20 and humidity ≤ 70 (3) wind speed &lt; 30. Again, this is a temporal relation involving multiple rows of the data frame. We should use TEF eval method. The result is shown in Fig. 9.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_8"><head>Fig. 9 .</head><label>9</label><figDesc>Fig. 9. Query using TEF eval method</figDesc><graphic coords="5,314.32,421.72,242.88,130.80" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_9"><head>Fig. 10 .</head><label>10</label><figDesc>Fig. 10. Rise after Drop</figDesc><graphic coords="6,51.31,50.54,242.88,125.76" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_10"><head>Fig. 11 .</head><label>11</label><figDesc>Fig. 11. Flunctuation 3. [Steady] Find all periods where the index stays between 5000 and 6000 for at least 10 days. The result is shown in Fig. 12.</figDesc><graphic coords="6,51.43,265.94,242.64,124.80" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_11"><head>Fig. 12 .</head><label>12</label><figDesc>Fig. 12. Steady 4. [Jump] Find all periods where the index increases by at least 10% compared to the previous day. The result is shown in Fig. 13.C. Isolation Forest Anomaly Detection Models and TEFUsing examples from publicly available data sets, we show cases where false positives from a trained isolation forest model can be filtered by rules. The data is taken from[18]. The</figDesc><graphic coords="6,51.67,469.96,242.16,125.52" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_12"><head>Fig. 13 .</head><label>13</label><figDesc>Fig. 13. Jump</figDesc><graphic coords="6,314.80,50.54,241.92,125.28" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_13"><head>Fig. 14 .</head><label>14</label><figDesc>Fig. 14. Identify cluster of predictions</figDesc><graphic coords="6,329.17,281.13,213.20,118.40" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_14"><head>Fig. 15 .</head><label>15</label><figDesc>Fig. 15. Identify by gap</figDesc><graphic coords="7,68.55,50.54,208.40,114.80" type="bitmap" /></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<author>
+			<persName><forename type="first">Roderick</forename><surname>Bloem</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stefan</forename><forename type="middle">J</forename><surname>Galler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Barbara</forename><surname>Jobstmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nir</forename><surname>Piterman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Amir</forename><surname>Pnueli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Martin</forename><surname>Weiglhofer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Specify, Compile, Run: Hardware from PSL</title>
+		<imprint>
+			<date type="published" when="2007">2007</date>
+			<biblScope unit="volume">190</biblScope>
+			<biblScope unit="page" from="3" to="16" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Efficient Automata-Based Assertion-Checker Synthesis of SEREs for Hardware Emulation</title>
+		<author>
+			<persName><forename type="first">Marc</forename><surname>Boule</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zeljko</forename><surname>Zilic</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ASP-DAC 2007</title>
+		<imprint>
+			<biblScope unit="page" from="324" to="329" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Anomaly detection: A survey</title>
+		<author>
+			<persName><forename type="first">Varun</forename><surname>Chandola</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Arindam</forename><surname>Banerjee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vipin</forename><surname>Kumar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM Comput. Surv</title>
+		<imprint>
+			<biblScope unit="volume">41</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page">58</biblScope>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Security and Privacy-Enhanced Federated Learning for Anomaly Detection in IoT Infrastructures</title>
+		<author>
+			<persName><forename type="first">Lei</forename><surname>Cui</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Youyang</forename><surname>Qu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gang</forename><surname>Xie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Deze</forename><surname>Zeng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ruidong</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shigen</forename><surname>Shen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shui</forename><surname>Yu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Ind. Informatics</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="3492" to="3500" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">A Practical Introduction to PSL</title>
+		<author>
+			<persName><forename type="first">Cindy</forename><surname>Eisner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dana</forename><surname>Fisman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Series on Integrated Circuits and Systems</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2006">2006</date>
+			<biblScope unit="page" from="1" to="240" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">RT-MOBS: A compositional observer semantics of time Petri net for realtime property specification language based on µ-calculus</title>
+		<author>
+			<persName><forename type="first">Silvano</forename><surname>Ning Ge</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hongyu</forename><surname>Dal-Zilio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Li</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lianyi</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Sci. Comput. Program</title>
+		<imprint>
+			<biblScope unit="volume">206</biblScope>
+			<biblScope unit="page">102624</biblScope>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">A K-Means clustering and SVM based hybrid concept drift detection technique for network anomaly detection</title>
+		<author>
+			<persName><forename type="first">Meenal</forename><surname>Jain</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gagandeep</forename><surname>Kaur</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vikas</forename><surname>Saxena</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Expert Syst. Appl</title>
+		<imprint>
+			<biblScope unit="volume">193</biblScope>
+			<biblScope unit="page">116510</biblScope>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Synthesis of Regular Expressions Revisited: From PSL SEREs to Hardware</title>
+		<author>
+			<persName><forename type="first">Katell</forename><surname>Fatemeh Negin Javaheri</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dominique</forename><surname>Morin-Allory</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Borrione</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Comput. Aided Des. Integr. Circuits Syst</title>
+		<imprint>
+			<biblScope unit="volume">36</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="869" to="882" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">An efficient and robust deep learning based network anomaly detection against distributed denial of service attacks</title>
+		<author>
+			<persName><forename type="first">Ömer</forename><surname>Kasim</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Comput. Networks</title>
+		<imprint>
+			<biblScope unit="volume">180</biblScope>
+			<biblScope unit="page">107390</biblScope>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<author>
+			<persName><forename type="first">Siwon</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kukjin</forename><surname>Choi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hyun-Soo</forename><surname>Choi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Byunghan</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sungroh</forename><surname>Yoon</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/pdf/2109.05257.pdf" />
+		<title level="m">Towards a Rigorous Evaluation of Time-series Anomaly Detection</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Clusteringbased anomaly detection in multivariate time series data</title>
+		<author>
+			<persName><forename type="first">Jinbo</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hesam</forename><surname>Izakian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Witold</forename><surname>Pedrycz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Iqbal</forename><surname>Jamal</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Appl. Soft Comput</title>
+		<imprint>
+			<biblScope unit="volume">100</biblScope>
+			<biblScope unit="page">106919</biblScope>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Attention-based framework for weakly supervised video anomaly detection</title>
+		<author>
+			<persName><forename type="first">Hualin</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Liyan</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Supercomput</title>
+		<imprint>
+			<biblScope unit="volume">78</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="8409" to="8429" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">An overview of anomaly detection techniques: Existing solutions and latest technological trends</title>
+		<author>
+			<persName><forename type="first">Animesh</forename><surname>Patcha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jung-Min</forename><surname>Park</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Comput. Networks</title>
+		<imprint>
+			<biblScope unit="volume">51</biblScope>
+			<biblScope unit="issue">12</biblScope>
+			<biblScope unit="page" from="3448" to="3470" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Personalized federated learning framework for network traffic anomaly detection</title>
+		<author>
+			<persName><forename type="first">Jiaming</forename><surname>Pei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kaiyang</forename><surname>Zhong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mian</forename><surname>Ahmad Jan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jinhai</forename><surname>Li</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Comput. Networks</title>
+		<imprint>
+			<biblScope unit="volume">209</biblScope>
+			<biblScope unit="page">108906</biblScope>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title level="m" type="main">Requirements Engineering and Efficient Verification of PSL Properties</title>
+		<author>
+			<persName><forename type="first">Ingo</forename><surname>Pill</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2008">2008</date>
+		</imprint>
+		<respStmt>
+			<orgName>Institute for Software Technology, Graz University of Technology</orgName>
+		</respStmt>
+	</monogr>
+	<note type="report_type">Doctoral Thesis</note>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

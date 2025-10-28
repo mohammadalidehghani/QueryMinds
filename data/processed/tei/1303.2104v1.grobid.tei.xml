@@ -1,0 +1,936 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Transfer Learning for Voice Activity Detection: A Denoising Deep Neural Network Perspective</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2013-03-08">8 Mar 2013</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Xiao-Lei</forename><surname>Zhang</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department" key="dep1">Tsinghua National Laboratory for Information Science and Technology</orgName>
+								<orgName type="department" key="dep2">Department of Electronic Engineering</orgName>
+								<orgName type="laboratory">Multimedia Signal and Intelligent Information Processing Laboratory</orgName>
+								<orgName type="institution">Tsinghua University</orgName>
+								<address>
+									<settlement>Beijing</settlement>
+									<region>China</region>
+								</address>
+							</affiliation>
+						</author>
+						<author role="corresp">
+							<persName><forename type="first">Ji</forename><surname>Wu</surname></persName>
+							<email>wu_ji@tsinghua.edu.cn</email>
+							<affiliation key="aff0">
+								<orgName type="department" key="dep1">Tsinghua National Laboratory for Information Science and Technology</orgName>
+								<orgName type="department" key="dep2">Department of Electronic Engineering</orgName>
+								<orgName type="laboratory">Multimedia Signal and Intelligent Information Processing Laboratory</orgName>
+								<orgName type="institution">Tsinghua University</orgName>
+								<address>
+									<settlement>Beijing</settlement>
+									<region>China</region>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Transfer Learning for Voice Activity Detection: A Denoising Deep Neural Network Perspective</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2013-03-08">8 Mar 2013</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">007DCC761B6B6E5356F5AC0D057DA16C</idno>
+					<idno type="arXiv">arXiv:1303.2104v1[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:04+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>deep learning</term>
+					<term>domain adaptation</term>
+					<term>feature learning</term>
+					<term>transfer learning</term>
+					<term>voice activity detection</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Mismatching problem between the source and target noisy corpora severely hinder the practical use of the machine-learningbased voice activity detection (VAD). In this paper, we try to address this problem in the transfer learning prospective. Transfer learning tries to find a common learning machine or a common feature subspace that is shared by both the source corpus and the target corpus. The denoising deep neural network is used as the learning machine. Three transfer techniques, which aim to learn common feature representations, are used for analysis. Experimental results demonstrate the effectiveness of the transfer learning schemes on the mismatch problem.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.">Introduction</head><p>Voice activity detectors (VADs) aim to discover speech from its background noises. They are important frontends of modern speech recognition systems <ref type="bibr" target="#b1">[1]</ref><ref type="bibr" target="#b2">[2]</ref><ref type="bibr" target="#b3">[3]</ref> and speech signal processing systems <ref type="bibr" target="#b4">[4]</ref>. Recently, the machine-learning-based VADs <ref type="bibr" target="#b5">[5]</ref><ref type="bibr">[6]</ref><ref type="bibr" target="#b7">[7]</ref><ref type="bibr" target="#b8">[8]</ref><ref type="bibr" target="#b9">[9]</ref> have received much attention in that they not only can be integrated to the speech recognition systems naturally but also can fuse the advantages of multiple features <ref type="bibr" target="#b10">[10]</ref><ref type="bibr" target="#b11">[11]</ref><ref type="bibr" target="#b12">[12]</ref><ref type="bibr" target="#b13">[13]</ref><ref type="bibr" target="#b14">[14]</ref><ref type="bibr" target="#b15">[15]</ref> much better than traditional VADs. However, the machine-learning-based VAD is still far from its practical use. One significant problem is that we are not sure whether the VAD model trained in a given source corpus is still powerful in a target corpus which might have a different distribution with the source corpus.</p><p>In this paper, we try to deal with the aforementioned problem by a novel learning method -transfer learning. Generally, transfer learning tries to make the model trained with one or multiple source tasks generalizes well on different but related target tasks, so that the performance gap between the source tasks and the target tasks can be lowered. See <ref type="bibr" target="#b16">[16]</ref> for an excellent survey on transfer learning. In respect of different hypothesis on whether the source data or target data is manually labeled, the transfer learning technologies can be categorized into four groups <ref type="bibr" target="#b16">[16]</ref>. This paper focuses on the domain adaptation techniques, where the source data is manually labeled and the target data is unlabeled which is a practical scene that the machine-learning-based VAD will meet. In respect of what This work is supported in part by the China Postdoctoral Science Foundation funded project under Grant 2012M520278, and in part by the National Natural Science Funds of China under Grant 61170197.</p><p>to transfer, the transfer learning methods can be categorized to three groups -instance transfer, feature transfer, and parameter transfer (i.e. model transfer) <ref type="bibr" target="#b16">[16,</ref><ref type="bibr" target="#b17">17]</ref>. This paper focuses on the feature transfer techniques. Generally, feature transfer tries to learn a low-dimensional feature representation that is shared by both the source data and the target data, so that the classifier trained on the source data with the learned subspace can generalize well on the target data. The main contributions of this paper are summarized as follows:</p><p>1. Towards the mismatching problem of the machinelearning-based VAD. We have conducted an extensive experiment from the domain adaptation perspective for the mismatching problem. The recently proposed denoising deep neural network (DDNN) <ref type="bibr" target="#b18">[18]</ref> is used as the learning machine. Empirical results show that the transfer learning schemes are more powerful than several state-of-the-art VADs when the source and target corpora are relatively similar. The results also demonstrate the promising future of the practical use of the machinelearning-based VADs.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>2.</head><p>A useful empirical comparison of three feature-based domain adaptation schemes. We have proposed three domain adaptations for the DDNN-based VAD. Empirical results show that we can pre-train the deep neural networks in an unsupervised manner either with the source data only or with both the source data and the target data together, but the data for all layers' pre-training have to be the same without interference, which manifested the powerfulness of the pre-training scheme proposed by Hinton et al. <ref type="bibr" target="#b19">[19]</ref>.</p><p>We have to note that the main purpose of this paper is to discuss the effectiveness of the transfer learning for the mismatching problem between the source data and the target data but not to propose a specific VAD algorithm. To make the machinelearning-based VAD work well in practice, a lot of efforts are still needed. As an example, the DDNN-based VAD needs the clean speech signals of its noisy speech corpus in the unsupervised pre-training stage, which is an ideal situation. The remainder of the paper is organized as follows. In Section 2, we first review the recently proposed DDNN and then present three feature-based domain adaptation schemes for the DDNN-based VAD. In Section 3, we present the related work. In Section 4, we conduct an extensive experimental comparison. In Section 5, we conclude this paper with some future work. Scheme 1 A successful scheme.</p><p>1: Pre-train all layers of DDNN with only the target corpus X (t) . 2: Fine-tune the pre-trained DDNN with only the labeled source corpus, i.e. X (s) × Y (s) . Scheme 2 A successful scheme.</p><p>1: Take the source corpus X (s) and the target corpus X (t) together as a large corpus. 2: Pre-train all layers of DDNN with the large corpus. 3: Fine-tune the pre-trained DDNN with only the labeled source corpus, i.e. X (s) × Y (s) .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.">Domain Adaptation for VAD</head><p>In this section, we first review the denoising deep neural network (DDNN), and then propose three feature-based domain adaptation schemes for the DDNN-based VAD.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1.">Review: Denoising Deep Neural Network for VAD</head><p>DDNN <ref type="bibr" target="#b18">[18]</ref> is a deep neural network. It was motivated from the stacked denoising autoencoder <ref type="bibr" target="#b20">[20,</ref><ref type="bibr" target="#b21">21]</ref>. Compared to the deepbelief-network-based VAD <ref type="bibr" target="#b22">[22]</ref>, it has achieved a success on the performance of the deep layers over shallower layers. The key idea of DDNN is to first minimize the reconstruction crossentropy loss between the noisy speech signal and its corresponding clean speech signal in an unsupervised greedy layer-wise pre-training way, and then fine-tune the entire deep neural network by minimizing the cross-entropy loss between the noisy speech signal and its manual labels for the minimum classification error. One special point of DDNN is that, in the pre-training phase, DDNN needs to train an accompanying deep neural network, i.e. a deep network that tries to reconstruct the clean speech signal from the clean speech signal. This is mainly to supply the noisy speech its optimization objective in each layer.</p><p>From the aforementioned, we can see that one weakness of DDNN is that the noisy speech signal needs its corresponding clean speech signal in the pre-training phase. Because this paper focuses on the effectiveness of the transfer learning, this weakness does not hinder the main contributions of the paper.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2.">Preliminary of the Feature-Based Domain Adaptation</head><p>Suppose we have a labeled source corpus X (s) × Y (s) , and an unlabeled target corpus X (t) , where X denotes the acoustic feature corpus and Y denotes the set of the manual labels. The corpora X (s) and X (t) might be sampled from different noise scenarios. The feature-based domain adaptation scheme aims to find a mapping function φ(•) such that the distribution difference between φ X (s) and φ X (t) is minimized. Therefore, if we minimize the classification error on the source corpus with the new feature representation, i.e. φ X (s) , we can also expect to minimize the classification error on the target corpus.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3.">Domain Adaptation Via Deep Feature Extraction</head><p>For the DDNN-based VAD, a number of training schemes for φ(•) can be developed. The core idea of the development is to first pre-train DDNN in different unsupervised ways and finetune DDNN with the labeled source corpus, i.e. X (s) × Y (s) , for the minimum classification error. . 3: Hybrid pre-training of the top layer: Group the output features of the source DDNN and target DDNN together to a large set, and pre-train the L-th layer of DDNN with the large set. The pre-trained model is denoted as W (t) L . 4: if Scheme 3 (t) then 5:</p><p>Fine-tune the pre-trained</p><formula xml:id="formula_0">W (t) l L-1 l=1 , W (t) L</formula><p>with only the labeled source corpus, i.e. X (s) × Y (s) . 6: else if Scheme 3 (s) then 7:</p><p>Fine-tune the pre-trained</p><formula xml:id="formula_1">W (s) l L-1 l=1 , W (t) L</formula><p>with only the labeled source corpus, i.e. X (s) × Y (s) . 8: end if 9: Output the fine-tuned network as the learned DDNN.</p><p>In this paper, we present three unsupervised pre-training schemes, which are described in Schemes 1, 2, and 3 respectively. The effectiveness and efficiency of the three schemes are analyzed qualitatively as follows:</p><p>Scheme 1 only uses the unlabeled target data X (t) to initialize DDNN. Because it uses only X (t) for pre-training, it is supposed to be a relatively poor initialization scheme but computationally efficient. Moreover, when X (t) is small, the initial point of DDNN might be biased and still suffer from overfitting, hence, the network might not be trained well.</p><p>Scheme 2 uses both X (s) and X (t) for initializing DDNN, which can learn a good feature representation shared by X (s) and X (t) . Particularly, when X (t) is rare, X (s) can play a sufficient supplementary role to X (t) . Hence, the network is desired to perform gently well on the target test data. However, whenever we meet a new target task, we have to conduct a heavy computation load by training X (s) and X (t) jointly in the pretraining phase.</p><p>Scheme 3 is designed to be a compromise between Scheme 1 and Scheme 2. Specifically, because we take the supplementary effect of X (s) merely into the highest layer of DDNN which is a layer that directly influences the performance of DDNN, we might not only transfer the source knowledge to the target domain but also can save a lot of training time, since that 1) the most computationally expensive part of DDNN is the pretraining of the source DDNN which can be trained once for all; 2) the top layer of DDNN usually has much less hidden units (i.e. much less training time) than the bottom modules. Scheme 3 contains two sub-schemes, which is denoted as Scheme 3 (t)  and Scheme 3 (s) respectively.</p><p>Before the experimental section, we emphasize that 1) Schemes 1 and 2 are successful ones because the data for all layers' pre-training are the same, 2) Scheme 3 fails in providing a good initial point for DDNN, because the data for pre-training all layers is not consistent. The main purpose that we want to share the failed scheme is to tell the critical readers that it provides a compromise thinking between the computationally light Schemes 1 and the computationally heavy Scheme 2, and we might find a successful compromise scheme that is both as effective as Scheme 2 and as efficient as Scheme 1 in the future.</p><p>Note that we can use multiple source corpora and multiple target corpora together to train the model freely. But in this paper, we only discuss the empirical performance with one source corpus and one target corpus, leaving the multiple source domain adaptation problem to a future discussion.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">Related Work</head><p>In respect of transfer learning and deep learning, there has been some similar work with the proposed schemes. For example, in <ref type="bibr" target="#b23">[23]</ref>, Glorot et al. adopted a domain adaptation scheme that is exactly the same as Scheme 2 of this paper for the sentiment classification problem. In <ref type="bibr" target="#b24">[24]</ref>, Collobert and Weston proposed a joint training scheme for the multitask learning problem of natural language processing, whose key idea is similar with Scheme 3. The architecture of <ref type="bibr" target="#b24">[24]</ref> is also successfully applied to machine translation <ref type="bibr" target="#b25">[25]</ref>. However, Scheme 3 is different from <ref type="bibr" target="#b24">[24,</ref><ref type="bibr" target="#b25">25]</ref> in that our Scheme 3 pre-train the top hiddenlayer of DDNN with set X (s) , X (t) , while the architecture of <ref type="bibr" target="#b24">[24,</ref><ref type="bibr" target="#b25">25]</ref> try to learn a subspace of word mapping in the tophidden layer with a strong constraint that one word in the lookup table of X (s) should have a matching word in that of X (t) .</p><p>In respect of the VAD study, the distribution difference between different noise scenarios has been mentioned in traditional VADs. For example, in <ref type="bibr" target="#b26">[26]</ref>, Chang et al. used different statistical models for modeling the speech and noise distributions in different noise scenarios. Another related topic with domain adaptation is the online learning methods <ref type="bibr" target="#b27">[27]</ref>, they update the model parameters according to the historical domain information of the speech signals. Traditional statistical-modelbased VADs <ref type="bibr" target="#b26">[26]</ref> can also be regarded as unsupervised online learning methods. But to our knowledge, how to combine multiple features effectively is still an open problem in the online learning methods. On the other side, although the domainadaptation-based VAD works in batch mode, it can combine multiple features effectively and yield a high accuracy without a requirement of heavy manual labeling.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.">Experiments</head><p>Seven noisy test corpora of AURORA2 <ref type="bibr" target="#b28">[28]</ref> is used for performance analysis. The signal-to-noise ratio level of the audio signals is set to 5 dB. Each test corpus of AURORA2 contains 1001 utterances, which are split randomly into three groups for training, developing and test respectively. Each training set and development set consist of 300 utterances respectively. Each test set consists of 401 utterances.</p><p>The sampling rate is 8kHz. We set the frame length to 25ms long with a frame-shift of 10ms. We extract 10 acoustic features from each observation. The detailed information of the features are listed in Table <ref type="table" target="#tab_0">1</ref>. All features are normalized into the range of [0, 1] in dimension.</p><p>To simulate the real-world domain adaptation task, we take the training sets of the Street and Subway noise scenarios as two source corpora. For each source corpus, we form 6 domain adaptation tasks by randomly extracting a 30-second audio segment from the training set of each noise type of AURORA2 ex- cept that of the source corpus. For each domain adaptation task, the development set of the source corpus is used for model selection. We run each domain adaptation task 5 times and report the average accuracies.</p><p>The parameters are set as follows. Up to three hidden layers are adopted with the numbers of the hidden units set to [54, <ref type="bibr" target="#b7">7,</ref><ref type="bibr" target="#b7">7]</ref> respectively. The learning rate of the unsupervised pre-training is set to 0.004. The maximum epoch of the unsupervised pretraining is set to 200. The learning rate of the supervised funetuning is set to 0.005. The maximum epoch of the supervised fune-tuning is set to 130. The batch mode training is adopted. Each batch contains 512 observations. Note that the parameters are selected empirically for a compromise between the training time and the accuracy. The accuracy might be further improved by tuning the parameters.</p><p>To evaluate the effectiveness of the proposed domain adaptation schemes, we give the empirical lower bound and upper bound that the schemes might achieve. The lower bound, denoted as "LB", is obtained by training DDNN with only the source corpus and testing it on various target environments. If the performance of the proposed domain adaptation schemes is worse than LB, it means that the schemes fail. The performance upper bound, denoted as "UB", is obtained by training DDNN with the training set of the target corpus and testing it on the test set of the same target environments. If the performance of the proposed domain adaptation schemes is better than the UB, it means that the schemes achieve unbelievably amazing successes. We also compare with the G.729B VAD <ref type="bibr" target="#b30">[30]</ref>, ETSI advanced frontend via Wiener filter <ref type="bibr" target="#b31">[31]</ref>, ETSI advanced frontend via frame dropping <ref type="bibr" target="#b31">[31]</ref>, Sohn VAD <ref type="bibr" target="#b32">[32]</ref>, Ramirez05 VAD <ref type="bibr" target="#b29">[29]</ref>, Ramirez07 VAD <ref type="bibr" target="#b33">[33]</ref>, Yu VAD <ref type="bibr" target="#b5">[5]</ref>, Shin VAD <ref type="bibr" target="#b34">[34]</ref>, and Ying VAD <ref type="bibr" target="#b27">[27]</ref>. The experimental settings are exactly as <ref type="bibr" target="#b22">[22]</ref> did.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1.">Experimental Results</head><p>First, we give the Hinton diagram of the feature distributions in different noise scenarios in Fig. <ref type="figure" target="#fig_1">1</ref>. From the figure, we can see that most feature distributions are relatively similar with each other except the subway noise scenario, which means the transfer learning schemes might be useful.</p><p>Table <ref type="table">2</ref> lists the transfer accuracies with the street noise as the source corpus. From the figure, we can see that in all layers, Scheme 2 is the most powerful one, followed by Scheme 1. Both Scheme 2 and Scheme 1 achieve higher accuracies than LB, which means the positive transfer <ref type="bibr" target="#b16">[16]</ref> phenomenon is observed. However, both Scheme 3 (t) and Scheme 3 (s) are not only worse than Schemes 1 and 2, but also sometimes slightly worse than LB, which means the negative transfer <ref type="bibr" target="#b16">[16]</ref> is observed. This phenomenon is rather important. It manifested empirically that using the greedy layer-wise pre-training to initialize the deep network is valuable. If we interrupt the initial point of some layer by noises, or if the data for pre-training are inconsistent in all layers, the performance drops dramatically.</p><p>Table <ref type="table" target="#tab_2">3</ref> lists the transfer accuracies with the subway noise Table <ref type="table">2</ref>: Transfer accuracy comparison (in percentage) with the street noise corpus (identification = 4) as the source data. "LB" is short for the lower bound, "S1" is short for Scheme 1, "S2" is short for Scheme 2, "S3 (t) " is short for Scheme 3 (t) , "S3 (s) " is short for Scheme 3 (s) , and "UB" is short for upper bound. "# layers" means that the depth of the DDNN is "#". Because the experimental environment settings are exactly as <ref type="bibr" target="#b22">[22]</ref> did, we just copy the results of the referenced VADs from <ref type="bibr" target="#b22">[22]</ref>. Due to the length limit, we only report the best performance of the referenced VADs and its corresponding VAD algorithm. The referenced methods that are marked with "*" means that they are machine-learning-based VADs that are trained and tested in the matching environments.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>ID Noise Type</head><p>Referenced 1 layer 2 layers 3 layers LB S1 S2 UB LB S1 S2 S3 (t) S3 (s) UB LB S1 S2 S3 (t) S3 (s) UB 1 Babble 75.51 (Ramirez05) 74.95 77.15 76.44 78.61 74.09 75.67 76.59 75.73 73.17 78.85 72.72 75.53 75.92 73.74 72.84 79.14 2 Car 79.25 (G.729B) 81.89 82.91 83.51 86.77 82.05 82.08 83.17 82.19 81.73 86.96 81.49 81.81 82.92 81.11 82.20 87.09 3 Restaurant 69.59 (Ramirez05) 74.44 75.14 75.74 83.47 73.84 75.34 75.61 74.53 74.17 83.90 73.25 75.59 75.19 75.76 73.31 83.78 5 Airport 72.45 (Shin)* 77.35 77.92 77.56 82.34 77.12 77.82 77.88 77.51 77.32 82.45 76.73 77.34 77.86 77.18 76.96 82.30 6 Train 75.26 (G.729B) 80.51 81.69 81.22 83.88 80.47 80.64 82.27 81.42 80.88 84.21 79.70 80.76 81.89 80.50 79.90 84.25 7 Subway 73.16 (Ramirez05) 68.19 68.19 69.87 85.84 68.35 72.69 76.28 68.22 68.17 85.62 68.44 74.49 76.42 70.70 68.26 85.73   as the source corpus. Due to the length limit, we only show the results of two target noise corpora. The experimental phenomena in other noise scenarios are similar with the two. From the table, we can see that due to the significant difference between the subway noise and the target corpus, the accuracies of all schemes drop significantly from UB. However, we can also observe that the accuracies yielded from Scheme 2 are still significantly better than LB and are upgraded layer by layer, which means that the positive transfer is observed too. As a conclusion, 1) the proposed schemes are effective in dealing with the mismatching problem between the source data and the target data; 2) Schemes 1 and 2 are both effective transfer learning schemes; 3) Initialization via unsupervised greedy layer-wise pre-training is valuable.</p><p>Several other interesting phenomena can be observed by comparing Table <ref type="table">2</ref> and Table <ref type="table" target="#tab_2">3</ref>. We can observe that when the feature distributions of the source data and target data are sim-ilar, the accuracy of the DDNN-based VAD drops slightly with respect to the depth of the network. One possible explanation is that the distributions can be sufficiently covered by the source corpus, so that we can achieve a desired performance with just one hidden layer of DDNN. On the contrary, when the feature distributions are dissimilar, the accuracy increases dramatically with respect to the depth of the network, which demonstrates the power of the transfer learning schemes. However, when compared with the referenced methods, we can observe that when the source and target environments are relatively similar, the DDNN-based VAD outperforms the referenced methods. But when the environments are severely dissimilar, the DDNN-based VAD is weaker than the referenced ones.</p><p>Table 4 lists the pre-training time comparison between the schemes. From the table, we can see that Scheme 1 is the most efficient one, and Scheme 3 is slightly slower than Scheme 1.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.">Conclusions</head><p>In this paper, we have tried to solve the mismatching problem between the source corpus and the target corpus in the transfer learning perspective, and further tried three DDNN-based domain adaptation schemes for the problem. Experimental results have shown that Schemes 1 and 2 are effective in dealing with the mismatching problem of VAD when compared with the traditional training method, while Scheme 1 is much more efficient than Scheme 2. The results also have shown that the layer-wise pre-training strategy is important for the success of the deeplearning-based transfer learning schemes. Although Scheme 3 is failed, it does provide an attempt on the compromise between the training time and accuracy, and provide a contrary example for showing the effectiveness of the layer-wise pre-training.</p><p>Experimental results also have shown that when the source and target corpora are very dissimilar, the performance might be weaker than the referenced methods. For solving this, pretraining with more unlabeled target data, with multiple source domain, and with more hidden layers might be helpful. Moreover, how to make the performance of Scheme 2 more closer to the upper bound, how to accelerate Scheme 2 and meanwhile keep its effectiveness are also what we want to address. We leave these problems as the future work.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Scheme 3 A. 3 :</head><label>33</label><figDesc>Scheme 3 A failed scheme. Input: The desired depth of DDNN, denoted as L, (i.e. the hidden-layer number). 1: Source DDNN pre-training: Pre-train the source DDNN with a depth of L -1 with only X (s) . The pre-trained source DDNN is denoted as W (s) l L-1 l=1 . /*Note: this model needs to be trained only once, and used repeatedly for different target corpus.*/ 2: Target DDNN pre-training: Pre-train the source DDNN with a depth of L-1 with only X (t) . The pre-trained target DDNN is denoted as W (t) l L-1 l=1</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Hinton diagram of the feature distributions in different noise scenarios. Each grid of the Hinton diagram measures the distribution similarity of the features in the relevant two scenarios.The bigger the grid is, the more similar the two distributions are. The similarity is calculated as expc (s)c (t) 2 /2<ref type="bibr" target="#b35">[35]</ref> with c as the feature centroid.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 1 :</head><label>1</label><figDesc>Features and their attributes. The subscript of each feature is the window length of the feature<ref type="bibr" target="#b29">[29]</ref>.</figDesc><table><row><cell cols="3">ID Feature Dimension</cell><cell>ID</cell><cell>Feature</cell><cell>Dimension</cell></row><row><cell>1</cell><cell>Pitch</cell><cell>1</cell><cell>7</cell><cell>MFCC16</cell><cell>20</cell></row><row><cell>2</cell><cell>DFT</cell><cell>16</cell><cell>8</cell><cell>LPC</cell><cell>12</cell></row><row><cell>3</cell><cell>DFT8</cell><cell>16</cell><cell>9</cell><cell>RASTA-PLP</cell><cell>17</cell></row><row><cell>4</cell><cell>DFT16</cell><cell>16</cell><cell>10</cell><cell>AMS</cell><cell>135</cell></row><row><cell>5</cell><cell>MFCC</cell><cell>20</cell><cell></cell><cell>Total</cell><cell>273</cell></row><row><cell>6</cell><cell>MFCC8</cell><cell>20</cell><cell></cell><cell></cell><cell></cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_2"><head>Table 3 :</head><label>3</label><figDesc>Transfer accuracy comparison (in percentage) with the subway noise corpus (identification = 7) as the source data.</figDesc><table><row><cell cols="3">ID Noise Type</cell><cell cols="2">Referenced</cell><cell></cell><cell></cell><cell>LB</cell><cell>S1</cell><cell>1 layer S2</cell><cell>UB</cell><cell>LB</cell><cell>S1</cell><cell>2 layers S2 S3 (t)</cell><cell>S3 (s)</cell><cell>UB</cell><cell>LB</cell><cell>S1</cell><cell>3 layers S2 S3 (t)</cell><cell>S3 (s)</cell><cell>UB</cell></row><row><cell>1</cell><cell>Babble</cell><cell></cell><cell cols="3">75.51 (Ramirez05)</cell><cell></cell><cell cols="4">54.58 54.60 62.05 78.61</cell><cell cols="5">54.58 54.59 67.59 54.58 54.58 78.85</cell><cell>54.58 54.58 68.11 54.59 54.58 79.14</cell></row><row><cell>2</cell><cell>Car</cell><cell></cell><cell cols="3">79.25 (G.729B)</cell><cell></cell><cell cols="4">55.80 55.80 68.24 86.77</cell><cell cols="5">59.54 58.05 69.19 63.09 64.11 86.96</cell><cell>61.33 57.96 70.05 56.52 58.65 87.09</cell></row><row><cell></cell><cell>Identification of the noise scenario</cell><cell>1 2 3 4 5 6 7</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell></row><row><cell></cell><cell></cell><cell>1</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>6</cell><cell>7</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell></row><row><cell></cell><cell></cell><cell></cell><cell cols="5">Identification of the noise scenario</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_3"><head>Table 4 :</head><label>4</label><figDesc>Pre-training time (in seconds) comparison.</figDesc><table><row><cell></cell><cell>1 layer</cell><cell>2 layers</cell><cell>3 layers</cell></row><row><cell>S1</cell><cell>570.48</cell><cell>713.21</cell><cell>774.87</cell></row><row><cell cols="2">S2 11200.19</cell><cell>12552.96</cell><cell>12838.95</cell></row><row><cell>S3</cell><cell>--</cell><cell cols="2">Source 12055.02 1860.34 12592.76 985.92 Hybrid Source Hybrid</cell></row></table></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title/>
+		<author>
+			<persName><surname>References</surname></persName>
+		</author>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Deep-structured hidden conditional random fields for phonetic recognition</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Deng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. INTERSPEECH</title>
+		<meeting>INTERSPEECH</meeting>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+			<biblScope unit="page" from="2986" to="2989" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Context-dependent pretrained deep neural networks for large vocabulary speech recognition</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Dahl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Deng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Acero</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Audio, Speech, Lang. Process</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="30" to="42" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Deep neural networks for acoustic modeling in speech recognition</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Hinton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Deng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Dahl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mohamed</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Jaitly</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Senior</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Vanhoucke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Sainath</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Signal Process. Mag</title>
+		<imprint>
+			<biblScope unit="volume">29</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<biblScope unit="page" from="2" to="17" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">A classification based approach to speech segregation</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Hana</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">L</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Journal of the Acoustical Society of America</title>
+		<imprint>
+			<biblScope unit="volume">99</biblScope>
+			<biblScope unit="page" from="1" to="34" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Discriminative training for multiple observation likelihood ratio based voice activity detection</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">H L</forename><surname>Hansen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Signal Process. Lett</title>
+		<imprint>
+			<biblScope unit="volume">17</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<biblScope unit="page" from="897" to="900" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Maximum margin clustering based statistical VAD with multiple observation compound feature</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><forename type="middle">L</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Signal Process. Lett</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="283" to="286" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Efficient multiple kernel support vector machine based voice activity detection</title>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Signal Process. Lett</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="466" to="499" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Linearithmic time sparse and convex maximum margin clustering</title>
+		<author>
+			<persName><forename type="first">X</forename><forename type="middle">L</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Syst., Man, Cybern. B, Cybern</title>
+		<imprint>
+			<biblScope unit="volume">42</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="1669" to="1692" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Multiple acoustic model-based discriminative likelihood ratio weighting for voice activity detection</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Suh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Kim</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Signal Process. Lett</title>
+		<imprint>
+			<biblScope unit="volume">19</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="507" to="510" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">The time dimension for scene analysis</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">L</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Neural Netw</title>
+		<imprint>
+			<biblScope unit="volume">16</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="1401" to="1426" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<monogr>
+		<title level="m" type="main">Computational auditory scene analysis: principles, algorithms and applications</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">L</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">J</forename><surname>Brown</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+			<publisher>Wiley-IEEE Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Towards generalizing classification based speech separation</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Han</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">L</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Audio, Speech, Lang. Process</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="issue">99</biblScope>
+			<biblScope unit="page" from="1" to="27" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Exploring monaural features for classification-based speech segregation</title>
+		<author>
+			<persName><forename type="first">Y</forename><forename type="middle">X</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Han</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">L</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Audio, Speech, Lang. Process</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="issue">99</biblScope>
+			<biblScope unit="page" from="1" to="10" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">An unsupervised approach to cochannel speech separation</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Hu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">L</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Audio, Speech, Lang. Process</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="issue">99</biblScope>
+			<biblScope unit="page" from="1" to="10" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Towards scaling up classificationbased speech separation</title>
+		<author>
+			<persName><forename type="first">Y</forename><forename type="middle">X</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">L</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Audio, Speech, Lang. Process</title>
+		<imprint>
+			<biblScope unit="issue">99</biblScope>
+			<biblScope unit="page" from="1" to="23" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">A survey on transfer learning</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Pan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Yang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Knowl. Data Eng</title>
+		<imprint>
+			<biblScope unit="volume">22</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page" from="1345" to="1359" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Domain adaptation in machine learning and speech processing</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Sha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Kingsbury</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Tutorial of INTERSPEECH</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="1" to="214" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Denoising deep neural networks based voice activity detection</title>
+		<author>
+			<persName><forename type="first">X.-L</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. 38th IEEE Int. Conf. Acoustic, Speech, Signal Process</title>
+		<meeting>38th IEEE Int. Conf. Acoustic, Speech, Signal ess</meeting>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="page" from="1" to="5" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Reducing the dimensionality of data with neural networks</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Hinton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Salakhutdinov</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Science</title>
+		<imprint>
+			<biblScope unit="volume">313</biblScope>
+			<biblScope unit="issue">5786</biblScope>
+			<biblScope unit="page" from="504" to="507" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Extracting and composing robust features with denoising autoencoders</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Vincent</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Larochelle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">A</forename><surname>Manzagol</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. 25th Int. Conf. Mach. Learn</title>
+		<meeting>25th Int. Conf. Mach. Learn</meeting>
+		<imprint>
+			<date type="published" when="2008">2008</date>
+			<biblScope unit="page" from="1096" to="1103" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Stacked denoising autoencoders: Learning useful representations in a deep network with a local denoising criterion</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Vincent</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Larochelle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Lajoie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">A</forename><surname>Manzagol</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Mach. Learn. Res</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="page" from="3371" to="3408" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Deep belief networks based voice activity detection</title>
+		<author>
+			<persName><forename type="first">X</forename><forename type="middle">L</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Audio, Speech, Lang. Process</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="697" to="710" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Domain adaptation for large-scale sentiment classification: A deep learning approach</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Glorot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Bordes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. 28th Int. Conf. Mach. Learn</title>
+		<meeting>28th Int. Conf. Mach. Learn</meeting>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+			<biblScope unit="page" from="1" to="8" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">A unified architecture for natural language processing: Deep neural networks with multitask learning</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Collobert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Weston</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. 25th Int. Conf. Mach. Learn</title>
+		<meeting>25th Int. Conf. Mach. Learn</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2008">2008</date>
+			<biblScope unit="page" from="160" to="167" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">A deep learning approach to machine transliteration</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Deselaers</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Hasan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Bender</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Ney</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. 4th Workshop Stat</title>
+		<meeting>4th Workshop Stat</meeting>
+		<imprint>
+			<publisher>Mach. Translation</publisher>
+			<biblScope unit="page" from="233" to="241" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Voice activity detection based on multiple statistical models</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">H</forename><surname>Chang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">S</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">K</forename><surname>Mitra</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Signal Process</title>
+		<imprint>
+			<biblScope unit="volume">54</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="1965" to="1976" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Voice activity detection based on an unsupervised learning framework</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Ying</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Yan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Dang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Soong</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Audio, Speech, Lang. Process</title>
+		<imprint>
+			<biblScope unit="volume">19</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="2624" to="2644" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">The AURORA experimental framework for the performance evaluation of speech recognition systems under noisy conditions</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Pearce</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Hirsch</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. ICSLP&apos;00</title>
+		<meeting>ICSLP&apos;00</meeting>
+		<imprint>
+			<date type="published" when="2000">2000</date>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="page" from="29" to="32" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Statistical voice activity detection using a multiple observation likelihood ratio test</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Ramírez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">C</forename><surname>Segura</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Benítez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>García</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Rubio</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Signal Process. Lett</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page" from="689" to="692" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">ITU-T Recommendation G. 729 Annex B: a silence compression scheme for use with G. 729 optimized for V. 70 digital simultaneous voice and data applications</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Benyassine</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Shlomot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">Y</forename><surname>Su</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Massaloux</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Lamblin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">P</forename><surname>Petit</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Commun. Mag</title>
+		<imprint>
+			<biblScope unit="volume">35</biblScope>
+			<biblScope unit="issue">9</biblScope>
+			<biblScope unit="page" from="64" to="73" />
+			<date type="published" when="1997">1997</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Speech processing, transmission and quality aspects (STQ); distributed speech recognition; advanced front-end feature extraction algorithm; compression algorithms</title>
+		<author>
+			<persName><surname>Etsi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ETSI ES</title>
+		<imprint>
+			<biblScope unit="volume">202</biblScope>
+			<biblScope unit="page">50</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">A statistical model-based voice activity detection</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Sohn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">S</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Sung</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Signal Process. Lett</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="3" />
+			<date type="published" when="1999">1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Improved voice activity detection using contextual multiple hypothesis testing for robust speech recognition</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Ramírez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Segura</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Górriz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>García</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Audio, Speech, Lang. Process</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="2177" to="2189" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">Voice activity detection based on statistical models and machine learning approaches</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">W</forename><surname>Shin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">H</forename><surname>Chang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">S</forename><surname>Kim</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computer Speech &amp; Language</title>
+		<imprint>
+			<biblScope unit="volume">24</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="515" to="530" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Semisupervised multitask learning</title>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Liao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">R</forename><surname>Stack</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Carin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Patt. Anal. Mach. Intell</title>
+		<imprint>
+			<biblScope unit="volume">31</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="1074" to="1086" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

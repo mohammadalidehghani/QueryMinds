@@ -1,0 +1,1011 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Machine Learning and Computational Mathematics</title>
+				<funder ref="#_z87RFQs">
+					<orgName type="full">unknown</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2020-09-23">23 Sep 2020</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<title level="a" type="main">Machine Learning and Computational Mathematics</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2020-09-23">23 Sep 2020</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">0B0F6A46DB2177B0FF53986AFF9B336B</idno>
+					<idno type="arXiv">arXiv:2009.14596v1[math.NA]</idno>
+					<note type="submission">In memory of Professor Feng Kang (1920-1993</note>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Neural network-based machine learning is capable of approximating functions in very high dimension with unprecedented efficiency and accuracy. This has opened up many exciting new possibilities, not just in traditional areas of artificial intelligence, but also in scientific computing and computational science. At the same time, machine learning has also acquired the reputation of being a set of "black box" i</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Neural network-based machine learning (ML) has shown very impressive success on a variety of tasks in traditional artificial intelligence. This includes classifying images, generating new images such as (fake) human faces and playing sophisticated games such as Go. A common feature of all these tasks is that they involve objects in very high dimension. Indeed when formulated in mathematical terms, the image classification problem is a problem of approximating a high dimensional function, defined on the space of images, to the discrete set of values corresponding to the category of each image. The dimensionality of the input space is typically 3 times the number of pixels in the image, where 3 is the dimensionality of the color space. The image generation problem is a problem of generating samples from an unknown high dimensional distribution, given a set of samples from that distribution. The Go game problem is about solving a Bellman-like equation in dynamic programming, since the optimal strategy satisfies such an equation. For sophisticated games such as Go, this Bellman-like equation is formulated on a huge space.</p><p>All these are made possible by the ability to accurately approximate high dimensional functions, using modern machine learning techniques. This opens up new possibilities for attacking problems that suffer from the "curse of dimensionality" (CoD): As dimensionality grows, computational cost grows exponentially fast. This CoD problem has been an essential obstacle for the scientific community for a very long time.</p><p>Take, for example, the problem of solving partial differential equations (PDEs) numerically. With traditional numerical methods such as finite difference, finite element and spectral methods, we can now routinely solve PDEs in three spatial dimensions plus the temporal dimension. Most of the PDEs currently studied in computational mathematics belong to this category. Well known examples include the Poisson equation, the Maxwell equation, the Euler equation, the Navier-Stokes equations, and the PDEs for linear elasticity. Sparse grids can increase our ability to handling PDEs to, say 8 to 10 dimensions. This allows us to try solving problems such as the Boltzmann equation for simple molecules. But we are totally lost when faced with PDEs, say in 100 dimension. This makes it essentially impossible to solve Fokker-Planck or Boltzmann equations for complex molecules, many-body Schrödinger, or the Hamilton-Jacobi-Bellman equations for realistic control problems. This is exactly where machine learning can help. Indeed, starting with the work in <ref type="bibr" target="#b19">[20,</ref><ref type="bibr" target="#b9">10,</ref><ref type="bibr" target="#b20">21]</ref>, machine learning-based numerical algorithm for solving high dimensional PDEs and control problems has been one of the most exciting new developments in recent years in scientific computing, and this has opened up a host of new possibilities for computational mathematics. We refer to <ref type="bibr" target="#b16">[17]</ref> for a review of this exciting development.</p><p>Solving PDEs is just the tip of the iceberg. There are many other problems for which CoD is the main obstacle, including:</p><p>• classical many-body problem, e.g. protein folding</p><p>• turbulence. Even though turbulence can be modeled by the three dimensional Navier-Stokes equation, it has so many active degrees of freedom that an effective model for turbulence should involve many variables.</p><p>• solid mechanics. In solid mechanics, we do not even have the analog of the Navier-Stokes equation. Why is this the case? Well, the real reason is that the behavior of solids is essentially a multi-scale problem that involves scales from atomistic all the way to macroscopic.</p><p>• multi-scale modeling. In fact most multi-scale problems for which there is no separation of scales belong to this category. An immediate example is the dynamics of polymer fluids or polymer melts.</p><p>Can machine learning help for these problems? More generally, can we extend the success of machine learning beyond traditional AI? We will try to convince the reader that this is indeed the case for many problems.</p><p>Besides being extremely powerful, neural network-based machine learning has also got the reputation of being a set of tricks instead of a set of systematic scientific principles. Its performance depends sensitively on the value of the hyper-parameters, such as the network widths and depths, the initialization, the learning rates, etc. Indeed just a few years ago, parameter tuning was considered to be very much of an art. Even now, This is still the case for some tasks. Therefore a natural question is: Can we understand these subtleties and propose better machine learning models whose performance is more robust?</p><p>In this article, we review what has been learned on these two issues. We discuss the impact that machine learning has already made or will make on computational mathematics, and how the ideas from computational mathematics, particularly numerical analysis, can be used to help understanding and better formulating machine learning models. On the former, we will mainly discuss the new problems that can now be addressed using ML-based algorithms. Even though machine learning also suggests new ways to solve some traditional problems in computational mathematics, we will not say much on this front.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Machine learning-based algorithms for problems in computational science</head><p>In this and the next section, we will discuss how neural network models can be used to develop new algorithms. For readers who are not familiar with neural networks, just think of them as being some replacement of polynomials. We will discuss neural networks afterwards.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">Nonlinear multi-grid method and protein folding</head><p>In traditional multi-grid method <ref type="bibr" target="#b4">[5]</ref>, say for solving the linear systems of equation that arise from some finite difference or finite element discretization of a linear elliptic equation, our objective is to minimize a quadratic function like</p><formula xml:id="formula_0">I h (u h ) = 1 2 u T h L h u h -f T h u h</formula><p>Here h is the grid size of the discretization. The basic idea of the multi-grid method is to iterate between solving this problem and a reduced problem on a coarser grid with grid size H. In order to do this, we need the following</p><p>• a projection operator: P : u h → u H , that maps functions defined on the fine grid to functions defined on the coarse grid.</p><p>• the effective operator at scale H: L H = P T L h P . This defines the objective function on the coarse grid:</p><formula xml:id="formula_1">I H (u H ) = 1 2 u T H L H u H -f T H u H • a prolongation operator Q : u H → u h</formula><p>, that maps functions defined on the coarse grid to functions defined on the fine grid. Usually one can take Q to be P T .</p><p>The key idea here is coarse graining, and iterating between the fine scale and the coarse-grained problem. The main components in coarse graining is a set of coarsegrained variables and the effective coarse-grained problem. Formulated this way, these are obviously general ideas that can be relevant for a wide variety of problems. In practice, however, the difficulty lies in how to obtain the effective coarse-grained problem, a step that is trivial for linear problems, and this is where machine learning can help.</p><p>We are going to use the protein folding problem as an example to illustrate the general idea for nonlinear problems.</p><p>Let {x j } be the positions of the atoms in a protein and the surrounding solvent, and U = U ({x j }) be the potential energy of the combined protein-solvent system. The potential energy consists of the energies due to chemical bonding, Van der Waals interaction, electro-static interaction, etc. The protein folding problem is to find the "ground state" of the energy U :</p><p>"Minimize" U.</p><p>Here we have added quotation marks since really what we want to do is to sample the distribution</p><formula xml:id="formula_2">ρ β = 1 Z e -βU , β = (k B T ) -1</formula><p>To define the coarse-grained problem, we assume that we are given a set of collective variables:</p><formula xml:id="formula_3">s = (s 1 , • • • , s n ), s j = s j (x 1 , • • • , x N ), (n &lt; N ).</formula><p>One possibility is to use the dihedral angles as the coarse-grained variables. In principle, one may also use machine learning methods to learn the "best" set of coarse-grained variables but this direction will not be pursued here.</p><p>Having defined the coarse-grained variables, the effective coarse-grained problem is simply the free energy associated with this set of coarse-grained variables:</p><formula xml:id="formula_4">A(s) = - 1 β ln p(s), p β (s) = 1 Z e -βU (x) δ(s(x) -s) dx,</formula><p>Unlike the case for linear problems, for which the effective coarse-grained model is readily available, in the current situation, we have to find the function A first.</p><p>The idea is to approximate A by neural networks. The issue here is how to obtain the training data.</p><p>Contrary to most standard machine learning problems where the training data is collected beforehand, in applications to computational science and scientific computing, the training data is collected "on-the-fly" as learning proceeds. This is referred to as the "concurrent learning" protocol <ref type="bibr" target="#b10">[11]</ref>. In this regard, the standard machine learning problems for which the training data is collected beforehand are examples of "sequential learning". The key issue for concurrent learning is an efficient algorithm for generating the data in the best way. The training dataset should on one hand be representative enough and on the other hand be as small as possible.</p><p>A general procedure for generating such datasets is suggested in <ref type="bibr" target="#b10">[11]</ref>. It is called the EELT (exploration-examination-labeling-training) algorithm and it consists of the following steps:</p><p>• exploration: exploring the s space. This can be done by sampling 1  Z e -βA(s) with the current approximation of A.</p><p>• examination: for each state explored, decide whether that state should be labeled.</p><p>One way to do this is to use an a posteriori error estimator. One possible such a posteriori error estimator is the variance of the predictions of an ensemble of machine learning models, see <ref type="bibr" target="#b40">[41]</ref>.</p><p>• labeling: compute the mean force (say using restrained molecular dynamics)</p><formula xml:id="formula_5">F (s) = -∇ s A(s).</formula><p>from which the free energy A can be computed using standard thermodynamic integration.</p><p>• training: train the appropriate neural network model. To come up with a good neural network model, one has to take into account the symmetries in the problem. For example, if we coarse grain a full atom representation of a collection of water molecules by eliminating the positions of the hydrogen atoms, then the free energy function for the resulting system should have permutation symmetry and this should be taken into account when designing the neural network model (see the next subsection).</p><p>Figure <ref type="figure">1</ref>: The folded and extended states of Trp-cage, reproduced with permission from <ref type="bibr" target="#b36">[37]</ref> .</p><p>This can also be viewed as a nonlinear multi-grid algorithm in the sense that it iterates between sampling p β on the space of the coarse-grained variables and the (constrained) Gibbs distribution ρ β for the full atom description. This is a general procedure that should work for a large class of nonlinear "multi-grid" problems.</p><p>Shown in Figure <ref type="figure">1</ref> is the extended and folded structure of Trp-cage. This is a small protein with 20 amino acids. We have chosen the 38 dihedral angles as the collective variables. The full result is presented in <ref type="bibr" target="#b36">[37]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">Molecular dynamics with ab initio accuracy</head><p>Molecular dynamics is a way of studying the behavior of molecular and material systems by tracking the trajectories of all the nuclei in the system. The dynamics of the nuclei is assumed to obey Newton's law, with some potential energy function (typically called potential energy surface or PES) V that models the effective interaction between the nuclei:</p><formula xml:id="formula_6">m i d 2 x i dt 2 = -∇ x i V, V = V (x 1 , x 2 , .</formula><p>.., x i , ..., x N ), How can we get the function V ? Traditionally, there have been two rather different approaches. The first is to compute the inter-atomic forces (-∇V ) on the fly using quantum mechanics models, the most popular one being the density functional theory (DFT). This is known as the Car-Parrinello molecular dynamics or ab initio molecular dynamics <ref type="bibr" target="#b5">[6,</ref><ref type="bibr" target="#b7">8]</ref>. This approach is quite accurate but is also very expensive, limiting the size of the system that one can handle to about 1000 atoms, even with high performance supercomputers. The other approach is to come up with empirical potentials. Basically one guesses a functional form of V with a small set of fitting parameters which are then determined by a small set of data. This approach is very efficient but unreliable. This dilemma between accuracy and efficiency has been an essential road block for molecular dynamics for a long time.</p><p>With machine learning, the new paradigm is to use DFT to generate the data, and then use machine learning to generate an approximation to V . This approach has the Figure <ref type="figure">2</ref>: The results of EELT algorithm: Number of configurations explored vs. the number of data points labeled. Only a very small percentage of the configurations are labeled. Reproduced with permission from Linfeng Zhang. See also <ref type="bibr" target="#b39">[40]</ref>. potential to produce an approximation to V that is as accurate as the DFT model and as efficient as the empirical potentials.</p><p>To achieve this goal, we have to address two issues. The first is the generation of data. The second is coming up with the appropriate neural network model. These two issues are the common features for all the problems that we discuss here.</p><p>The issue of adaptive data generation is very much the same as before. The EELT procedure can still be used. The details of how each step is implemented is a little different. We refer to <ref type="bibr" target="#b39">[40]</ref> for details.</p><p>Figure <ref type="figure">2</ref> shows the effect of using the EELT algorithm. As one can see, a very small percentage of the configurations explored are actually labeled. For the Al-Mg example, only ∼0.005% configurations explored by are selected for labeling.</p><p>For the second issue, the design of appropriate neural networks, the most important considerations are:</p><p>1. Extensiveness, the neural network should be extensive in the sense that if we want to extend the system, we just have to extend the neural network accordingly. One way of achieving this is suggested by Behler and Parrinello <ref type="bibr" target="#b3">[4]</ref>.</p><p>2. Preserving the symmetry. Besides the usual translational and rotational symmetry, one also has the permutational symmetry: If we relabel a system of copper atoms, its potential energy should not change. It makes a big difference in terms of the accuracy of the neural network model whether one takes these symmetries into account (see <ref type="bibr" target="#b22">[23]</ref> and Figure <ref type="figure">3</ref>).</p><p>One very nice and general way of addressing the symmetry problem is to design the neural network model as the composition of two networks: An embedding network followed by a fitting network. The task for the embedding network is to represent enough symmetry-preserving functions to be fed into the fitting network <ref type="bibr" target="#b38">[39]</ref>.</p><p>With these issues properly addressed, one can come up with very satisfactory neural network-based representation of V (see Figure <ref type="figure">4</ref>). This representation is named Deep Potential <ref type="bibr" target="#b22">[23,</ref><ref type="bibr" target="#b38">39]</ref> and the Deep Potential-based molecular dynamics is named DeePMD <ref type="bibr" target="#b37">[38]</ref>. As has been demonstrated recently in <ref type="bibr" target="#b29">[30,</ref><ref type="bibr" target="#b24">25]</ref>, DeePMD, combined with state of the Figure <ref type="figure">3</ref>: The effect of symmetry preservation on testing accuracy. Shown in red are the results of poor man's way of imposing symmetry (see main text for explanation). One can see that testing accuracy is drastically improved. Reproduced with permission from Linfeng Zhang.</p><p>Figure <ref type="figure">4</ref>: The test accuracy of the Deep Potential for a wide variety of systems. Reproduced with permission from Linfeng Zhang. See also <ref type="bibr" target="#b38">[39]</ref>.</p><p>art high performance supercomputers, can help to increase the size of the system that one can model with ab initio accuracy by 5 orders of magnitude.</p><p>3 Machine learning-based algorithms for high dimensional problems in scientific computing</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Stochastic control</head><p>The first application of machine learning for solving high dimensional problems in scientific computing was presented in <ref type="bibr" target="#b19">[20]</ref>. Stochastic control was chosen as the first example due to its close analogy with machine learning. Consider the discrete stochastic dynamical system:</p><formula xml:id="formula_7">s t+1 = s t + b t (s t , a t ) + ξ t+1 .<label>(1)</label></formula><p>Here s t and a t are respectively the state and control at time t, ξ t is the noise at time t.</p><p>Our objective is to solve:</p><formula xml:id="formula_8">min {at} T -1 t=0 E {ξt} T -1 t=0 c t (s t , a t ) + c T (s T )<label>(2)</label></formula><p>within the set of feedback controls:</p><formula xml:id="formula_9">a t = A t (s t ).<label>(3)</label></formula><p>We approximate the functions A t by neural network models:</p><formula xml:id="formula_10">A t (s) ≈ Ãt (s|θ t ), t = 0, • • • , T -1<label>(4)</label></formula><p>The optimization problem (2) then becomes:</p><formula xml:id="formula_11">min {θt} T -1 t=0 E {ξt} T -1 t=0 c t (s t , Ãt (s t |θ t )) + c T (s T )}.<label>(5)</label></formula><p>Unlike the situation in standard supervised learning, here we have T set of neural networks to be trained simultaneously. The network architecture is shown in Figure <ref type="figure">5</ref> Figure <ref type="figure">5</ref>: Network architecture for solving stochastic control in discrete time. The whole network has (N + 1)T layers in total that involve free parameters to be optimized simultaneously. Each column (except ξ t ) corresponds to a sub-network at t. Reproduced with permission from Jiequn Han. See also <ref type="bibr" target="#b19">[20]</ref>.</p><p>Compared with the standard setting for machine learning, one can see a clear analogy in which (1) plays the role for the residual networks and the noise {ξ t } plays the role of data. Indeed, stochastic gradient descent (SGD) can be readily used to solve the optimization problem <ref type="bibr" target="#b4">(5)</ref>.</p><p>An example of the application of this algorithm is shown in Figure <ref type="figure" target="#fig_0">6</ref> for the problem of energy storage with multiple devices. Here n is the number of devices. For more details, we refer to <ref type="bibr" target="#b19">[20]</ref>. Reproduced with permission from Jiequn Han. See also <ref type="bibr" target="#b19">[20]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Nonlinear parabolic PDEs</head><p>Consider parabolic PDEs of the form:</p><formula xml:id="formula_12">∂u ∂t + 1 2 σσ T : ∇ 2 x u + µ • ∇u + f σ T ∇u = 0, u(T, x) = g(x)</formula><p>We study a terminal-value problem instead of initial-value problem since one of the main applications we have in mind is in finance. To develop machine learning-based algorithms, we would like to first reformulate this as a stochastic optimization problem. This can be done using backward stochastic differential equations (BSDE) <ref type="bibr" target="#b32">[33]</ref>.</p><p>inf</p><formula xml:id="formula_13">Y 0 ,{Zt} 0≤t≤T E|g(X T ) -Y T | 2 ,<label>(6)</label></formula><formula xml:id="formula_14">s.t. X t = ξ + t 0 µ(s, X s ) ds + t 0 Σ(s, X s ) dW s ,<label>(7)</label></formula><formula xml:id="formula_15">Y t = Y 0 - t 0 h(s, X s , Y s , Z s ) ds + t 0 (Z s ) T dW s .<label>(8)</label></formula><p>It can be shown that the unique minimizer of this problem is the solution to the PDE with:</p><formula xml:id="formula_16">Y t = u(t, X t ) and Z t = σ T (t, X t ) ∇u(t, X t ).<label>(9)</label></formula><p>With this formulation, one can develop a machine learning-based algorithm along the following lines, adopting the ideas for the stochastic control problems discussed earlier <ref type="bibr" target="#b9">[10,</ref><ref type="bibr" target="#b20">21]</ref>:</p><p>• After time discretization, approximate the unknown functions X 0 → u(0, X 0 ) and X t j → σ T (t j , X t j ) ∇u(t j , X t j ) by feedforward neural networks ψ and φ.</p><p>• Using the BSDE, one constructs an approximation û that takes the paths {X tn } 0≤n≤N and {W tn } 0≤n≤N as the input data and gives the final output, denoted by û({X tn } 0≤n≤N , {W tn } 0≤n≤N as an approximation to u(t N , X t N ).</p><p>• The error in the matching between û and the given terminal condition defines the expected loss function</p><formula xml:id="formula_17">l(θ) = E g(X t N ) -û {X tn } 0≤n≤N , {W tn } 0≤n≤N 2 .</formula><p>This algorithm is called the Deep BSDE method.</p><p>As applications, let us first study a stochastic control problem, but we now solve this problem using the Hamilton-Jacobi-Bellman (HJB) equation. Consider the well-known LQG (linear quadratic Gaussian) problem at dimension d = 100:</p><formula xml:id="formula_18">dX t = 2 √ λ m t dt + √ 2 dW t ,<label>(10)</label></formula><p>with the cost functional:</p><formula xml:id="formula_19">J({m t } 0≤t≤T ) = E T 0 m t 2 2 dt + g(X T</formula><p>) . The corresponding HJB equation is given by ∂u ∂t + ∆u -λ ∇u 2 2 = 0 (11)</p><p>Using the Hopf-Cole transform, we can express the solution in the form:</p><formula xml:id="formula_20">u(t, x) = - 1 λ ln E exp -λg(x + √ 2W T -t ) . (<label>12</label></formula><formula xml:id="formula_21">)</formula><p>This can be used to calibrate the accuracy of the Deep BSDE method.</p><p>0 10 20 30 40 50 lambda 4.0 4.1 4.2 4.3 4.4 4.5 4.6 4.7 u(0,0,...,0) Deep BSDE Solver Monte Carlo As a second example, we study the Black-Scholes equation with default risk:</p><formula xml:id="formula_22">∂u ∂t + ∆u -(1 -δ) Q(u(t, x)) u(t, x) -R u(t, x) = 0</formula><p>where Q is some nonlinear function. This form of modeling the default risk was proposed and/or used in the literature for low dimensional situation (d = 5, see <ref type="bibr" target="#b20">[21]</ref> for references). The Deep BSDE method was used for this problem with d = 100 <ref type="bibr" target="#b20">[21]</ref>. Reproduced with permission from Jiequn Han. See also <ref type="bibr" target="#b20">[21]</ref>.</p><p>The Deep BSDE method has been applied to pricing basket options, interest ratedependent options, Libor market model, Bermudan Swaption, barrier option (see <ref type="bibr" target="#b16">[17]</ref> for references).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Moment closure for kinetic equations modeling gas dynamics</head><p>The dynamics of gas can be modeled very accurately by the well-known Boltzmann Equation:</p><formula xml:id="formula_23">∂ t f + v • ∇ x f = 1 ε Q(f ), v ∈ R 3 , x ∈ Ω ⊂ R 3 , (<label>13</label></formula><formula xml:id="formula_24">)</formula><p>where f is the phase space density function, ε is the Knudsen number: ε = mean free path macroscopic length , Q is the collision operator that models the collision process between gas particles. When ε 1, this can be approximated by the Euler equation:</p><formula xml:id="formula_25">∂ t U + ∇ x • F (U ) = 0,<label>(14)</label></formula><p>where</p><formula xml:id="formula_26">U = (ρ, ρu, E) T , ρ = f dv, u = 1 ρ f v dv.</formula><p>and</p><formula xml:id="formula_27">F (U ) = (ρu, ρu ⊗ u + pI, (E + p)u) T</formula><p>Euler's equation can be obtained by projecting the Boltzmann equation on to the low order moments involved, and making use of the ansatz that the distribution function f is close to be local Maxwellian.</p><p>1.1 Some History and Background 1 CONTINUUM MODELS Kn 10 ¡2 10 ¡1 1.0 10.0 ½ ½ Euler Eqn equilibrium non-equilibrium NSF Eqn kinetic regime free flight transition regime ½ ½ ½ ! Figure 1: Overview of the range of Knudsen number and various model regimes. the moment systems lead to stable hyperbolic equations. However, in practical explicit systems hyperbolicity is given only in a finite range due to linearization. In Junk (1998) and Junk (2002) it is shown that the fully nonlinear maximum-entropy approach has sever drawbacks and singularities. Furthermore, the hyperbolicity leads to discontinuous sub-shock solutions in the shock profile. A variant of the moment method has been proposed by Eu (1980) and is used, e.g., in Myong (2001). Recently, a maximum-entropy 10-moment system has been used by Suzuki and van Leer (2005).</p><p>Both fundamental approaches of kinetic theory, Chapman-Enskog and Grad, exhibit severe disadvantages. Higher order Chapman-Enskog expansions are unstable and Grad's method introduces subshocks and show slow convergence. It seems to be desirable to combine both methods in order to remedy their disadvantages. Such an hybrid approach have already been discussed by Grad in a side note in Grad <ref type="bibr">(1958)</ref>. He derives a variant of the regularized 13-moment equations given below, but surprisingly he neither gives any details nor is he using or investigating the equations. In the last fifty years the paper Grad (1958) was cited as standard source for introduction into kinetic theory, but, apparently, this specific idea got entirely lost and seems not to be known in present day literature.</p><p>The Chapman-Enskog expansion is based on equilibrium and the corrections describe the non-equilibrium perturbation. A hybrid version which uses a non-equilibrium as basis is discussed in Karlin et al. <ref type="bibr">(1998)</ref>. They deduced linearized equations with unspecified coefficients. Starting from Burnett equations Jin and Slemrod (2001) derived an extended system of evolution equations which resembles the regularized 13-moment system. It is solved numerically in Jin et al. <ref type="bibr">(2002)</ref>. However, the tensorial structure of their relations is not in accordance with Boltzmann's equation. Starting from higher moment systems Müller et al. (2003) discussed a parabolization which includes higher order expressions into hyperbolic equations.</p><p>The regularized 13-moment-equations presented below were rigorously derived from Boltzmann's equation in <ref type="bibr">Struchtrup and Torrilhon (2003)</ref>. The key ingredient is a Chapman-Enskog expansion around a pseudo-equilibrium which is given by the constitutive relations of Grad for stress tensor and heat flux. The final system consists of evolution equations for the fluid fields: density, velocity, temperature, stress tensor and heat flux. The closure The different regimes of gas dynamics. Reproduced with permission from Jiequn Han. See also <ref type="bibr" target="#b21">[22]</ref>.</p><p>What happens when ε is not small? In this case, a natural idea is to seek some generalization of Euler's equation using more moments. This program was initiated by Harold Grad who constructed the well-known 13-moment system using the moments of</p><formula xml:id="formula_28">{1, v, (v -u) ⊗ (v -u), |v -u| 2 (v -u)}.</formula><p>This line of work has encountered several difficulties. First, there is no guarantee that the equations obtained are well-posed. Secondly there is always the "closure problem": When projecting the Boltzmann equation on a set of moments, there are always terms which involve moments outside the set of moments considered. In order to obtain a closed system, one needs to model these terms in some way. For Euler's equation, this is done using the local Maxwellian approximation. This is accurate when ε is small, but is no longer so when ε is not small. It is highly unclear what should be used as the replacement.</p><p>In <ref type="bibr" target="#b21">[22]</ref>, Han et al developed a machine learning-based moment method. The overall objective is to construct an uniformly accurate (generalized) moment model. The methodology consists of two steps:</p><p>1: Learn a set of optimal generalized moments through an auto-encoder. Here by optimality we mean that the set of generalized moments retains a maximum amount of information about the original distribution function and can be used to recover the distribution function with a minimum loss of accuracy. This can be done as follows: Find an encoder Ψ and a decoder Φ that recovers the original</p><formula xml:id="formula_29">f from U , W W = Ψ(f ) = wf dv, Φ(U , W )(v) = h(v; U , W ). Minimize w,h E f ∼D f -Φ(Ψ(f )) 2 .</formula><p>U and W form the set of generalized hydrodynamic variables that we will use to model the gas flow.</p><p>2: Learn the fluxes and source terms in the PDE for the projected PDE. The effective PDE for U and W can be obtained by formally projecting the Boltzmann equation on this set of (generalized) moments. This gives us a set of PDEs of the form:</p><formula xml:id="formula_30">∂ t U + ∇ x • F (U , W ; ε) = 0, ∂ t W + ∇ x • G(U , W ; ε) = R(U , W ; ε). (<label>15</label></formula><formula xml:id="formula_31">)</formula><p>where</p><formula xml:id="formula_32">F (U , W ; ε) = vU f dv, G(U , W ; ε) = vW f dv, R(U , W ; ε) = ε -1 W Q(f )dv.</formula><p>Our task now is to learn F , G, R from the original kinetic equation.</p><p>Again the important issues are (1) get an optimal dataset, and (2) enforce the physical constraints. Here two notable physical constraints are (1) conservation laws and (2) symmetries. Conservation laws are automatically respected in this approach. Regarding symmetries, besides the usual static symmetry, there is now a new dynamic symmetry: the Galilean invariance. These issues are all discussed in <ref type="bibr" target="#b21">[22]</ref>. We also refer to <ref type="bibr" target="#b21">[22]</ref> for numerical results for the models obtained this way.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Mathematical theory of machine learning</head><p>While neural network-based machine learning has demonstrated a wide range of very impressive successes, it has also acquired a reputation of being a "black magic" rather than a solid scientific technique. This is due to the fact that (1) we lack a basic understanding of the fundamental reasons behind its success; (2) the performance of these models and algorithms is quite sensitive to the choice of the hyper-parameters such as the architecture of the network and the learning rate; and (3) some techniques, such as batch normalization, does appear to be a black magic.</p><p>To change this situation, we need to (1) improve our understanding of the reasons behind the success and the fragility of neural network-based models and algorithms and (2) find ways to formulate more robust models and design more robust algorithms. In this section we address the first issue. The next section will be devoted to the second issue.</p><p>Here is a list of the most basic questions that we need to address:</p><p>• Why does it work in such high dimension?</p><p>• Why simple gradient descent works for training neural network models?</p><p>• Is over-parametrization good or bad?</p><p>• Why does neural network modeling require such extensive parameter tuning?</p><p>At this point, we do not yet have clear answers to all these questions. But some coherent picture is starting to emerge. We will focus on the problem of supervised learning, namely approximating a target function using a finite dataset. For simplicity, we will limit ourselves to the case when the physical domain of interest is X = [0, 1] d .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">An introduction to neural network-based supervised learning</head><p>The basic problem in supervised learning is as follows: Given a natural number n ∈ N and a sequence {(x j , y j ) = (x j , f * (x j )), j ∈ {1, 2, . . . , n}}, of pairs of input-output data, we want to recover the target function f * as accurately as possible. We will assume that the input data {x j , j ∈ {1, 2, . . . , n}}, is sampled from the probability distribution µ on R d .</p><p>Step 1. Choose a hypothesis space. This is a set of trial functions H m where m ∈ N is the dimensionality of H m . One might choose piecewise polynomials or wavelets.</p><p>In modern machine learning the most popular choice is neural network functions. Twolayer neural network functions (one input layer, one output layer which usually does not count, and one hidden layer) take the form</p><formula xml:id="formula_33">f m (x, θ) = 1 m m j=1 a j σ( w j , x )<label>(16)</label></formula><p>where σ : R → R is a fixed scalar nonlinear function and where θ = {(a j , w j ) j∈{1,2,...,m} } are the parameters to be optimized (or trained). A popular example for the nonlinear function σ : R → R is the ReLU (rectified linear unit) activation function: σ(z) = max{z, 0}, for all z ∈ R. We will restrict our attention to this activation function. Roughly speaking, deep neural network (DNN) functions are obtained if one composes two-layer neural network functions several times. One important class of DNN models are residual neural networks (ResNet). They closely resemble discretized ordinary differential equations and take the form</p><formula xml:id="formula_34">z l+1 = z l + M j=1 a j,l σ( z l , w j,l ), z 0 = V x, f L (x, θ) = α, z L<label>(17)</label></formula><p>for l ∈ {0, 1, . . . , L-1} where L, M ∈ N. Here the parameters are θ = (α, V , (a j,l ) j,l , (w j,l ) j,l ).</p><p>ResNets are the model of choice for truly deep neural network models.</p><p>Step 2. Choose a loss function. The primary consideration for the choice of the loss function is to fit the data. Therefore the most obvious choice is the L 2 loss:</p><formula xml:id="formula_35">Rn (f ) = 1 n n j=1 |f (x j ) -y j | 2 = 1 n n j=1 |f (x j ) -f * (x j )| 2 . (<label>18</label></formula><formula xml:id="formula_36">)</formula><p>This is also called the "empirical risk". Sometimes we also add regularization terms.</p><p>Step 3. Choose an optimization algorithm. The most popular optimization algorithms in machine learning are different versions of the gradient descent (GD) algorithm, or its stochastic analog, the stochastic gradient descent (SGD) algorithm. Assume that the objective function we aim to minimize is of the form</p><formula xml:id="formula_37">F (θ) = E ξ∼ν l(θ, ξ) . (<label>19</label></formula><formula xml:id="formula_38">)</formula><p>The simplest form of SGD iteration takes the form</p><formula xml:id="formula_39">θ k+1 = θ k -η∇l(θ k , ξ k ),<label>(20)</label></formula><p>for k ∈ N 0 where {ξ k , k ∈ N 0 = {0, 1, 2, . . . }} is a sequence of i.i.d. random variables sampled from the distribution ν and η is the learning rate which might also change during the course of the iteration. In contrast, GD takes the form</p><formula xml:id="formula_40">θ k+1 = θ k -η∇E ξ∼ν l(θ k , ξ) . (<label>21</label></formula><formula xml:id="formula_41">)</formula><p>Obviously this form of SGD can be adapted to loss functions of the form <ref type="bibr" target="#b17">(18)</ref> which can be regarded as an expectation with ν being the empirical distribution on the training dataset. This DNN-SGD paradigm is the heart of modern machine learning.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Approximation theory</head><p>The simplest way of approximating functions is to use polynomials. For polynomial approximation, there are two kinds of theorems. The first is the Weierstrass' Theorem which asserts that continuous functions can be uniformly approximated by polynomials on compact domains. The second is Taylor's Theorem which tells us that the rate of convergence depends on the smoothness of the target function.</p><p>Using the terminology in neural network theory, Weierstrass' Theorem is the "Universal Approximation Theorem" (UAT). It is a useful fact. But Taylor's Theorem is more useful since it tells us something about the rate of convergence. The form of Taylor's Theorem used in approximation theory are the direct and inverse approximation theorems which assert that a given function can approximated by polynomials with a particular rate if and only if certain norms of that function is finite. This particular norm, which measures the regularity of the function, is the key quantity that characterizes this approximation scheme. For piecewise polynomials, these norms are some Besov space norms <ref type="bibr" target="#b35">[36]</ref>. For L 2 , a typical result looks like follows:</p><formula xml:id="formula_42">inf f ∈Hm f -f m L 2 (X) ≤ C 0 h α f H α (X)<label>(22)</label></formula><p>Here H α stands for the α-th order Sobolev norm <ref type="bibr" target="#b35">[36]</ref>, m is the number of degrees of freedom. On a regular grid, the grid size is given by</p><formula xml:id="formula_43">h ∼ m -1/d<label>(23)</label></formula><p>An important thing to notice is that the convergence rate in <ref type="bibr" target="#b21">(22)</ref> suffers from CoD: If we want to reduce the error by a factor of , we need to increase m by a factor m ∼ -d if α = 1. For d = 100 which is not very high dimension by the standards of machine learning, this means that we have to increase m by a factor of -100 . This is why polynomials and piecewise polynomials are not useful in high dimensions.</p><p>Another way to appreciate this is as follows. The number of monomials of degree p in dimension d is C d p+d . This grows very fast for large values of d and p. What should we expect in high dimension? One example that we can learn from is Monte Carlo methods for integration. Consider the problem of approximating</p><formula xml:id="formula_44">I(g) = E x∼µ g(x) using I m (g) = 1 m j g(x j )</formula><p>where {x j , j ∈ [m]} is a set of i.i.d samples of the probability distribution µ. A direct computation gives</p><formula xml:id="formula_45">E(I(g) -I m (g)) 2 = var(g) m , var(g) = E x∼µ g 2 (x) -(E x∼µ g(x)) 2</formula><p>This exact relation tells us two things. <ref type="bibr" target="#b0">(1)</ref> The convergence rate of Monte Carlo integration is independent of dimension. (2) The error constant is given by the variance of the integrand. Therefore to reduce error, one has to do variance reduction.</p><p>Had we used grid-based quadrature rules, the accuracy would have also suffered from CoD.</p><p>It is possible to improve the Monte Carlo rate by more sophisticated ways of choosing {x j , j ∈ [m]}, say using number-theoretic-based quadrature rules. But these typically give rise to an O(1/d) improvement for the convergence rate and it diminishes as d → ∞.</p><p>Based on these considerations, we aim to find function approximations that satisfy:</p><formula xml:id="formula_46">inf f ∈Hm R(f ) = inf f ∈Hm f -f * 2 L 2 (dµ) f * 2 * m</formula><p>The natural questions are then:</p><p>• How can we achieve this? That is, what kind of hypothesis space should we choose?</p><p>• What should be the "norm" • * (associated with the choice of H m )? Here we put norm in quotation marks since it does not have to be a real norm. All we need is that it controls the approximation error.</p><p>Regarding the first question, let us look an illustrative example. Consider the following Fourier representation of the function f and its approximation f m (say FFT-based):</p><formula xml:id="formula_47">f (x) = R d a(ω)e i(ω,x) dω, f m (x) = 1 m j a(ω j )e i(ω j ,x)</formula><p>Here {ω j } is a fixed grid, e.g. uniform grid. For this approximation, we have</p><formula xml:id="formula_48">f -f m L 2 (X) ≤ C 0 m -α/d f H α (X)</formula><p>which suffers from CoD. Now consider the alternative representation</p><formula xml:id="formula_49">f (x) = R d a(ω)e i(ω,x) π(dω) = E ω∼π a(ω)e i(ω,x)<label>(24)</label></formula><p>where π is a probability distribution. Now to approximate f , it is natural to use Monte Carlo. Let {ω j } be an i.i.d. sample of π, f m (x) = 1 m m j=1 a(ω j )e i(ω j ,x) , then we have</p><formula xml:id="formula_50">E|f (x) -f m (x)| 2 = var(f ) m</formula><p>This approximation does not suffer from CoD. Notice that f m (x) = 1 m m j=1 a j σ(ω T j x) is nothing but a two-layer neural network with activation function σ(z) = e iz (here a j = a(ω j )).</p><p>We believe that this simple argument is really at the heart of why neural network models do so well in high dimension. Now let us turn to a concrete example of the kind of approximation theory for neural network models. We will consider two-layer neural networks.</p><formula xml:id="formula_51">H m = {f m (x) = 1 m j a j σ(w T j x)}, θ = {(a j , w j ), j ∈ [m]} Consider function f : X = [0, 1] d → R of the following form f (x) = Ω aσ(w T x)ρ(da, dw) = E (a,w)∼ρ [aσ(w T x)], x ∈ X</formula><p>where Ω = R 1 × R d+1 , ρ is a probability distribution on Ω. Define:</p><formula xml:id="formula_52">f B = inf ρ∈P f E ρ [a 2 w 2 1 ] 1/2</formula><p>where P f := {ρ : f (x) = E ρ [aσ(w T x)]}. This is called the Barron norm <ref type="bibr" target="#b1">[2,</ref><ref type="bibr" target="#b11">12,</ref><ref type="bibr" target="#b12">13]</ref> . The space <ref type="bibr" target="#b11">12,</ref><ref type="bibr" target="#b12">13]</ref> (see also <ref type="bibr" target="#b2">[3,</ref><ref type="bibr" target="#b25">26,</ref><ref type="bibr" target="#b13">14]</ref>).</p><formula xml:id="formula_53">B = {f ∈ C 0 : f B &lt; ∞} is called the Barron space [2,</formula><p>In analogy with classical approximation theory, we can also prove some direct and inverse approximation theorem <ref type="bibr" target="#b12">[13]</ref>.</p><p>Theorem 1 (Direct Approximation Theorem). If f B &lt; ∞, then for any integer m &gt; 0, there exists a two-layer neural network function f m such that</p><formula xml:id="formula_54">f -f m L 2 (X) f B √ m Theorem 2 (Inverse Approximation Theorem). Let N C def = { 1 m m k=1 a k σ(w T k x) : 1 m m k=1 |a k | 2 w k 2 1 ≤ C 2 , m ∈ N + }.</formula><p>Let f * be a continuous function. Assume there exists a constant C and a sequence of functions</p><formula xml:id="formula_55">f m ∈ N C such that f m (x) → f * (x)</formula><p>for all x ∈ X. Then there exists a probability distribution ρ * on Ω, such that</p><formula xml:id="formula_56">f * (x) = aσ(w T x)ρ * (da, dw),</formula><p>for all x ∈ X and f * B ≤ C.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.3">Estimation error</head><p>Another issue we have to worry about is the performance of the machine learning model outside the training dataset. This issue also shows up in classical approximation theory. Illustrated in Figure <ref type="figure" target="#fig_5">10</ref> is the classical Runge phenomenon for polynomial interpolation on a uniform grid. One can see that away from the grid points, the error of the interpolant can be very large. This is a situation that we would like to avoid. What we do in practice is to minimize the training error: but we are interested in the testing error, which is a sampled version of the population risk:</p><formula xml:id="formula_57">Rn (θ) = 1 n j (f (x j , θ) -f * (x j )) 2</formula><formula xml:id="formula_58">R(θ) = E x∼µ (f (x, θ) -f * (x)) 2</formula><p>The question is how we can control the difference between these two errors. One way of doing this is to use the notion of Rademacher complexity. The important fact for us here is that the Rademacher complexity controls the difference between training and testing errors (also called the "generalization gap"). Indeed, let H be a set of functions, and S = (x 1 , x 2 , ..., x n ) be a dataset. Then, up to logarithmic terms, we have</p><formula xml:id="formula_59">sup h∈H E x [h(x)] - 1 n n i=1 h(x i ) ∼ Rad S (H)</formula><p>where the Rademacher complexity of H with respect to S is defined as</p><formula xml:id="formula_60">Rad S (H) = 1 n E ξ sup h∈H n i=1 ξ i h(x i ) ,<label>(25)</label></formula><p>where {ξ i } n i=1 are i.i.d. random variables taking values ±1 with equal probability. The question then becomes to bound the Rademacher complexity of a hypothesis space. For the Barron space, we have <ref type="bibr" target="#b1">[2]</ref>:</p><formula xml:id="formula_61">Theorem 3. Let F Q = {f ∈ B, f B ≤ Q}. Then we have Rad S (F Q ) ≤ 2Q</formula><p>2 ln(2d) n where n = |S|, the size of the dataset S.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.4">A priori estimates for regularized models</head><p>Consider the regularized model</p><formula xml:id="formula_62">L n (θ) = Rn (θ) + λ log(2d) n θ P , θn = argmin L n (θ)<label>(26)</label></formula><p>where the path norm is defined by:</p><formula xml:id="formula_63">θ P = 1 m m k=1 |a k | 2 w k 2 1 1/2</formula><p>The following result was proved in <ref type="bibr" target="#b11">[12]</ref>:</p><formula xml:id="formula_64">Theorem 4. Assume f * : X → [0, 1] ∈ B.</formula><p>There exist constants C 0 , such that for any δ &gt; 0, if λ ≥ C 0 , then with probability at least 1 -δ over the choice of the training dataset, we have</p><formula xml:id="formula_65">R( θn ) f * 2 B m + λ f * B log(2d) n + log(1/δ) + log(n) n .</formula><p>Similar approximation theory and a priori error estimates have been proved for other machine learning models. Here is a brief summary of these results.</p><p>• Random feature model: The corresponding function space is the reproducing kernel Hilbert space (RKHS).</p><p>• Residual networks (ResNets): The corresponding function space is the so-called flow-induced space introduced in <ref type="bibr" target="#b12">[13]</ref>.</p><p>• Multi-layer neural networks: A candidate for the corresponding function space is the multi-layer space introduced in <ref type="bibr" target="#b14">[15]</ref>.</p><p>What is really important is the "norms" that control the approximation error and the generalization gap. These quantities are defined for functions in the corresponding spaces.</p><p>After the approximation theorems and Rademacher complexity estimates are in place, one can readily prove a theorem of the following type for regularized models: Up to logarithmic terms, the minimizers of the regularized models satisfy:</p><formula xml:id="formula_66">R( f ) Γ(f * ) m + γ(f * ) √ n</formula><p>where m is the number of free parameters, n is the size of the training dataset. Note that for the multilayer spaces, the results proved in <ref type="bibr" target="#b14">[15]</ref> are not as sharp.</p><p>We only discussed the analysis of the hypothesis space. There are many more other questions. We refer to <ref type="bibr" target="#b18">[19]</ref> for more discussion on the current understanding of neural network-based machine learning.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Machine learning from a continuous viewpoint</head><p>Now we turn to alternative formulations of machine learning. Motivated by the situation for PDEs, we would like to first formulate machine learning in a continuous setting and then discretize to get concrete models and algorithms. The key here is that continuous problems that we come up with should be nice mathematical problems. For PDEs, this is accomplished by requiring them to be "well-posed". For problems in calculus of variations, we require the problem to be "convex" in some sense and lower semi-continuous. The point of these requirements is to make sure that the problem has a unique solution. Intuitively, for machine learning problems, being "nice" means that the variational problem should have a simple landscape. How to formulate this precisely is an important research problem for the future.</p><p>As was pointed out in <ref type="bibr" target="#b15">[16]</ref>, the key ingredients for the continuous formulation are as follows:</p><p>• representation of functions (as expectations)</p><p>• formulating the variational problem (as expectations)</p><p>• optimization, e.g. gradient flows</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1">Representation of functions</head><p>Two kinds of representations are considered in <ref type="bibr" target="#b15">[16]</ref>: Integral transform-based representation and flow-based representation. The simplest integral-transform based representation is a generalization of (24):</p><formula xml:id="formula_67">f (x; θ) = R d a(w)σ(w T x)π(dw) =E w∼π a(w)σ(w T x) =E (a,w)∼ρ aσ(w T x) =E u∼ρ φ(x, u)</formula><p>Here θ denotes the parameters in the model: θ can be a(•) or the prob distributions π or ρ.</p><p>This representation corresponds to two-layer neural networks. A generalization to multi-layer neural networks is presented in <ref type="bibr" target="#b14">[15]</ref>.</p><p>Next we turn to flow-based representation:</p><formula xml:id="formula_68">dz dτ =E w∼πτ a(w, τ )σ(w T z)<label>(27)</label></formula><p>=E (a,w)∼ρτ aσ(w T z) (28) =E u∼ρτ φ(z, u), z(0, x) = x (29)</p><formula xml:id="formula_69">f (x, θ) = 1 T z(1, x)</formula><p>In this representation, the parameter θ can be either {a τ (•)} or {π τ } or {ρ τ }</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2">The stochastic optimization problem</head><p>Stochastic optimization problems are of the type:</p><formula xml:id="formula_70">min θ E w∼ν g(θ, w)</formula><p>These kinds of problems can readily be approached by stochastic algorithms, which is a key component in machine learning. For example, instead of the gradient descent algorithm:</p><formula xml:id="formula_71">θ k+1 = θ k -η∇ θ E w∼ν g(θ, w) = θ k -η∇ θ n j=1 g(θ, w j )</formula><p>one can use the stochastic gradient descent:</p><formula xml:id="formula_72">θ k+1 = θ k -η∇ θ g(θ, w k )</formula><p>where {w k } is a set of random variables sampled from ν.</p><p>The following are some examples of the stochastic optimization problems that arise in modern machine learning:</p><p>• Supervised learning: In this case, the minimization of the population risk becomes</p><formula xml:id="formula_73">R(f ) = E x∼µ (f (x) -f * (x)) 2</formula><p>• Eigenvalue problems for quantum many-body Hamiltonian:</p><formula xml:id="formula_74">I(φ) = (φ, Hφ) (φ, φ) = E x∼µ φ φ(x)Hφ(x) φ(x) 2 , µ φ (dx) = 1 Z |φ(x)| 2 dx</formula><p>Here H is the Hamiltonian of the quantum system.</p><p>• Stochastic control problems:</p><formula xml:id="formula_75">L({a t } T -1 t=0 ) = E T -1 t=0 c t (s t , a t )) + c T (s T )</formula><p>Substituting the representations discussed earlier to these expressions for the stochastic optimization problems, we obtain the final variational problem that we need to solve.</p><p>One can either discretize these variational problems directly and then solve the discretized problem using some optimization algorithms, or one can write down continuous forms of some optimization algorithms, typically gradient flow dynamics, and then discretize these continuous flows. We are going to discuss the second approach.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.3">Optimization: Gradient flows</head><p>To write continuous form of the gradient flows, we draw some inspiration from statistical physics. Take the supervised learning as an example. We regard the population risk as being the "free energy", and following Halperin and Hohenberg <ref type="bibr" target="#b23">[24]</ref>, we divide the parameters into two kinds, conserved and non-conserved. For example, a is a non-conserved parameter and π is conserved since its total integral has to be 1.</p><p>For non-conserved parameter, as was suggested in <ref type="bibr" target="#b23">[24]</ref>, one can use the "model A" dynamics: ∂a ∂t = -δR δa which is simply the usual L 2 gradient flow.</p><p>For conserved parameters such as π, one should use the "model B" dynamics which works as follows: First define the "chemical potential"</p><formula xml:id="formula_76">V = δR δπ .</formula><p>From the chemical potential, one obtains the velocity field v and the current J:</p><formula xml:id="formula_77">J = πv, v = -∇V</formula><p>The continuity equation then gives us the gradient flow dynamics:</p><formula xml:id="formula_78">∂π ∂t + ∇ • J = 0.</formula><p>This is also the gradient flow under the Wasserstein metric.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.4">Discretizing the gradient flows</head><p>To obtain practical models, one needs to discretize these continuous problems. The first step is to replace the population risk by the empirical risk using the training data. The more non-trivial issue is how to discretize the gradient flows in the parameter space. The parameter space has the following characteristics: (1) It has a simple geometry -unlike the real space which may have a complicated geometry. (2) It is also usually high dimensional. For these reasons, the most natural numerical methods for the discretization in the parameter space is the particle method which is the dynamic version of Monte Carlo. Smoothed particle method might be helpful to improve the performance. In relatively low dimensions, one might also consider the spectral method, particularly some sparse version of the spectral method, due to the relative simple geometry of the parameter space.</p><p>Take for example the discretization of the conservative flow for the integral transformbased representation. With the representation: f (x; θ) = E (a,w)∼ρ aσ(w T x), the gradient flow equation becomes:</p><formula xml:id="formula_79">∂ t ρ = ∇(ρ∇V ), V = δR δρ<label>(30)</label></formula><p>2.0 2.5 3.0 3.5 4.0 4.5 log 10 (m)</p><p>1.8 2.0 2.2 2.4 2.6 log 10 (n) Test errors 2.0 2.5 3.0 3.5 4.0 4.5 log 10 (m) 1.8 2.0 2.2 2.4 2.6 log 10 (n) Test errors 6.0 5.4 4.8 4.2 3.6 3.0 2.4 1.8 1.2 0.6 Figure 11: (Left) continuous viewpoint; (Right) conventional NN models. Target function is a single neuron. Reproduced with permission from Lei Wu.</p><p>The particle method discretization is based on:</p><formula xml:id="formula_80">ρ(a, w, t) ∼ 1 m j δ (a j (t),w j (t)) = 1 m j δ u j (t)</formula><p>where u j (t) = (a j (t), w(t)). One can show that in this case, <ref type="bibr" target="#b29">(30)</ref> reduces to</p><formula xml:id="formula_81">du j dt = -∇ u j I(u 1 , • • • , u m )</formula><p>where</p><formula xml:id="formula_82">I(u 1 , • • • , u m ) = R(f m ), u j = (a j , w j ), f m (x) = 1 m j a j σ(w T j x)</formula><p>This is exactly gradient descent for "scaled" two-layer neural networks. In this case, the continuous formulation also coincides with the "mean-field" formulation for two-layer neural networks <ref type="bibr" target="#b6">[7,</ref><ref type="bibr" target="#b31">32,</ref><ref type="bibr" target="#b33">34,</ref><ref type="bibr" target="#b34">35]</ref>.</p><p>The scaling factor 1/m in front of the "scaled" two-layer neural networks is actually quite important and makes a big difference for the test performance of the network. Shown in Figure <ref type="figure">11</ref> is the heat map of the test error for two-layer neural network models with and without this scaling factor. The target function is the simple single neuron function: f * (x) = σ(x 1 ). The important observation is that in the absence of this scaling factor, the test error shows a "phase transition" between a phase where the neural network model performs like an associated random feature model and another phase where it shows much better performance than the random feature model. Such a phase transition is one of the reasons that choosing the right set of hyper-parameters, here the network width m, is so important. However, if one uses the scaled form, this phase transition phenomenon is avoided and the performance is more robust <ref type="bibr" target="#b30">[31]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.5">The optimal control problem for flow-based representation</head><p>The flow-based representation naturally leads to a control problem. This viewpoint has been used explicitly or implicitly in machine learning for quite some time (see for example <ref type="bibr" target="#b26">[27]</ref>). The back propagation algorithm, for example, is an example of control-theory based algorithm. Another more recent example is the development of maximum principle-based algorithm, first introduced in <ref type="bibr" target="#b27">[28]</ref>. Despite these successes, we feel that there is still a lot of room for using the control theory viewpoint to develop new algorithms.</p><p>We consider the flow-based representation in a slightly more general form</p><formula xml:id="formula_83">dz dτ = E u∼ρτ φ(z, u), z(0, x) = x</formula><p>where z is the state, ρ τ is the control at time τ . Our objective is to minimize R over {ρ</p><formula xml:id="formula_84">τ } R({ρ τ }) = E x∼µ (f (x) -f * (x)) 2 = R d (f (x) -f * (x)) 2 dµ</formula><p>where as before</p><formula xml:id="formula_85">f (x) = 1 T z(1, x)<label>(31)</label></formula><p>One most important result for this control problem is Pontryagin's maximum principle (PMP). To state this result, let us define the Hamiltonian H : R d × R d × P 2 (Ω) : → R as</p><formula xml:id="formula_86">H(z, p, µ) = E u∼µ [p T φ(z, u)].</formula><p>Pontryagin's maximum principle asserts that the solutions of the control problem must satisfy:</p><formula xml:id="formula_87">ρ τ = argmax ρ E x [H z t,x τ , p t,x τ , ρ ], ∀τ ∈ [0, 1],<label>(32)</label></formula><p>where for each x, {(z t,x τ , p t,x τ )} are defined by the forward/backward equations: dz t,x τ dτ = ∇ p H = E u∼ρτ (•;t) [φ(z t,x τ , u)] dp t,x τ dτ = -∇ z H = E u∼ρτ (•;t) [∇ T z φ(z t,x τ , u)p t,x τ ], <ref type="bibr" target="#b32">(33)</ref> with the boundary conditions:</p><formula xml:id="formula_88">z t,x 0 = x<label>(34)</label></formula><p>p t,x 1 = -2(f (x; ρ(•; t)) -f * (x))1.</p><p>Pontryagin's maximum principle is slightly stronger than the KKT condition for the stationary points in that ( <ref type="formula" target="#formula_87">32</ref>) is a statement of optimality rather than criticality. In fact (32) also holds when the parameters are discrete and this has been used in <ref type="bibr" target="#b28">[29]</ref> to develop efficient numerical algorithms for this case.</p><p>With the help of PMP, it is also easy to write down the gradient descent flow for the optimization problem. Formally, one can simply write down the gradient descent flow for <ref type="bibr" target="#b31">(32)</ref> for each τ : ∂ t ρ τ (u, t) = ∇ • (ρ τ (u, t)∇V (u; ρ)) , ∀τ ∈ [0, 1], <ref type="bibr" target="#b35">(36)</ref> where V (u; ρ) = E x [ δH δρ z t,x τ , p t,x τ , ρ τ (•; t) ],</p><p>and {(z t,x τ , p t,x τ )} are defined as before by the forward/backward equations. To discretize the gradient flow, we can simply use: See also <ref type="bibr" target="#b27">[28]</ref>.</p><p>Figure <ref type="figure" target="#fig_7">12</ref> shows the results of the extended MSA compared with different versions of SGD for two kinds of initialization. One can see that in terms of the number of iterations, extended MSA outperforms all the SGDs. In terms of wall clock time, the advantage of the extended MSA is diminished significantly. This is possibly due to the inefficiencies in the implementation of the optimization algorithm (here the BFGS) used for solving <ref type="bibr" target="#b31">(32)</ref>. We refer to <ref type="bibr" target="#b27">[28]</ref> for more details. In any case, it is clear that there is a lot of room for improvement.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">Concluding remarks</head><p>In conclusion, we have discussed a wide range of problems for which machine learningbased algorithms have made and/or will make a significant difference. These problems are relatively new to computational mathematics. We believe strongly that machine learningbased algorithms will also significantly impact the way we solve more traditional problems in computational mathematics. However, research in this direction is still at a very early stage.</p><p>Another important area that machine learning can be of great help is multi-scale modeling. The moment-closure problem discussed above is an example in this direction.</p><p>There are many more possible applications, see <ref type="bibr" target="#b7">[8]</ref>. Machine learning seems to be able to provide the missing link in making advanced multi-scale modeling techniques really practical. For example in the heterogeneous multi-scale method (HMM) <ref type="bibr" target="#b0">[1,</ref><ref type="bibr" target="#b8">9]</ref>, one important component is to extract the relevant macro-scale information from micro-scale simulation data. This step has always been a major obstacle in HMM. It seems quite clear that machine learning techniques can of great help here.</p><p>We also discussed how the viewpoint of numerical analysis can help to improve the mathematical foundation of machine learning as well as propose new and possibly more robust formulations. In particular, we have given a taste of how high dimensional approximation theory should look like. We also demonstrated that commonly used machine learning models and training algorithms can be recovered from some particular discretization of continuous models, in a scaled form. From this discussion, one can see that neural network models are quite natural and rather inevitable.</p><p>What have we really learned from machine learning? Well, it seems that the most important new insight from machine learning is the representation of functions as expectations. We reproduce them here for convenience:</p><p>• integral-transform based: f (x) = E (a,w)∼ρ aσ(w T x)</p><formula xml:id="formula_90">f (x) = E θ L ∼π L a (L) θ L σ(E θ L-1 ∼π L-1 . . . σ(E θ 1 ∼π 1 a 1 θ 2 ,θ 1 σ(a 0 θ 1 • x)) . . . )</formula><p>• flow-based: dz dτ =E (a,w)∼ρτ aσ(w T z), z(0, x) = x (40)</p><formula xml:id="formula_91">f (x, θ) =1 T z(1, x)<label>(41)</label></formula><p>From the viewpoint of computational mathematics, this suggests that the central issue will move from specific discretization schemes to more effective representations of functions.</p><p>This review is rather sketchy. Interested reader can consult the three review articles <ref type="bibr" target="#b16">[17,</ref><ref type="bibr" target="#b17">18,</ref><ref type="bibr" target="#b18">19]</ref> for more details.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 6 :</head><label>6</label><figDesc>Figure 6: Relative reward for the energy storage problem. The space of control function is R n+2 → R 3n for n = 30, 40, 50, with multiple equality and inequality constrains.Reproduced with permission from Jiequn Han. See also<ref type="bibr" target="#b19">[20]</ref>.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 7 :</head><label>7</label><figDesc>Figure 7: Left: Relative error of the deep BSDE method for u(t=0, x=(0, . . . , 0)) when λ = 1, which achieves 0.17% in a runtime of 330 seconds. Right: Optimal cost u(t=0, x=(0, . . . , 0)) against different λ.Reproduced with permission from Jiequn Han. See also<ref type="bibr" target="#b20">[21]</ref>.</figDesc><graphic coords="12,126.68,221.72,174.29,118.09" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 8 :</head><label>8</label><figDesc>Figure 8: The solution of the Black-Scholes equation with default risk at d = 100. The Deep BSDE method achieves a relative error of size 0.46% in a runtime of 617 seconds.Reproduced with permission from Jiequn Han. See also<ref type="bibr" target="#b20">[21]</ref>.</figDesc><graphic coords="13,174.09,75.46,264.33,182.27" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Figure 9 :</head><label>9</label><figDesc>Figure9: The different regimes of gas dynamics. Reproduced with permission from Jiequn Han. See also<ref type="bibr" target="#b21">[22]</ref>.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Figure 10 :</head><label>10</label><figDesc>Figure 10: The Runge phenomenon: f * (x) = 1 1+25x 2 . Reproduced with permission from Chao Ma.</figDesc><graphic coords="20,164.27,72.00,283.47,283.47" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head>Figure 12 :</head><label>12</label><figDesc>Figure 12: Comparison of the extended MSA with different versions of stochastic gradient descent algorithms. The top figures show results for small initialization. The bottom figures show results for bigger initialization. Reproduced with permission from Qianxiao Li.See also<ref type="bibr" target="#b27">[28]</ref>.</figDesc><graphic coords="28,99.93,72.00,408.23,308.40" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="7,93.40,72.00,425.19,132.44" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="8,93.40,79.04,425.22,189.17" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="8,93.40,360.02,425.20,314.08" type="bitmap" /></figure>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><p>Acknowledgement: I am very grateful to my collaborators for their contribution to the work described here. In particular, I would like to express my sincere gratitude to <rs type="person">Roberto Car</rs>, <rs type="person">Jiequn Han</rs>, <rs type="person">Arnulf Jentzen</rs>, <rs type="person">Qianxiao Li</rs>, <rs type="person">Chao Ma</rs>, <rs type="person">Han Wang</rs>, <rs type="person">Stephan Wojtowytsch</rs>, and <rs type="person">Lei Wu</rs> for the many discussions that we have had on the issues discussed here. This work is supported in part by a gift to the Princeton University from iFlytek as well as the ONR grant <rs type="grantNumber">N00014-13-1-0338</rs>.</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_z87RFQs">
+					<idno type="grant-number">N00014-13-1-0338</idno>
+				</org>
+			</listOrg>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>• forward Euler for the flow in τ variable, with step size 1/L (L is the number of grid points in the τ variable);</p><p>• particle method for the gradient descent dynamics, with M samples in each τ -grid point.</p><p>This gives us</p><p>φ(z t,x l , u j l (t)), l = 0, . . . , L -1 (37)</p><p>This recovers the GD algorithm (with back-propagation) for the (scaled) ResNet:</p><p>We call this "scaled" ResNet because of the presence of the factor 1/(LM ). In a similar spirit, one can also obtain an algorithm using PMP <ref type="bibr" target="#b27">[28]</ref>. Adopting the terminology in control theory, this kind of algorithms are called "method of successive approximation" (MSA). The basic MSA is as follows:</p><p>In practice, this basic version does not perform as well as the "extended MSA" which works in the same way as the MSA except that the Hamiltonian is replaced by an extended Hamiltonian <ref type="bibr" target="#b27">[28]</ref>: H(z, p, θ, v, q) := H(z, p, θ) -1 2 λ v -f (z, θ) 2 -1 2 λ q + ∇ z H(z, p, θ) 2 .</p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">The heterogenous multiscale methods</title>
+		<author>
+			<persName><forename type="first">Assyr</forename><surname>Abdulle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Weinan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bjorn</forename><surname>Engquist</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Eric</forename><surname>Vanden-Eijnden</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Acta Numerica</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="page" from="1" to="87" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Breaking the curse of dimensionality with convex neural networks</title>
+		<author>
+			<persName><forename type="first">Francis</forename><surname>Bach</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="issue">19</biblScope>
+			<biblScope unit="page" from="1" to="53" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Universal approximation bounds for superpositions of a sigmoidal function</title>
+		<author>
+			<persName><forename type="first">Andrew</forename><forename type="middle">R</forename><surname>Barron</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Information theory</title>
+		<imprint>
+			<biblScope unit="volume">39</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="930" to="945" />
+			<date type="published" when="1993">1993</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Generalized neural-network representation of high-dimensional potential-energy surfaces</title>
+		<author>
+			<persName><forename type="first">Jörg</forename><surname>Behler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michele</forename><surname>Parrinello</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Physical review letters</title>
+		<imprint>
+			<biblScope unit="volume">98</biblScope>
+			<biblScope unit="issue">14</biblScope>
+			<biblScope unit="page">146401</biblScope>
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Multiscale scientific computation: review</title>
+		<author>
+			<persName><forename type="first">Achi</forename><surname>Brandt</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Multiscale and Multiresolution Methods: Theory and Applications</title>
+		<editor>
+			<persName><forename type="first">T</forename><forename type="middle">J</forename><surname>Barth</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">T</forename><forename type="middle">F</forename><surname>Chan</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">R</forename><surname>Haimes</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Heidelberg</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer Verlag</publisher>
+			<date type="published" when="2001">2001. 2001</date>
+			<biblScope unit="page">196</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Unified approach for molecular dynamics and density-functional theory</title>
+		<author>
+			<persName><forename type="first">Roberto</forename><surname>Car</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michele</forename><surname>Parrinello</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Physical Review Letters</title>
+		<imprint>
+			<biblScope unit="volume">55</biblScope>
+			<biblScope unit="issue">22</biblScope>
+			<biblScope unit="page">2471</biblScope>
+			<date type="published" when="1985">1985</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">On the global convergence of gradient descent for over-parameterized models using optimal transport</title>
+		<author>
+			<persName><forename type="first">Lenaic</forename><surname>Chizat</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Francis</forename><surname>Bach</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in neural information processing systems</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="3036" to="3046" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<author>
+			<persName><forename type="first">E</forename><surname>Weinan</surname></persName>
+		</author>
+		<title level="m">Principles of Multiscale Modeling</title>
+		<imprint>
+			<publisher>Cambridge University Press</publisher>
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">The heterogeneous multiscale methods</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Weinan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bjorn</forename><surname>Engquist</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Comm. Math. Sci</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="87" to="132" />
+			<date type="published" when="2003">2003</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Deep learning-based numerical methods for high-dimensional parabolic partial differential equations and backward stochastic differential equations</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Weinan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jiequn</forename><surname>Han</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Arnulf</forename><surname>Jentzen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Communications in Mathematics and Statistics</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="page" from="349" to="380" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<author>
+			<persName><forename type="first">E</forename><surname>Weinan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jiequn</forename><surname>Han</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Linfeng</forename><surname>Zhang</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/pdf/2006.02619.pdf" />
+		<title level="m">Integrating Machine Learning with Physics-Based Modeling</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">A priori estimates of the population risk for twolayer neural networks</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Weinan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chao</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lei</forename><surname>Wu</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1810.06397</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Communications in Mathematical Sciences</title>
+		<imprint>
+			<biblScope unit="volume">17</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="1407" to="1425" />
+			<date type="published" when="2018">2019. 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<author>
+			<persName><forename type="first">E</forename><surname>Weinan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chao</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lei</forename><surname>Wu</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1906.08039</idno>
+		<title level="m">Barron spaces and the flow-induced function spaces for neural network models</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<author>
+			<persName><forename type="first">E</forename><surname>Weinan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stephan</forename><surname>Wojtowytsch</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2006.05982</idno>
+		<title level="m">Representation formulas and pointwise properties for Barron functions</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title level="m" type="main">On the Banach spaces associated with multilayer ReLU networks: Function representation, approximation theory and gradient descent dynamics</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Weinan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stephan</forename><surname>Wojtowytsch</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/pdf/2007.15623.pdf" />
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<author>
+			<persName><forename type="first">E</forename><surname>Weinan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chao</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lei</forename><surname>Wu</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1912.12777</idno>
+		<title level="m">Machine learning from a continuous viewpoint</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<monogr>
+		<title level="m" type="main">Algorithms for solving high dimensional PDEs: From nonlinear Monte Carlo to machine learning</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Weinan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jiequn</forename><surname>Han</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Arnulf</forename><surname>Jentzen</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/pdf/2008.13333.pdf" />
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<title level="m" type="main">Integrating machine learning with physics-based modeling</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Weinan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jiequn</forename><surname>Han</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Linfeng</forename><surname>Zhang</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/pdf/2006.02619.pdf" />
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title level="m" type="main">Towards a mathematical understanding of machine learning: What is known and what is not</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Weinan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chao</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stephan</forename><surname>Wojtowytsch</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lei</forename><surname>Wu</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/pdf/2009.10713.pdf" />
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Deep learning approximation for stochastic control problems</title>
+		<author>
+			<persName><forename type="first">Jiequn</forename><surname>Han</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Weinan</forename><forename type="middle">E</forename></persName>
+		</author>
+		<ptr target="https://arxiv.org/pdf/1611.07422.pdf" />
+	</analytic>
+	<monogr>
+		<title level="m">Deep Reinforcement Learning Workshop, NIPS</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Solving high-dimensional partial differential equations using deep learning</title>
+		<author>
+			<persName><forename type="first">Jiequn</forename><surname>Han</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Arnulf</forename><surname>Jentzen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Weinan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the National Academy of Sciences</title>
+		<imprint>
+			<biblScope unit="volume">115</biblScope>
+			<biblScope unit="page" from="8505" to="8510" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Uniformly Accurate Machine Learning Based Hydrodynamic Models for Kinetic Equations</title>
+		<author>
+			<persName><forename type="first">Jiequn</forename><surname>Han</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chao</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zheng</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Weinan</surname></persName>
+		</author>
+		<idno type="DOI">10.1073/pnas.1909854116</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the National Academy of Sciences</title>
+		<imprint>
+			<biblScope unit="volume">116</biblScope>
+			<biblScope unit="issue">44</biblScope>
+			<biblScope unit="page" from="21983" to="21991" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Deep potential: a general representation of a many-body potential energy surface</title>
+		<author>
+			<persName><forename type="first">Jiequn</forename><surname>Han</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Linfeng</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Roberto</forename><surname>Car</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Weinan</forename><forename type="middle">E</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Communications in Computational Physics</title>
+		<imprint>
+			<biblScope unit="volume">23</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="629" to="639" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Theory of dynamic critical phenomena</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Pierre</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bertrand</forename><forename type="middle">I</forename><surname>Hohenberg</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Halperin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Reviews of Modern Physics</title>
+		<imprint>
+			<biblScope unit="volume">49</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page">435</biblScope>
+			<date type="published" when="1977">1977</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<monogr>
+		<title level="m" type="main">Pushing the limit of molecular dynamics with ab initio accuracy to 100 million atoms with machine learning</title>
+		<author>
+			<persName><forename type="first">Weile</forename><surname>Jia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Han</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mohan</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Denghui</forename><surname>Lu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jiduan</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lin</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Roberto</forename><surname>Car</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Weinan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Linfeng</forename><surname>Zhang</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2005.00223</idno>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<monogr>
+		<title level="m" type="main">Risk bounds for high-dimensional ridge function combinations including neural networks</title>
+		<author>
+			<persName><forename type="first">Jason</forename><forename type="middle">M</forename><surname>Klusowski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><forename type="middle">R</forename><surname>Barron</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1607.01434</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">A theoretical framework for back propagation</title>
+		<author>
+			<persName><forename type="first">Yann</forename><surname>Lecun</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 1988 connectionist models summer school</title>
+		<editor>
+			<persName><forename type="first">D</forename><surname>Touretzky</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">G</forename><surname>Hinton</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">T</forename><surname>Sejnouski</surname></persName>
+		</editor>
+		<meeting>the 1988 connectionist models summer school</meeting>
+		<imprint>
+			<publisher>Morgan Kaufmann</publisher>
+			<date type="published" when="1989">1989</date>
+		</imprint>
+		<respStmt>
+			<orgName>Carnegie-Mellon University</orgName>
+		</respStmt>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Maximum Principle Based Algorithms for Deep Learning</title>
+		<author>
+			<persName><forename type="first">Qianxiao</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Long</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cheng</forename><surname>Tai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Weinan</forename><forename type="middle">E</forename></persName>
+		</author>
+		<ptr target="https://arxiv.org/pdf/1710.09513.pdf" />
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="issue">165</biblScope>
+			<biblScope unit="page" from="1" to="29" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">An Optimal Control Approach to Deep Learning and Applications to Discrete-Weight Neural Networks</title>
+		<author>
+			<persName><forename type="first">Qianxiao</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shuji</forename><surname>Hao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 35th International Conference on Machine Learning</title>
+		<meeting>the 35th International Conference on Machine Learning</meeting>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<monogr>
+		<title level="m" type="main">86 pflops deep potential molecular dynamics simulation of 100 million atoms with ab initio accuracy</title>
+		<author>
+			<persName><forename type="first">Denghui</forename><surname>Lu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Han</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mohan</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jiduan</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lin</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Roberto</forename><surname>Car</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Weinan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Weile</forename><surname>Jia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Linfeng</forename><surname>Zhang</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2004.11658</idno>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<monogr>
+		<title level="m" type="main">The quenching-activation behavior of the gradient descent dynamics for two-layer neural network models</title>
+		<author>
+			<persName><forename type="first">Chao</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lei</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Weinan</forename><forename type="middle">E</forename></persName>
+		</author>
+		<idno type="arXiv">arXiv:2006.14450</idno>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">A mean field view of the landscape of two-layer neural networks</title>
+		<author>
+			<persName><forename type="first">Song</forename><surname>Mei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrea</forename><surname>Montanari</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Phan-Minh</forename><surname>Nguyen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the National Academy of Sciences</title>
+		<imprint>
+			<biblScope unit="volume">115</biblScope>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note>33):E7665-E7671</note>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Backward stochastic differential equations and quasilinear parabolic partial differential equations</title>
+		<author>
+			<persName><forename type="first">Etienne</forename><surname>Pardoux</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shige</forename><surname>Peng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Stochastic partial differential equations and their applications</title>
+		<title level="s">Lecture Notes in Control and Inform. Sci</title>
+		<meeting><address><addrLine>Charlotte, NC; Berlin</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="1991">1991. 1992</date>
+			<biblScope unit="volume">176</biblScope>
+			<biblScope unit="page" from="200" to="217" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Parameters as interacting particles: long time convergence and asymptotic error scaling of neural networks</title>
+		<author>
+			<persName><forename type="first">Grant</forename><surname>Rotskoff</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Eric</forename><surname>Vanden-Eijnden</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in neural information processing systems</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="7146" to="7155" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<monogr>
+		<title level="m" type="main">Mean field analysis of neural networks: A central limit theorem</title>
+		<author>
+			<persName><forename type="first">Justin</forename><surname>Sirignano</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Konstantinos</forename><surname>Spiliopoulos</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1808.09372</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<monogr>
+		<title level="m" type="main">Theory of Function Spaces</title>
+		<author>
+			<persName><forename type="first">Hans</forename><surname>Tribel</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1983">1983</date>
+			<publisher>Birkhäuser</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">Han</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Linfeng</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Weinan</forename><forename type="middle">E</forename></persName>
+		</author>
+		<imprint/>
+	</monogr>
+	<note>unpublished</note>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">Deep potential molecular dynamics: A scalable model with the accuracy of quantum mechanics</title>
+		<author>
+			<persName><forename type="first">Linfeng</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jiequn</forename><surname>Han</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Han</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Roberto</forename><surname>Car</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Weinan</forename><forename type="middle">E</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Physical Review Letters</title>
+		<imprint>
+			<biblScope unit="volume">120</biblScope>
+			<biblScope unit="page">143001</biblScope>
+			<date type="published" when="2018-04">Apr 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<analytic>
+		<title level="a" type="main">End-to-end symmetry preserving inter-atomic potential energy model for finite and extended systems</title>
+		<author>
+			<persName><forename type="first">Linfeng</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jiequn</forename><surname>Han</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Han</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Wissam</forename><forename type="middle">A</forename><surname>Saidi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Roberto</forename><surname>Car</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Weinan</forename><forename type="middle">E</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances of the Neural Information Processing Systems (NIPS)</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">Active learning of uniformly accurate interatomic potentials for materials simulation</title>
+		<author>
+			<persName><forename type="first">Linfeng</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">De-Ye</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Han</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Roberto</forename><surname>Car</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Weinan</forename><forename type="middle">E</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Physical Review Materials</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page">23804</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<analytic>
+		<title level="a" type="main">Reinforced dynamics for the enhanced sampling in large atomic and molecular systems. I. Basic Methodology</title>
+		<author>
+			<persName><forename type="first">Linfeng</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Han</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Weinan</forename><forename type="middle">E</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Chem. Phys</title>
+		<imprint>
+			<biblScope unit="volume">148</biblScope>
+			<biblScope unit="page">124113</biblScope>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

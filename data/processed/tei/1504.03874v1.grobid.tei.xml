@@ -1,0 +1,1395 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Bridging belief function theory to modern machine learning</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2021-11-23">November 23, 2021</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Thomas</forename><surname>Burger</surname></persName>
+							<email>thomas.burger@cea.fr</email>
+							<affiliation key="aff0">
+								<orgName type="institution" key="instit1">iRTSV-BGE (Université Grenoble-Alpes</orgName>
+								<orgName type="institution" key="instit2">CNRS</orgName>
+								<address>
+									<settlement>INSERM) Grenoble</settlement>
+									<region>CEA</region>
+									<country key="FR">France</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Bridging belief function theory to modern machine learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2021-11-23">November 23, 2021</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">AD9AA8FF9B6E8391D542DB925186CE24</idno>
+					<idno type="arXiv">arXiv:1504.03874v1[cs.AI]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:04+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>belief functions; machine learning;</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Machine learning is a quickly evolving field which now looks really different from what it was 15 years ago, when classification and clustering were major issues. This document proposes several trends to explore the new questions of modern machine learning, with the strong afterthought that the belief function framework has a major role to play.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>In an age of user generated web-contents and of portable devices with embedded computer vision capabilities, machine learning (ML) and big data mining questions are fundamental. As a result, these questions naturally penetrate neighboring research fields, including belief function theory (BFT), so that it is now usual to attend a "Classification" session <ref type="bibr" target="#b22">[26]</ref> or a "Machine Learning" session <ref type="bibr" target="#b12">[16]</ref> in a conference devoted to belief functions.</p><p>However, it is hard to accept that among the various proposed approaches based on BF, very few have become state-of-the-art ML methods, the knowledge of which has spread beyond the BF community. Without any doubt, this can be partly explained by the relative size of the scientific communities under consideration: although quickly growing, the BF one is relatively small with respect to that of statistics, Bayesian networks, neural networks, etc. However, this reason alone is not sufficient: There are indeed other topics, such as for instance, information fusion, where BF-based methods are now as well recognized as are methods based on more classical formalisms, such as probabilities, or ontologies.</p><p>In this report, I assume an additional reason: that some researchers focused on BFT (especially the youngest), who have progressively turned their interests towards ML problems, may not capture the newest trends of this field. In fact, I used to be an example of such researchers, and I acknowledge that my first perceptions of ML were clearly outdated. This is why, I propose a short review of the respective evolution of BFT and of ML, as well as an attempt to put them in perspective. Of course, many senior researchers may find this exercise futile, as they have their own broad view on the question. However, to my knowledge, no recent referenced article is available for any reader seeking for a starting point to question the links between ML and BFT.</p><p>This document is structured as follow: In Section 2, a brief recall of the evolution of the mainstream in the BF community is provided. Then, in Section 3, a short summary of the earlier ages of ML up to the mid-90s, is sketched, as well as a coarse description of the successful interactions between ML and BFT in those times. Afterward, I provide in Section 4 a synthetic overview of the revolution that blew over ML around the early 2000s, and which modified its goals and the organization of its supporting community. As BFT does not seem to fit in this new picture of the ML world, I list in Section 5 a few problems that may still be of interest for the current mainstream of BFT, as well as some potential interesting evolutions for the community to adapt to the newly raised questions.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">The landscape of belief function interpretations</head><p>When considering BF interpretations, one often opposes Demspter's imprecise statistic view to Shafer and Smets singular view, such as described in <ref type="bibr" target="#b23">[27]</ref>. However, there is another way to sort the various interpretations: it is to refer to the mathematical object a mass function is perceived as a generalization of. This leads to the following taxonomy:</p><p>• The probability-affiliated interpretation: "A mass function is an object which generalizes a discrete probability measure, where the probability masses are not necessarily known, but are only assumed to belong to an interval". Whatever the origin of this imprecise probability, i.e. either statistical (such as in Dempster's view <ref type="bibr" target="#b15">[19,</ref><ref type="bibr" target="#b16">20]</ref>, or as in the Theory of Hints <ref type="bibr" target="#b35">[39]</ref>), or subjective (such as with Shafer or Shenoy <ref type="bibr" target="#b51">[55,</ref><ref type="bibr" target="#b54">58,</ref><ref type="bibr" target="#b55">59,</ref><ref type="bibr" target="#b53">57]</ref>), the mathematical theory behind is that of random sets <ref type="bibr" target="#b32">[36,</ref><ref type="bibr" target="#b39">43]</ref>.</p><p>• The set-affiliated interpretation: "A mass function is a set description of the real value of an ill-known variable, which is enriched by weightings which add up to one". Of course, this view is conceptually closer to that of fuzzy sets, possibility theory <ref type="bibr" target="#b27">[31]</ref>, and to artificial intelligence (AI) in general.</p><p>• The capacity-affiliated interpretation: "A mass function is only a particular type of Choquet's capacity, the Moebius transform of which is totally monotone". Such interpretation is strongly related to multi-criteria optimization and to operational research <ref type="bibr" target="#b29">[33]</ref>.</p><p>From a historical perspective, the oldest probability-affiliated interpretation (of Dempster) was rooted in imprecise statistics, before moving towards non-frequentist views (that are more classicaly associated to nowadays subjective views), under the influence of Shafer; yet, in Shafer and Shenoy works <ref type="bibr" target="#b52">[56]</ref>, the link to probability remains strong as the reference to random set is explicit. Later on, the set-affiliated interpretation has spread under the influence of renown authors (such as Zadeh, Dubois, Smets or Yager), with a strong background in data fusion, fuzzy sets and expert systems. Among them, Smets constantly positioned his work with respect to Bayesian classifiers <ref type="bibr" target="#b47">[51]</ref> or Bayesian reasoning <ref type="bibr" target="#b59">[63]</ref>; however, the Transferable Belief Model (TBM <ref type="bibr" target="#b56">[60]</ref>) was a non-probabilistic model, which, in Smet's view <ref type="bibr" target="#b57">[61]</ref>, was not compliant with random sets. Besides, the capacity-affiliated interpretation of BF has never really developed on its own, independently of other works in operational research and in game theory. Finally, todays, the great majority of the belief function community accepted the set-affiliated interpretation, as it appears in proceedings such as <ref type="bibr" target="#b22">[26,</ref><ref type="bibr" target="#b12">16]</ref>, where the majority of the articles undertook this interpretation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Classification, clustering and belief functions</head><p>As fully described by Miclet and Cornuéjols in <ref type="bibr" target="#b10">[14]</ref>, the short history of ML is full of rapid and strong evolutions, so that to date, the discipline which was originally part of AI, has completely separated from its parent discipline to make its own path, which appears to strongly converge toward statistics and optimization: They review the original heuristics motivated by bio-inspiration (such as multi-layer perceptrons for instance), their transformation into more systematic explorations (through the concept of version space, introduced by Mitchel <ref type="bibr" target="#b38">[42]</ref> in 1982), the golden age of symbolic learning, and finally, the opposition between supervised and unsupervised learning, so that the classification and clustering problems were at the center of attention in the mid-90s.</p><p>Yet it is not described in <ref type="bibr" target="#b10">[14]</ref>, Probabilistic Graphical Models (PGM) developed in parallel during this period. In fact, this omission is not really surprising, as PGM is a community on its own, well separated from the ML community. In fact, PGM are also classically used in problems such that data fusion or system diagnosis, which may not involve any learning. However, for a long time, Bayesian networks were amongst the state-of-the-art supervised learning methods, along with others non-probabilistic methods (k-NN, decision tree, etc.). On the other hand, unsupervised learning was mainly non-probabilistic: AHC, Kohonen maps, and of course, k-means. This latter is interesting: Although not probabilistic, this algorithm provides a relaxed solution of the EM algorithm applied to a mixture of Gaussian models <ref type="bibr" target="#b17">[21,</ref><ref type="bibr">1]</ref>. However, in parallel, Bezdek proposed <ref type="bibr" target="#b1">[5]</ref>, and established <ref type="bibr" target="#b40">[44]</ref> a fuzzy version of the k-means, named "fuzzy c-means", which in spite of its non-probabilistic motivation, behaves similarly to the EM algorithm. This clearly illustrates that, in spite of different culture (statistics or fuzzy sets), similar tools are proposed in different communities. Another episode related to the multiple cultural anchors of k-means recently showed up: it was established that k-means is the discrete counterpart to the PCA <ref type="bibr" target="#b26">[30]</ref>, a classical non-probabilistic method in statistics, which was developed in the multivariate analysis school <ref type="bibr" target="#b31">[35]</ref>. In a nutshell, up to the mid-90s, the connections between ML and IA, although weakening, have remained appearent; The problems of interest in ML are related to clustering and classification; Various formalisms are involved in ML, including probabilities, and none of them claims a clear superiority.</p><p>In this context, BFT (still rooted in the probability-affiliated interpretation, while the set-affiliated one is growing) naturally join the trend, so that numerous evidential versions of classical algorithms are successfully proposed and rapidly become state-of-the-art references. Among them, a significant proportion are proposed by Denoeux, such as the evidential k-NN <ref type="bibr" target="#b18">[22]</ref> and the evidential neural network <ref type="bibr" target="#b19">[23]</ref> in the late 90s or the early 2000s. On this basis, during the early 2000s, numerous derivations of virtually any classical ML algorithms are proposed. Among them, Smets' series on target identification and on Kalman filter <ref type="bibr" target="#b47">[51,</ref><ref type="bibr" target="#b46">50,</ref><ref type="bibr" target="#b45">49,</ref><ref type="bibr" target="#b48">52,</ref><ref type="bibr" target="#b42">46,</ref><ref type="bibr" target="#b60">64]</ref> is of prime importance for two reasons. First, they had thrived on top of the generalized Bayesian theorem, proposed a decade earlier <ref type="bibr" target="#b58">[62]</ref>. This theorem proposes to link the likelihood and plausibility functions, so that it becomes possible to derive algorithms in the BF framework, which fit the parameters of a model to observed data, in a perfectly compatible ML language <ref type="bibr" target="#b64">[68]</ref>. This path was taken over by Denoeux in order to extend Demspter's EM algorithm <ref type="bibr" target="#b9">[13,</ref><ref type="bibr" target="#b20">24,</ref><ref type="bibr" target="#b21">25]</ref>, while cautiously stepping out of the TBM framework.</p><p>The second reason of the importance of Smet's series on Kalman filter is cultural: As a defender of his own TBM, he constantly opposed the TBM and the Bayesian views <ref type="bibr" target="#b47">[51,</ref><ref type="bibr" target="#b59">63]</ref>, so that, under his major influence, ML, which from the mid-90s, is less and less influenced by probabilities, was depicted in the BF community mainly as a Bayesian field. In this context, numerous researchers of the BF community, including me (as a PhD student of the mid-2000s), were frozen in a decade-old past, where the ML community would be both inspired by Bayesianism and mainly focused on classification and clustering; two facts that obviously do not hold anymore.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">A recap of modern ML</head><p>The works of Vapnik, on support vector machines <ref type="bibr" target="#b3">[7]</ref> and on statistical learning theory <ref type="bibr" target="#b65">[69]</ref>, have provided the foundations of a major revolution which transformed ML in the late 1990s, and which, according to Stéphane Mallat <ref type="bibr" target="#b37">[41]</ref>, still had major impacts fifteen years later. The cornerstones of this revolution are three of them. The first one is obviously the kernel trick <ref type="bibr" target="#b49">[53]</ref>, which deeply roots machine learning in the frameworks of distance geometry, Riemannian analysis, and multivariate analysis (a field of statistics which does not assume any probabilistic model underlying the data). The second one is the idea that a learning problem should be addressed through the minimization of its empirical risk <ref type="bibr">[2]</ref>. Finally, the third one is to accept that, depending on the dimensionality of the description space, and on the size of the dataset, the empirical risk minimization may be ill-posed, so that a regularizer should be involved in the optimization.</p><p>These ideas percolated in the ML community for a decade, providing the tools to give a unifying description <ref type="bibr" target="#b37">[41,</ref><ref type="bibr" target="#b8">12,</ref><ref type="bibr" target="#b66">70]</ref> of wavelet transform based signal processing, diffusion process, kernel machines and deep neural networks<ref type="foot" target="#foot_0">foot_0</ref> . Combined with the first works on variable section by ℓ 1 penalty <ref type="bibr" target="#b63">[67]</ref>, this lead to major breakthroughs in sparse learning <ref type="bibr" target="#b36">[40]</ref>, which is of prime importance for the uncertainty theory communities, for its main connection to the Robust Uncertainty Principles, proposed by Candès, Romberg and Tao <ref type="bibr" target="#b6">[10]</ref>.</p><p>Todays, in the mid-2010s, ML is not anymore an inter-disciplinary field on which interfere different theories ranging from cognitive sciences through AI to probability, to solve supervised or unsupervised problems: both the background culture and the objectives has changed. Regarding the objectives, they relate to those of information retrieval, social networks, recommender systems, feature extraction, variable selection, data factorization, and sublinear optimization. Even if improving clustering and classification method still deserves some interest<ref type="foot" target="#foot_1">foot_1</ref> , the harder problems presented in ML challenges [3] receives most of the focus. Regarding the background culture, the field is less interdisciplinary and it is mainly considered as a sub-domain of applied mathematics build on top of optimization (mainly convex), geometry, multivariate statistics and harmonic analysis. Very little room is left for subjective probabilities or for AI. This is described in <ref type="bibr" target="#b10">[14]</ref>, yet it is also well illustrated by the applied mathematics background of most of the researchers recently hired in ML labs.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Some room for belief functions in ML</head><p>In this context, it may appear as particularly difficult for the BF community to adapt to the recent evolution of ML, in order to provide state-of-the-art developments. First, BF interpretations and ML have had opposite evolutions so far: From a probability-affiliated view compatible with statistics, BFT had given more room to subjectivism, to finally end in a preponderant set-affiliated view tailored to data fusion and AI problems. On the other hand, ML has quit IA to become more and more tied to functional analysis and convex optimization. This antagonism is well illustrated by the following observation: In ML the entries are raw observations, modeled by a set of points living in a vector space; On the other hand, in the TBM, the entries are assumed to be subjective opinions from different agents and of high semantics. In a similar way, a major asset of the BFT is to provide a rich description of the various types of uncertainty associated with some pieces of information; On the other hand, in ML one is classically not interested in modeling them, but rather to blindly minimize a loss function. Nevertheless, BF community still has several cards to play with respect to ML. In the sequel of this section, I present some of them, sorted according to the BF interpretation they affiliate to.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1">Staying on to set-affiliated interpretations</head><p>The first one is to keep the set-affiliated interpretations, including the TBM, and to restrict to some very specific ML problems where it is adapted. This is definitely the easiest way, as it prevents any change of the current mainstream of the BF community. However, it remains of interest, even if the path is narrowing under the pressure of big data constraints. Obviously, one must focus on problems where, at the first stage, several agents are used on dedicated learning tasks, and at the second stage, some cooperation or combination between them is expected. This encompasses a wide class of problems that are classically faced in computer vision, among which a few of them <ref type="bibr" target="#b13">[17,</ref><ref type="bibr" target="#b14">18,</ref><ref type="bibr" target="#b44">48]</ref> are addressed in the BFT:</p><p>• Ensemble learning: the idea is here to combine the capabilities of several classifiers so that their consensus decision is more robust. This setting has long been explored in the BF framework (see <ref type="bibr" target="#b34">[38,</ref><ref type="bibr" target="#b43">47]</ref> as well as their references), by several researchers, including myself <ref type="bibr" target="#b5">[9,</ref><ref type="bibr" target="#b33">37]</ref>. However, the impact all these works is limited by lack of theoretical performance guaranties, such as with boosting methods <ref type="bibr" target="#b28">[32]</ref>.</p><p>• Co-training: In this setting <ref type="bibr" target="#b2">[6]</ref>, various classifiers work on different feature spaces or on different datasets, in order to have complementary knowledge. Then, each classifier is used to label examples that are useful for the other classifiers to improve their performances. This can be extended to transfer learning problems, where models trained on a first setting are transposed to other similar settings <ref type="bibr" target="#b11">[15]</ref>.</p><p>• Active learning: A classifier asks a human agent to label the training examples that it knows are useful to improve its prediction capability <ref type="bibr" target="#b50">[54]</ref>.</p><p>In all these settings, it is required to have several agents, either humans or machines, to automatically evaluate the level of knowledge of each, and to provide a communication scheme between them, so that they can improve one another both their specificity (i.e. being capable of taking a decision), and their consistency (in order to limit their misleading predictions). Described in such a way, BFT seems to be an adapted framework to consider this problem in the most general case. Even if strictly speaking, the learning process would not be accounted for, such a "cooperation framework" would be of prime interest for numerous tasks such as complex scene analysis, bioinformatics, etc.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2">Going back to probability-affiliated interpretations</head><p>The second option relies on reversing on purpose the evolution of the BF theories, and to go back to the probability-affiliated interpretations, as they root on solid statistical foundations. Even if ML is more and more involved in optimization, the problem formulation remains in the language of statistics, and as such it is compliant with Dempster's original view<ref type="foot" target="#foot_2">foot_2</ref> . In such a setting, it could be interesting to address several questions. For instance:</p><p>• Is it possible to reformulate the empirical risk minimization principle in the BF framework? Does the minimizer remain convex, if several forms of uncertainties are distinctly accounted for in its expression?</p><p>• Can we relate the bias-variance dilemma to that of the specificity-consistency trade-off <ref type="bibr" target="#b41">[45]</ref>?</p><p>• Is it possible to extend the multiple test correction setting at the center of most omics studies <ref type="bibr" target="#b0">[4,</ref><ref type="bibr" target="#b61">65]</ref> to BF, to account for badly imputed data?</p><p>Apart from these rather general questions, let us note that the recent works <ref type="bibr" target="#b9">[13,</ref><ref type="bibr" target="#b20">24,</ref><ref type="bibr" target="#b21">25]</ref> which rely on the likelihood interpretation of plausibility, in a setting which differs from the TBM is already a step in this direction. The citation rates of these works acknowledge the idea that going back to a probability-affiliated interpretation makes sense.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.3">Moving on to capacity-affiliated or other interpretations</head><p>The last solution is to try to accelerate the evolution of BF community, so that after the probability-affiliated and the set-affiliated interpretations, that of capacity-affiliated focuses the interest. In fact, this view is much more related to optimization, and the options it provides in terms of modeling as well as in terms of solver could definitely be of interest for ML. Basically, it would lead to consider ML learning problems which rely on a game theory setting, or in which multiple criteria have to be optimized in the meantime. Of course, this would naturally lead to models which do not restrict to totally monotone capacities (i.e. BF), but to other types of capacities. More generally, encompassing the BFT in a wider frameworks (Choquet capacities, Walley's lower capacity, or any other, whatever it is) is potentially enriching, and this line has already been adopted by other researchers on questions which are central to ML: Hypothesis testing with interval data <ref type="bibr" target="#b25">[29]</ref>, regression based on Choquet's capacities <ref type="bibr" target="#b62">[66]</ref>, partial order ranking <ref type="bibr" target="#b7">[11,</ref><ref type="bibr" target="#b24">28]</ref>, computation of the Vapnik-Chervonenkis dimension of Choquet integral <ref type="bibr" target="#b30">[34]</ref>, etc. Beyond, numerous remaining questions are worthy:</p><p>• Can we propose an optimizer for the Exploitation-Exploration trade-off (defined in the multi-armed bandit problem <ref type="bibr" target="#b4">[8]</ref>, as well as in most online learning settings) on the basis of the various imprecision measures available in BFT?</p><p>• Is there a mean to reduce the imprecision of a source of information, by means of a convex ℓ 1 -penalized optimization, as proposed in <ref type="bibr" target="#b6">[10]</ref> for raw signals?</p><p>• A first comment addressed the fact that in this evolution of ML, the problem formulation remains in the language of statistics, and question its probabailistic interpretation. As a matter of fact, the involvement of a risk function, defined as the expectation of loss function, that is justified to be approximated by the empirical risk on the basis of the assumption that the data are i.i.d., definitely roots machine learning to statistic, multivariate analysis and measure theory; even if traditional hypothesis testing or parametric probabilistic modeling is not involved, and even if optimization methods are used to solve the problem.</p><p>• Another comment requires being cited: "Which 'solid foundations' ? This assertion seems just the repetition of a cliché contrasting the 'solid foundations' of probability and statistics to an alleged lack of such foundations for non-probabilistic approaches. We are never told what these 'solid foundations' actually are." The 'solid foundations' of the statistical approaches to ML are described at lenght in Vapnik's Statistical learning theory <ref type="bibr" target="#b65">[69]</ref> (and that are sketched in the previous bullet), which in addition to providing a axiomatization of the problem, provides metrics to objectively evaluate experimental results as well as generalization bounds. I have never said that non-probabilistic approaches lack of such foundations, as this anonymous reviewer have misread it; yet I believe these foundations have not been proven to adapt to the current ML problems that are already formalized in the literature.</p><p>• As a penalized optimization amounts to finding a trade-off between two criteria (the loss functions and a regularity measure), does it make sense to tackle such type of ML problems in the framework of multicriteria optimization?</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">Conclusion</head><p>Finally, even if the modern ML mainstream is less interested in the classification/clustering problems that were a natural application field to BFT, there remain few open questions which would advantageously benefit from BFT. Among these open questions, few are based on well-established interpretations which are affiliated to probability or to set theories (cooperation framework), while some requires the BFT to move forwards, to accept wider interpretations (Choquet's capacities) or to be inserted into wider frameworks (lower probabilities). Among these open questions, few are tentatively addressed by leading researchers who points the directions by providing successful first results (imprecise ranking, computer vision, likelihood interpretation of plausibility), while others remain unaddressed (robust uncertainty principle, similarities between bias-variance and specificity-consistency trade-offs). Finally, despite separating from AI to the profit of applied mathematics, ML still provides an interesting playground to BFT researchers. Yet, most importantly, on few specific ML open questions, we can even expect significant BFT contributions.</p></div>			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0"><p>The latters have revolutionized computer vision as well as many other ML application fields, as described by De Freitas in a recent keynote lecture<ref type="bibr" target="#b12">[16]</ref>.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_1"><p>More precisely, clustering and classification challenging problems still exist, yet, in a setting that differs from the original one on which BFT is classically used: for instance classification of billions of items over millions of classes, or computer vision problems where the classification itself is not the issue with respect to the feature extraction problem that precedes.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="3" xml:id="foot_2"><p>Interestingly enough, this couple of short sentences have raised numerous reviewer's comments, among which few of them are worthy being discussed here:</p></note>
+		</body>
+		<back>
+
+			<div type="funding">
+<div><p>The author would like to thank <rs type="person">Fabio Cuzzolin</rs>, who organized, a "discussion panel on the status and future of the belief function theory" during the BELIEF 2014 conference <ref type="bibr" target="#b12">[16]</ref>. This very enriching brainstorm was the starting point for this work, which can be seen as a rejoinder to this discussion panel.</p></div>
+			</div>			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Controlling the false discovery rate: a practical and powerful approach to multiple testing</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Benjamini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Hochberg</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Royal Stat.Soc. (B)</title>
+		<imprint>
+			<biblScope unit="page" from="289" to="300" />
+			<date type="published" when="1995">1995</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Fcm: The fuzzy c-means clustering algorithm</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">C</forename><surname>Bezdek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Ehrlich</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Full</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computers &amp; Geosciences</title>
+		<imprint>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="191" to="203" />
+			<date type="published" when="1984">1984</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Combining labeled and unlabeled data with co-training</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Blum</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Mitchell</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">11th conference on computational learning theory</title>
+		<imprint>
+			<date type="published" when="1998">1998</date>
+			<biblScope unit="page" from="92" to="100" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">A training algorithm for optimal margin classifiers</title>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">E</forename><surname>Boser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">M</forename><surname>Guyon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">N</forename><surname>Vapnik</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">15th workshop on Computational learning theory</title>
+		<imprint>
+			<date type="published" when="1992">1992</date>
+			<biblScope unit="page" from="144" to="152" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Regret analysis of stochastic and nonstochastic multi-armed bandit problems</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Bubeck</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Cesa-Bianchi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Foundations and Trends in Machine Learning</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="page" from="1" to="122" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<title level="m" type="main">Modeling hesitation and conflict: a belief-based approach for multiclass problems</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Burger</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Aran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Caplier</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+			<biblScope unit="page" from="95" to="100" />
+		</imprint>
+		<respStmt>
+			<orgName>ICMLA</orgName>
+		</respStmt>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Robust uncertainty principles: Exact signal reconstruction from highly incomplete frequency information. Information Theory</title>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">J</forename><surname>Candès</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Romberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Tao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on</title>
+		<imprint>
+			<biblScope unit="volume">52</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="489" to="509" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Predicting partial orders: Ranking with abstention</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Cheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Rademaker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>De Baets</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Hüllermeier</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning and Knowledge Discovery in Databases</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2010">2010</date>
+			<biblScope unit="page" from="215" to="230" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Diffusion maps</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">R</forename><surname>Coifman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Lafon</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Applied and computational harmonic analysis</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="5" to="30" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Mixture model estimation with soft labels</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Côme</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Oukhellou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Denoeux</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Aknin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Soft Methods for Handling Variab. and Imprec</title>
+		<imprint>
+			<biblScope unit="page" from="165" to="174" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">What is the place of machine learning between pattern recognition and optimization</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Cornuéjols</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Miclet</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Domain adaptation with regularized optimal transport</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Courty</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Flamary</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Tuia</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning &amp; Knowl. Disc. in Databases</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="274" to="289" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<author>
+			<persName><forename type="first">F</forename><surname>Cuzzolin</surname></persName>
+		</author>
+		<title level="m">Belief functions: Theory and applications</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Belief modeling regression for pose estimation</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Cuzzolin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Gong</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">16th International Conference on Information Fusion</title>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="page" from="1398" to="1405" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">A belief-theoretical approach to example-based pose estimation</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Cuzzolin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Gong</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Fuzzy Systems</title>
+		<imprint/>
+	</monogr>
+	<note>under revision</note>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Upper and lower probabilities induced by a multivalued mapping</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Dempster</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Annals of Mathematical Statistics</title>
+		<imprint>
+			<biblScope unit="volume">38</biblScope>
+			<biblScope unit="page" from="325" to="339" />
+			<date type="published" when="1967">1967</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">A generalization of bayesian inference</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">P</forename><surname>Dempster</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the Royal Statistical Society. Series B</title>
+		<imprint>
+			<biblScope unit="page" from="205" to="247" />
+			<date type="published" when="1968">1968</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Maximum likelihood from incomplete data via the em algorithm</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">P</forename><surname>Dempster</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">M</forename><surname>Laird</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">B</forename><surname>Rubin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. of the Royal Statistical Soc. (B)</title>
+		<imprint>
+			<biblScope unit="page" from="1" to="38" />
+			<date type="published" when="1977">1977</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">A k-nearest neighbor classification rule based on dempster-shafer theory. Systems, Man and Cybernetics</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Denoeux</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="804" to="813" />
+			<date type="published" when="1995">1995</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<monogr>
+		<title level="m" type="main">A neural network classifier based on dempster-shafer theory. Systems, Man and Cybernetics (A)</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Denoeux</surname></persName>
+		</author>
+		<idno>IEEE Trans. 30</idno>
+		<imprint>
+			<date type="published" when="2000">2000</date>
+			<biblScope unit="page" from="131" to="150" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Maximum likelihood from evidential data: an extension of the em algorithm</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Denoeux</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Combining Soft Computing and Statistical Methods in Data Analysis</title>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+			<biblScope unit="page" from="181" to="188" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Maximum likelihood estimation from uncertain data in the belief function framework. Knowl. &amp; Data Engin</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Denoeux</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. on</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="119" to="130" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<monogr>
+		<author>
+			<persName><forename type="first">T</forename><surname>Denoeux</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">H</forename><surname>Masson</surname></persName>
+		</author>
+		<title level="m">Belief Functions: Theory and Applications: Proceedings of the 2nd Int. Conf. on Belief Functions</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="volume">164</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Toward an axiomatic definition of conflict between belief functions</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Destercke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Burger</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans</title>
+		<editor>
+			<persName><forename type="first">Man</forename><surname>Systems</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Cyb</forename></persName>
+		</editor>
+		<imprint>
+			<biblScope unit="volume">43</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="585" to="596" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">A pairwise label ranking method with imprecise scores and partial predictions</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Destercke</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning and Knowledge Discovery in Databases</title>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="page" from="112" to="127" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Kolmogorov-smirnov test for interval data</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Destercke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Strauss</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Information Processing and Management of Uncertainty in Knowledge-Based Systems</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="416" to="425" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<monogr>
+		<title level="m" type="main">K-means clustering via principal component analysis</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Ding</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>He</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2004">2004</date>
+			<biblScope unit="page">29</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Possibility theory: qualitative and quantitative aspects</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Dubois</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Prade</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Quantified representation of uncertainty and imprecision</title>
+		<imprint>
+			<date type="published" when="1998">1998</date>
+			<biblScope unit="page" from="169" to="226" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">A short introduction to boosting</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Freund</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Schapire</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Abe</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal-Japanese Society For Artificial Intelligence</title>
+		<imprint>
+			<biblScope unit="volume">14</biblScope>
+			<biblScope unit="page">1612</biblScope>
+			<date type="published" when="1999">1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">The application of fuzzy integrals in multicriteria decision making</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Grabisch</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">European journal of operational research</title>
+		<imprint>
+			<biblScope unit="volume">89</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="445" to="456" />
+			<date type="published" when="1996">1996</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">On the vc-dimension of the choquet integral</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Hüllermeier</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">F</forename><surname>Tehrani</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances on Computational Intelligence</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="42" to="50" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">A</forename><surname>Johnson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">W</forename><surname>Wichern</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Education</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Applied multivariate statistical analysis</title>
+		<imprint>
+			<publisher>Prentice hall Englewood Cliffs</publisher>
+			<date type="published" when="1992">1992</date>
+			<biblScope unit="volume">4</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Foundations of a theory of random sets</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Kendall</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Stoch. geometry</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="issue">9</biblScope>
+			<date type="published" when="1974">1974</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">A dempster-shafer theory based combination of handwriting recognition systems with multiple rejection strategies</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Kessentini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Burger</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Paquet</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Pattern Recognition</title>
+		<imprint>
+			<biblScope unit="volume">48</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="534" to="544" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">On combining classifiers. Pattern Analysis and Machine Intelligence</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Kittler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Hatef</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">P</forename><surname>Duin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Matas</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="226" to="239" />
+			<date type="published" when="1998">1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">A mathematical theory of hints(an approach to the dempster-shafer theory of evidence)</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Kohlas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">A</forename><surname>Monney</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">L.N. economics &amp; math. systems</title>
+		<imprint>
+			<date type="published" when="1995">1995</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<analytic>
+		<title level="a" type="main">Online learning for matrix factorization and sparse coding</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Mairal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Bach</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Ponce</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Sapiro</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="page" from="19" to="60" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<monogr>
+		<author>
+			<persName><forename type="first">S</forename><surname>Mallat</surname></persName>
+		</author>
+		<ptr target="http://www.academie-sciences.fr/video/v180214.htm" />
+		<title level="m">Des mathématiques pour l&apos;analyse de données massives</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<monogr>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">M</forename><surname>Mitchell</surname></persName>
+		</author>
+		<title level="m">Generalization as search. Artificial Intell</title>
+		<imprint>
+			<date type="published" when="1982">1982</date>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="page" from="203" to="226" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<monogr>
+		<title level="m" type="main">An introduction to random sets</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">T</forename><surname>Nguyen</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+			<publisher>CRC press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<analytic>
+		<title level="a" type="main">On cluster validity for the fuzzy c-means model. Fuzzy Systems</title>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">R</forename><surname>Pal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">C</forename><surname>Bezdek</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="370" to="379" />
+			<date type="published" when="1995">1995</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title level="a" type="main">A consistency-specificity trade-off to select source behavior in information fusion</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Pichon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Destercke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Burger</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE trans. on System, Man and Cybernetics -Part B</title>
+		<imprint/>
+	</monogr>
+	<note>accepted in 2014, to appear</note>
+</biblStruct>
+
+<biblStruct xml:id="b42">
+	<analytic>
+		<title level="a" type="main">Joint tracking and classification of airbourne objects using particle filters and the continuous transferable belief model</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Powell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Marshall</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Smets</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Ristic</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Maskell</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">th Intern. Conf. on Information Fusion</title>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+			<biblScope unit="page" from="1" to="8" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b43">
+	<analytic>
+		<title level="a" type="main">Classifier fusion in the dempster-shafer framework using optimized t-norm based combination rules</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Quost</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">H</forename><surname>Masson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Denoeux</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">International Journal of Approximate Reasoning</title>
+		<imprint>
+			<biblScope unit="volume">52</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="353" to="374" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b44">
+	<analytic>
+		<title level="a" type="main">Evidential object recognition based on information gain maximization</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Reineking</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Schill</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Belief Functions: Theory and Applications</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="227" to="236" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b45">
+	<analytic>
+		<title level="a" type="main">Target identification using belief functions and implication rules. Aerospace and Electronic Systems</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Ristic</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Smets</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans</title>
+		<imprint>
+			<biblScope unit="volume">41</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="1097" to="1103" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b46">
+	<monogr>
+		<title level="m" type="main">Belief function theory on the continuous space with an application to model based classification</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Ristic</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Smets</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2004">2004</date>
+			<biblScope unit="page" from="4" to="9" />
+		</imprint>
+		<respStmt>
+			<orgName>IPMU</orgName>
+		</respStmt>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b47">
+	<analytic>
+		<title level="a" type="main">Kalman filters for tracking and classification and the transferable belief model</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Ristic</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Smets</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Int. Conf. on Information Fusion</title>
+		<imprint>
+			<date type="published" when="2004">2004</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b48">
+	<analytic>
+		<title level="a" type="main">Target classification approach based on the belief function theory. Aerospace and Electronic Systems</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Ristic</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Smets</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans</title>
+		<imprint>
+			<biblScope unit="volume">41</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="574" to="583" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b49">
+	<monogr>
+		<title level="m" type="main">Learning with kernels: support vector machines, regularization, optimization, and beyond</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Scholkopf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">J</forename><surname>Smola</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2001">2001</date>
+			<publisher>MIT press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b50">
+	<analytic>
+		<title level="a" type="main">Active learning literature survey</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Settles</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Univ. of Wisconsin, tech. rep</title>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b51">
+	<monogr>
+		<title level="m" type="main">A mathematical theory of evidence</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Shafer</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1976">1976</date>
+			<publisher>Princeton University Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b52">
+	<monogr>
+		<title level="m" type="main">Local computation in hypertrees</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Shafer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">P</forename><surname>Shenoy</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1991">1991</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">Tech. report</note>
+</biblStruct>
+
+<biblStruct xml:id="b53">
+	<analytic>
+		<title level="a" type="main">Valuation-based systems for bayesian decision analysis</title>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">P</forename><surname>Shenoy</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Operations Research</title>
+		<imprint>
+			<biblScope unit="volume">40</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="463" to="484" />
+			<date type="published" when="1992">1992</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b54">
+	<analytic>
+		<title level="a" type="main">Propagating belief functions with local computations</title>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">P</forename><surname>Shenoy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Shafer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Expert</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="43" to="52" />
+			<date type="published" when="1986">1986</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b55">
+	<analytic>
+		<title level="a" type="main">Axioms for probability and belief-function propagation</title>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">P</forename><surname>Shenoy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Shafer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Uncertainty in Artificial Intelligence</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="page" from="169" to="198" />
+			<date type="published" when="1990">1990</date>
+			<publisher>North-Holland</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b56">
+	<analytic>
+		<title level="a" type="main">The transferable belief model</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Smets</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Kennes</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Artif. Int</title>
+		<imprint>
+			<biblScope unit="volume">66</biblScope>
+			<biblScope unit="page" from="191" to="243" />
+			<date type="published" when="1994">1994</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b57">
+	<analytic>
+		<title level="a" type="main">The transferable belief model and random sets</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Smets</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">International Journal of Intelligent Systems</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="37" to="46" />
+			<date type="published" when="1992">1992</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b58">
+	<analytic>
+		<title level="a" type="main">Belief functions: the disjunctive rule of combination and the generalized bayesian theorem</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Smets</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">International Journal of approximate reasoning</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="35" />
+			<date type="published" when="1993">1993</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b59">
+	<analytic>
+		<title level="a" type="main">Decision making in the tbm: the necessity of the pignistic transformation</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Smets</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">International Journal of Approximate Reasoning</title>
+		<imprint>
+			<biblScope unit="volume">38</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="133" to="147" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b60">
+	<analytic>
+		<title level="a" type="main">Kalman filter and joint tracking and classification based on belief functions in the tbm framework</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Smets</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Ristic</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Information Fusion</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="16" to="27" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b61">
+	<analytic>
+		<title level="a" type="main">Statistical significance for genomewide studies</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">D</forename><surname>Storey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Tibshirani</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the National Academy of Sciences</title>
+		<imprint>
+			<biblScope unit="volume">100</biblScope>
+			<biblScope unit="issue">16</biblScope>
+			<biblScope unit="page" from="9440" to="9445" />
+			<date type="published" when="2003">2003</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b62">
+	<analytic>
+		<title level="a" type="main">Learning monotone nonlinear models using the choquet integral</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">F</forename><surname>Tehrani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Cheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Dembczyński</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Hüllermeier</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Mach. learn</title>
+		<imprint>
+			<biblScope unit="volume">89</biblScope>
+			<biblScope unit="issue">1-2</biblScope>
+			<biblScope unit="page" from="183" to="211" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b63">
+	<analytic>
+		<title level="a" type="main">Regression shrinkage and selection via the lasso</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Tibshirani</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the Royal Statistical Society. Series B</title>
+		<imprint>
+			<biblScope unit="page" from="267" to="288" />
+			<date type="published" when="1996">1996</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b64">
+	<monogr>
+		<title level="m" type="main">Partially supervised learning by a credal em approach</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Vannoorenberghe</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Smets</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2005">2005</date>
+			<biblScope unit="page" from="956" to="967" />
+		</imprint>
+		<respStmt>
+			<orgName>ECSQARU</orgName>
+		</respStmt>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b65">
+	<monogr>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">N</forename><surname>Vapnik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Vapnik</surname></persName>
+		</author>
+		<title level="m">Statistical learning theory</title>
+		<meeting><address><addrLine>New York</addrLine></address></meeting>
+		<imprint>
+			<publisher>Wiley</publisher>
+			<date type="published" when="1998">1998</date>
+			<biblScope unit="volume">2</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b66">
+	<analytic>
+		<title level="a" type="main">A tutorial on spectral clustering</title>
+		<author>
+			<persName><forename type="first">Von</forename><surname>Luxburg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">U</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Statistics and computing</title>
+		<imprint>
+			<biblScope unit="volume">17</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="395" to="416" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">LEARNING THEORY AND SUPPORT VECTOR MACHINES A PRIMER</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Michael</forename><surname>Banf</surname></persName>
+							<email>michael@educatedguess.ai</email>
+							<affiliation key="aff0">
+								<orgName type="department">EducatedGuess.ai Siegen</orgName>
+								<address>
+									<country key="DE">Germany</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">LEARNING THEORY AND SUPPORT VECTOR MACHINES A PRIMER</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">52E6FFF5BA650AE642F370912C63D756</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>Machine Learning</term>
+					<term>Statistical Learning Theory</term>
+					<term>Supervised Learning</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>The main goal of statistical learning theory is to provide a fundamental framework for the problem of decision making and model construction based on sets of data. Here, we present a brief introduction to the fundamentals of statistical learning theory, in particular the difference between empirical and structural risk minimization, including one of its most prominent implementations, i.e. the Support Vector Machine.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Introduction to Statistical Learning Theory</head><p>The main goal of statistical learning theory <ref type="bibr" target="#b3">[4]</ref>, <ref type="bibr" target="#b1">[2]</ref> is to provide a fundamental framework for the problem of decision making and model construction based on sets of data. Assumptions can be made of the statistical nature about the underlying phenomena. One of the original problems in applying statistical learning theory is that of binary pattern recognition. Here, given two classes of entities, one has to assign a novel unclassified object to either of the two classes. This problem can be formalized as follow: Suppose we are given m observations, where each observation i consists of the data x i ∈ R n , i = 1, ..., m, as well as a "ground truth" labeling y i ∈ {-1, 1}. Then, given the data (x 1 , y 1 ), ..., (x m , y m ) ∈ X × {-1, 1}</p><p>we want to estimate a decision function f → X × {-1, 1} that is able to generalize, i.e. avoid model overfitting, to unseen data points, i.e. minimizing the expected risk:</p><formula xml:id="formula_1">R(α) = 1 2 | y -f (x, α) | dP (x, y)<label>(2)</label></formula><p>It is assumed that some unknown probability distribution P (y, x), from which the data is, independently drawn and identically distributed (iid), drawn, does exists. Therefore, if p(y, x) exists, dP (y, x) may be written as p(x, y)dxdy, in order to state the true error rate. Statistical learning theory proves the necessity to restrict the set of functions from which f can be selected with respect to the capacity suitable for the number of available training data, and it provides some upper bound on the test error, depending on the capacity of the function class as well as the empirical risk. Subsequently, minimizing this bound provides the basis for structural risk minimization <ref type="bibr" target="#b1">[2]</ref>. The empirical risk R emp (α) is defined as the measured mean error rate on the training data:</p><formula xml:id="formula_2">R emp (α) = 1 2m m i=1 | y i -f (x i , α) |<label>(3)</label></formula><p>Here, R emp (α) is a fixed number for a particular choice of α and a particular training set {x i , y i }.</p><p>1 2 | y i -f (x i , α) | is known as the loss function. arXiv:1902.04622v1 [cs.LG] 12 Feb 2019 LEARNING THEORY AND SUPPORT VECTOR MACHINES -A PRIMER For binary classification, output values are either 0 or 1. Thus, choosing η such that 0 ≤ η ≤ 1 yields the following bound for the loss function, with probability 1 -η [2]: R(α) ≤ R emp (α) + ( h(log(2m/h) + 1) -log(η/4) m )</p><p>h denotes a non-negative integer called the Vapnik Chervonenkis (VC) dimension and describes a property of a set of functions {f (α)}. It can be defined for various classes of functions f . A given set of m observations can be labeled in all possible 2m ways, and for each labeling, a member of the set {f (α)} can be found that correctly assigns those labels. This is described as "shattering" this set of observations by that set of functions. Hence, the VC dimension for such a set of functions {f (α)} is defined as the maximum number of training points that can be "shattered" by {f (α)}. Note that if the VC dimension would be h, there is at least one particular set of h points that can be shattered.</p><p>In general, however, it is not the case that each set of h points can be shattered.</p><p>The second term on the right hand side of equation ( <ref type="formula" target="#formula_3">4</ref>) is called the "VC confidence" and the whole right hand side of equation ( <ref type="formula" target="#formula_3">4</ref>) the "risk bound", which is independent of P (x, y). The risk bound only presumes that both, the training and test data, are drawn independently according to P (x, y). Generally, it is not possible to compute the left hand side, however, if h is known, one can compute the right hand side.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Structural Risk Minimization</head><p>Thus, given several different families of functions f (x, α), called "learning machines" and choosing a fixed, sufficiently small η, by then taking that machine which minimizes the right hand side, one can choose that machine which provides the lowest upper bound on the actual risk. This provides a method for selecting a learning machine for a given task and is the fundamental idea of structural risk minimization. The VC confidence is described as a monotonic increasing function of h (see in figure <ref type="figure">1</ref>) for any number of observations m and given a selection of learning machines whose empirical risk would be equal to zero, one wants to select a learning machine whose set of functions, associated with it, has a minimal VC dimension, which then leads to a better upper bound on the actual error, as illustrated in figure <ref type="figure">1</ref>. In general, for non zero empirical risk, one selects that specific learning machine that will minimize the right hand side of equation ( <ref type="formula" target="#formula_3">4</ref>).</p><p>Figure <ref type="figure">1</ref>: Finding the best model complexity to avoid underfitting, i.e. not being able to separate the data appropriately, as well as overfitting, i.e. no being able to generalize to unseen data.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Support Vector Machines</head><p>Support Vector Machines can be considered an approximate implementation of the principle of structural risk minimization, as they try to minimize a combination of the empirical risk in equation ( <ref type="formula" target="#formula_2">3</ref>), and a capacity term derived for the class of hyper-planes in a dot product space H [2],</p><formula xml:id="formula_4">w, x + b = 0 with w ∈ H, b ∈ R<label>(5)</label></formula><p>corresponding to decision functions</p><formula xml:id="formula_5">f (x) = sgn( w, x + b).<label>(6)</label></formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Hard and Soft Margin Solutions</head><p>In case of a linearly separable set of observations, a unique optimal hyper-plane exists, differentiated by the maximal margin of separation between any observation point x i and the hyper-plane, as visualized in figure <ref type="figure" target="#fig_0">2</ref> (left). Such a case is called a hard margin solution. This optimal hyper-plane would be the solution of</p><formula xml:id="formula_6">maximize w∈H,b∈R min{ x -x i | x ∈ H, w, x + b = 0, i = 1, ..., m}<label>(7)</label></formula><p>Further, the capacity of the class of separating hyper-planes decreases with increasing margin. As illustrated in figure <ref type="figure" target="#fig_0">2</ref> (left), in order to construct the optimal hyper-plane, on needs to solve the following quadratic programming problem minimize w∈H,b∈R</p><formula xml:id="formula_7">1 2 w 2 subject to y i ( w, x i + b) ≥ 1 ∀i = 1, ..., m<label>(8)</label></formula><p>The constraints ensure that f (x i ) will be +1 for y i = +1, and -1 for y i = -1. This constrained optimization problem in equation ( <ref type="formula" target="#formula_7">8</ref>) is computed based on Lagrange multipliers <ref type="bibr" target="#b0">[1]</ref> </p><formula xml:id="formula_8">α i ≥ 0 (α := (α 1 , ..., α m )) and a Lagrangian L(w, b, α) = 1 2 w 2 - m i=1 α i (y i ( w, x i + b) -1)<label>(9)</label></formula><p>L has some saddle point in w, b and α at the optimal solution of the primal optimization problem. Therefore, it is minimized with respect to the primal variables w and b and maximized with respect to the dual variables α i . Moreover, the product between constraints and Lagrange multipliers in L diminishes at optimality, i.e.,</p><formula xml:id="formula_9">α i (y i ( w, x i + b) -1) = 0 ∀i = 1, ..., m<label>(10)</label></formula><p>known in optimization theory <ref type="bibr" target="#b2">[3]</ref> as Karush-Kuhn-Tucker conditions <ref type="bibr" target="#b2">[3]</ref>, <ref type="bibr" target="#b0">[1]</ref>. Minimization with respect to the primal variables requires</p><formula xml:id="formula_10">∂ ∂ b L(w, b, α) = - m i=1 α i y i = 0<label>(11)</label></formula><p>The solution has some expansion in terms of a subset of the observations, i.e. the Support Vectors, with non-zero α i : Most often, only a fraction of the training examples actually end up being Support Vectors and due to the Karush-Kuhn-Tucker conditions, Support Vectors define the margin (see figure 2 (left)). Thus, once all α i have been found, we can compute b . All remaining training examples (x j , y j ) turn out to be irrelevant as their constraints y j ( w, x j + b) ≥ 1 can be discarded. Therefore, the hyper-plane is completely determined by the observations closest to them. Substitution of equation (11) and equation (12) by the Lagrangian in equation (9) eliminates the primal variables w and b, resulting in the dual optimization problem:</p><formula xml:id="formula_11">∂ ∂ w L(w, b, α) = w - m i=1 α i y i x i = 0 (12)</formula><formula xml:id="formula_12">maximize α∈R m m i=1 α i - 1 2 m i,j=1 α i α j y i y j K ij subject to α i ≥ 0 ∀i = 1, ..., m ∧ m i=1 α i y i = 0<label>(13)</label></formula><p>with K ij := x i , x j . Based on equation (12), the decision function in equation ( <ref type="formula" target="#formula_5">6</ref>) is written as</p><formula xml:id="formula_13">f (x) = sgn m i=1 y i α i x, x i + b<label>(14)</label></formula><p>Here, b can be computed using equation (10). In practise, however, a separating hyper-plane may not exist, e.g. if noise within the training data causes a large overlap of the classes. In consideration of such a case, slack variables ξ i ≥ 0 ∀i = 1, ..., m are introduced in order to relax the constraints of equation ( <ref type="formula" target="#formula_7">8</ref>) to</p><formula xml:id="formula_14">y i ( w, x i + b) ≥ 1 -ξ i ∀i = 1, ..., m<label>(15)</label></formula><p>Thus, a learning machine that generalizes appropriately is found by controlling both, the classifier capacity, based on w , and the sum of the slack variables m i=1 ξ i , which provides an upper bound on the number of training errors. Such a classifier, known as soft margin solutions, is obtained by minimizing the objective function</p><formula xml:id="formula_15">1 2 w 2 + C m i=1 ξ i<label>(16)</label></formula><p>subject to the constraints on ξ i and equation (15). The constant C &gt; 0 determines the trade-off between margin maximization and training error minimization. Again, this leads to the problem of maximizing equation ( <ref type="formula" target="#formula_12">13</ref>), subject to modified constraint with the only difference from the separable case being an upper bound C on the Lagrange multipliers α i . Another realization replaces the parameter C by a parameter ν ∈ (0, 1] that provides upper and lower bounds for the subset of examples which become Support Vectors and those which will have non-zero slack variables, respectively <ref type="bibr" target="#b1">[2]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Non Linear Support Vector Machines</head><p>If the decision function f in equation ( <ref type="formula" target="#formula_5">6</ref>) is not linear, all above methods have to be generalized to these cases. Boser et al. <ref type="bibr" target="#b4">[5]</ref>, proved that a rather old method <ref type="bibr" target="#b5">[6]</ref>, referred to as kernel trick, can be used to accomplish this in a straightforward manner. Thereby, symmetric similarity measures of the form k : H × H → R, with (x, x ) → k(x, x ), are considered. These functions, given two observations x and x return a real number value denoting their similarity.</p><p>To allow for a variety of similarity measures and learning algorithms, the observations are represented as vectors in an arbitrary selected feature space Φ, due to the mapping: Φ = X → H with x → Φ(x). The function k is often referred to as a kernel. Some popular kernel choice are Gaussian, k(x, x ) = e -x-x 2 2σ 2</p><p>, or Radial Basis Functions, k(x, x ) = e γ x-x 2 , as shown in figure <ref type="figure" target="#fig_0">2</ref> (right). Finally, f can be rewritten as</p><formula xml:id="formula_16">f (x) = sgn m i=1 y i α i k(x, x i ) + b<label>(17)</label></formula><p>Furthermore, in the quadratic optimization problem (13) the definition of K ij becomes K ij = k(x i , x j ).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Probability Estimates</head><p>As discussed, Support Vector Machines predict only class labels without probability information. However, several extensions to provide probability estimates have been presented <ref type="bibr" target="#b6">[7]</ref>, <ref type="bibr" target="#b7">[8]</ref>. Briefly, given n classes of data, for any observation x, the goal would be to estimate p i = P (y = i|x), i = 1, ..., n</p><p>Following <ref type="bibr" target="#b6">[7]</ref>, <ref type="bibr" target="#b7">[8]</ref>, in the context of the one-against-one (i.e., pairwise) approach for multi-class classification, we first estimate pairwise class probabilities as</p><formula xml:id="formula_18">r ij ≈ P (y = i|y = i ∧ j, x)<label>(19)</label></formula><p>If f is the decision value at x, then we assume</p><formula xml:id="formula_19">r ij ≈ 1 1 + e A f +B<label>(20)</label></formula><p>where A and B are estimated by minimizing the negative log likelihood of training data, using their labels and decision values. It has been observed that decision values from training may overfit the model in equation (20), so cross-validation is conducted to obtain decision values before minimizing the negative log likelihood. After collecting all r ij values, Wu et al. <ref type="bibr" target="#b6">[7]</ref> propose various possible approaches to obtain p i , ∀i.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: Left: Linear separable classification. Optimal hyperplane is shown as a solid line. Weight vector w and a threshold b yield y i ( w, x i + b) &gt; 0 ∀i = 1, ..., m. Support Vectors lie on the borders of the margin (dashed lines). Right: Examples of a non-linear separation surface found using a radial basis function kernel k(x, x ) = e -x-x 2 .</figDesc><graphic coords="4,95.40,72.00,421.22,260.31" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="2,130.50,430.32,351.01,220.13" type="bitmap" /></figure>
+		</body>
+		<back>
+
+			
+			<div type="acknowledgement">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Also there exist a varity of sophisticated approaches to infer the best set of hyper-parameters, i.e. the most appropriate parameters C for linear Support Vector Machines, as well as (C, γ), for Radial basis functions based non-linear Support Vector Machines, would be grid search based cross validation.</p></div>
+			</div>
+
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">A tutorial on support vector machines for pattern recognition</title>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">J C</forename><surname>Burge</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Data Mining and Knowledge Discovery</title>
+		<imprint>
+			<date type="published" when="1998">1998</date>
+			<biblScope unit="page" from="121" to="167" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Learning with Kernels: Support Vector Machines, Regularization, Optimization, and Beyond</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Schoelkopf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Smola</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2001">2001</date>
+			<publisher>MIT Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<title level="m" type="main">Practical Methods of Optimization</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Fletcher</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1987">1987</date>
+			<publisher>John Wiley and Sons</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">The Nature of Statistical Learning Theory</title>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">N</forename><surname>Vapnik</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Transactions on Neural Networks</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="1999">1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Vapnik A training algorithm for optimal margin classifiers</title>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">E</forename><surname>Boser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">M</forename><surname>Guyon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">N</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">COLT &apos;92 Proceedings of the fifth annual workshop on Computational learning theory</title>
+		<imprint>
+			<date type="published" when="1992">1992</date>
+			<biblScope unit="page" from="144" to="152" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Rozonoer Theoretical Foundations of the Potential Function Method in Pattern Recognition Learning</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A</forename><surname>Aizerman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">M</forename><surname>Braverman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">I</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Automation and Remote Control</title>
+		<imprint>
+			<date type="published" when="1964">1964</date>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="page" from="821" to="837" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Probability Estimates for Multi-class Classification by Pairwise Coupling</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">C</forename><surname>Weng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Journal of Machine Learning Research</title>
+		<imprint>
+			<date type="published" when="2004">2004</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Probabilistic outputs for support vector machines and comparison to regularized likelihood methods</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Platt</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Large Margin Classifiers</title>
+		<editor>
+			<persName><forename type="first">A</forename><surname>Smola</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">P</forename><surname>Bartlett</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">B</forename><surname>Schoelkopf</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">D</forename><surname>Schuurmans</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Cambridge, MA</addrLine></address></meeting>
+		<imprint>
+			<publisher>MIT Press</publisher>
+			<date type="published" when="1999">1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Logistic Regression as Soft Perceptron Learning</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2021-11-25">November 25, 2021</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Raúl</forename><surname>Rojas</surname></persName>
+						</author>
+						<title level="a" type="main">Logistic Regression as Soft Perceptron Learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2021-11-25">November 25, 2021</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">A36A36A12F0063AF9F544B62FDA31EAD</idno>
+					<idno type="arXiv">arXiv:1708.07826v1[stat.ML]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>We show that gradient ascent for logistic regression has a connection with the perceptron learning algorithm. Logistic learning is the "soft" variant of perceptron learning.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Logistic Regression is used to build classifiers with a function which can be given a probabilistic interpretation. We are given the data set (x i , y i ), for i = 1, . . . , N, where the x i are (n + 1)-dimensional extended vectors and the y i are zero or one (representing the positive or negative class, respectively). We would like to build a function p(x, β), which depends on a single (n + 1)dimensional parameter vector β (like in linear regression) but where p(x, β) approaches one when x belongs to the positive class, and zero if not. An extended vector x is one in which the collection of features has been augmented by attaching the additional component 1 to n features, so that the scalar product of the β and x vectors can be written as</p><formula xml:id="formula_0">β T x = β 0 + β 1 x 1 + • • • + β n x n</formula><p>The extra component allows us to handle a constant term β 0 in the scalar product in an elegant way.</p><p>A proposal for a function such as the one described above is</p><formula xml:id="formula_1">p(x, β) = exp(β T x)/(1 + exp(β T x))</formula><p>where p(x, β) denotes the probability that x belongs to the positive class. The function is always positive and never greater than one. It saturates asymptotically to 1 in the direction of β. Note that the probability of x belonging to the negative class is given by:</p><formula xml:id="formula_2">1 -p(x, β) = 1/(1 + exp(β T x))</formula><p>With this interpretation we can adjust β so that the data has maximum likelihood. If N 1 is the number of data points in the positive class and N 2 the number o data points in the negative class, the likelihood is given by the product of all points probabilities</p><formula xml:id="formula_3">L(β) = N 1 p(x i , β) N 2 (1 -p(x i , β))</formula><p>We want to maximize the likelihood of the data, but we usually maximize the log-likelihood, since the logarithm is a monotonic function. The log-likelihood of the data is obtained taking the logarithm of L(β). The products transform into sums of logarithms of the probabilities:</p><formula xml:id="formula_4">ℓ(β) = N 1 β T x i - N 1 log(1 + exp(β T x i )) - N 2 log(1 + exp(β T x i ))</formula><p>which can be simplified to</p><formula xml:id="formula_5">ℓ(β) = N y i β T x i - N log(1 + exp(β T x i ))</formula><p>where N = N 1 + N 2 and y i = 0 for all points in the negative class.</p><p>If we want to find the best parameter β we could set the gradient of ℓ(β) to zero and solve for β. However the nonlinear function makes an analytic solution very difficult. Therefore we can try to maximize ℓ(β) numerically, using gradient ascent. Therefore we compute the derivative of ℓ(β) relative to the vector β:</p><formula xml:id="formula_6">∇ℓ(β) = N (y i x i -(exp(β T x i )x i )/(1 + exp(β T x i ) which reduces to ∇ℓ(β) = N (y i x i -p(x i , β)x i ) = N x i (y i -p(x i , β))</formula><p>This is a very interesting expression. It essentially says that, when doing gradient ascent, the corrections to the vector β are computed in the following way: if x belongs to the positive class (y i = 1) but the probability p(x i , β) is low, we add the vector x i to β, weighted by y i -p(x i , β). And conversely: if x belongs to the negative class (y i = 0) but the probability p(x i , β) is high, we subtract the vector x i from β, weighted by |y i -p(x i , β)|. This is the way the perceptron learning algorithm works, without the weights. If instead of a logistic function we had a step function for assigning "hard" probabilities of zero and one to the data vectors, we would obtain the perceptron learning algorithm.</p></div>		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<author>
+			<persName><forename type="first">T</forename><surname>Hastie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Tibshirani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Friedman</surname></persName>
+		</author>
+		<title level="m">The Elements of Statistical Learning</title>
+		<meeting><address><addrLine>New York</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer-Verlag</publisher>
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

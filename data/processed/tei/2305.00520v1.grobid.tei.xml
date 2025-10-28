@@ -1,0 +1,1264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">The ART of Transfer Learning: An Adaptive and Robust Pipeline</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Boxiang</forename><surname>Wang</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Statistics and Actuarial Science</orgName>
+								<orgName type="institution">University of Iowa</orgName>
+								<address>
+									<region>IA</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<author role="corresp">
+							<persName><forename type="first">Yunan</forename><surname>Wu</surname></persName>
+							<email>yunan.wu@utdallas.edu</email>
+							<affiliation key="aff1">
+								<orgName type="department">Department of Mathematical Sciences</orgName>
+								<orgName type="institution">University of Texas at Dallas</orgName>
+								<address>
+									<region>TX</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Chenglong</forename><surname>Ye</surname></persName>
+							<affiliation key="aff2">
+								<orgName type="department">Dr. Bing Zhang Department of Statistics</orgName>
+								<orgName type="institution">University of Kentucky</orgName>
+								<address>
+									<region>KY</region>
+									<country>USA Correspondence</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">The ART of Transfer Learning: An Adaptive and Robust Pipeline</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">7CB982BBF044406ACA007DB11833E6FF</idno>
+					<note type="submission">Received: Added at production Revised: Added at production Accepted: Added at production</note>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>Auxiliary data</term>
+					<term>Transfer learning</term>
+					<term>Negative transfer</term>
+					<term>Model aggregation</term>
+					<term>Variable Importance</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Transfer learning is an essential tool for improving the performance of primary tasks by leveraging information from auxiliary data resources. In this work, we propose Adaptive Robust Transfer Learning (ART), a flexible pipeline of performing transfer learning with generic machine learning algorithms. We establish the non-asymptotic learning theory of ART, providing a provable theoretical guarantee for achieving adaptive transfer while preventing negative transfer. Additionally, we introduce an ART-integrated-aggregating machine that produces a single final model when multiple candidate algorithms are considered. We demonstrate the promising performance of ART through extensive empirical studies on regression, classification, and sparse learning. We further present a real-data analysis for a mortality study.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">INTRODUCTION</head><p>The age of rapid technological change is unfolding in real time, empowering the collection of massive amounts of data in a variety of fields. Despite this, many fields still struggle with data acquisition with limited sample sizes, particularly in experiments that involve human or animal subjects and can be prohibitively expensive. To improve the performance of the primary task on those occasions, transfer learning has been widely advocated as a means of leveraging knowledge from available auxiliary data that are different while related to the primary data. Successful applications of transfer learning in data-scarce fields include drug development <ref type="bibr" target="#b36">(Turki, Wei, &amp; Wang 2017)</ref>, clinical trials <ref type="bibr" target="#b1">(Bellot &amp; van der Schaar 2019)</ref>, and material sciences <ref type="bibr" target="#b17">(Hutchinson et al. 2017</ref>), among others. For an overview of transfer learning methodologies and applications, interested readers may refer to survey papers by <ref type="bibr" target="#b25">Pan and Yang (2009)</ref>, <ref type="bibr" target="#b42">Weiss, Khoshgoftaar, and Wang (2016)</ref>, <ref type="bibr" target="#b22">Niu, Liu, Wang, and Song (2020)</ref>, and <ref type="bibr" target="#b48">Zhuang et al. (2020)</ref>.</p><p>Although transfer learning has achieved pervasive success and shows great promise, there is no guarantee that it will always improve performance -there is no free lunch for transfer learning. When a large discrepancy exists between the primary and auxiliary data, the performance of the primary estimator is likely to be negatively affected by auxiliary data. This phenomenon is referred to as "negative transfer" <ref type="bibr" target="#b29">(Rosenstein, Marx, Kaelbling, &amp; Dietterich 2005</ref>; Z. <ref type="bibr" target="#b41">Wang, Dai, Póczos, &amp; Carbonell 2019)</ref>. Therefore, the success of a transfer learning method largely depends on its ability to be robust against negative transfer. As quoted from the survey paper <ref type="bibr" target="#b48">Zhuang et al. (2020)</ref>, "The negative transfer still needs further systematic analyses."</p><p>In recent literature, the study of negative transfer has been embraced from the perspective of statistical guarantees for transfer learning. <ref type="bibr" target="#b0">Bastani (2021)</ref> studied estimation and prediction in high-dimensional linear models with one informative auxiliary data, where the sample size of the auxiliary data is required to be larger than its dimension. <ref type="bibr" target="#b20">Li, Cai, and Li (2021)</ref> proposed trans-lasso under a more general setting allowing for multiple auxiliary data, which can be even high-dimensional, i.e., the size can be smaller than the dimension. Trans-lasso has been shown to improve the learning efficiency with known informative auxiliary data and can be robust to non-informative auxiliary data. The idea of trans-lasso was further extended to generalized linear models in <ref type="bibr" target="#b31">Tian and Feng (2022)</ref>. <ref type="bibr" target="#b2">Cai and Wei (2021)</ref> proposed an estimation algorithm with a faster convergence arXiv:2305.00520v1 [stat.ML] 30 Apr 2023</p><p>Algorithm 1 ART: Adaptive and Robust Transfer Learning Pipeline Input: Primary data T (0) = {(x</p><formula xml:id="formula_0">(0) i , y<label>(0)</label></formula><p>i )} n 0 i=1 and M auxiliary data</p><formula xml:id="formula_1">T (m) = {(x (m) i , y<label>(m) i</label></formula><p>)} nm i=1 , for m = 1, 2, . . . , M . 1: Split the primary data into two parts: T</p><p>(0) train = {(x (0) i , y (0) i )} n 0,train i=1 and T (0) test = {(x (0) i , y (0) i )} n 0 i=n 0,train +1 . 2: Fit the model ĝ(0) by A(T (0) train ). 3: for m = 1 to M do 4:</p><p>Stack T (m) with T (0) train to have T (m) , and obtain the model ĝ(m) by A( T (m) ).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>5:</head><p>Set w m,n 0,train +1 = πm such that πm ≥ 0 and M m=0 πm = 1.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>6:</head><p>For each m ≥ 0 and n 0,train + 2 ≤ i ≤ n 0 , calculate the weights w m,i = πm exp -λ i-1 j=n 0,train +1 L y</p><formula xml:id="formula_2">(0) j , ĝ(m) (x (0) j ) M m =0 π m exp -λ i-1 j=n 0,train +1 L y (0) j , ĝ(m ) (x<label>(0) j )</label></formula><p>.</p><p>(1)</p><p>7: end for 8: Output the final model:</p><formula xml:id="formula_3">gART (x) = M m=0   n 0 i=n 0,train +1 w m,i n 0 -n 0,train   ĝ(m) (x).</formula><p>(2) rate than the minimax rate in the single study setting for high-dimensional Gaussian graphical models. For general function classes, <ref type="bibr" target="#b34">Tripuraneni, Jin, and Jordan (2021)</ref> proposed meta-learning algorithms with theoretical underpinnings to estimate multiple linear regression models which share a common, low-dimensional linear representation. <ref type="bibr" target="#b13">Hanneke and Kpotufe (2022)</ref> demonstrated that without access to distributional information, no algorithm could guarantee to improve the convergence rate with enlarging auxiliary data and primary data being fixed.</p><p>The aforementioned theoretical studies mainly focused on certain methods under the framework of transfer learning. In this work, we consider a more general transfer learning framework called the Adaptive and Robust Transfer learning (ART) pipeline. ART is flexible and applicable to generic regression and classification methods rather than focusing on specific methods. The way that ART utilizes auxiliary data to supply information for the primary data is inspired by adaptive regression by mixing proposed in <ref type="bibr" target="#b43">Yang (2001)</ref>. With some random data splittings, primary and auxiliary data are aggregated through an exponential weighting scheme. We shall show a theoretical guarantee of robustness against the negative transfer for ART. The ART predictor has a prediction risk smaller than the best candidate's prediction risk plus a small penalty term, and the penalty term is the price to pay to achieve adaptivity without knowing which candidate is the best. In addition, when transfer learning is performed with multiple candidate algorithms, we propose a new method called ART-Integrated-Aggregating Machine (ART-I-AM) that aggregates those candidate algorithms under the framework of ART, automatically outputting a single model for the final prediction. Thus ARM-I-AM does not need the effort of selecting an algorithm, say by cross-validation, as is typically done in the standard practice. Further, when ART is applied for a sparse learning method that outputs sparse representations of the coefficient, e.g., lasso <ref type="bibr" target="#b32">Tibshirani (1996)</ref>, we present an ART variable importance measure that describes each predictor's contribution in the final predictions.</p><p>The rest of this paper is organized as follows. Section 2 presents the methodological details of ART. Section 3 establishes the theoretical properties of our proposed methods. Section 4 contains simulation results, and Section 5 performs a real-data analysis for predicting the survival rate of ICU patients. Technical proofs and additional simulation results are presented in the supplemental file.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">METHODOLOGY</head><p>Consider using a certain algorithm A to train a model ĝ on primary data</p><formula xml:id="formula_4">T (0) = {(x (0) i , y<label>(0)</label></formula><p>i )} n 0 i=1 , where each x i ∈ R p and y i ∈ R for regression and y i ∈ {0, 1} for classification. The performance of ĝ is assessed by its generalization error EL(y, ĝ(x)) with a loss function L, where the expectation is taken over the same data generating distribution of the data in T (0) . Despite the focus on binary labels for classification, the proposed method in this work can be naturally extended to multi-class classification.</p><p>In this work, the ultimate goal is to enhance the performance of ĝ with possible help from external data resources. Suppose M auxiliary data,</p><formula xml:id="formula_5">namely, T (m) = {(x (m) i , y (m) i )} nm i=1 , m = 1, 2, . . . , M</formula><p>, are available and they may potentially provide useful information for building ĝ. For simplicity, each T (m) is assumed to have the same predictors as T (0) and thus can be stacked upon T (0) . A new pipeline called ART is introduced for transfer learning and presented as in Algorithm 1. It is sketched as follows. We random split the primary data into two parts T train to have T (m) . We fit each ĝ(m) , m = 0, 1, 2, . . . , M , by running the algorithm A on T (0) train and each T (m) , respectively. The models ĝ(m) are then aggregated according to an exponential-weighting scheme with the weights given in (1), yielding the final ART estimate gART . For the sake of exposition, in Algorithm 1, only a single random split Algorithm 2 ART-I-AM: ART-Integrated-Aggregating Machines</p><formula xml:id="formula_6">Input: Primary data T (0) = {(x (0) i , y (0) i )} n 0 i=1 and M auxiliary data T (m) = {(x (m) i , y<label>(m) i</label></formula><p>)} nm i=1 , for m = 1, 2, . . . , M . Candidate algorithms: A 1 , A 2 , . . . , A R . 1: Random split the primary data into two parts:</p><formula xml:id="formula_7">T (0) train = {(x (0) i , y (0) i )} n 0,train i=1 and T (0) test = {(x (0) i , y (0) i )} n 0 i=n 0,train +1 . 2: for r = 1 to R do 3:</formula><p>Fit the model ĝ(0,r) by A r (T</p><p>(0) train ). 4: end for 5: for m = 1 to M do 6: Stack T (m) with T (0) train to have T (m) 7: for r = 1 to R do 8:</p><p>Otain the model ĝ(m,r) by A r ( T (m) ).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>9:</head><p>Set w m,r,n 0,train +1 = πm,r such that πm,r ≥ 0 and M m=0 R r=1 πm,r = 1.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>10:</head><p>For each n 0,train + 2 ≤ i ≤ n 0 , calculate the weights</p><formula xml:id="formula_8">w m,r,i = πm,r exp -λ i-1 j=n 0,train +1 L y (0) j , ĝ(m,r) (x (0) j ) M m =0 R r =1 π m r exp -λ i-1 j=n 0,train +1 L y (0) j , ĝ(m ,r ) (x<label>(0) j )</label></formula><p>.</p><p>11:</p><p>end for 12: end for 13: Output the final model:</p><formula xml:id="formula_9">gART (x) = M m=0 R r=1   n 0 i=n 0,train +1 w m,r,i n 0 -n 0,train   ĝ(m,r) (x).</formula><p>on the primary data is presented, while the algorithm can be repeated to perform multiple random splits until the weights converge, making the output gART more stable at the end.</p><p>The ART pipeline is generically applicable under both regression and classification settings, which differ in Algorithm 1 only in the choice of the loss function L when assessing the accuracy and determining the weights. For regression problems, a common choice is L(y, ŷ) = (y -ŷ) 2 . For classification problems, with y ∈ {0, 1}, the cross entropy, L(y, ĝ(x)) = -y log ĝ(x)-(1-y) log(1-ĝ(x)), is employed, where ĝ(x) is an estimate of the conditional probability P (y = 1|x) being yielded by A. The conditional probabilities can be intrinsically estimated by some algorithms such as logistic regression, random forest, AdaBoost, etc; otherwise, we recommend using the classification calibration approach as a post-hoc manner: for example, Platt scaling <ref type="bibr" target="#b27">(Platt et al. 1999)</ref>, which transfers the support vector machine (SVM, <ref type="bibr" target="#b4">Cortes &amp; Vapnik 1995)</ref> </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>outputs into probabilities.</head><p>Other examples of classification calibration methods include beta calibration <ref type="bibr" target="#b19">(Kull, Silva Filho, &amp; Flach 2017)</ref>, isotonic regression <ref type="bibr" target="#b45">(Zadrozny &amp; Elkan 2002)</ref>, and confidence calibration <ref type="bibr" target="#b10">(Guo, Pleiss, Sun, &amp; Weinberger 2017)</ref>, among many others.</p><p>Remark 1. Algorithm 1 can be simplified. The weights w m,i calculated in (1) are attributed to the cumulative performance of ĝ(m) on</p><formula xml:id="formula_10">{(x (0) t , y (0) t )} i t=n 0,train +1 from T (0)</formula><p>test . To reduce the computational cost, we suggest the use of g(x) = M m=0 wmĝ (m) (x) and wm = πme</p><formula xml:id="formula_11">-λ n 0 j=n 0,train +1 L y (0) j ,ĝ (m) (x (0) j ) M m =0 π m e -λ n 0 j=n 0,train +1 L y (0) j ,ĝ (m ) (x (0) j )</formula><p>, in place of equations ( <ref type="formula" target="#formula_30">1</ref>) and ( <ref type="formula" target="#formula_32">2</ref>) in Algorithm 1.</p><p>Remark 2. Regarding the initial weighting choice πm for each auxiliary data, larger weights are typically recommended for more sizeable and trustful auxiliary data. Nevertheless, the equal weights πm ≡ 1/(M + 1) usually work well in practice. As will be seen in Theorem 1, the upper bound of the generalization error of the final estimator gART establishes a trade-off between the model complexity and accuracy. In addition, we recommend n 0,train = n 0 /2 , and shall discuss the choice of λ in Remark 3.</p><p>Machine learning practitioners often need to choose from a wide variety of applicable algorithms to solve a certain problem. Given the flexibility of ART, we propose an ART-integrated-aggregating machine (ART-I-AM) in the context of transfer learning. ART-I-AM integrates multiple algorithms, e.g., the SVM, random forest, and boosting, in the ART pipeline, automatically producing a single output without extra tuning efforts.</p><p>More details about ART-I-AM are summarized in Algorithm 2.</p><p>ART also provides a natural way of calculating variable importance as long as the algorithm A outputs a set of variables that are important for prediction. Lasso is utilized to demonstrate the idea in this work, while other sparse penalties like elastic-net <ref type="bibr" target="#b49">(Zou &amp; Hastie 2005)</ref>, SCAD <ref type="bibr" target="#b6">(Fan &amp; Li 2001)</ref>, and MCP <ref type="bibr" target="#b46">(Zhang 2010</ref>) can be imposed in the algorithm A to produce sparse coefficients as well.</p><p>With slight abuse of notation, we denote X j ∈ ĝ(m) if the j-th predictor X j is selected by the model ĝ(m) trained by A( T (m) ). For example, variable selection methods (usually enjoy variable selection consistency) like Lasso selects a sparse set of variables. Another example is the random forest, which outputs the variable importance for each feature. In that case, users can determine their own cutoff to select the variables (e.g., top 10 variables or the set of variables with importance greater than 3). Note that if the method A does not carry out variable selection, the ART variable importance is not well-defined.</p><p>Definition 1. The ART variable importance for the jth predictor is defined as</p><formula xml:id="formula_12">VI j = M m=0 wmI(X j ∈ ĝ(m) ),</formula><p>where I(•) is the indicator function and wm is given in Algorithm 1.</p><p>The ART variable importance cannot lay down a dichotomy rule about whether a predictor is important, while it is a relative importance measure for each predictor's contribution to the final model gART , bearing a resemblance to the variable importance that arises in random forest and boosting.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">THEORY</head><p>In this section, we establish the non-asymptotic statistical learning theory of ART.</p><p>We first introduce some notations. The generalization error of an estimated function ĝ is assessed based on a given loss EL(y, ĝ(x)), where the expectation E is taken over (x, y) that is drawn from (X, Y ) and all pairs of data that used to generate ĝ. For example, ĝ( <ref type="formula" target="#formula_30">1</ref>) is trained based on the data {(x</p><formula xml:id="formula_13">(0) i , y<label>(0)</label></formula><p>i )} and T (1) , and then the expectation in EL(y, ĝ(1) (x)) is taken over all (x, y) that is drawn from (X, Y ), and</p><formula xml:id="formula_14">T (0) train ∪ T (1) . Let | • | denote the Euclidean norm. For a function g, let ||g|| 2 := E|g(X)| 2 = |g(X)| 2 P X (dX) denote the L 2 norm of g with respect to the distribution of X.</formula><p>When no confusion arises, we write the final model of Algorithm 1, gART , as g, for the sake of exposition.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">ART for regression</head><p>Assume the primary data</p><formula xml:id="formula_15">T (0) = {x (0) i , y<label>(0)</label></formula><p>i } n 0 i=1 are i.i.d. realizations of the random vector (X, Y ), where X = (X 1 , ..., Xp) ∈ R p and Y ∈ R. Denote the conditional mean function as g(X) = E(Y |X) and the conditional variable function as σ 2 (X) = Var(Y |X). We consider the data-generating model</p><formula xml:id="formula_16">Y = g(X) + σ(X) ,<label>(3)</label></formula><p>where, without loss of generality, the error term ∈ R has E( |X) = 0 and Var( |X) = 1.</p><p>Assumption 1 (Boundedness). Assume that the mean function, the estimated mean functions, and the variance function are upper bounded, i.e., there exists a positive constant A such that |g(X)| ≤ A, sup m |ĝ (m) (X)| ≤ A, and σ(X) ≤ A almost surely.</p><p>The above boundedness assumption about mean and variance functions are mild and common in the model averaging/aggregation literature.</p><p>Assumption 2. The loss function L(a, b) is convex in b and can be written in the form ρ(a -b) for some function ρ(•). In addition, there exists two</p><formula xml:id="formula_17">positive constants c 1 and c 2 such that 2c 1 |t 1 -t 2 | ≤ |ρ (t 1 )-ρ (t 2 )| ≤ 2c 2 |t 1 -t 2 | and c 1 (t 1 -t 2 ) 2 ≤ ρ(t 1 )-ρ(t 2 )-ρ (t 2 )(t 1 -t 2 ) ≤ c 2 (t 1 -t 2 ) 2 for t 1 , t 2 ∈ R.</formula><p>Assumption 2 requires that the function ρ has a Lipschitz continuous first-order derivative, and its second-order derivative is bounded. Many loss functions satisfy this general assumption, for example, the squared error loss L(a, b) = (a -b) 2 and the asymmetric error loss</p><formula xml:id="formula_18">Lτ (a, b) = |τ -I(a -b &lt; 0)| • (a -b) 2 with τ ∈ (0, 1). Assumption 3. Given X, the noise is sub-exponential. A random variable Z ∈ R is called a sub-exponential variable (Vershynin 2010) if its sub-exponential norm is bounded, i.e., sup k≥1 k -1 (E|Z| k ) 1/k &lt; ∞.</formula><p>If the noise term is independent of X, then the assumption reduces to require a sub-exponential noise. The sub-exponential family contains random variables whose moment generating functions exist in a neighborhood of 0. This is a large and general class.</p><p>Theorem 1. Recall that ĝ(0) is the estimate without transfer learning. Under Assumptions 1, 2, and 3, the excess risk of the final estimate g in Algorithm 1 is upper bounded as</p><formula xml:id="formula_19">EL(Y, gART (X)) -EL(Y, ĝ(0) (X)) ≤ log M λñ ,<label>(4)</label></formula><p>where ñ = n 0 -n 0,train , if the tuning parameter λ satisfies λ</p><formula xml:id="formula_20">-1 ≥ [16 √ 2d 2 1 exp(e 2 d 2 1 /2) + 32c 2 2 A 2 exp(1/(16e 2 d 1 ))] • exp(2λc 2 A 2 )/2c 1 } and λ -1 ≥ 8e • d 1 A, where d 1 = 2c 2 A sup k≥1 k -1 (E| | k ) 1/k .</formula><p>As indicated by Theorem 1, the excess prediction risk of the proposed estimator g is upper bounded by a small penalty term 1/{λ(n 0 -n 0,train )}• log M . The penalty term is the price to pay to achieve the best performance without knowing which auxiliary data set is the best. Hence, our method still has good performance in the case where all auxiliary data give terrible transferred predictions, i.e., the negative transfer occurs, because the non-transferred model ĝ(0) (obtained by training the primary data T (0) without any auxiliary data) is included in the candidate pool. In other words, our method does not require the strong assumption that the auxiliary data should be transferable. Note that the upper bound is generally loose. We can further improve the transferred estimate g in line 2 of Algorithm 1. Currently, for each auxiliary data, we simply stack it with the primary data and obtain a transferred estimate A(T (0) train ). Different transfer learning algorithms have their own way of utilizing the auxiliary data. If we know a transfer learning method that has a much smaller excess risk, we can obtain A(T (0) train ) following that transfer learning method. In that case, the excess risk of our final transferred estimate will also improve. We want to emphasize that our algorithm applies to any machine learning method, at the cost of a loose bound in the theorem.</p><p>Remark 3. The tuning parameter λ should not be too small; otherwise, the penalty term will be much larger than EL(Y, ĝ(0) (X)) and the upper bound becomes meaningless. In terms of the convergence rate, one only needs to make the penalty term 1/{λ(n 0 -n 0,train )} • log M = O(1/(n 0,train + nm)) since the term EL(Y, ĝ(0) (X)) converges to EL(Y, g(X)) at a rate no faster than 1/(n 0,train + nm). Thus the penalty term will not affect the convergence rate. In practice, we recommend the value λ = (n 0,train + nm)/(n 0 -n 0,train ) when at least one of the auxiliary data sizes is much larger than the primary data size; otherwise, we recommend λ = 1. In our simulations and real-data analysis, the choice λ = 1 works very well. Indeed, the proposed method is stable against the choice of λ in a wide range.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">ART for classification</head><p>Suppose the primary data</p><formula xml:id="formula_21">T (0) = {x (0) i , y<label>(0)</label></formula><p>i } n 0 i=1 are i.i.d. realizations of the random vector (X, Y ), where X = (X 1 , ..., Xp) ∈ R p and Y ∈ 0, 1. Let g(X) = P (Y = 1|X) be the conditional probability of Y being 1 given the features X. Let the mth trained model ĝ(m) be an estimated function of f . Then the classifier for each new data point xnew is taken as I(ĝ (m) (xnew) &gt; 0.5).</p><p>Assumption 4. For each auxiliary data T (m) , there exists a positive constant 0 &lt; Am &lt; 0.5 such that ĝ(m) (x) ∈ (Am, 1 -Am) for any x.</p><p>The constant sequence Am is allowed to converge to 0 as m → ∞. Assumption 4 is mild since the case g(x) = 0 or 1 is trivial for classification.</p><p>Theorem 2. Under Assumption 4, the excess risk of the final estimate gART is upper bounded as</p><formula xml:id="formula_22">E||g ART -g|| 2 2 - 2 A 2 m E||ĝ (0) -g|| 2 2 ≤ 2 log M n 0 -n 0,train .<label>(5)</label></formula><p>Unlike the regression setting, we present the bound for the squared error loss. This is because when evaluating a classifier ĝ(X) ∈ 0, 1, the mean error probability EP (Y = ĝ(X)) is commonly considered. If the underlying conditional probability g(X) = P (Y = 1|X = X) is known, the mean error probability is minimized by the Bayes classifier g * (X) := I(g(X) &gt; 0.5). It is then natural to consider the following measure for evaluating g: EP (Y = ĝ(X)) -P (Y = g * (X)). Let ĝ be an estimator of f . It is known that for any plug-in classifier I(ĝ(x) &gt; 0.5), it satisfies</p><formula xml:id="formula_23">EP (Y = ĝ(X)) -P (Y = g * (X)) ≤ 2(E||f -ĝ|| 2 2 ) 1/2</formula><p>. The plug-in classifier I(g(X) &gt; 0.5) in our method also satisfies this inequality.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">ART variable importance</head><p>Theoretical properties of ART variable importance that is proposed in Definition 1 are derived in this section.</p><p>Theorem 3. Define S to be the unknown set that contains all the important features in the conditional mean function g(•). If there exists some m ∈ {0, 1, ..., M } such that</p><formula xml:id="formula_24">P (X j ∈ A(ĝ (m) )) → 1 (6)</formula><p>as n → ∞ for any X j ∈ S, we have min j:X j ∈S VI j P -→ 1 and max j:X j / ∈S VI j P -→ 0.</p><p>The ART variable importance depends on A. As Theorem 3 stated, ART will retain the variable selection property of the original algorithm. The theorem does not hold if A does not provide variable importance measure (e.g., SVM) or the nice property (6) (e.g., random forest).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>SIMULATION STUDIES</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">ART for regression</head><p>With p = 10 and n = 50, we construct the primary data T (0) by independently sampling each x (0) i from Np(0, Σ), where i = 1, 2, . . . , n and Σ possesses the auto-regression correlation structure, i.e., Σ = (0.5 |i-j| ) p×p . Generate each response as y</p><formula xml:id="formula_25">(0) i = β x (0) i + ,</formula><p>where is from the standard normal distribution and independent of the predictors. The true coefficient of interest, β, is drawn from Np(1, Ip). To simulate the auxiliary data T (m) , each x (m) i is produced in the same way as x (0)</p><p>i , and y</p><formula xml:id="formula_26">(m) i = β (m) x (m) i</formula><p>+ , where β (m) = β + ξ and ξ indicates the noise level.</p><p>We consider three methods of handling the auxiliary data: (1) fit the least squares regression only on the primary data, giving rise to βLS , (2) grow a pooled data by stacking the primary data and all the M auxiliary data together, and fit the least squares regression on the pooled data, yielding βpool-LS , and (3) apply ART to obtain βART-LS . To assess the performance, we independently generate another 5,000 observations as test data following the same distribution of the primary data T (0) and evaluate the prediction error 5000 i=1 (ŷ i -y i ) 2 /5000 according to the test data. Example 4.1.1 We study the prediction errors of the three methods by varying M from 1 to 10, and the noise level ξ is fixed to be 0.5. As shown in the panel (a) of Figure <ref type="figure">A1</ref>, the prediction error of βART-LS stays lower than that of βLS starting at M = 1, and declines quickly as M increases.</p><p>This observation indicates that ART can effectively gain useful information from the auxiliary data. In contrast, the prediction error of βART-LS grows with M , hence directly treating the primary and auxiliary data equally brings more noise and exacerbates the accuracy of βpool-LS . The performance with different noise levels of the auxiliary data is further investigated. With M = 10 and ξ ranging from 0.1 to 1, the panel (b) of Figure <ref type="figure">A1</ref> exhibits the prediction errors: the error curve of βART-LS is quite flat when the noise level ξ is small, indicating that ART consistently improves the original estimator with relatively low-level noise emerging in the auxiliary data; the prediction error approaches, but does not exceed, the error of the βLS when ξ rises. Nevertheless, the prediction accuracy of βpool-LS drops rapidly as ξ increases. Hence, when the auxiliary data are noisy, ART automatically switches the focus on the primary data and prevents the negative transfer, rather than naïvely trust the auxiliary data as does βpool-LS .</p><p>Example 4.1.2 To further illustrate the robustness of ART against noisy data, we generate ten additional adversarial data, Ť (m) , which are of the same size as the primary data T (0) . For each m = 1, 2, . . . , 10 and i = 1, 2, . . . , n, the predictors m) are generated in the same way as the primary data T (0) . The response is obtained from</p><formula xml:id="formula_27">x(m) i in Ť (</formula><formula xml:id="formula_28">y(m) i = β(m) x(m) i + where β(m) = -β (0)</formula><p>-ξ, that is, the coefficients in the auxiliary data T (m) and the adversarial data Ť (m) are the opposite. The panel (c) of Figure <ref type="figure">A1</ref> displays the prediction errors against M , the number of auxiliary data. Remarkably, the prediction errors of βART-LS are almost identical to the case when the adversarial data are absent. This observation demonstrates the robustness of the ART framework against noisy or even adversarial data. On the other hand, the prediction errors βpool-LS are extremely high. Even when M is as high as 10, the prediction error is 42.26, and it further rises to 162.41 when M = 1. The pooled estimator βpool-LS breaks down when the external data resources are excessively noisy.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">ART for classification</head><p>Example 4.2.1 We first consider a commonly used linear classifier -logistic regression. Similar to Section 4.1, with p = 10, we independently generate each predictor x i from the same distribution Np(0, Σ) for one primary data, M auxiliary data, and 10 adversarial data, all of which are of the size n = 50. For the primary data, each binary response is drawn from the Bernoulli distribution with the probability P (y i = 1) = 1/(1+exp(-π i )),</p><p>where π i = β x i and β is generated from Np(1, Ip). The binary responses in the auxiliary and adversarial data are generated in the same way as the primary data, except the coefficients are different: for the mth auxiliary data, β (m) = β + ξ, and the mth adversarial data,</p><formula xml:id="formula_29">β(m) = -β -ξ,</formula><p>where ξ is the noise level. We independently generate 5000 data points forming the test data to evaluate the prediction accuracy.</p><p>We fit logistic regression, ĝlogit , ĝpool-logit , ĝART-logit , on the primary data, on the pooled data, and with ART, respectively. The panel (a) of Figure <ref type="figure">A2</ref> plots the prediction error over M with ξ = 0.5. We see ĝpool-logit is greatly affected by the noise in external data resource, and ĝART-logit outperforms ĝlogit when M &gt; 2. The panel (b) of Figure <ref type="figure">A2</ref> plots the prediction error over ξ with M = 5, and it reveals the robustness of ART against the noise level, while ĝpool-logit incurs higher error as ξ increases.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Example 4.2.2</head><p>To illustrate the wide applicability of ART, we consider more general classifiers. The primary data are generated from a Gaussian mixture distribution. The positive class is assemble by 5 j=1 0.2N(µ j+ , Σ) with each µ j+ drawn from N(µ + , 1), where µ + = µ(1, . . . , 1, 0, . . . , 0), and the negative class is generated according to 5 j=1 0.2N(µ j-, Σ) with each µ j-drawn from N(µ -, 1), where µ + = -µ(1, . . . , 1, 0, . . . , 0). We set µ = 1. The auxiliary and adversarial data are generated in the same way, except the auxiliary data have µ (m) = µ + ξ while the adversarial data have μ(m) = -µ -ξ. We fit random forest, kernel SVM, AdaBoost, and neural nets, using the R packages randomForest <ref type="bibr" target="#b21">Liaw and Wiener (2002)</ref>, magicsvm (B. <ref type="bibr" target="#b40">Wang &amp; Zou 2022)</ref>, gbm <ref type="bibr" target="#b9">(Greenwell, Boehmke, Cunningham, &amp; Developers 2022)</ref>, and nnet <ref type="bibr" target="#b37">(Venables &amp; Ripley 2002)</ref>, respectively, with tuning parameters selected based on cross-validation or out-of-bag errors. We see that ART enhances the four classifiers fitted on the primary data as soon as M &gt; 1 as shown in the left panel, and it is robust against the adversarial data as observed in the right panel. Among the four classifiers, neural nets perform better than the rest, and ART advances the accuracy on top of them. In addition, ART-I-AM also outperforms the SVM and AdaBoost, and performs similarly to the neural nets, which deliver the best accuracy among the four classifiers.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.3">ART sparse learning</head><p>ART can naturally account for high-dimensional data analysis when it is coupled with sparse penalized methods such as lasso. We compare ART with lasso which is fitted with the R package glmnet <ref type="bibr" target="#b8">(Friedman, Hastie, &amp; Tibshirani 2010</ref>) and the trans-lasso method proposed in <ref type="bibr" target="#b20">Li et al. (2021)</ref>.</p><p>Example 4.3.1 Following simulation settings in <ref type="bibr" target="#b20">Li et al. (2021)</ref>, we set the dimension p = 200, the sample size for the primary and each auxiliary data, n 0 = 150 and nm = 100, respectively. All x i are drawn from N(0, 1). To generate the sparse coefficients, for the primary data, the first 16 coordinates of β are 0.3 and all the others are zeros. For the mth auxiliary data, m = 1, 2, . . . , M , define a set H (m) including the first 16 coordinates and 12 other randomly selected coordinates, and let β (m) = β + v, where v j = 2ξ if j ∈ H (m) or 0 otherwise, for each j = 1, 2, . . . , 200.</p><p>Plotted in the panel (a) of Figure <ref type="figure">A4</ref> are the prediction errors of βlasso , βtrans-lasso , and βART-lasso over M , and plotted in the panel (b) are the prediction errors over the noise level ξ. It is observed that βART-lasso consistently improves βlasso in all the examples, and βlasso outperforms βtrans-lasso when more auxiliary data are available. ART is more robust over high noise levels than the trans-lasso approach.</p><p>With M fixed to be 5, Figure <ref type="figure">A5</ref> depicts a relative importance spectrum obtained from ART, where the noise level ξ = 0.1, 0.4, 0.7, 1 are used to exemplify the results. ART sets a clear cut-off in the importance of the first 16 active coefficients, and the growing noise level brings only little increase in the relative importance of the inactive coefficients.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">A REAL APPLICATION ON INTENSIVE CARE UNIT MORTALITY</head><p>Intensive care units (ICU) are lifesaving for urgent and life-threatening patients, thanks to advanced therapeutic and monitoring technologies, as well as large provider-to-patient ratios. On the other hand, the lifesaver comes with a high cost. Since back in 2005, the total cost of ICU has been around 30% of the healthcare budget and been over 0.66% of the gross domestic product <ref type="bibr" target="#b11">(Halpern &amp; Pastores 2010</ref><ref type="bibr" target="#b12">2015)</ref>, making ICU a highly limited healthcare resource. It is of critical importance to triage patients with a reasonable estimate of the post-ICU survival rate. The outcome can help patients and their families better prepare the possible long-term ICU care that may have poor outcomes despite high expenses, or help providers decide on an alternative of ICU, e.g., progressive care <ref type="bibr" target="#b30">(Stacy 2011)</ref>.</p><p>In this work, we apply ART to study the mortality rate of the ICU. We collected data from a multi-center database, eICU Collaborative Research Database <ref type="bibr" target="#b28">(Pollard et al. 2018)</ref>, comprising de-identified health data across the United States between 2014 and 2015. To predict the survival status of the individuals, we only used their information when they were at the ICU admission and excluded all the discharge information. We grouped the patient ages into six categories: infants &amp; children (0-12), teens (13-19), early adults (20-39), middle-aged adults (40-59), senior adults (60-89), and extremely senior adults (&gt;89). To reduce the admission diagnosis categories, we merged the categories with low mortality rates as "others".</p><p>Our goal is to predict the post-ICU survival status of the teaching hospitals in the data. By grouping the hospitals by their region (Midwest, Northeast, South, and West) and capacity (Large if over 500 beds and Small otherwise) and using the undersampling method to have the same number of survived and decreased patients, we generated four sub-data, Midwest-Small (n = 72, mortality rate p = 9.47%), Northeast-Large (n = 1230, p = 8.84%), South-Large (n = 644, p = 6.93%), South-Small (n = 210, p = 4.29%), and West-Large (n = 372, p = 6.59%). The estimation of the survival status of the Midwest-Small sub-data is of particular interest due to its relatively high mortality rate, while the problem is challenging because of the relatively small sample size. Consequently, we treat Midwest-Small as the primary data and appoint the other three subdata as the auxiliary data in the ART framework. To assess the performance, we randomly split the primary data by having 50 patients for training and the rest for evaluating the classification error. ART is applied on random forest, AdaBoost, and neural nets, while SVM is not included due to its high computational cost. With 50 random splits, the averaged classification error is exhibited in Table <ref type="table">A1</ref>, where we see AdaBoost delivers lower classification error than random forest and neural nets when these classifiers are fitted on only the primary data. The errors of random forest and neural nets decrease when the classifiers are fitted on the pooled data stacking the primary and the three auxiliary data, whereas the pooling strategy increases the error of AdaBoost. This observation reflects the potential risk of the negative transfer. For all three classifiers, ART outperforms both the original and pooled algorithms. Last, we observe that ART-I-AM delivers the same classification accuracy as the best classifier.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">CONCLUSION</head><p>In this work, we propose ART, an adaptive and robust pipeline designed for applying transfer learning to general statistical and machine learning methods. Through examples of regression, classification, and sparse learning methods, we demonstrate that ART can effectively enhance estimation by extracting and digesting useful information from auxiliary data, while remaining resilient to noisy data sources.</p><p>As ART is a general pipeline that is not specifically tailored to any particular methods, it would be intriguing to explore its performance on large-scale image and text data with deep learning algorithms in future research.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>APPENDIX A TECHINICAL PROOFS</head><p>A.1 Proof of Theorem 1.</p><p>Denote</p><formula xml:id="formula_30">q n 0 n 0,train = M m=0 πm exp    -λ n 0 i=n 0,train +1 L y i , ĝ(m) (x (0) i )    . (<label>A1</label></formula><formula xml:id="formula_31">)</formula><p>We can decompose q n 0 n 0,train as</p><formula xml:id="formula_32">q n 0 n 0,train = M m=0 πm exp -λL yn 0,train , ĝ(m) (x (0) n 0,train +1 ) × M m=0 πm exp -λ n 0,train +2 i=n 0,train +1 L y i , ĝ(m) (x (0) i ) M m=0 πm exp -λL y n 0,train +1 , ĝ(m) (x (0) n 0,train +1 ) × • • • × M m=0 πm exp -λ n 0 i=n 0,train +1 L y i , ĝ(m) (x (0) i ) M m=0 πm exp -λ n 0 -1 i=n 0,train +1 L y i , ĝ(m) (x (0) i ) = n 0 i=n 0,train +1 M m=0 w m,i exp -λL y i , ĝ(m) (x (0) i ) . (<label>A2</label></formula><formula xml:id="formula_33">)</formula><p>Let J be a discrete random variable with P (J = m) = w m,i , m ≥ 0, where i ∈ {n 0,train + 1, ..., n 0 } is fixed. Let ν be the discrete measure induced by J on Z + such that ν(m) = P (J = m). Denote h(J) = -L(y</p><formula xml:id="formula_34">(0) i , ĝ(J) (x (0) i )). We have that M m=0 w m,i exp -λL y (0) i , ĝ(m) (x<label>(0)</label></formula><p>i ) = Eν exp(λh(J)).</p><p>By Lemma 3.6.1 of <ref type="bibr" target="#b3">Catoni and Picard (2004)</ref>, we have log Eν exp(λh(J)) ≤ λEν h(J) + λ 2 2 Varν (h(J)) exp λ max 0, sup</p><formula xml:id="formula_35">γ∈[0,λ] M 3 νγ (h(J)) Varν γ (h(J))</formula><p>,</p><p>where the discrete measure</p><formula xml:id="formula_36">νγ (m) = w m,i exp(γh(m)) M m=1 w m,i exp(γh(m)) for m ≥ 0 and M 3 νγ (h(J)) = Eν γ (h(J) -Eν γ (h(J))) 3 . Then sup γ∈[0,λ] M 3 νγ (h(J)) Varν γ (h(J)) ≤ sup γ∈[0,λ] sup m≥0 |h(m) -Eν γ h(J)| ≤2 sup m≥0 L y (0) i , ĝ(m) (x (0) i ) -L y (0) i , g(x (0) i ) ≤2|ρ (y (0) i -g(x (0) i ))| • sup m≥0 |ĝ (m) (x (0) i ) -g(x (0) i )| + 2c 2 sup m≥0 (ĝ (m) (x (0) i ) -g(x (0) i )) 2 ≤2|ρ (σ(x (0) i ) i )| • A + 2c 2 A 2 and Varν (h(J)) ≤ Eν L y (0) i , ĝ(J) (x (0) i ) -L y (0) i , Eν ĝ(J) (x (0) i ) 2 ≤ sup j≥0 ρ (y (0) i , ĝ(j) (x (0) i )) + c 2 |ĝ (j) (x (0) i ) -Eν ĝ(J) (x (0) i )| 2 Ev ĝ(J) (x (0) i ) -Eν ĝ(J) (x (0) i ) 2 ≤ sup j≥0 ρ (y (0) i , g(x (0) i )) + 4c 2 sup j≥0 |ĝ (j) (x (0) i ) -g(x (0) i )| 2 • Ev ĝ(J) (x (0) i ) -Eν ĝ(J) (x (0) i ) 2 ≤ ρ (σ(x (0) i ) i ) + 4c 2 A 2 Ev ĝ(J) (x (0) i ) -Eν ĝ(J) (x (0) i ) 2 ,</formula><p>where the first two inequalities hold by Assumption 3. Furthermore, by Assumption 3,</p><formula xml:id="formula_37">Ev L y (0) i , ĝ(J) (x (0) i ) -L y (0) i , Eν ĝ(J) (x (0) i ) ≥Ev ρ y (0) i -Eν ĝ(J) (x (0) i ) Eν ĝ(J) (x (0) i ) -ĝ(J) (x (0) i ) + c 1 Ev Eν ĝ(J) (x (0) i ) -ĝ(J) (x (0) i ) 2 =c 1 Ev Eν ĝ(J) (x (0) i ) -ĝ(J) (x (0) i ) 2 which leads to Ev(Eν ĝ(J) (x (0) i ) -ĝ(J) (x (0) i )) 2 ≤ 1 c 1 Ev L y (0) i , ĝ(J) (x (0) i ) -L y (0) i , Eν ĝ(J) (x (0) i ) . We have log Ev exp{λh(J)} ≤ -λEν L(y (0) i , ĝ(J) (x (0) i )) + λ 2 2 (ρ (σ(x (0) i ) i ) 2 + 16c 2 2 A 2 ) • exp 2λ|ρ (σ(x (0) i ) i )| • A • 1 c 1 Ev L y (0) i , ĝ(J) (x (0) i ) -L y i , Eν ĝ(J) (x (0) i ) • exp{2λc 2 A 2 }. (A3) Since any sub-exponential variable Z satisfies E exp (t|Z|) ≤ 2 exp(2e 2 d 2 1 t 2 ) and E Z 2 exp {t|Z|} ≤ d 4 exp(d 3 t 2 ) for any |t| ≤ d 2 /d 1 , where d 1 = sup k≥1 k -1 (E|Z| k ) 1/k , d 2 = 1/(4e), d 3 = 8e 4 d 2 1 , d 4 = 16 √ 2d 2 1 .</formula><p>Here, redefine</p><formula xml:id="formula_38">d 1 = sup k≥1 k -1 (E |X |ρ (σ(X)) • | k ) 1/k ≤ 2c 2 A sup k≥1 k -1 (E| | k ) 1/k .</formula><p>By Assumption 3, the above inequalities hold for Z := given X. Taking expectation</p><formula xml:id="formula_39">E y i |x (0) i ,(x (0) k ,y<label>(0)</label></formula><p>k ) i-1 k=1 ,T (J) (denoted as E i for convenience) of both sides of the inequality (A3), for 2λA ≤ d 2 /d 1 we have</p><formula xml:id="formula_40">E i log Ev exp{λh(J)} ≤ -λE i Eν L(y (0) i , ĝ(J) (x (0) i )) + λ 2 2 E i (d 2 exp(d 3 (2λA) 2 ) + 32c 2 2 A 2 exp(d 1 (2λA) 2 )) • 1 c 1 Ev L y (0) i , ĝ(J) (x (0) i ) -L y (0) i , Eν ĝ(J) (x (0) i ) • exp{2λc 2 A 2 }.</formula><p>By choosing a small enough λ such that</p><formula xml:id="formula_41">λ 2 2 exp{2λc 2 A 2 } c 1 E i (d 2 exp(d 3 (2λA) 2 ) + 32c 2 2 A 2 exp(d 1 (2λA) 2 ))≤ λ,</formula><p>which gives</p><formula xml:id="formula_42">E i log Eve λh(J) ≤ -λE i Eν L(y (0) i , ĝ(J) (x (0) i )) + λE i Ev L y (0) i , ĝ(J) (x (0) i ) -L y (0) i , Eν ĝ(J) (x (0) i ) = -λE i L y (0) i , Eν ĝ(J) (x<label>(0)</label></formula><p>i ) .</p><p>We have</p><formula xml:id="formula_43">E log(1/q n 0 n 0,train ) = - n 0 i=n 0,train +1 E log M m=0 w m,i exp -λL y (0) i , ĝ(m) (x (0) i ) = - n 0 i=n 0,train +1 EE i log Ev exp -λL y (0) i , ĝ(J) (x (0) i ) ≥λ n 0 i=n 0,train +1 EL y (0) i , Ev ĝ(J) (x<label>(0)</label></formula><p>i ) .</p><p>We also have for each m ≥ 0,</p><formula xml:id="formula_44">E log(1/q n 0 n 0,train ) ≤ log(1/πm) + λ n 0 i=n 0,train +1 EL y (0) i , ĝ(m) (x (0) i ) = log(1/πm) + λ(n 0 -n 0,train )EL Y, ĝ(m) (X) .</formula><p>Thus, by convexity, we have</p><formula xml:id="formula_45">EL y (0) i , g(x (0) i ) ≤ 1 (n 0 -n 0,train ) n 0 i=n 0,train +1 EL y (0) i , Ev ĝ(J) (x (0) i ) log(1/πm) λ(n 0 -n 0,train ) + EL Y, ĝ(m) (X) ,</formula><p>where the desired result follows.</p><p>A.2 Proof of Theorem 2.</p><p>Denote Kg(x, y) = g(x) y (1 -g(x)) 1-y as the joint density function of (X, Y ) with respect to the product measure µ × ν, where ν is the counting measure on {0, 1}. Denote gi (x) = m w m,i ĝ(m) (x), then K gi (x, y) = m w m,i K ĝ(m) (x, y).</p><p>Take λ = 1 and the loss function in (A1) to be L y</p><formula xml:id="formula_46">(0) i , ĝ(m) (x (0) i ) := -y (0) i log(ĝ (m) (x (0) i )) -(1 -y (0) i ) log(1 -ĝ(m) (x (0) i )),</formula><p>we then have q n 0 n 0,train = n 0 i=n 0,train +1 K gi (x</p><p>i , y i ). Hence,</p><formula xml:id="formula_48">n 0 i=n 0,train +1 E Kg(x, y) log Kg(x, y) K gi (x, y) µ × ν(dxdy) = n 0 i=n 0,train +1 E Kg(x (0) i , y<label>(0)</label></formula><formula xml:id="formula_49">i ) log Kg(x (0) i , y<label>(0)</label></formula><formula xml:id="formula_50">i ) K gi (x (0) i , y (0) i ) µ × ν(dx (0) i dy (0) i ) = n 0 i=n 0,train +1 E [Π n 0 i=n 0,train +1 Kg(x (0) i , y<label>(0)</label></formula><formula xml:id="formula_51">i )] • log Kg(x (0) i , y<label>(0)</label></formula><formula xml:id="formula_52">i ) K gi (x (0) i , y (0) i ) µ × ν(dx (0) n 0,train +1 dy (0) n 0,train +1 ) • • • µ × ν(dx (0) n 0 dy (0) n 0 ) =E [Π n 0 i=n 0,train +1 Kg(x (0) i , y<label>(0)</label></formula><formula xml:id="formula_53">i )] • log Π n 0 i=n 0,train +1 Kg(x (0) i , y<label>(0)</label></formula><p>i ) q n 0 n 0,train µ × ν(dx where we use change of variable for the first equality, the fact that Kg is a probability density function for the second equality, and the fact that the logarithm is an increasing function in the first inequality. We have Kg(x, y) log Kg(x, y) K ĝ(m) (x, y) µ × ν(dxdy) = g(x) log g(x) ĝ(m) (x)</p><p>+ (1 -g(x)) log 1 -g(x)</p><formula xml:id="formula_54">1 -ĝ(m) (x) µ(dx) ≤ 1 A 2 m ||g -ĝ(m) || 2 2 ,</formula><p>where the first inequality follows from the fact that the K-L divergence is upper bounded by Chi-squared distance (D KL (g 1 ||g 2 ) := g 1 (x) log(g 1 (x)/g 2 (x))dx ≤ (g 1 -g 2 ) 2 /g 2 (x)dx for any probability densities g 1 and g 2 ), and the second inequality is due to the boundedness assumption. Next, we denote the squared Hellinger distance between g 1 and g 2 as d 2 H (g 1 , g 2 ) := ( √ g 1 -√ g 2 ) 2 dx. Then we have</p><p>1 2 n 0 i=n 0,train +1 E||g -gi || 2 2 ≤ n 0 i=n 0,train +1 Ed 2 H (Kg, K gi ) ≤ n 0 i=n 0,train +1 ED KL (Kg||K gi ) ≤ log(1/πm) + 1 A 2 m n 0 i=n 0,train +1 E||g -ĝ(m) || 2 2 ,</p><p>where the first inequality holds due to</p><formula xml:id="formula_55">Ed 2 H (Kg 1 , Kg 2 ) = ( √ g 1 - √ g 2 ) 2 + ( 1 -g 1 -1 -g 2 ) 2 µ(dx) ≥ 1 4 (g 1 -g 2 ) 2 + (1 -g 1 -(1 -g 2 )) 2 µ(dx) = 1 2 (g 1 -g 2 ) 2 µ(dx)</formula><p>for any two bounded functions 0 ≤ g 1 , g 2 ≤ 1, and the second inequality holds because the K-L divergence is lower bounded by the squared Hellinger distance. Thus, by convexity of the squared error loss, we have</p><formula xml:id="formula_56">E||g -g|| 2 2 ≤ 1 n 0 -n 0,train n 0 i=n 0,train +1 E||g -gi || 2 2 ≤ 2 inf m log(1/πm) n 0 -n 0,train + 1 A 2 m E||g -ĝ(m) || 2 2 .</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A.3 Proof of Theorem 3</head><p>Suppose that m 0 is such that P (X j ∈ ĝ(m 0 ) ) → 1 as n → ∞, we have</p><p>E j:X j ∈S VI j = E j:X j ∈S M m=0 wmI(X j ∈ ĝ(m) ) = M m=0 wm j:X j ∈S P (X j ∈ ĝ(m) ).</p><p>By <ref type="bibr" target="#b44">Yang (2007)</ref>, when the data splitting ratio n 0,train /n 0 is chosen properly (such as n 0,train /n 0 = 1/2 in our case), the exponential-type weighting wm is consistent in the sense that wm 0 → 1 and wm → 0 for m = m 0 . Hence we have E j:X j ∈S VI j → |S|. Since 0 ≤ VI j ≤ 1 for any j, we have min j:X j ∈S VI j P -→1. The proof of max j:X j / ∈S VI j P</p><p>Table A1 Classification error (in percentage) for the real data analysis. Compared are the three transfer learning methods, fitting classifiers on the primary data ĝprimary , on the pooled data, ĝpool , and using the ART framework, gART , applied on random forest, AdaBoost, and neural nets. The lowest classification errors are boldfaced. All the errors are averaged from 50 random splits of the primary data and the standard errors are given. method ĝprimary ĝpool gART RF 44.00± 0.01 41.36± 0.01 39.91± 0.01 AdaBoost 41.55± 0.01 41.73± 0.01 38.55± 0.01 nnet 48.72± 0.01 40.73± 0.01 38.64± 0.01 ART-I-AM --38.55± 0.01</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><figDesc>test , and stack each of the auxiliary data with T (0)</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>≤E</head><figDesc>log(1/πm) + E [Π n 0 i=n 0,train +1 Kg(x train +1 ) • • • µ × ν(dx Kg(x, y) log Kg(x, y) K ĝ(m) (x, y) µ × ν(dxdy),</figDesc></figure>
+		</body>
+		<back>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0" />			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Predicting with proxies: Transfer learning in high dimension</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Bastani</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Management Science</title>
+		<imprint>
+			<biblScope unit="volume">67</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="2964" to="2984" />
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Boosting transfer learning with survival data from heterogeneous domains</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Bellot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Van Der Schaar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">The 22nd international conference on artificial intelligence and statistics</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="57" to="65" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Transfer learning for nonparametric classification: Minimax rate and adaptive classifier</title>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">T</forename><surname>Cai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Wei</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Annals of Statistics</title>
+		<imprint>
+			<biblScope unit="volume">49</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="100" to="128" />
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">Statistical learning theory and stochastic optimization</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Catoni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Picard</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2004">2004</date>
+			<publisher>Springer</publisher>
+			<pubPlace>Berlin, Heidelberg; Berlin Heidelberg</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Support-vector networks</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Cortes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Vapnik</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Machine Learning</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="273" to="297" />
+			<date type="published" when="1995">1995</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Domain adaptation from multiple sources via auxiliary classifiers</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Duan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">W</forename><surname>Tsang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T.-S</forename><surname>Chua</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 26th annual international conference on machine learning</title>
+		<meeting>the 26th annual international conference on machine learning</meeting>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+			<biblScope unit="page" from="289" to="296" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Variable selection via nonconcave penalized likelihood and its oracle properties</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Fan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Li</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the American Statistical Association</title>
+		<imprint>
+			<biblScope unit="volume">96</biblScope>
+			<biblScope unit="issue">456</biblScope>
+			<biblScope unit="page" from="1348" to="1360" />
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Transfer learning for time series classification</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">I</forename><surname>Fawaz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Forestier</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Weber</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Idoumghar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P.-A</forename><surname>Muller</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2018 ieee international conference on big data (big data)</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="1367" to="1376" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Regularization paths for generalized linear models via coordinate descent</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Friedman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Hastie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Tibshirani</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Statistical Software</title>
+		<imprint>
+			<biblScope unit="volume">33</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page">1</biblScope>
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<title level="m" type="main">gbm: Generalized boosted regression models</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Greenwell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Boehmke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Cunningham</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Developers</surname></persName>
+		</author>
+		<ptr target="https://CRAN.R-project.org/package=gbmRpackageversion2.1.8.1" />
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+	<note>Computer software manual</note>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">On calibration of modern neural networks</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Guo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Pleiss</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">Q</forename><surname>Weinberger</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International conference on machine learning</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="1321" to="1330" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Critical care medicine in the united states 2000-2005: an analysis of bed numbers, occupancy rates, payer mix, and costs</title>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">A</forename><surname>Halpern</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">M</forename><surname>Pastores</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Critical Care Medicine</title>
+		<imprint>
+			<biblScope unit="volume">38</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="65" to="71" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Critical care medicine beds, use, occupancy and costs in the united states: a methodological review</title>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">A</forename><surname>Halpern</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">M</forename><surname>Pastores</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Critical Care Medicine</title>
+		<imprint>
+			<biblScope unit="volume">43</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<biblScope unit="page">2452</biblScope>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">A no-free-lunch theorem for multitask learning</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Hanneke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Kpotufe</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Annals of Statistics</title>
+		<imprint>
+			<biblScope unit="volume">50</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="3119" to="3143" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<author>
+			<persName><forename type="first">J</forename><surname>Hickey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">P</forename><surname>Williams</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">C</forename><surname>Hector</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2211.16557</idno>
+		<title level="m">Transfer learning with uncertainty quantification: random effect calibration of source to target (recast)</title>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<author>
+			<persName><forename type="first">T</forename><surname>Hospedales</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Antoniou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Micaelli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Storkey</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2004.05439</idno>
+		<title level="m">Meta-learning in neural networks: A survey</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">A study on cnn transfer learning for image classification</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Hussain</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">J</forename><surname>Bird</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">R</forename><surname>Faria</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in computational intelligence systems: Contributions presented at the 18th uk workshop on computational intelligence</title>
+		<meeting><address><addrLine>nottingham, uk</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2018">2019. september 5-7, 2018</date>
+			<biblScope unit="page" from="191" to="202" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Overcoming data scarcity with transfer learning</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">L</forename><surname>Hutchinson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Antono</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">M</forename><surname>Gibbons</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Paradiso</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Ling</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Meredig</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<biblScope unit="volume">30</biblScope>
+			<biblScope unit="page" from="1" to="10" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title level="m" type="main">An introduction to domain adaptation and transfer learning</title>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">M</forename><surname>Kouw</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Loog</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1812.11806</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Beyond sigmoids: How to obtain well-calibrated probabilities from binary classifiers with beta calibration</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kull</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">M</forename><surname>Silva Filho</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Flach</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Electronic Journal of Statistics</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="5052" to="5080" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Transfer learning for high-dimensional linear regression: Prediction, estimation and minimax optimality</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Cai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Li</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the Royal Statistical Society. Series B</title>
+		<imprint>
+			<biblScope unit="volume">84</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="149" to="173" />
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Classification and regression by randomforest</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Liaw</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Wiener</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Mansour</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Mohri</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Rostamizadeh</surname></persName>
+		</author>
+		<ptr target="https://CRAN.R-project.org/doc/Rnews/" />
+	</analytic>
+	<monogr>
+		<title level="j">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page">21</biblScope>
+			<date type="published" when="2002">2002. 2008</date>
+		</imprint>
+	</monogr>
+	<note>Domain adaptation with multiple sources R News</note>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<author>
+			<persName><forename type="first">S</forename><surname>Niu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Song</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">A decade survey of transfer learning</title>
+		<imprint>
+			<date type="published" when="2010">2020. 2010-2020</date>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="page" from="151" to="166" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<monogr>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">S</forename><surname>Olivas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">D M</forename><surname>Guerrero</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Martinez-Sober</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">R</forename><surname>Magdalena-Benedito</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Serrano</surname></persName>
+		</author>
+		<title level="m">Handbook of research on machine learning applications and trends: Algorithms, methods, and techniques: Algorithms, methods, and techniques</title>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+	<note>IGI global</note>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Domain adaptation via transfer component analysis</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Pan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">W</forename><surname>Tsang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">T</forename><surname>Kwok</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Yang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Neural Networks</title>
+		<imprint>
+			<biblScope unit="volume">22</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="199" to="210" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">A survey on transfer learning</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Pan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Yang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Knowledge and Data Engineering</title>
+		<imprint>
+			<biblScope unit="volume">22</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page" from="1345" to="1359" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<monogr>
+		<title level="m" type="main">Deep transfer learning based classification model for covid-19 disease</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Pathak</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">K</forename><surname>Shukla</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Tiwari</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Stalin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Singh</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note>Irbm</note>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Probabilistic outputs for support vector machines and comparisons to regularized likelihood methods</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Platt</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Advances in Large Margin Classifiers</title>
+		<imprint>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="61" to="74" />
+			<date type="published" when="1999">1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">J</forename><surname>Pollard</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">E</forename><surname>Johnson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">D</forename><surname>Raffa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">A</forename><surname>Celi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">G</forename><surname>Mark</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Badawi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">The eICU collaborative research database, a freely available multi-center database for critical care research</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="page" from="1" to="13" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">To transfer or not to transfer</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">T</forename><surname>Rosenstein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Marx</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">P</forename><surname>Kaelbling</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">G</forename><surname>Dietterich</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">NIPS 2005 Workshop on Transfer Learning</title>
+		<imprint>
+			<date type="published" when="2005">2005</date>
+			<biblScope unit="volume">898</biblScope>
+			<biblScope unit="page" from="1" to="4" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Progressive care units: different but the same</title>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">M</forename><surname>Stacy</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Critical Care Nurse</title>
+		<imprint>
+			<biblScope unit="volume">31</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="77" to="83" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Transfer learning under high-dimensional generalized linear models</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Tian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Feng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the American Statistical Association(justaccepted)</title>
+		<imprint>
+			<biblScope unit="page" from="1" to="30" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Regression shrinkage and selection via the lasso</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Tibshirani</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the Royal Statistical Society: Series B</title>
+		<imprint>
+			<biblScope unit="volume">58</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="267" to="288" />
+			<date type="published" when="1996">1996</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Covariate-assisted ranking and screening for large-scale two-sample inference</title>
+		<author>
+			<persName><forename type="first">Tony</forename><surname>Cai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the Royal Statistical Society: Series B</title>
+		<imprint>
+			<biblScope unit="volume">81</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="187" to="234" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">Provable meta-learning of linear representations</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Tripuraneni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Jin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Jordan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International conference on machine learning</title>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+			<biblScope unit="page" from="10434" to="10443" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">On the theory of transfer learning: The importance of task diversity</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Tripuraneni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Jordan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Jin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="volume">33</biblScope>
+			<biblScope unit="page" from="7852" to="7862" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<analytic>
+		<title level="a" type="main">Transfer learning approaches to improve drug sensitivity prediction in multiple myeloma patients</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Turki</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Wei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">T</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Access</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="page" from="7381" to="7393" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<monogr>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">N</forename><surname>Venables</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">D</forename><surname>Ripley</surname></persName>
+		</author>
+		<title level="m">Modern applied statistics with s</title>
+		<meeting><address><addrLine>New York</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+	<note>Fourth ed.</note>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<monogr>
+		<author>
+			<persName><forename type="first">R</forename><surname>Vershynin</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1011.3027</idno>
+		<title level="m">Introduction to the non-asymptotic analysis of random matrices</title>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">A perspective view and survey of meta-learning</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Vilalta</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Drissi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Artificial Intelligence Review</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="77" to="95" />
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<analytic>
+		<title level="a" type="main">Fast and exact leave-one-out analysis of large-margin classifiers</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Zou</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Technometrics</title>
+		<imprint>
+			<biblScope unit="volume">64</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="291" to="298" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title level="a" type="main">Characterizing and avoiding negative transfer</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Dai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Póczos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Carbonell</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the ieee/cvf conference on computer vision and pattern recognition</title>
+		<meeting>the ieee/cvf conference on computer vision and pattern recognition</meeting>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="11293" to="11302" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b42">
+	<analytic>
+		<title level="a" type="main">A survey of transfer learning</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Weiss</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">M</forename><surname>Khoshgoftaar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Big Data</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="40" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b43">
+	<analytic>
+		<title level="a" type="main">Adaptive regression by mixing</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Yang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the American Statistical Association</title>
+		<imprint>
+			<biblScope unit="volume">96</biblScope>
+			<biblScope unit="issue">454</biblScope>
+			<biblScope unit="page" from="574" to="588" />
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b44">
+	<analytic>
+		<title level="a" type="main">Consistency of cross validation for comparing regression procedures</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Yang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Annals of Statistics</title>
+		<imprint>
+			<biblScope unit="volume">35</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="2450" to="2473" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b45">
+	<analytic>
+		<title level="a" type="main">Transforming classifier scores into accurate multiclass probability estimates</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Zadrozny</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Elkan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the eighth acm sigkdd international conference on knowledge discovery and data mining</title>
+		<meeting>the eighth acm sigkdd international conference on knowledge discovery and data mining</meeting>
+		<imprint>
+			<date type="published" when="2002">2002</date>
+			<biblScope unit="page" from="694" to="699" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b46">
+	<analytic>
+		<title level="a" type="main">Nearly unbiased variable selection under minimax concave penalty</title>
+		<author>
+			<persName><forename type="first">C.-H</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Annals of Statistics</title>
+		<imprint>
+			<biblScope unit="volume">38</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="894" to="942" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b47">
+	<analytic>
+		<title level="a" type="main">Heterogeneous transfer learning for image classification</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Lu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Pan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G.-R</forename><surname>Xue</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Yang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Twenty-fifth aaai conference on artificial intelligence</title>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b48">
+	<analytic>
+		<title level="a" type="main">A comprehensive survey on transfer learning</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Zhuang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Qi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Duan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Xi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">.</forename><forename type="middle">.</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the IEEE</title>
+		<imprint>
+			<biblScope unit="volume">109</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="43" to="76" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b49">
+	<analytic>
+		<title level="a" type="main">Regularization and variable selection via the elastic net</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Zou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Hastie</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the Royal Statistical Society: Series B</title>
+		<imprint>
+			<biblScope unit="volume">67</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="301" to="320" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

@@ -1,0 +1,920 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">THE THERMODYNAMICS OF MACHINE LEARNING</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2018-10-04">4 Oct 2018</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Alexander</forename><forename type="middle">A</forename><surname>Alemi</surname></persName>
+							<email>alemi@google.com</email>
+							<affiliation key="aff0">
+								<orgName type="institution">Google Research</orgName>
+								<address>
+									<addrLine>1600 Amphitheatre Parkway Mountain View</addrLine>
+									<postCode>94043</postCode>
+									<region>CA</region>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Ian</forename><surname>Fischer</surname></persName>
+							<email>iansf@google.com</email>
+							<affiliation key="aff1">
+								<orgName type="institution">Google Research</orgName>
+								<address>
+									<addrLine>1600 Amphitheatre Parkway Mountain View</addrLine>
+									<postCode>94043</postCode>
+									<region>CA</region>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">THE THERMODYNAMICS OF MACHINE LEARNING</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2018-10-04">4 Oct 2018</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">424ABCD5635812D12B39BA484E5F0DE5</idno>
+					<idno type="arXiv">arXiv:1807.04162v3[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>In this work we offer an information-theoretic framework for representation learning that connects with a wide class of existing objectives in machine learning. We develop a formal correspondence between this work and thermodynamics and discuss its implications. 1 Here we aim to invoke the same philosophy as in the introduction to Watanabe (2018). 2 That is, we imagine the data satisfies De Finetti's theorem, for which infinite exchangeable processes usually can be described by products of conditionally independent distributions, but don't want to worry too much about the complicated details since there are subtle special cases (Accardi, 2018).</p><p>3 Here and throughout H(A) is used to denote entropies H(A) =i p(A) log p(A).</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">INTRODUCTION</head><p>Let X, Y be some paired data, for example: a set of images X and their labels Y . We imagine the data comes from some true, unknown data generating process Φ 1 , from which we have drawn a training set of N pairs:</p><p>T N ≡ (x N , y N ) ≡ {x 1 , y 1 , x 2 , y 2 , . . . , x N , y N } ∼ φ(x N , y N ).</p><p>(1)</p><p>We further imagine the process is exchangeable 2 and the data is conditionally independent given the governing process Φ: p(x N , y N |φ) = i p(x i |φ)p(y i |x i , φ).</p><p>(2)</p><p>As machine learners, we believe that by studying the training set, we should be able to infer or predict new draws from the same data generating process. Call a set of M future draws from the data generating process T M ≡ {X M , Y M } the test set.</p><p>The predictive information <ref type="bibr" target="#b4">(Bialek et al., 2001)</ref> is the mutual information between the training set and a infinite test set, equivalently the amount of information the training set provides about the generative process itself:</p><formula xml:id="formula_0">I pred (T N ) ≡ lim M →∞ I(T N ; T M ) = I(T N ; Φ) = I(X N , Y N ; Φ).<label>(3)</label></formula><p>The predictive information measures the underlying complexity of the data generating process <ref type="bibr" target="#b29">(Still, 2014)</ref>, and is fundamentally limited and must grow sublinearly in the dataset size <ref type="bibr" target="#b4">(Bialek et al., 2001)</ref>. Hence, the predictive information is a vanishing fraction of the total information in the training set 3 :</p><formula xml:id="formula_1">lim N →∞ I pred (T N ) H(T N ) = 0<label>(4)</label></formula><p>A vanishing fraction of the information present in our training data is in any way useful for future tasks. A vanishing fraction of the information contained in the training data is signal, the rest is noise. We claim the goal of learning is to learn a representation of data, both locally and globally that captures the predictive information while being maximally compressed: that separates the signal from the noise.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>X Y Z</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Θ Φ</head><p>(a) Graphical model for world P , the real world augmented with a local and global representation. The dashed lines emphasize that θ only depends on the first N data points, the training set. Blue denotes nodes outside our control, while red nodes are under our direct control.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Z Y X</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Θ Φ</head><p>(b) Graphical model for world Q, the world we desire. In this world, Z acts as a latent variable for X and Y jointly.</p><p>Figure <ref type="figure">1</ref>: Graphical models.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">A TALE OF TWO WORLDS</head><p>We are primarily interested in learning a stochastic local representation of X, call it Z, defined by some parametric distribution of our own design: p(z i |x i , θ) with its own parameters θ. A training procedure is a process that assigns a distribution p(θ|x N , y N ) to the parameters conditioned on the observed dataset. In this way, the parameters of our local parametric map are themselves a global representation of the dataset. With our augmentations, the world now looks like the graphical model in Figure <ref type="figure" target="#fig_10">3a</ref>, denoted World P : Some data generating process Φ generates a dataset (X N , Y N ) which we perform some learning algorithm on to get some parameters p(θ|x N , y N ) which we can use to form a parametric local representation p(z i |x i , θ).</p><p>World P is what we have. It is not necessarily what we want. What we have to contend with is an unknown distribution of our data. What we want is a world that corresponds to the traditional modeling assumptions in which Z acts as a latent factor for X and Y , rending them conditionally independent, leaving no correlations unexplained. Similarly, we would prefer if we could easily marginalize out the dependence on our universal (Φ) and model specific (Θ) parameters. World Q in Figure <ref type="figure" target="#fig_1">3b</ref> is the world we want<ref type="foot" target="#foot_0">foot_0</ref> .</p><p>We can measure the degree to which the real world aligns with our desires by computing the minimum possible relative information<ref type="foot" target="#foot_1">foot_1</ref> between our distribution p and any distribution consistent with the conditional dependencies encoded in graphical model Q<ref type="foot" target="#foot_2">foot_2</ref> . It can be shown <ref type="bibr" target="#b12">(Friedman et al., 2001)</ref> that this quantity is given by the difference in multi-informations between the two graphical models, as measured in World P :</p><formula xml:id="formula_2">J ≡ min q∈Q D KL [p; q] = I P -I Q . (<label>5</label></formula><formula xml:id="formula_3">)</formula><p>The multi-information <ref type="bibr">(Slonim et al., 2005)</ref> of a graphical model is the KL divergence between the joint distribution and the product of all of the marginal distributions, which can be computed as a sum of mutual informations, one for each node in the graph, between itself and its parents:</p><formula xml:id="formula_4">I G ≡ log p(g N ) i p(g i ) = i I(g i ; Pa(g i ))<label>(6)</label></formula><p>In our case:</p><formula xml:id="formula_5">J = I(Θ; X N , Y N ) + i [I(X i ; Φ) + I(Y i ; X i , Φ) + I(Z i ; X i , Θ) -I(X i ; Z i ) -I(Y i ; Z i )] .<label>(7)</label></formula><p>This minimal relative information has two terms outside our control and we can take them to be constant, but which relate to the predictive information:</p><formula xml:id="formula_6">i [I(X i ; Φ) + I(Y i ; X i , Φ)] ≥ i I(Y i ; X i ) + I pred (T N ).<label>(8)</label></formula><p>These terms measure the intrinsic complexity of our data. The remaining four terms are:</p><p>• I(X i ; Z i ) -which measures how much information our representation contains about the input (X). This should be maximized to ensure our local representation actually represents the input.</p><p>• I(Y i ; Z i ) -which measures how much information our representation contains about our auxiliary data. This should be maximized as well to ensure that our local representation is predictive for the labels.</p><p>• I(Z i ; X i , Θ) -which measures how much information the parameters and input determine about our representation. This should be minimized to ensure consistency between worlds, and ensure we learn compressed local representations. Notice that this is similar to, but distinct from the first term above.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>I(Z</head><formula xml:id="formula_7">i ; X i , Θ) = I(Z i ; X i ) + I(Z i ; Θ|X i )<label>(9)</label></formula><p>by the Chain Rule for mutual information<ref type="foot" target="#foot_3">foot_3</ref> .</p><p>• I(Θ; X N , Y N ) -which measures how much information we store about our training data in the parameters of our encoder. This should also be minimized to ensure we learn compressed global representation, preveting overfitting.</p><p>These mutual informations are all intractable in general, since we cannot compute the necessary marginals in closed form, given that we do not have access to the true data generating distribution.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">FUNCTIONALS</head><p>Despite their intractability, we can compute variational bounds on these mutual informations.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1.1">ENTROPY</head><p>S ≡ log p(θ|x N , y N ) q(θ)</p><formula xml:id="formula_8">P ≥ I(Θ; X N , Y N )<label>(10)</label></formula><p>The relative entropy in our parameters or just entropy for short measures the relative information between the distribution we assign our parameters in World P after learning from the data (X N , Y N ), with respect to some data independent q(θ) prior on the parameters. This is an upper bound on the mutual information between the data and our parameters and as such can measure our risk of overfitting our parameters.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1.2">RATE</head><formula xml:id="formula_9">R i ≡ log p(z i |x i , θ) q(z i ) P ≥ I(Z i ; X i , Θ)<label>(11)</label></formula><p>The rate measures the complexity of our representation. It is the relative information of a sample specific representation z i ∼ p(z|x i , θ) with respect to our variational marginal q(z). It measures how many bits we actually encode about each sample, and can measure how our risk of overfitting our representation. We use R ≡ i R i .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1.3">CLASSIFICATION ERROR</head><formula xml:id="formula_10">C i ≡ -log q(y i |z i ) P ≥ H(Y i ) -I(Y i ; Z i ) = H(Y i |Z i )<label>(12)</label></formula><p>The classification error measures the conditional entropy of Y left after conditioning on Z. It is a measure of how much information about Y is left unspecified in our representation. This functional measures our supervised learning performance. We use</p><formula xml:id="formula_11">C ≡ i C i . 2.1.4 DISTORTION D i ≡ -log q(x i |z i ) P ≥ H(X i ) -I(X i ; Z i ) = H(X i |Z i )<label>(13)</label></formula><p>The distortion measures the conditional entropy of X left after conditioning on Z. It is a measure of how much information about X is left unspecified in our representation. This functional measures our unsupervised learning performance. We use D ≡ i D i .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">GEOMETRY</head><p>The distributions p(z|x, θ), p(θ|x N , y N ), q(z), q(x|z), q(y|z) can be chosen arbitrarily. Once chosen, the functionals R, C, D, S take on well described values. The choice of the five distributional families specifies a single point in a four-dimensional space.</p><p>Importantly, the sum of these functionals is a variational upper bound (up to an additive constant) for the minimum possible relative information between worlds (Appendix D):</p><formula xml:id="formula_12">S + R + C + D ≥ J + i H(X i , Y i |Φ)<label>(14)</label></formula><p>Besides just the upper bound, we can consider the full space of feasible points. Notice that S and R are both themselves upper bounds on mutual informations, and so must be positive semidefinite. If our data is discrete, or if we have discretized it<ref type="foot" target="#foot_4">foot_4</ref> , D and C which are both upper bounds on conditional entropies, must be positive as well. Along with Equation ( <ref type="formula" target="#formula_12">14</ref>), given that i H(X i , Y i |Φ) is a positive constant outside our control, the space of possible (R, C, D, S) values is at least restricted to be points in the positive orthant with some minimum possible Manhattan distance to the origin:</p><formula xml:id="formula_13">S + R + C + D ≥ i H(X i , Y i |Φ) R ≥ 0 S ≥ 0 D ≥ 0 C ≥ 0 (15)</formula><p>Even in the infinite model family limit, data-processing inequalities on mutual information terms all defined in a set of variables that satisfy some nontrivial conditional dependencies ensure that there are regions in this functional space that are wholly out of reach. The surface of the feasible region maps an optimal frontier, optimal in the degree to which it minimizes mismatch between our two worlds subject to constraints on the relative magnitudes of the individual terms. This convex polytope has edges, faces and corners that are identifiable as the optimal solutions for well known objectives.</p><p>This story is a generalization of the story presented in <ref type="bibr" target="#b3">Alemi et al. (2018)</ref>, which can be considered a two-dimensional projection of this larger space (onto R, D). Within our larger framework we can derive more specific bounds between subsets of the functionals. For instance:</p><formula xml:id="formula_14">R i + D i ≥ H(X i ) + I(Z i ; Θ|X i ). (<label>16</label></formula><formula xml:id="formula_15">)</formula><p>This mirrors the bound given in <ref type="bibr" target="#b3">Alemi et al. (2018)</ref> where R + D ≥ H(X), which is still true given that all conditional mutual informations are positive semi-definite (H(X) + I(Z; Θ|X) ≥ H(X)), but here we obtain a tighter pointwise bound that has a term measuring how much information about our encoding is revealed by the parameters after conditioning on the input itself. This term I(Z i ; Θ|X i ) captures the degree to which our local representation is overly sensitive to the particular parameter settings 910 .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3">GENERALIZATION</head><p>We can evaluate how much information our representations capture about the true data generating process. For instance, I(Z i ; Φ) which measures how much information about the true data generating procedure our local representations capture. Notice that given the conditional dependencies in world P , we have the following Markov chain:</p><formula xml:id="formula_16">Φ → (X i , Y i , Θ) → Z i (17)</formula><p>and so by the Data Processing Inequality (Cover &amp; Thomas, 2012):</p><formula xml:id="formula_17">I(Z i ; Φ) ≤ I(Z i ; Θ, X i , Y i ) = I(Z i ; X i , Θ) + ( ( ( ( ( ( ( I(Z i ; Y i |X i , Θ) ≤ R i . (<label>18</label></formula><formula xml:id="formula_18">)</formula><p>The per-instance rate R i forms an upper bound on the mutual information between our encoding Z i and the true governing parameters of our data Φ. Similarly, we can establish that:</p><formula xml:id="formula_19">Φ → (X N , Y N ) → Θ =⇒ I(Θ; Φ) ≤ I(Θ; X N , Y N ) ≤ S.<label>(19)</label></formula><p>S upper bounds the amount of information our encoder's parameters Θ, the global representation of the dataset can contain about the true process Φ. At the same time:</p><formula xml:id="formula_20">I(Θ; Φ) ≤ I(X N , Y N ; Φ) ≤ i I(X i , Y i ; Φ),<label>(20)</label></formula><p>which sets a natural upper limit for the maximum S that might be useful.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">OPTIMAL FRONTIER</head><p>As in <ref type="bibr" target="#b3">Alemi et al. (2018)</ref>, under mild assumptions about the variational distributional families, it can be argued that the surface is monotonic in all of its arguments. The optimal surface in the infinite family limit can be characterized as a convex polytope (Equation ( <ref type="formula">15</ref>)). In practice we will be in the realistic setting corresponding to finite parametric families such as neural network approximators.</p><p>We then expect that there is an irrevocable gap that opens up in the variational bounds. Any failure of the distributional families to model the correct corresponding marginal in P means that the space of all realizable R, C, D, S values will be some convex relaxation of the optimal feasible surface. This surface will be described some function f (R, C, D, S) = 0, which means we can identify points on the surface as a function of one functional with respect to the others (e.g. R = R(C, D, S)). Finding points on this surface equates to solving a constrained optimization problem, e.g.</p><formula xml:id="formula_21">min q(z)q(x|z)q(y|z)p(z|x,θ)p(θ|{x,y}) R such that D = D 0 , S = S 0 , C = C 0 .<label>(21)</label></formula><p>Equivalently, we could solve the unconstrained Lagrange multipliers problem:</p><formula xml:id="formula_22">min q(z)q(x|z)q(y|z)p(z|x,θ)p(θ|{x,y}) R + δD + γC + σS. (<label>22</label></formula><formula xml:id="formula_23">)</formula><p>Here δ, γ, σ are Lagrange multipliers that impose the constraints. They each correspond to the partial derivative of the rate at the solution with respect to their corresponding functional, keeping the others fixed.</p><p>Notice that this single objective encompasses a wide range of existing techniques.</p><p>• If we retain C alone, we are doing traditional supervised learning and our network will learn to be deterministic in its activations and parameters.</p><p>• If δ = 0 we no longer require a variational reconstruction network q(x|z), and are doing some form of supervised learning generally.</p><p>• If δ = 0, σ = 0 we exactly recover the Variational Information Bottleneck (VIB) objective of Alemi et al. ( <ref type="formula">2016</ref>) (where β = 1/γ), a form of stochastically regularized supervised learning that imposes a bottleneck on how much information our representation can retain about the input, while simultaneously maximizing the amount of information the representation contains about the target.</p><p>• If δ = 0 and σ, γ → ∞ but in such a way as to keep the ratio fixed β ≡ σ/γ (that is if we drop the R term and only keep C + βS as our objective) we recover the Information Bottleneck Lagrangian loss of <ref type="bibr" target="#b1">Achille &amp; Soatto (2017)</ref>, presented as an alternative way to do Information Bottleneck <ref type="bibr" target="#b30">(Tishby et al., 1999)</ref> but being stochastic on the parameters rather than the activations as in VIB.</p><p>• As a special case, if our objective is set to C + S (δ = 0, σ, γ → ∞, σ/γ → 1), we obtain the objective for a Bayesian neural network, ala <ref type="bibr" target="#b5">Blundell et al. (2015)</ref>.</p><p>• If we retain only D, we are training a stochastic autoencoder.</p><p>• If σ = 0, γ = 0, δ = 1 the objective is equivalent to the ELBO used to train a VAE <ref type="bibr">(Kingma &amp; Welling, 2014)</ref>.</p><p>• If σ = 0, γ = 0 more generally, the objective is equivalent to a β-VAE <ref type="bibr" target="#b13">(Higgins et al., 2017)</ref> where β = 1/δ.</p><p>• If γ = 0 all terms involving the auxiliary data Y drop out and we are doing some form of unsupervised learning without any variational classifier q(y|z). The presence of the S term makes this more general than a usual β-VAE and should offer better generalization properties and control of overfitting by bottle-necking how much information we allow the parameters of our encoder to extract from the training data.</p><p>• σ = 0, γ = α, δ = 1 recovers the semi-supervised objective of <ref type="bibr" target="#b17">Kingma et al. (2014)</ref>.</p><p>• In its most general form, in common parlance the full objective might be described as a temperature-regulated Bayesian semi-supervised β-VAE, or a Variational Information Bottleneck Lagrangian Autoencoder (VIBLA).</p><p>Examples of all of these objectives behavior on a simple toy model is shown in Appendix H.</p><p>Notice that all of these previous approaches describe low dimensional sub-surfaces of the optimal three dimensional frontier. These approaches were all interested in different domains, some were focused on supervised prediction accuracy, others on learning a generative model. Depending on your specific problem, and downstream tasks, different points on the optimal frontier will be desirable. However, instead of choosing a single point on the frontier, we can now explore a region on the surface to see what class of solutions are possible within the modeling choices. By simply adjusting the three control parameters δ, γ, σ, we can smoothly move across the entire frontier and smoothly interpolate between all of these objectives and beyond.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">OPTIMIZATION</head><p>So far we've considered explicit forms of the objective in terms of the four functionals. For S this would require some kind of tractable approximation to the posterior over the parameters of our encoding distribution<ref type="foot" target="#foot_7">foot_7</ref> . Alternatively, we can formally describe the exact solution to our minimization problem:</p><formula xml:id="formula_24">min S s.t. R = R 0 , C = C 0 , D = D 0 . (<label>23</label></formula><formula xml:id="formula_25">)</formula><p>Recall that S measures the relative entropy of our parameter distribution with respect to the q(θ) prior. As such, the solution that minimizes the relative entropy subject to some constraints is a generalized Boltzmann distribution (Jaynes, 1957):</p><formula xml:id="formula_26">p * (θ|{x, y}) = q(θ) Z e -(R+δD+γC)/σ . (<label>24</label></formula><formula xml:id="formula_27">)</formula><p>Here Z is the partition function, the normalization constant for the distribution</p><formula xml:id="formula_28">Z = dθ q(θ) e -(R+δD+γC)/σ (25)</formula><p>This suggests an alternative method for finding points on the optimal frontier. We could turn the unconstrained Lagrange optimization problem that required some explicit choice of tractable posterior distribution over parameters into a sampling problem for a richer implicit distribution.</p><p>A naive way to draw samples from this posterior would be to use Stochastic Gradient Langevin Dynamics or its cousins <ref type="bibr" target="#b34">(Welling &amp; Teh, 2011;</ref><ref type="bibr" target="#b7">Chen et al., 2014;</ref><ref type="bibr" target="#b19">Ma et al., 2015)</ref> which, in practice, would look like ordinary stochastic gradient descent (or its cousins like momentum) for the objective R + δD + γC, with injected noise. By choosing the magnitude of the noise relative to the learning rate, the effective temperature σ can be controlled.</p><p>There is increasing evidence that the stochastic part of stochastic gradient descent itself is enough to turn SGD less into an optimization procedure and more into an approximate posterior sampler <ref type="bibr" target="#b22">(Mandt et al., 2017;</ref><ref type="bibr" target="#b26">Smith &amp; Le, 2017;</ref><ref type="bibr" target="#b1">Achille &amp; Soatto, 2017;</ref><ref type="bibr" target="#b35">Zhang et al., 2018;</ref><ref type="bibr" target="#b6">Chaudhari &amp; Soatto, 2017)</ref>, where hyperparameters such as the learning rate and batch size set the effective temperature. If ordinary stochastic gradient descent is doing something more akin to sampling from a posterior and less like optimizing to some minimum, it would help explain improved performance through ensemble averages of different points along trajectories <ref type="bibr" target="#b14">(Huang et al., 2017)</ref>.</p><p>When viewed in this light, Equation 24 describes the optimal posterior for the parameters so as to ensure the minimal divergence between worlds P and Q. q(θ) plays the role of the prior over parameters, but our overall objective is minimized when</p><formula xml:id="formula_29">q(θ) = p(θ) = p(θ|x N , y N ) p(x N ,y N ) .<label>(26)</label></formula><p>That is, when our prior is the marginal of the posteriors over all possible datasets drawn from the true distribution. A fair draw from this marginal is to take a sample from the posterior obtained on a different but related dataset. Insomuch as ordinary SGD training is an approximate method for drawing a posterior sample, the common practice of fine-tuning a pretrained network on a related dataset is using a sample from the optimal prior as our initial parameters. The fact that fine-tuning approximates use of an optimal prior presumably helps explain its broad success.</p><p>If we identify our true goal not as optimizing some objective but instead directly sampling from Equation <ref type="formula" target="#formula_26">24</ref>, we can consider alternative approaches to define our learning dynamics, such as parallel tempering or population annealing <ref type="bibr" target="#b20">(Machta &amp; Ellis, 2011)</ref>. Alternatively, we could, instead of adopting variational bounds on the mutual informations, consider other mutual information bounds such as those in Ishmael Belghazi et al. (2018); van den Oord et al. (2018). Perhaps our priors can be fit, providing we form estimates of the expectation over datasets (e.g. bootstrapping or jackknifing our dataset (DasGupta, 2008)).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">THERMODYNAMICS</head><p>So far we have described a framework for learning that involves finding points that lie on the surface of a convex three-dimensional surface in terms of four functional coordinates R, C, D, S. Interestingly, this is all that is required to establish a formal connection to thermodynamics, which similarly is little more than the study of exact differentials <ref type="bibr" target="#b24">(Sethna, 2006;</ref><ref type="bibr" target="#b11">Finn, 1993)</ref>.</p><p>Whereas previous approaches connecting thermodynamics and learning <ref type="bibr" target="#b23">(Parrondo et al., 2015;</ref><ref type="bibr" target="#b27">Still, 2017;</ref><ref type="bibr" target="#b28">Still et al., 2012)</ref> have focused on describing the thermodynamics and statistical mechanics of physical realizations of learning systems (i.e. the heat bath in these papers is a physical heat bath at finite temperature), in this work we make a formal analogy to the structure of the theory of thermodynamics, without any physical content.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">FIRST LAW OF LEARNING</head><p>The optimal frontier creates an equivalence class of states, being the set of all states that minimize as much as possible the distortion introduced in projecting world P onto a set of distributions that respect the conditions in Q. The surface satisfies some equation f (R, C, D, S) = 0 which we can use to describe any one of these functionals in terms of the rest, e.g. R = R(C, D, S). This function is entire, and so we can equate partial derivatives of the function with differentials of the functionals 12 :</p><formula xml:id="formula_30">dR = ∂R ∂C D,S dC + ∂R ∂D C,S dD + ∂R ∂S C,D dS. (<label>27</label></formula><formula xml:id="formula_31">)</formula><p>Since the function is smooth and convex, instead of identifying the surface of optimal rates in terms of the functionals C, D, S, we could just as well describe the surface in terms of the partial derivatives by applying a Legendre transformation. We will name the partial derivatives:</p><formula xml:id="formula_32">γ ≡ - ∂R ∂C D,S δ ≡ - ∂R ∂D C,S σ ≡ - ∂R ∂S C,D .<label>(28)</label></formula><p>These measure the exchange rate for turning rate into reduced distortion, reduced classification error, or increased entropy, respectively.</p><p>The functionals R, C, D, S are analogous to extensive thermodynamic variables such as volume, entropy, particle number, magnetic field, charge, surface area, length and energy which grow as the system grows, while the named partial derivatives γ, δ, σ are analogous to the intensive, generalized forces in thermodynamics corresponding to their paired state variable, such as pressure, temperature, chemical potential, magnetization, electromotive force, surface tension, elastic force, etc. Just as in thermodynamics, the extensive functionals are defined for any state, while the intensive partial derivatives are only well defined for equilibrium states, which in our language are the states lying on the optimal surface 13 .</p><p>Recasting our total differential:</p><formula xml:id="formula_33">dR = -γdC -δdD -σdS,<label>(29)</label></formula><p>we create a law analogous to the First Law of Thermodynamics. In thermodynamics the First Law is often taken to be a statement about the conservation of energy, and by analogy here we could think about this law as a statement about the conservation of information. Granted, the actual content of the law is fairly vacuous, equivalent only to the statement that there exists a scalar function R = R(C, D, S) defining our surface and its partial derivatives.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">MAXWELL RELATIONS AND THERMODYNAMIC POTENTIALS</head><p>Requiring that Equation 29 be an exact differential has mathematically trivial but intuitively nonobvious implications that relate various partial derivatives of the system to one another, akin to the Maxwell Relations in thermodynamics. For example, requiring that mixed second partial derivatives are symmetric establishes that: We can additionally take and name higher order partial derivatives, analogous to the susceptibilities of thermodynamics like bulk modulus, the thermal expansion coefficient, or heat capacities. For instance, we can define the analog of heat capacity for our system, a sort of rate capacity at constant distortion:</p><formula xml:id="formula_34">∂ 2 R ∂D∂C = ∂ 2 R ∂C∂D =⇒ ∂δ ∂C D = ∂γ ∂D C . (<label>30</label></formula><formula xml:id="formula_35">K D ≡ ∂R ∂σ D . (<label>31</label></formula><formula xml:id="formula_36">)</formula><p>12 ∂X ∂Y Z denotes the partial derivative of X with respect to Y holding Z constant. 13 For more discussion of equilibrium states, and how they connect with more intuitive notions of equilibrium, see Appendix G Just as in thermodynamics, these susceptibilities may offer useful ways to characterize and quantify the systematic differences between model families. Perhaps general scaling laws can be found between susceptibilities and network widths, or depths, or number of parameters or dataset size. Divergences or discontinuities in the susceptibilities are the hallmark of phase transitions in physical systems, and it is reasonable to expect to see similar phenomenon for certain models.</p><p>A great deal of first, second and third order partial derivatives in thermodynamics are given unique names. This is because the quantities are particularly useful for comparing different physical systems. We expect a subset of the first, second and higher order partial derivatives of the base functionals will prove similarly useful for comparing, quantifying, and understanding differences between modeling choices.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.3">SECOND LAW OF LEARNING?</head><p>Even when doing deterministic training, training is non-invertible <ref type="bibr" target="#b21">(Maclaurin et al., 2015)</ref>, and we need to contend with and track the entropy (S) term. We set the parameters of our networks initially with a fair draw from some prior distribution q(θ). The training procedure acts as a Markov process on the distribution of parameters, transforming it from the prior distribution into some modified distribution, the posterior p(θ|x N , y N ). Optimization is a many-to-one function, that in the ideal limiting case, maps all possible initializations to a single global optimum. In this limiting case S would be divergent, and there is nothing to prevent us from memorizing the training set.</p><p>The Second Law of Thermodynamics states that the entropy of an isolated system tends to increase. All systems tend to disorder, and this places limits on the maximum possible efficiency of heat engines.</p><p>Formally, there are many statements akin to the Second Law of Thermodynamics that can be made about Markov chains generally <ref type="bibr" target="#b9">(Cover &amp; Thomas, 2012)</ref>. The central one is that for any for any two distributions p n , q n both evolving according to the same Markov process (n marks the time step), the relative entropy D KL [p n ; q n ] is monotonically decreasing with time. This establishes that for a stationary Markov chain, the relative entropy to the stationary state D KL [p n ; p ∞ ] monotonically decreases <ref type="foot" target="#foot_8">14</ref> .</p><p>In our language, we can make strong statements about dynamics that target points on the optimal frontier, or dynamics that implement a relaxation towards equilibrium. There is a fundamental distinction between states that live on the frontier and those off of it, analogous to the distinction between equilibrium and non-equilibrium states in thermodynamics.</p><p>Any equilibrium distribution can be expressed in the form Equation ( <ref type="formula" target="#formula_26">24</ref>) and identified by its partial derivatives γ, δ, σ. If name the objective in Equation ( <ref type="formula" target="#formula_22">22</ref>):</p><formula xml:id="formula_37">J(γ, δ, σ) ≡ R + δD + γC + σS,<label>(32)</label></formula><p>The value this objective takes for any equilibrium distribution can be shown to be given by the log partition function (Equation ( <ref type="formula">25</ref>)):</p><formula xml:id="formula_38">min J(γ, δ, σ) = -σ log Z(γ, δ, σ)<label>(33)</label></formula><p>and the KL divergence between any distribution over parameters p(θ) and an equilibrium distribution is:</p><formula xml:id="formula_39">D KL [p(θ); p * (θ; γ, δ, σ)] = ∆J/σ (34) ∆J ≡ J noneq (p; γ, δ, σ) -J(γ, δ, σ) (35)</formula><p>Where J noneq is the non-equilibrium objective:</p><formula xml:id="formula_40">J noneq (p; γ, δ, σ) = R + δD + γC + σS p(θ) . (<label>36</label></formula><formula xml:id="formula_41">)</formula><p>For a stationary Markov process whose stationary distribution is an equilibrium distribution the KL divergence to the stationary distribution must monotonically decrease each step. This means the ∆J/σ must decrease monotonically, that is our objective J must decrease monotonically:</p><formula xml:id="formula_42">J t=0 ≥ J t ≥ J t+1 ≥ J t=∞ . (<label>37</label></formula><formula xml:id="formula_43">)</formula><p>Furthermore, if we use q(θ) as our prior over parameters, we know:</p><formula xml:id="formula_44">J t=0 = R + δD + γC q(θ)<label>(38)</label></formula><p>J t=∞ = -σ log Z.</p><p>(39)</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">CONCLUSION</head><p>We have formalized representation learning as the process of minimizing the distortion introduced when we project the real world (World P ) onto the world we desire (World Q). The projection is naturally described by a set of four functionals which variationally bound relevant mutual informations in the real world. Relations between the functionals describe an optimal three-dimensional surface in a four dimensional space of optimal states. A single learning objective targeting points on this optimal surface can express a wide array of existing learning objectives spanning from unsupervised learning to supervised learning and everywhere in between. The geometry of the optimal frontier suggests a wide array of identities involving the functionals and their partial derivatives. This offers a direct analogy to thermodynamics independent of any physical content. By analogy to thermodynamics, we can begin to develop new quantitative measures and relationships amongst properties of our models that we believe will offer a new class of theoretical understanding of learning behavior.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A RECONSTRUCTION FREE FORMULATION</head><p>We can utilize the Chain Rule of Mutual Information (Equation ( <ref type="formula" target="#formula_7">9</ref>)):</p><formula xml:id="formula_45">I(Z i ; X i , Θ) = I(Z i ; X i ) + I(Z i ; Θ|X i ),<label>(40)</label></formula><p>to simplify our expression for the minimum possible KL between worlds (Equation ( <ref type="formula" target="#formula_5">7</ref>)), and consider a reduced set of functionals (compare to Section 2.1):</p><formula xml:id="formula_46">• C i ≡ -log q(y i |z i ) P ≥ H(Y i ) -I(Y i ; Z i ) = H(Y i |Z i )</formula><p>The classification error, as before.</p><p>• S ≡ log p(θ|{x,y})</p><formula xml:id="formula_47">q(θ) P ≥ I(Θ; {X, Y })</formula><p>The entropy as before.</p><formula xml:id="formula_48">• V i ≡ log p(zi|xi,θ) q(zi|xi) P ≥ I(Z i ; Θ|X i )</formula><p>The volume of the representation (for lack of a better term), which measures the mutual information between our representation Z and the parameters Θ, conditioned on the input X. That is, this functional bounds how much of the information in our representation can come from the learning algorithm, independent of the actual input.</p><p>In principle, these three functionals still fully characterize the distortion introduced in our information projection. Notice that this new functional requires the variational approximation q(z i |x i ), a variational approximation to the marginal over our parameter distribution. Notice also that we no longer require a variational approximation to p(x i |z i ). That is, in this formulation we no longer require any form of decoder, or synthesis in our original data space X. While equivalent in its information projection, this more naturally corresponds to the model of our desired world Q:</p><formula xml:id="formula_49">q(x, y, φ, z, θ) = q(φ)q(θ) i q(z i |x i )q(y i |z i ),<label>(41)</label></formula><p>depicted below in Figure <ref type="figure">2</ref>. Here we desire, not the joint generative model</p><formula xml:id="formula_50">X ← Z → Y , but the predictive model X → Z → Y . Z Y X Θ Φ</formula><p>Figure <ref type="figure">2</ref>: Modified graphical model for world Q, instead of Figure <ref type="figure" target="#fig_1">3b</ref>, the world we desire which satisfies the joint density in Equation <ref type="formula" target="#formula_49">41</ref>. Notice that this graphical model encodes all of the same conditional independencies as the original.</p><p>In this case we have:</p><formula xml:id="formula_51">C + S + V ≥ J + i [H(Y i X i |Φ) -H(X i )] .<label>(42)</label></formula><p>We can imagine tracing out this, now three dimensional, frontier that still explores a space consistent with our original graphical model, but wherein we no longer have to do any form of direct variational synthesis.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B BAYESIAN INFERENCE</head><p>Just as in A we can consider alternative graphical models for World P. In particular, we can consider a simplified scenario depicted in Figure <ref type="figure" target="#fig_1">3</ref> corresponding to the usual situation in Bayesian inference.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>X Θ Φ</head><p>(a) Graphical model for world P , depicting Bayesian inference as learning a single global representation of data.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>X Θ Φ</head><p>(b) Graphical model for world Q, the world we desire, the usual generative model of Bayesian inference. Here we have just data, generated by some process and we form a single global representation of the dataset. The world we desire, World Q, corresponds to the usual Bayesian modeling assumption, whereby our own global representation generates the data conditionally independently.</p><p>For these sets of graphical models, we have the following information projection:</p><formula xml:id="formula_52">J bayes = min q∈Q D KL [p; q] = I P -I Q = i I(X i ; Φ) + I(Θ; X n ) - i I(X i ; Θ)<label>(43)</label></formula><p>And we can derive the simple variational bounds:</p><formula xml:id="formula_53">S ≡ log p(θ|X n ) q(θ) ≥ I(Θ; X n ) (44)</formula><p>This entropy gives an upper bound on the mutual information between our parameters and the dataset, it requires a variational approximation to the true marginal of the posterior p(θ|X N ) over datasets: q(θ), a prior.</p><formula xml:id="formula_54">U i ≡ -log q(x i |θ) ≥ H(X i |Θ) (45)</formula><p>The energy gives an upper bound on the conditional entropy of our data given our parameters, it is powered by a variational approximation to the factored inverse of our global representation, the likelihood in ordinary parlance.</p><p>Our optimal frontier is set by those conditions above as well as:<ref type="foot" target="#foot_9">foot_9</ref> :</p><formula xml:id="formula_55">U + S ≥ J bayes + i H(X i |Φ)<label>(46)</label></formula><p>Just as in our earlier paper <ref type="bibr" target="#b3">(Alemi et al., 2018)</ref> we could trace out the frontier by doing the constrained optimization problem: min S + βU (47)</p><p>The formal solution to this optimization problem takes the form:</p><formula xml:id="formula_56">log p(θ|x N ) = log q(θ) + β i log q(x i |θ) -log Z. (<label>48</label></formula><formula xml:id="formula_57">)</formula><p>Where Z is the partition function:</p><formula xml:id="formula_58">Z = dθ q(θ)e β i log q(xi|θ)<label>(49)</label></formula><p>This is the ordinary temperature regulated <ref type="bibr" target="#b32">(Watanabe, 2009)</ref> Bayesian posterior:</p><formula xml:id="formula_59">p(θ|x N ) ∝ q(θ) i q(x i |θ) β . (<label>50</label></formula><formula xml:id="formula_60">)</formula><p>Using a temperature to regulate the relative contribution of the prior and posterior has been used broadly, but ordinarily doesn't have a well founded justification. Here we can unapologetically vary the relative contributions of the prior and likelihood since in the representational framework, those are both variational approximations that might have differing ability to better model the true distributions they approximate. By varying the β parameter here, just as in the β-VAE case <ref type="bibr" target="#b3">(Alemi et al., 2018)</ref> we can smoothly explore the frontier within our modeling family, smoothly controlling the amount of information our model extracts from the dataset. This can help us control for overfitting in a principled way.</p><p>Additionally, we could try to relax our variational approximations, and fit our prior, assuming we could estimate an expectation over datasets. One way to do that is with a bootstrap or jackknife procedure <ref type="bibr" target="#b10">(DasGupta, 2008)</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C DISCRIMINATIVE MODELS</head><p>Similarly we could consider the situation depicting usual discriminative learning, depicted in  For these sets of graphical models, we have the following information projection:</p><formula xml:id="formula_61">J d = I P -I Q = I(Θ; X N , Y N ) + i [I(X i ; Φ) + I(Y i ; X i , Φ) -I(Y i ; X i , Θ)] .<label>(51)</label></formula><p>S ≡ log p(θ|X n ) q(θ)</p><formula xml:id="formula_62">P ≥ I(Θ; X n )<label>(52)</label></formula><p>This entropy gives an upper bound on the mutual information between our parameters and the dataset, it requires a variational approximation to the true marginal of the posterior p(θ|X N ) over datasets: q(θ), a prior.</p><formula xml:id="formula_63">U i ≡ -log q(y i |x i , θ) P ≥ H(Y i |X i , Θ)<label>(53)</label></formula><p>The energy gives an upper bound on the conditional entropy of our targets given our parameters and input, it is powered by a variational approximation to the factored inverse of our global representation, the conditional likelihood in ordinary parlance.</p><p>Our optimal frontier is set by those conditions above as well as:</p><formula xml:id="formula_64">U + S ≥ J d + i H(Y i |X i , Φ) -I(X i ; Φ)<label>(54)</label></formula><p>Just as previously in Appendix B solutions on the frontier can be specified by: log p(θ|x N , y N ) = log q(θ)</p><formula xml:id="formula_65">+ β i log q(y i |x i , θ) -log Z.<label>(55)</label></formula><p>Here again we can smoothly explore the frontier set by the variationals approximations given by the prior and likelihood by simply adjusting β. We might additionally consider going beyond the fixed variational approximations and push the frontier by fitting the prior, or likelihood.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>F MAXWELL RELATIONS</head><p>We can also define other potentials analogous to the alternative thermodynamic potentials such as enthalpy, free energy, and Gibb's free energy by performing partial Legendre transformations. For instance, we can define a free rate:</p><formula xml:id="formula_66">F (C, D, σ) ≡ R + σS (78) dF = -γdC -δdD + Sdσ.<label>(79)</label></formula><p>The free rate measures the rate of our system, not as a function of S (something difficult to keep fixed), but in terms of σ, a parameter in our loss or optimal posterior.</p><p>The free rate gives rise to other Maxwell relations such as</p><formula xml:id="formula_67">∂S ∂C σ = - ∂γ ∂σ C ,<label>(80)</label></formula><p>which equates how much each additional bit of entropy (S) buys you in terms of classification error (C) at fixed effective temperature (σ), to a seemingly very different experiment where you measure the change in the effective supervised tension (γ, the slope on the R -C curve) versus effective temperature (σ) at a fixed classification error (C).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>F.1 COMPLETE ENUMERATION</head><p>Here we enumerate a complete set of Maxwell Relations. First if we write R = R(D, C, S):</p><formula xml:id="formula_68">dR = -γdC -δdD -σdS ∂γ ∂D C = ∂δ ∂C D (81) ∂δ ∂S D = ∂σ ∂D S (82) ∂γ ∂S C = ∂σ ∂C S<label>(83)</label></formula><p>Next transforming to</p><formula xml:id="formula_69">F = R + σS = F (D, C, σ) dF = -γdC -δdD + Sdσ ∂γ ∂σ C = - ∂S ∂C σ (84) ∂δ ∂S D = - ∂S ∂D σ (85) Next transforming to H = R + γC = H(D, γ, S) dH = Cdγ -δD -σdS (86) ∂C ∂D γ = - ∂δ ∂γ D (87) ∂C ∂S γ = - ∂σ ∂γ S<label>(88)</label></formula><p>H EXPERIMENTS</p><p>We show examples of models trained on a toy dataset for all of the different objectives we define above. The dataset has both an infinite data variant, where overfitting is not a problem, and a finite data variant, where overfitting can be clearly observed for both reconstruction and classification.</p><p>Data generation. We follow the toy model from Alemi et al. ( <ref type="formula">2018</ref>), but add an additional classification label in order to explore supervised and semi-supervised objectives. The true data generating distribution is as follows. We first sample a latent binary variable, z ∼ Ber(0.7), then sample a latent 1D continuous value from that variable, h|z ∼ N (h|µ z , σ z ), and finally we observe a discretized value, x = discretize(h; B), where B is a set of 30 equally spaced bins, and a discrete label, y = z (so the true label is the latent variable that generated x). We set µ z and σ z such that R * ≡ I(x; z) = 0.5 nats, in the true generative process, representing the ideal rate target for a latent variable model. For the finite dataset, we select 50 examples randomly from the joint p(x, y, z). For the infinite dataset, we directly supply the true full marginal p(x, y) at each iteration during training.</p><p>When training on the finite dataset, we evaluate model performance against the infinite dataset so that there is no error in the evaluation metrics due to a finite test set.</p><p>Model details. We choose to use a discrete latent representation with K = 30 values, with an encoder of the form q(z i |x j ) ∝ -exp[(w e i x j -b e i ) 2 ], where z is the one-hot encoding of the latent categorical variable, and x is the one-hot encoding of the observed categorical variable. We use a decoder of the same form, but with different parameters: q</p><formula xml:id="formula_70">(x j |z i ) ∝ -exp[(w d i x j -b d i ) 2 ].</formula><p>We use a classifier of the same form as well: q(y j |z</p><formula xml:id="formula_71">i ) ∝ -exp[(w c i y j -b c i ) 2 ].</formula><p>Finally, we use a variational marginal, q(z i ) = π i . Given this, the true joint distribution has the form p(x, y, z) = p(x)p(z|x)p(y|x), with marginal p(z) = x p(x, z), and conditionals p(x|z) = p(x, z)/p(z) and p(y|z) = p(y, z)/p(z).</p><p>The encoder is additionally parameterized following Achille &amp; Soatto (2017) by α, a set of learned parameters for a Log Normal distribution of the form log N (-α i /2, α i ). In total, the model has 184 parameters: 60 weights and biases in the encoder and decoder, 4 weights and biases in the classifier, 30 weights in the marginal, and an additional 30 weights for the α i parameterizing the stochastic encoder. We initialize the weights so that when σ = 0, there is no noticeable effect on the encoder during training or testing.</p><p>Experiments. In Figure <ref type="figure">5</ref>, we show the optimal, hand-crafted model for the toy dataset, as well as a selection of parameterizations of the TherML objective that correspond to commonly-used objective functions and a few new objective functions not previously described. In the captions, the parameters are specified with γ, δ, σ as in the main text, as well as ρ, which is a corresponding Lagrange multiplier for R, in order to simplify the parameterization. It just parameterizes the optimal surface slightly differently. We train all objectives for 10,000 gradient steps. For all of the objectives described, the model has converged, or come close to convergence, by that point.</p><p>Because the model is sufficiently powerful to memorize the dataset, most of the objectives are very susceptible to overfitting. Only the objective variants that are "regularized" by the S term (parameterized by σ) are able to avoid overfitting in the decoder and classifier.</p><p>Figure <ref type="figure">5</ref>: Hand-crafted optimal model. Toy Model illustrating the difference between selected points on the three dimensional optimal surface defined by γ, δ, and σ. See Section 3 for more description of the objectives, and Appendix H for details on the experiment setup. Top (i): Three distributions in data space: the true data distribution, p(x), the model's generative distribution, g(x) = z q(z)q(x|z), and the empirical data reconstruction distribution, d(x) = x z p(x )q(z|x )q(x|z). Middle (ii): Four distributions in latent space: the learned (or computed) marginal q(z), the empirical induced marginal e(z) = x p(x)q(z|x), the empirical distribution over z values for data vectors in the set X0 = {xn : zn = 0}, which we denote by e(z0) in purple, and the empirical distribution over z values for data vectors in the set X1 = {xn : zn = 1}, which we denote by e(z1) in yellow. Bottom: Three K × K distributions: (iii) q(z|x), (iv) q(x|z) and (v) q(x |x) = z q(z|x)q(x |z).           </p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>)</head><figDesc>This equates the result of two very different experiments. In the experiment encoded in the partial derivative on the left, one would measure the change in the derivative of the R -D curve (δ) as a function of the classification error (C) at fixed distortion (D). On the right one would measure the change in the derivative of the R -C curve (γ) as a function of the distortion (D) at fixed classification error (C). As different as these scenarios appear, they are mathematically equivalent. A full set of Maxwell relations can be found in Appendix F.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 3 :</head><label>3</label><figDesc>Figure 3: Graphical models for standard Bayesian inference.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><figDesc>Graphic model Q depicting a discriminative generative model.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 4 :</head><label>4</label><figDesc>Figure 4: Graphical models for the traditional discriminative case.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><figDesc>(a) Deterministic Supervised Classifier: δ = ρ = σ = 0, γ = 1. (b) Entropy-regularized Deterministic Classifier: δ = ρ = 0, γ = 1, σ = 0.1.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><figDesc>(c) Entropy-regularized IB: δ = 0, ρ = 0, γ = 1, σ = 0.01.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><figDesc>(d) Bayesian Neural Network Classifier: δ = 0, ρ = 0, σ = γ = 1.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head>Figure 6 :</head><label>6</label><figDesc>Figure 6: Supervised Learning approaches.</figDesc><graphic coords="21,108.00,395.90,178.20,193.81" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_8"><figDesc>(a) VIB: δ = 0, σ = 0, γ = 1, ρ(β) = 0.5.(b) Entropy-regularized VIB: δ = 0, γ = 1, ρ = 0.9, σ = 0.1.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_9"><head>Figure 7 :</head><label>7</label><figDesc>Figure 7: VIB style objectives.</figDesc><graphic coords="22,108.00,126.53,178.20,193.81" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_10"><head>( a )</head><label>a</label><figDesc>Deterministic Autoencoder: γ = ρ = σ = 0, δ = 1. (b) Entropy-regularized Deterministic Autoencoder: γ = ρ = 0, δ = 1, σ = 0.01.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_11"><head>Figure 8 :</head><label>8</label><figDesc>Figure 8: Autoencoder objectives.</figDesc><graphic coords="22,108.00,449.54,178.20,193.81" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_12"><figDesc>(a) VAE: σ = 0, γ = 0, δ = ρ = 1. (b) β-VAE: σ = 0, γ = 0, δ = 1, ρ(β) = 0.5. (c) Entropy-regularized β-VAE: σ = 0.5, γ = 0, δ = 1, ρ(β) = 0.9. (d) Semi-supervised VAE: σ = 0, γ(α) = 0.5, δ = ρ = 1.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_13"><head>Figure 9 :</head><label>9</label><figDesc>Figure 9: VAE style objectives.</figDesc><graphic coords="23,325.80,383.38,178.20,208.88" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_14"><head>Figure 10 :</head><label>10</label><figDesc>Figure 10: Full Objective. σ = 0.5, γ = 1000, δ = 1, ρ = 0.9. Simple demonstration of the behavior with all terms present in the objective.</figDesc><graphic coords="24,216.90,286.13,178.20,208.88" type="bitmap" /></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="4" xml:id="foot_0"><p>We could consider different alternatives, deciding to relax some of the constraints we imposed in World Q, or generalizing World P by letting the representation depend on X and Y jointly, for instance. What follows demonstrates a general sort of calculus that we can invoke for any specified pair of graphical models. In particular Appendices A to C discuss alternatives.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="5" xml:id="foot_1"><p>Also known as the KL divergence.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="6" xml:id="foot_2"><p>Note that this is DKL [p; q * ] where q * is the well known reverse-information projection or moment projection: q * = argmin q∈Q DKL [p; q] (Csiszár &amp; Matúš, 2003).</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="7" xml:id="foot_3"><p>Given this relationship, we could actually reduce the total number of functions we consider from 4 to 3, as discussed in Appendix A.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="8" xml:id="foot_4"><p>More generally, if we choose some measure m(x), m(y) on both X and Y , we can define D and C in terms of that measure e.g. D ≡ -log q(x|z) m(x) P ≥ Hm(X) -I(X; Z) = Hm(X|Z)</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="9" xml:id="foot_5"><p>In Appendix A we consider taking this bound seriously to limit the space only only three functionals, S, C and V ≥ I(Zi; Θ|Xi)</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="10" xml:id="foot_6"><p>This could help explain the observation that often times putting additional modeling power on the prior rather than the encoder can give improvements in ELBO<ref type="bibr" target="#b8">(Chen et al., 2016)</ref>.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="11" xml:id="foot_7"><p>As in<ref type="bibr" target="#b5">Blundell et al. (2015)</ref>;<ref type="bibr" target="#b1">Achille &amp; Soatto (2017)</ref> </p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="14" xml:id="foot_8"><p>For discrete state Markov chains, this implies that if the stationary distribution is uniform, the entropy of the distribution H(pn) is strictly increasing.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="15" xml:id="foot_9"><p>U ≡ i Ui</p></note>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>ACKNOWLEDGEMENTS</head><p>The authors would like to <rs type="person">Jascha Sohl-Dickstein</rs>, <rs type="person">Mallory Alemi</rs>, <rs type="person">Rif A. Saurous</rs>, <rs type="person">Ali Rahimi</rs>, <rs type="person">Kevin Murphy</rs>, <rs type="person">Ben Poole</rs>, <rs type="person">Danilo Rezende</rs> and <rs type="person">Matt Hoffman</rs> for helpful discussions and feedback on the draft.</p></div>
+			</div>			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>D FUNCTIONAL INEQUALITIES</head><p>Here we show the details for deriving Equation ( <ref type="formula">14</ref>).</p><p>We start by expressing our functional inequalities, but being explicit about presence of the relative informations of our variational approximations.</p><p>I(Θ; X N , Y N ) = S -D KL [p(θ); q(θ)] (56)</p><p>Combining Equations ( <ref type="formula">7</ref>) and ( <ref type="formula">56</ref>) to (59):</p><p>Here we have collected all of the KL divergences for our variational approximations:</p><p>We can simplify:</p><p>To obtain:</p><p>Which yields:</p><p>E IDENTITIES</p><p>We will utilize some basic information identities, first by definition (76) We will also use the following rule for conditional entropies</p><p>Finally transforming to</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>G ZEROTH LAW OF LEARNING</head><p>A central concept in thermodynamics is a notion of equilibrium. The so called Zeroth Law of thermodynamics defines thermal equilibrium as a sort of reflexive property of systems <ref type="bibr" target="#b11">(Finn, 1993)</ref>. If system A is in thermal equilibrium with system C, and system B is separately in thermal equilibrium with system C, then system A and B are in thermal equilibrium with each other.</p><p>When any sub-part of a system is in thermal equilibrium with any other sub-part, the system is said to be an equilibrium state.</p><p>In our framework, the points on the optimal surface are analogous to the equilibrium states, for which we have well defined partial derivatives. We can demonstrate that this notion of equilibrium agrees with a more intuitive notion of equilibrium between coupled systems. Imagine we have two different models, characterized by their own set of distributions, Model A is defined by p A (z|x, θ), p A (θ, {x, y}), q A (z), and model B by p B (z|x, θ), p B (θ, {x, y}), q B (z). Both models will have their own value for each of the functionals: </p><p>Thus the rate R C and entropy S C for the combined model is the sum of the individual models:</p><p>Now imagine we sample new states for the combined system which are maximally entropic with the constraint that the combined rate stay constant:</p><p>For the expectation of the two rates to be unchanged after they have been coupled and evolved holding their total rate fixed, we must have,</p><p>Therefore, we can see that σ, the effective temperature, allows us to identify whether two systems are in thermal equilibrium with one another. Just as in thermodynamics, if two systems at different temperatures are coupled, some transfer takes place.</p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="middle">De</forename><surname>Accardi</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Finetti</surname></persName>
+		</author>
+		<ptr target="http://www.encyclopediaofmath.org/index.php?title=De_Finetti_theorem&amp;oldid=12884" />
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Emergence of Invariance and Disentangling in Deep Representations</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Achille</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Soatto</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the ICML Workshop on Principled Approaches to Deep Learning</title>
+		<meeting>the ICML Workshop on Principled Approaches to Deep Learning</meeting>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<author>
+			<persName><forename type="first">Ian</forename><surname>Alexander A Alemi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joshua</forename><forename type="middle">V</forename><surname>Fischer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kevin</forename><surname>Dillon</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Murphy</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1612.00410</idno>
+		<ptr target="http://arxiv.org/abs/1612.00410" />
+		<title level="m">Deep variational information bottleneck</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Fixing a broken ELBO</title>
+		<author>
+			<persName><forename type="first">Ben</forename><surname>Alexander A Alemi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joshua</forename><forename type="middle">V</forename><surname>Poole</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rif</forename><forename type="middle">A</forename><surname>Dillon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kevin</forename><surname>Saurous</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Murphy</surname></persName>
+		</author>
+		<ptr target="http://arxiv.org/abs/1711.00464" />
+	</analytic>
+	<monogr>
+		<title level="m">ICML 2018</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Predictability, complexity, and learning</title>
+		<author>
+			<persName><forename type="first">William</forename><surname>Bialek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ilya</forename><surname>Nemenman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Naftali</forename><surname>Tishby</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural computation</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<biblScope unit="page" from="2409" to="2463" />
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<author>
+			<persName><forename type="first">C</forename><surname>Blundell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Cornebise</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Kavukcuoglu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wierstra</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1505.05424</idno>
+		<ptr target="https//arxiv.org/abs/1505.05424" />
+		<title level="m">Weight Uncertainty in Neural Networks</title>
+		<imprint>
+			<date type="published" when="2015-05">May 2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">Stochastic gradient descent performs variational inference, converges to limit cycles for deep networks</title>
+		<author>
+			<persName><forename type="first">Pratik</forename><surname>Chaudhari</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stefano</forename><surname>Soatto</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/1710.11029" />
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<author>
+			<persName><forename type="first">T</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">B</forename><surname>Fox</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Guestrin</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1402.4102</idno>
+		<ptr target="https://arxiv.org/abs/1402.4102" />
+		<title level="m">Stochastic Gradient Hamiltonian Monte Carlo</title>
+		<imprint>
+			<date type="published" when="2014-02">February 2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">X</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">P</forename><surname>Kingma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Salimans</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Duan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Dhariwal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Schulman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Sutskever</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Abbeel</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/1611.02731" />
+	</analytic>
+	<monogr>
+		<title level="j">Variational Lossy Autoencoder. arXiv</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Imre Csiszár and František Matúš. Information projections revisited</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Thomas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joy</forename><forename type="middle">A</forename><surname>Cover</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Thomas</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Elements of information theory</title>
+		<imprint>
+			<publisher>John Wiley &amp; Sons</publisher>
+			<date type="published" when="2003">2012. 2003</date>
+			<biblScope unit="volume">49</biblScope>
+			<biblScope unit="page" from="1474" to="1490" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Edgeworth expansions and cumulants</title>
+		<author>
+			<persName><forename type="first">Anirban</forename><surname>Dasgupta</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Asymptotic Theory of Statistics and Probability</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2008">2008</date>
+			<biblScope unit="page" from="185" to="201" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">Colin Bp</forename><surname>Finn</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1993">1993</date>
+			<publisher>CRC Press</publisher>
+		</imprint>
+	</monogr>
+	<note type="report_type">Thermal physics</note>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Multivariate information bottleneck</title>
+		<author>
+			<persName><forename type="first">Nir</forename><surname>Friedman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ori</forename><surname>Mosenzon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Noam</forename><surname>Slonim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Naftali</forename><surname>Tishby</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Seventeenth conference on Uncertainty in artificial intelligence</title>
+		<meeting>the Seventeenth conference on Uncertainty in artificial intelligence</meeting>
+		<imprint>
+			<publisher>Morgan Kaufmann Publishers Inc</publisher>
+			<date type="published" when="2001">2001</date>
+			<biblScope unit="page" from="152" to="161" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<title level="m" type="main">Shakir Mohamed, and Alexander Lerchner. β-VAE: Learning Basic Visual Concepts with a Constrained Variational Framework</title>
+		<author>
+			<persName><forename type="first">Irina</forename><surname>Higgins</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Loic</forename><surname>Matthey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Arka</forename><surname>Pal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Christopher</forename><surname>Burgess</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xavier</forename><surname>Glorot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Matthew</forename><surname>Botvinick</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<author>
+			<persName><forename type="first">G</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Pleiss</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">E</forename><surname>Hopcroft</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">Q</forename><surname>Weinberger</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1704.00109</idno>
+		<ptr target="https://arxiv.org/abs.1704.00109" />
+		<title level="m">Snapshot Ensembles: Train 1, get M for free</title>
+		<imprint>
+			<date type="published" when="2017-03">March 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<author>
+			<persName><forename type="first">M</forename><surname>Ishmael Belghazi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Baratin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Rajeswar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ozair</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Courville</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Devon</forename><surname>Hjelm</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/1801.04062" />
+		<title level="m">MINE: Mutual Information Neural Estimation. arXiv</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Information theory and statistical mechanics</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Edwin</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Jaynes</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Physical review</title>
+		<imprint>
+			<biblScope unit="volume">106</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page">620</biblScope>
+			<date type="published" when="1957">1957</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">P</forename><surname>Kingma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">J</forename><surname>Rezende</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Mohamed</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Welling</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1406.5298</idno>
+		<ptr target="https://arxiv.org/abs/1406.5298" />
+		<title level="m">Semi-Supervised Learning with Deep Generative Models</title>
+		<imprint>
+			<date type="published" when="2014-06">June 2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title level="m" type="main">Auto-encoding variational Bayes</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Diederik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Max</forename><surname>Kingma</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Welling</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<monogr>
+		<title level="m" type="main">A Complete Recipe for Stochastic Gradient MCMC</title>
+		<author>
+			<persName><forename type="first">Y.-A</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">B</forename><surname>Fox</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1506.04696</idno>
+		<ptr target="https://arxiv.org/abs/1506.04696" />
+		<imprint>
+			<date type="published" when="2015-06">June 2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Monte Carlo Methods for Rough Free Energy Landscapes: Population Annealing and Parallel Tempering</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Machta</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">S</forename><surname>Ellis</surname></persName>
+		</author>
+		<idno type="DOI">10.1007/s10955-011-0249-0</idno>
+		<ptr target="https://arxiv.org/abs/1104.1138" />
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Statistical Physics</title>
+		<imprint>
+			<biblScope unit="volume">144</biblScope>
+			<biblScope unit="page" from="541" to="553" />
+			<date type="published" when="2011-08">August 2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Gradient-based hyperparameter optimization through reversible learning</title>
+		<author>
+			<persName><forename type="first">Dougal</forename><surname>Maclaurin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David</forename><surname>Duvenaud</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ryan</forename><forename type="middle">P</forename><surname>Adams</surname></persName>
+		</author>
+		<ptr target="http://dl.acm.org/citation.cfm?id=3045118.3045343" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 32Nd International Conference on International Conference on Machine Learning</title>
+		<meeting>the 32Nd International Conference on International Conference on Machine Learning</meeting>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="volume">37</biblScope>
+			<biblScope unit="page" from="2113" to="2122" />
+		</imprint>
+	</monogr>
+	<note>ICML&apos;15</note>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<monogr>
+		<author>
+			<persName><forename type="first">S</forename><surname>Mandt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">D</forename><surname>Hoffman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">M</forename><surname>Blei</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1704.04289</idno>
+		<ptr target="https://arxiv.org/abs/1704.04289" />
+		<title level="m">Stochastic Gradient Descent as Approximate Bayesian Inference</title>
+		<imprint>
+			<date type="published" when="2017-04">April 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Thermodynamics of information</title>
+		<author>
+			<persName><forename type="first">Jordan</forename><forename type="middle">M</forename><surname>Juan Mr Parrondo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Takahiro</forename><surname>Horowitz</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Sagawa</surname></persName>
+		</author>
+		<ptr target="http://jordanmhorowitz.mit.edu/sites/default/files/documents/natureInfo.pdf" />
+	</analytic>
+	<monogr>
+		<title level="j">Nature physics</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="131" to="139" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<monogr>
+		<title level="m" type="main">Statistical mechanics: entropy, order parameters, and complexity</title>
+		<author>
+			<persName><forename type="first">James</forename><surname>Sethna</surname></persName>
+		</author>
+		<ptr target="http://pages.physics.cornell.edu/˜sethna/StatMech/EntropyOrderParametersComplexity.pdf" />
+		<imprint>
+			<date type="published" when="2006">2006</date>
+			<publisher>Oxford University Press</publisher>
+			<biblScope unit="volume">14</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<monogr>
+		<author>
+			<persName><forename type="first">Noam</forename><surname>Slonim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Gurinder</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gasper</forename><surname>Atwal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">William</forename><surname>Tkacik</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Bialek</surname></persName>
+		</author>
+		<ptr target="https:/arxiv.org/abs/cs/0502017" />
+		<title level="m">Estimating mutual information and multi-information in large networks. arXiv, 2005</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<monogr>
+		<title level="m" type="main">A Bayesian Perspective on Generalization and Stochastic Gradient Descent</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">L</forename><surname>Smith</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><forename type="middle">V</forename><surname>Le</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1710.06451</idno>
+		<ptr target="https://arxiv.org/abs/1710.06451" />
+		<imprint>
+			<date type="published" when="2017-10">October 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<monogr>
+		<author>
+			<persName><forename type="first">S</forename><surname>Still</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1705.00612</idno>
+		<ptr target="https://arxiv.org/abs/1705.00612" />
+		<title level="m">Thermodynamic cost and benefit of data representations</title>
+		<imprint>
+			<date type="published" when="2017-04">April 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Thermodynamics of Prediction</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Still</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">A</forename><surname>Sivak</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">J</forename><surname>Bell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Crooks</surname></persName>
+		</author>
+		<idno type="DOI">10.1103/PhysRevLett.109.120604</idno>
+		<ptr target="https://arxiv.org/abs/1203.3271" />
+	</analytic>
+	<monogr>
+		<title level="j">Physical Review Letters</title>
+		<imprint>
+			<biblScope unit="volume">109</biblScope>
+			<biblScope unit="issue">12</biblScope>
+			<biblScope unit="page">120604</biblScope>
+			<date type="published" when="2012-09">September 2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Information bottleneck approach to predictive inference</title>
+		<author>
+			<persName><forename type="first">Susanne</forename><surname>Still</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Entropy</title>
+		<imprint>
+			<biblScope unit="volume">16</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="968" to="989" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">The information bottleneck method</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Tishby</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">C</forename><surname>Pereira</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Biale</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/physics/0004057" />
+	</analytic>
+	<monogr>
+		<title level="m">The 37th annual Allerton Conf. on Communication, Control, and Computing</title>
+		<imprint>
+			<date type="published" when="1999">1999</date>
+			<biblScope unit="page" from="368" to="377" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<monogr>
+		<author>
+			<persName><forename type="first">A</forename><surname>Van Den Oord</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Vinyals</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/1807.03748" />
+		<title level="m">Representation Learning with Contrastive Predictive Coding. arXiv</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<monogr>
+		<title level="m" type="main">Algebraic geometry and statistical learning theory</title>
+		<author>
+			<persName><forename type="first">Sumio</forename><surname>Watanabe</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+			<publisher>Cambridge University Press</publisher>
+			<biblScope unit="volume">25</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<monogr>
+		<title level="m" type="main">Mathematical theory of Bayesian statistics</title>
+		<author>
+			<persName><forename type="first">Sumio</forename><surname>Watanabe</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<publisher>CRC Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">Bayesian learning via stochastic gradient langevin dynamics</title>
+		<author>
+			<persName><forename type="first">Max</forename><surname>Welling</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yee</forename><forename type="middle">W</forename><surname>Teh</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 28th international conference on machine learning (ICML-11)</title>
+		<meeting>the 28th international conference on machine learning (ICML-11)</meeting>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+			<biblScope unit="page" from="681" to="688" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<monogr>
+		<title level="m" type="main">Energy-entropy competition and the effectiveness of stochastic gradient descent in machine learning</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">M</forename><surname>Saxe</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">S</forename><surname>Advani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">A</forename><surname>Lee</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1803.01927</idno>
+		<ptr target="https://arxiv.org/abs/1803.01927" />
+		<imprint>
+			<date type="published" when="2018-03">March 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

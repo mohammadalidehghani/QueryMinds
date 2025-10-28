@@ -1,0 +1,1239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Learning Moore Machines from Input-Output Traces</title>
+				<funder ref="#_zPkHX8b #_kpbvdpk">
+					<orgName type="full">U.S. National Science Foundation</orgName>
+				</funder>
+				<funder>
+					<orgName type="full">Academy of Finland</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2016-09-02">2 Sep 2016</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Georgios</forename><surname>Giantamidis</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">Aalto University</orgName>
+								<address>
+									<country key="FI">Finland</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Stavros</forename><surname>Tripakis</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">Aalto University</orgName>
+								<address>
+									<country key="FI">Finland</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff1">
+								<orgName type="institution">University of California</orgName>
+								<address>
+									<settlement>Berkeley</settlement>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Learning Moore Machines from Input-Output Traces</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2016-09-02">2 Sep 2016</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">3FC4FE2FBCA689857D55B517796C8956</idno>
+					<idno type="arXiv">arXiv:1605.07805v2[cs.FL]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:04+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>The problem of learning automata from example traces (but no equivalence or membership queries) is fundamental in automata learning theory and practice. In this paper we study this problem for finite state machines with inputs and outputs, and in particular for Moore machines. We develop three algorithms for solving this problem: (1) the PTAP algorithm, which transforms a set of input-output traces into an incomplete Moore machine and then completes the machine with self-loops; (2) the PRPNI algorithm, which uses the well-known RPNI algorithm for automata learning to learn a product of automata encoding a Moore machine; and (3) the MooreMI algorithm, which directly learns a Moore machine using PTAP extended with state merging. We prove that MooreMI has the fundamental identification in the limit property. We also compare the algorithms experimentally in terms of the size of the learned machine and several notions of accuracy, introduced in this paper. Finally, we compare with OSTIA, an algorithm that learns a more general class of transducers, and find that OSTIA generally does not learn a Moore machine, even when fed with a characteristic sample.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>An abundance of data from the internet and from other sources (e.g., sensors) is revolutionizing many sectors of science, technology, and ultimately our society. At the heart of this revolution lies machine learning, a broad spectrum of techniques to derive information from data. Traditionally, objects studied by machine learning include classifiers, decision trees, and neural networks, with applications to fields as diverse as artificial intelligence, marketing, finance, or medicine <ref type="bibr" target="#b37">[38]</ref>.</p><p>In the context of system design, an important problem, with numerous applications, is automatically generating models from data. There are many variants of this problem, depending on what types of models and data are considered, as well as other assumptions or restrictions. Examples include, but are by no means limited to, the classic field of system identification <ref type="bibr" target="#b34">[35]</ref>, as well as more recent works on synthesizing programs, controllers, or other artifacts from examples <ref type="bibr" target="#b43">[44,</ref><ref type="bibr" target="#b20">21,</ref><ref type="bibr" target="#b41">42,</ref><ref type="bibr" target="#b40">41,</ref><ref type="bibr" target="#b4">5]</ref>.</p><p>In this paper we consider a basic problem, that of learning a Moore machine from a set of input-output traces. A Moore machine is a type of finite-state machine (FSM) with inputs and outputs, where the output always depends on the current state, but not on the current input <ref type="bibr" target="#b29">[30]</ref>. Moore machines are typically deterministic and complete, meaning that for given state and input, the next state is always defined and is unique; and for given state, the output is also always uniquely defined. Such machines are useful in many applications, for instance, for representing digital circuits or controllers. In this paper we are interested in learning deterministic and complete Moore machines.</p><p>We want to learn a Moore machine from a given set of input-output traces. One such trace is a sequence of inputs, ρ in , and the corresponding sequence of outputs, ρ out , that the machine must produce when fed with ρ in . As in standard machine learning methods, we call the set of traces given to the learning algorithm the training set. Obviously, we would like the learned machine M to be consistent w.r.t. the training set R, meaning that for every pair (ρ in , ρ out ) ∈ R, M must output ρ out when fed with ρ in . But in addition to consistency, we would like M to behave well w.r.t. several performance criteria, including complexity of the learning algorithm, size of the learned machine M (its number of states), and accuracy of M , which captures how well M performs on a testing set of traces, different from the training set.</p><p>Even though this is a basic problem, it appears not to have received much attention in the literature. In fact, to the best of our knowledge, this is the first paper which formalizes and studies this problem. This is despite a large body of All algorithms developed in this paper belong in the heuristic category in the sense that we do not attempt to find a smallest machine. However, we would still like to learn a small machine. Thus, size is an important performance criterion, as explained in Section 5.1. Like RPNI and other algorithms, MooreMI is also a state-merging algorithm. <ref type="bibr" target="#b45">[46]</ref> is close to our work, but the algorithm described there does not always yield a deterministic Moore machine, while our algorithms do. This is important because we want to learn systems like digital circuits, embedded controllers (e.g. modeled in Simulink), etc., and such systems are typically deterministic. The k-tails algorithm for finite state machine inference <ref type="bibr" target="#b8">[9]</ref> may also result in non-deterministic machines. Moreover, this algorithm does not generally yield smallest machines, since the initial partition of the input words into equivalence classes (which then become the states of the learned machine) can be overly conservative . <ref type="foot" target="#foot_1">4</ref>The work in <ref type="bibr" target="#b28">[29]</ref> deals with learning finite state machine abstractions of non-linear analog circuits. The algorithm described in <ref type="bibr" target="#b28">[29]</ref> is very different from ours, and uses the circuit's number of inputs to determine a subset of the states in the learned abstraction. Also, identification in the limit is not considered in <ref type="bibr" target="#b28">[29]</ref>.</p><p>Learning from "inexperienced teachers", i.e. by using either (1) only equivalence queries or <ref type="bibr" target="#b1">(2)</ref> equivalence plus membership queries that may be answered inconclusively, has been studied in <ref type="bibr" target="#b19">[20,</ref><ref type="bibr" target="#b33">34]</ref>.</p><p>Related but different from our work are approaches which synthesize state machines from scenarios and requirements. Scenarios can be provided in various forms, e.g. message sequence charts <ref type="bibr" target="#b4">[5]</ref>, event sequence charts <ref type="bibr" target="#b23">[24]</ref>, or simply, input-output examples <ref type="bibr" target="#b46">[47]</ref>. Requirements can be temporal logic formulas as in <ref type="bibr" target="#b4">[5,</ref><ref type="bibr" target="#b46">47]</ref>, or other types of constraints such as the scenario constraints used in <ref type="bibr" target="#b23">[24]</ref>. In this paper we have examples, but no requirements.</p><p>Also related but different from ours is work in the areas of invariant generation and specification mining, which extract properties of a program or system model, such as invariants <ref type="bibr" target="#b21">[22,</ref><ref type="bibr" target="#b12">13,</ref><ref type="bibr" target="#b22">23]</ref>, temporal logic formulas <ref type="bibr" target="#b26">[27,</ref><ref type="bibr" target="#b32">33]</ref> or non-deterministic finite automata <ref type="bibr" target="#b5">[6]</ref>.</p><p>FSM learning is related to FSM testing <ref type="bibr" target="#b31">[32]</ref>. In particular, notions similar to the nucleus of an FSM and to distinguishing suffixes of states, which are used to define characteristic samples, are also used in <ref type="bibr" target="#b11">[12,</ref><ref type="bibr" target="#b15">16]</ref>. The connection between conformance testing and regular inference is made explicit in <ref type="bibr" target="#b7">[8]</ref> and <ref type="bibr" target="#b31">[32]</ref> describes how an active learning algorithm can be used for fault detection.</p><p>Reviewers of an earlier version of this paper pointed out the similarity of Moore and Mealy machines: a Moore machine is a special case of a Mealy machine where the output depends only on the state but not on the input; and a Mealy machine can be transformed into a Moore machine by delaying the output by one step. This similarity naturally raises the question to what extent methods to learn Mealy machines can be used to learn Moore machines (and vice versa). Answering this question is beyond the scope of the current paper. However, note that an algorithm that learns a Mealy machine cannot be used as a black box to learn Moore machines, for two reasons: first, the input-output traces for a Moore machine are not directly compatible with Mealy machines, and therefore need to be transformed somehow; second, the learned Mealy machine must also be transformed into a Moore machine. The exact form of such transformations and their correctness remain to be demonstrated. Such transformations may also incur performance penalties which make a learning method especially designed for Moore machines more attractive in practice.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Preliminaries</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Finite state machines and automata</head><p>A finite state machine (FSM) is a tuple M of the form M = (I, O, Q, q 0 , δ, λ), where:  -</p><formula xml:id="formula_0">-I is a finite set of input symbols. -O is a finite set of output symbols. -Q is a finite set of states. -q 0 ∈ Q is the initial state. q 0 y 1 x 1 q 1 y 2 x 2 x 2 x 1 (a) Moore machine M1 on input-output sets I = {x1, x2} and O = {y1, y2}. q 0 q 1 x 1 /y 1 x 2 /y 1 x 2 /y 2 x 1 /y 2<label>(</label></formula><formula xml:id="formula_1">δ : Q × I → Q is the transition function.</formula><p>λ is the output function, which can be of two types:</p><formula xml:id="formula_2">• λ : Q → O, in which case the FSM is a Moore machine. • λ : Q × I → O, in which case the FSM is a Mealy machine.</formula><p>If both δ and λ are total functions, we say that the FSM is complete. If any of δ and λ is a partial function, we say that the FSM is incomplete. Examples of a Moore and a Mealy machine are given in Figure <ref type="figure" target="#fig_1">1</ref>. Both FSMs are complete.</p><p>We also define δ * : Q × I * → Q as follows (X * denotes the set of all finite sequences over some set X; ∈ X * denotes the empty sequence over X; w • w denotes the concatenation of two sequences w, w ∈ X * ): for q ∈ Q, w ∈ I * , and a ∈ I:</p><formula xml:id="formula_3">-δ * (q, ) = q. -δ * (q, w • a) = δ(δ * (q, w), a).</formula><p>We also define λ * : Q × I * → O * . The rest of this paper focuses on Moore machines, thus we define λ * only in the case where M is a Moore machine (the adaptation to a Mealy machine is straightforward):</p><formula xml:id="formula_4">-λ * (q, ) = λ(q) -λ * (q, w • a) = λ * (q, w) • λ(δ * (q, w • a)) Two Moore machines M 1 , M 2 , with M i = (I i , O i , Q i , q 0 i , δ i , λ i ), are said to be equivalent iff I 1 = I 2 , O 1 = O 2 ,</formula><p>and ∀w ∈ I * 1 : λ * 1 (q 0 1 , w) = λ * 2 (q 0 2 , w). A Moore machine M = (I, O, Q, q 0 , δ, λ) is minimal if for any other Moore machine M = (I , O , Q , q 0 , δ , λ ) such that M and M are equivalent, we have |Q| ≤ |Q |, where |X| denotes the size of a set X.</p><p>Notice that in the case two Moore machines are minimal, testing equivalence is reduced to a graph isomorphism test.</p><p>A deterministic finite automaton (DFA) is a tuple A = (Σ, Q, q 0 , δ, F ), where:</p><p>-Σ (the alphabet) is a finite set of letters.</p><p>-Q is a finite set of states.</p><p>q 0 ∈ S is the initial state.</p><p>-</p><formula xml:id="formula_5">δ : Q × Σ → Q is the transition function.</formula><p>-F ⊆ Q is the set of accepting states.</p><p>A DFA can be seen as a special case of a Moore machine, where the set of input symbols I is Σ, and the set of output symbols is binary, say O = {0, 1}, with 1 and 0 corresponding to accepting and non-accepting states, respectively. The concepts of complete and incomplete DFAs, as well as the definition of δ * , are similar to the corresponding ones for FSMs. Elements of Σ * are usually called words. A DFA A = (Σ, Q, q 0 , δ, F ) is said to accept a word w if δ * (q 0 , w) ∈ F .</p><p>A non-deterministic finite automaton (NFA) is a tuple A = (Σ, Q, Q 0 , ∆, F ), where Σ, Q, and F are as in a DFA, and: -</p><formula xml:id="formula_6">q 0 q 1 b a, b a (a) DFA A1 on Σ = {a, b}. q 0 q 1 a b a (b) NFA A2 on Σ = {a, b}.</formula><formula xml:id="formula_7">Q 0 ⊆ Q is the set of initial states. -∆ ⊆ Q × Σ × Q is the transition relation.</formula><p>Examples of a DFA and an NFA are given in Figure <ref type="figure" target="#fig_2">2</ref>. Accepting states are drawn with double circles. Given two NFAs,</p><formula xml:id="formula_8">A 1 = (Σ, Q 1 , Q 1 0 , ∆ 1 , F 1 ) and A 2 = (Σ, Q 2 , Q 2 0 , ∆ 2 , F 2 ), their synchronous product is the NFA A = (Σ, Q 1 × Q 2 , Q 1 0 × Q 2 0 , ∆, F 1 × F 2 )</formula><p>, where ((q 1 , q 2 ), a, (q 1 , q 2 )) ∈ ∆ iff (q 1 , a, q 1 ) ∈ ∆ 1 and (q 2 , a, q 2 ) ∈ ∆ 2 . The synchronous product of automata is used in several algorithms presented in the sequel.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Input-output traces and examples</head><p>Given sets of input and output symbols I and O, respectively, a Moore (I, O)-trace is a pair of finite sequences</p><formula xml:id="formula_9">(x 1 x 2 • • • x n , y 0 y 1 • • • y n ),</formula><p>for some natural number n ≥ 0, such that x i ∈ I and y i ∈ O for all i ≤ n. That is, a Moore (I, O)-trace is a pair of a input sequence and an output sequence, such that the output sequence has length one more than the input sequence. Note that n may be 0, in which case the input sequence is empty (i.e., has length 0), and the output sequence contains just one output symbol.</p><p>Given a Moore (I, O)-trace ρ = (x</p><formula xml:id="formula_10">1 x 2 • • • x n , y 0 y 1 • • • y n )</formula><p>, and a Moore machine M = (I, O, Q, q 0 , δ, λ), we say that ρ is consistent with M if y 0 = λ(q 0 ) and for all i = 1, ..., n, y i = λ(q i ), where q i = δ(q i-1 , x i ).</p><p>Similarly to the concept of a Moore (I, O)-trace we define a Moore (I, O)-example as a pair of a finite input symbol sequence and an output symbol: (x 1 x 2 • • • x n , y), where x i ∈ I, for i = 1, ..., n, and y ∈ O. We say that a Moore machine M = (I, O, Q, q 0 , δ, λ) is consistent with a Moore (I, O)-example ρ = (x</p><formula xml:id="formula_11">1 x 2 • • • x n , y) if λ(δ * (q 0 , x 1 x 2 • • • x n )) = y.</formula><p>Since a DFA can be seen as the special case of a Moore machine with a binary output alphabet, the concept of a Moore (I, O)-example is naturally carried over to DFAs, in the form of positive and negative examples. Specifically, a finite word w is a positive example for a DFA if it is accepted by the DFA, and a negative example if it is rejected. Viewing a DFA as a Moore machine with binary output, a positive example w corresponds to the Moore example (w, 1), while a negative example corresponds to the Moore example (w, 0).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Prefix tree acceptors and prefix tree acceptor products</head><p>q ab q aa q a q b q a a b b Fig. <ref type="figure">3</ref>: A PTA for S + = {b, aa, ab}.</p><p>Given a finite and non-empty set of positive examples over a given alphabet Σ, S + ⊆ Σ * , we can construct, in a non-unique way, a tree-shaped, incomplete DFA, that accepts all words in S + , and rejects all others. Such a DFA is called a prefix tree acceptor <ref type="bibr" target="#b14">[15]</ref> (PTA) for S + . For example, a PTA for S + = {b, aa, ab} is shown in Figure <ref type="figure">3</ref>.</p><p>We extend the concept of PTA to Moore machines. Suppose that we have a set S IO of Moore (I, O)-examples. Let N = log 2 |O| be the number of bits necessary to represent an element of O. Then, given a function f that maps elements of O to bit tuples of length N , we can map S IO to N pairs of positive and negative example sets, {(S 1+ , S 1-), (S 2+ , S 2-), • • •, (S N + , S N -)}. In particular, for each pair (w, y) ∈ S IO , if the i-th element of f (y) is 1, then S i+ should contain w and S i-should not. Similarly, if the i-th element of f (y) is 0, then S i-should contain w and S i+ should not. q ab q aa q a q a a b (a) The PTA for S1+ = {ab}. q ab q aa q a q a a b (b) The PTA for S2+ = {aa}. Fig. <ref type="figure">4</ref>: A PTAP for S IO = {(b, 0), (aa, 1), (ab, 2)}, with I = {a, b}, O = {0, 1, 2}, and f = {0 → (0, 0), 1 → (0, 1), 2 → (1, 0)}. The positive and negative example sets are: S 1+ = {ab}, S 1-= {b, aa}, S 2+ = {aa}, S 2-= {b, ab}.</p><p>We can subsequently construct a prefix tree acceptor product (PTAP), which is a collection of N PTAs, one for each positive example set, S i+ , for i = 1, • • • , N . An example of a PTAP consisting of two PTAs is given in Figure <ref type="figure">4</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Characteristic samples</head><p>An important concept in automata learning theory is that of a characteristic sample <ref type="bibr" target="#b14">[15]</ref>. A characteristic sample for a DFA is a set of words that captures all information about that automaton's set of states and behavior. In this paper we extend the concept of characteristic sample to Moore machines.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Characteristic samples for Moore machines</head><p>Let M = (I, O, Q, q 0 , δ, λ) be a minimal Moore machine. Let &lt; denote a total order on input words, i.e., on I * , such that w &lt; w iff either |w| &lt; |w |, or |w| = |w | but w comes before w in lexicographic order (|w| denotes the length of a word w). For example, b &lt; aa and aaa &lt; aba.</p><p>Given a state q ∈ Q, we define the shortest prefix of q as the shortest input word which can be used to reach q:</p><formula xml:id="formula_12">S P (q) = min &lt; {w ∈ I * | δ * (q 0 , w) = q}.</formula><p>Notice that M is minimal, which implies that all its states are reachable (otherwise we could remove unreachable states). Therefore, S P (q) is well-defined for every state q of M .</p><p>Next, we define the set of shortest prefixes of M , denoted S P (M ), as:</p><formula xml:id="formula_13">S P (M ) = {S P (q) | q ∈ Q}</formula><p>We can now define the nucleus of M which contains the empty word and all one-letter extensions of words in S P (M ):</p><formula xml:id="formula_14">N L (M ) = { } ∪ {w • a | w ∈ S P (M ), a ∈ I}.</formula><p>We also define the minimum distinguishing suffix for two different states q u and q v of M , as follows:</p><formula xml:id="formula_15">M D (q u , q v ) = min &lt; {w ∈ I * | λ * (q u , w) = λ * (q v , w)}.</formula><p>M D (q u , q v ) is guaranteed to exist for any two states q u , q v because M is minimal. Let W be a set of input words, W ⊆ I * . P ref (W ) denotes the set of all prefixes of all words in W :</p><formula xml:id="formula_16">P ref (W ) = {x ∈ I * | ∃w ∈ W, y ∈ I * : x • y = w}.</formula><p>Definition 1. Let S IO be a set of Moore (I,O)-traces, and let S I be the corresponding set of input words:</p><formula xml:id="formula_17">S I = {ρ I ∈ I * | (ρ I , ρ O ) ∈ S IO }.</formula><p>S IO is a characteristic sample for a Moore machine M iff:   </p><formula xml:id="formula_18">q 0 q 3 q 1 q 2 0 1 2 2 a</formula><formula xml:id="formula_19">1. N L (M ) ⊆ P ref (S I ). 2. ∀u ∈ S P (M ) : ∀v ∈ N L (M ) : ∀w ∈ I * : δ * (q 0 , u) = δ * (q 0 , v) ∧ w = M D (δ * (q 0 , u), δ * (q 0 , v)) ⇒ {u • w, v • w} ⊆ P ref (S I ).</formula><p>For example, consider the Moore machine M 1 from Figure <ref type="figure" target="#fig_1">1</ref>. We have:</p><formula xml:id="formula_20">S P (q 0 ) = , S P (q 1 ) = x 2 , S P (M 1 ) = { , x 2 }, and N L (M 1 ) = { , x 1 , x 2 , x 2 x 1 , x 2 x 2 }.</formula><p>The following set is a characteristic sample for M 1 :</p><formula xml:id="formula_21">S IO = { (x 1 , y 1 y 1 ), (x 2 x 1 , y 1 y 2 y 1 ), (x 2 x 2 , y 1 y 2 y 2 ) }.</formula><p>While it is intuitive that a characteristic sample should contain input words that in a sense cover all states and transitions of M (Condition 1 of Definition 1), it may not be obvious why Condition 2 of Definition 1 is necessary. This becomes clear if we look at machines having the same output on several states. For example, consider the Moore machine M in Figure <ref type="figure" target="#fig_5">5a</ref>. The set of (I, O)-traces S 1 IO = {(aa, 020), (ba, 012), (bb, 012), (aba, 0222), (abb, 0222)} satisfies Condition 1 but not Condition 2 (because S P (q 2 ) = a, ba ∈ N L (M ), δ * (q 0 , ba) = q 3 , M D (q 2 , q 3 ) = a, but no input word in S 1</p><p>IO has baa as a prefix), and therefore is not a characteristic sample of the machine of Figure <ref type="figure" target="#fig_5">5a</ref>. If we use S 1</p><p>IO to learn a Moore machine, we obtain the machine in Figure <ref type="figure" target="#fig_5">5b</ref> (this machine was produced by our MooreMI algorithm, described in Section 5.2). Clearly, the two machines of Figure <ref type="figure" target="#fig_5">5</ref> are not equivalent. For instance, the input word baa results in different outputs when fed to the two machines. The reason why the learning algorithm produces the wrong machine is that the set S 1</p><p>IO does not contain enough information to clearly distinguish between states q 2 and q 3 . Instead, consider the set S 2 IO = {(aa, 020), (baa, 0122), (bba, 0122), (abaa, 02220), (abba, 02220)}. S 2 IO satisfies both Conditions 1 and 2, and therefore is a characteristic sample. Given S 2 IO as input, our MooreMI algorithm is able to learn the correct machine, i.e., the machine of Figure <ref type="figure" target="#fig_5">5a</ref>. In this case, the minimum distinguishing suffix of states q 2 and q 3 is simply the letter a, since δ(q 2 , a) = q 0 , δ(q 3 , a) = q 2 and λ(q 0 ) = 0 = 2 = λ(q 2 ). Notice that S 2 IO can be constructed from S 1  IO by extending with the letter a the input words of the latter that land on q 2 or q 3 . The intuition, then, behind Condition 2 is that states in M that have the same outputs cannot be distinguished by just those (outputs); additional suffixes that differentiate them are required.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Computation, minimality, size, and other properties of characteristic samples</head><p>It is easy to see that adding more traces to a characteristic sample preserves the characteristic sample property, i.e., if S IO is a characteristic sample for a Moore machine M and S IO ⊇ S IO , then S IO is also a characteristic sample for M . Also, arbitrarily extending the input word of an existing (I, O)-trace in S IO and accordingly extending the corresponding output word, again yields a new characteristic sample for M . The questions are raised, then, whether there exist characteristic samples that are minimal in some sense, how many elements they consist of, what are the lengths of their elements, and how can we construct them.</p><p>In the following, we outline a simple procedure that, given a minimal Moore machine M , returns a characteristic sample S IO that is minimal in the sense that removing any (I, O)-trace from it or dropping any number of letters at the end of an input word in it (and accordingly adjusting the corresponding output word) will result in a set that is not a characteristic sample. By doing so, we also constructively establish the existence of at least one characteristic sample for any minimal Moore machine M .</p><p>Let M = (I, O, Q, q 0 , δ, λ) be a minimal Moore machine, S I an initially empty set of input words and S IO the set of (I, O)-traces formed by the elements of S I and the corresponding output words. We compute S P (M ) and N L (M ), and add the elements of the latter to S I . Then, for each pair of words (u, v) ∈ S P (M ) × N L (M ) leading to different states q u = δ * (q 0 , u), q v = δ * (q 0 , v), we compute M D (q u , q v ) and add it to S I . Now, S IO already is a characteristic sample. However, it may contain redundant elements that can safely be removed. We can do this by simply considering each element of S I and removing it if it is a prefix of another element (this step can be sped up by choosing an appropriate data structure to represent S I , e.g. using a trie, we would simply just keep the words represented by the leaf nodes). Note that since the prefix relation on words is a partial order, and therefore transitive, the order in which we remove the redundant elements does not affect the final result. It is easy to see now that, after this step, (1) no element of S I is the prefix of another, (2) S IO is still a characteristic sample, and (3) removing any element from S I or dropping any number of letters at the and of it, will result in S IO not being a characteristic sample.</p><p>By definition, there is a 1 -1 correspondence between the elements of S P (M ) and the states of M . Therefore,</p><formula xml:id="formula_22">|S P (M )| = |Q|. It follows that |N L (M )| ≤ |S P (M )| • |I| + 1 = |Q| • |I| + 1 and, consequently, |S IO | = |S I | ≤ |N L (M )| + |S P (M )| • |N L (M )| = (|Q| • |I| + 1) • (|Q| + 1). In other words, the size of S IO is O(|Q| 2 |I|).</formula><p>We now provide bounds on the lengths of the elements of S IO . The lengths of shortest prefixes are bounded by the longest non-looping path in M , which in turn is bounded by |Q|. It follows that the nucleus element lengths are bounded by |Q| + 1. Let now q u and q v be different states of M and consider M 1 = (I, O, Q, q u , δ, λ) and M 2 = (I, O, Q, q v , δ, λ), i.e. M 1 and M 2 have q u and q v as initial states, respectively, but are otherwise identical to M . Finding a (minimum) distinguishing suffix of q u and q v is now reduced to finding a (minimum) input word that leads to different output words when transduced by M 1 and M 2 . To find such a word, we first construct a DFA A = (I, Q × Q, (q u , q v ), δ A , F ), where ∀(q 1 , q 2 ) ∈ Q × Q : ∀a ∈ I : δ A ((q 1 , q 2 ), a) = (δ(q 1 , a), δ(q 2 , a)) and</p><formula xml:id="formula_23">F = {(q 1 , q 2 ) ∈ Q × Q | λ(q 1 ) = λ(q 2 )}.</formula><p>A word accepted by this DFA is a distinguishing suffix of q u and q v , and it is easy to see that we only need to test words of length up to |Q × Q| in order to find one. We can conclude from the above that the sum of lengths of elements in S IO is O(|Q| 4 |I|).</p><p>5 Learning Moore machines from Input-Output Traces</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1">Problem definition</head><p>The problem of learning Moore machines from input-output traces (LMoMIO) is defined as follows. Given an input alphabet I, an output alphabet O, and a set R train of Moore (I, O)-traces, called the training set, we want to synthesize automatically a deterministic, complete Moore machine M = (I, O, Q, q 0 , δ, λ), such that M is consistent with R train , i.e., ∀ (ρ I , ρ O ) ∈ R train : λ * (ρ I ) = ρ O . (R train is assumed to be itself consistent, in the sense it does not contain two different pairs with the same input word.)</p><p>In addition to consistency, we would like to evaluate our learning technique w.r.t. various performance criteria, including:</p><p>-Size of M , in terms of number of states. Note that, contrary to the exact identification problem <ref type="bibr" target="#b18">[19]</ref>, we do not require M to be the smallest (in terms of number of states) machine consistent with R train . -Accuracy of M , which, informally speaking, is a measure of how well M performs on a set of traces, R test , different from the training set. R test is called the test set. Accuracy is a standard criterion in machine learning. -Complexity (e.g., running time) of the learning algorithm itself.</p><p>In the rest of this paper, we present three learning algorithms which solve the LMoMIO problem, and evaluate them w.r.t. the above criteria. Complexity of the algorithm and size of the learned machine are standard notions. Accuracy is standard in machine learning topics such as classification, but not in automata learning. Thus, we elaborate on this concept next.</p><p>There are more than one ways to measure the accuracy of a learned Moore machine M against a test set R test . We call an accuracy evaluation policy (AEP) any function that, given a Moore (I, O)-trace (ρ I , ρ O ) and a Moore machine M = (I, O, Q, q 0 , δ, λ), will return a real number in [0, 1]. We will call that number the accuracy of M on (ρ I , ρ O ). In this paper, we use three AEPs which we call strong, medium, and weak, defined below. Let (ρ</p><formula xml:id="formula_24">I , ρ O ) = (x 1 x 2 • • • x n , y 0 y 1 • • • y n ) and z 0 z 1 • • • z n = λ * (q 0 , ρ I ). -Strong: if λ * (q 0 , ρ I ) = ρ O then 1 else 0. -Medium: 1 n+1 • |{i | y 0 y 1 • • • y i = z 0 z 1 • • • z i }|. -Weak: 1 n+1 • |{i | y i = z i }|.</formula><p>The strong AEP says that the output of the learned machine M must be identical to the output in the test set. The medium AEP returns the proportion of the largest output prefix that matches. The weak AEP returns the number of output symbols that match. For example, if the correct output is 0012 and M returns 0022 then the strong accuracy is 0, the medium accuracy is 2  4 , and the weak accuracy is 3  4 . Ideally, we want the learned machine to achieve a high accuracy with respect to the strong AEP. However, the medium and weak AEPs are also useful, because they allow to distinguish, say, a machine which is "almost right" (i.e., outputs the right sequence except for a few symbols) from a machine which is always or almost always wrong.</p><p>Given an accuracy evaluation policy f and a test set R test , we define the accuracy of M on R test as the averaged accuracy of M over all traces in R test , i.e.,</p><formula xml:id="formula_25">(ρ I ,ρ O )∈Rtest f ((ρ I , ρ O ), M ) |R test | .</formula><p>It is often the case that the test set R test contains traces generated by a "black box", for which we are trying to learn a model. Suppose this black box corresponds to an unknown machine M ? . Then, ideally, we would like the learned machine M to be equivalent to M ? . In that case, no matter what test set is generated by M ? , the learned machine M will always achieve 100% accuracy. Of course, achieving this ideal depends on the training set: if the latter is "poor" then it does not contain enough information to identify the original machine M ? . A standard requirement in automata learning theory states that when the training set is a characteristic sample of M ? , then the learning algorithm should be able to produce a machine which is equivalent to M ? . We call this the characteristic sample requirement (CSR). CSR is important, as it ensures identification in the limit, a key concept in automata learning theory <ref type="bibr" target="#b17">[18]</ref>. In what follows, we show that among the algorithms that will be presented in §5.2, only MooreMI satisfies CSR.</p><p>Before proceeding, we remark that a given Moore (I, O)-trace</p><formula xml:id="formula_26">(ρ I , ρ O ) = (x 1 x 2 • • • x n , y 0 y 1 • • • y n ) can be represented as a set of n+1 Moore (I, O)-examples, specifically {( , y 0 ), (x 1 , y 1 ), (x 1 x 2 , y 2 ), • • •, (x 1 x 2 • • • x n , y n )}.</formula><p>Because of this observation, in all approaches discussed below, there is a preprocessing step to convert the training set, first into an equivalent set of Moore (I, O)-examples, and second, into an equivalent set of N pairs of positive and negative example sets (the latter conversion was described in §3.3).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2">Algorithms to solve the LMoMIO problem</head><p>The PTAP algorithm This algorithm is a rather straightforward one. The set of Moore (I, O)-examples obtained after the preprocessing step described above is used to construct a PTAP, as described in §3.3. Recall that a PTAP is a collection of N PTAs having the same state-transition structure. The synchronous product of these N PTAs is then formed, completed, and returned as the result of the algorithm. Note that a PTA is a special case of an NFA: the PTA is deterministic, but it is generally incomplete. The synchronous product of PTAs is therefore the same as the synchronous product of NFAs. The product of PTAs is deterministic, but also generally incomplete, and therefore needs to be completed in order to yield a complete DFA. Completion in this case consists in adding self-loops to states that are missing outgoing transitions for some input symbols. The added self-loops are labeled with the missing input symbols.</p><p>Although the PTAP algorithm is relatively easy to implement and runs efficiently, it has several drawbacks. First, since no state minimization is attempted, the resulting Moore machine can be unnecessarily large. Second, and most importantly, the produced machines generally have poor accuracy since completion is done in a trivial manner.</p><p>The PRPNI algorithm Again, consider the N pairs of positive and negative example sets obtained after the preprocessing step. The PRPNI algorithm starts by executing the RPNI DFA learning algorithm <ref type="bibr" target="#b38">[39]</ref> on each pair, thus obtaining N learned DFAs. Then, the synchronous product of these DFAs is formed, completed, and returned as the algorithm result. As in the case of the PTAP algorithm, the synchronous product of the DFAs in the PRPNI algorithm is deterministic but generally not complete.</p><p>The completion step of the PRPNI algorithm is more intricate than the completion step of the PTAP algorithm. The reason is that the synchronous product of the learned DFAs may contain reachable states whose bit encoding does not correspond to any valid output in O. For example, suppose O = {0, 1, 2}, so that we need 2 bits to encode it, and thus N = 2 and we use RPNI to learn 2 DFAs. Suppose the encoding is 0 → 00, 1 → 01, 2 → 10. This means that the code 11 does not correspond to any valid output in O. However, it can still be the case that in the product of the two DFAs there is a reachable state with the output 11, i.e., where both DFAs are in an accepting state. Note that this problem does not arise in the PTAP algorithm, because all PTAs there are guaranteed to have the same state-transition structure, which is also the structure of their synchronous product.</p><p>To solve this invalid-code problem, we assign all invalid codes to an arbitrary valid output. In our implementation, we use the lexicographic minimum. In the above example, the code 11 will be assigned to the output 0.</p><p>Compared to the PTAP algorithm, the PRPNI algorithm has the advantage of being able to learn a minimal Moore machine when provided with enough (I, O)-traces. However, it can also perform worse in terms of both running time and size (number of states) of the learned machine, due to potential state explosion while forming the DFA product. The PTAP algorithm does not have this problem because, as explained above, the structure, and therefore also the number of states, of the product is identical to those of the component PTAs.</p><p>The MooreMI algorithm As we saw above, both the PTAP and PRPNI algorithms have several drawbacks. In this section we propose a novel algorithm, called, MooreMI, which remedies these. Moreover, we shall prove that MooreMI satisfies CSR.</p><p>The MooreMI algorithm begins by building a PTAP represented as N PTAs, as in the PTAP algorithm. Then, a merging phase follows, where a merge operation is accepted only if all resulting DFAs are consistent with their respective negative example sets. In addition, a merge operation is either performed on all DFAs at once or not at all. Finally, the synchronous product of the N learned DFAs is formed, completed by adding self loops for any missing input symbols, as in the PTAP algorithm, and returned. The pseudocode of the algorithm is given below.</p><p>The main MooreMI procedure calls the merge function as a subroutine. merge computes the result of merging the given red and blue states of the given DFA component. It also performs additional potentially necessary state merges to preserve determinism. After the initial preprocessing step (line 6), the algorithm builds a prefix tree acceptor product (line 10) and then repeatedly attempts to merge states in it, in a specific order (line 16). While not appearing in the original RPNI algorithm, the convention of marking states as red or blue was introduced later in <ref type="bibr" target="#b30">[31]</ref>. States marked as red represent states that have been processed and will be part of the resulting machine. States marked as blue are immediate successors of red states and represent states that are currently being processed. Initially, the set of red states only contains the initial state q , and the set of blue states contains the one-letter successors of q (lines 13, 14). Unmarked states will eventually become blue (lines <ref type="bibr" target="#b37">38,</ref><ref type="bibr" target="#b42">43)</ref>, and then either merged with red ones (lines <ref type="bibr" target="#b26">27,</ref><ref type="bibr" target="#b35">36)</ref> or become red states themselves (line 42).</p><p>Most of the auxiliary functions whose implementations are not shown in the pseudocode have self explanatory names. For instance, the push and pop functions push and pop, respectively, elements to / from a stack, and the functions in lines 53, 54 compute the unique parent of and corresponding input symbol leading to the given blue state (uniqueness of both is guaranteed by the tree-shaped nature of the initial PTA). The function pick next, however, deserves some additional explanation. Notice first that after the prefix tree acceptor product is constructed and before the merging phase of the algorithm begins, each state can reached by a unique input word which is used to identify that state. For example, the state reached by the word abba is referred to as state q abba . The word used to identify a state may change during merging operations. The total order on words &lt; defined in §4.1 can now naturally be extended on states of the learned machine as follows: q u &lt; q v ⇐⇒ u &lt; v, in which case we say that q u is smaller than q v . The pick next function simply returns the smallest state of the blue set, according to the order we just defined.</p><p>MooreMI is able to learn minimal Moore machines, while avoiding the state explosion and invalid code issues of PRPNI. To see this, notice first that, at every point of the algorithm, the N learned DFAs are identical in terms of states and transitions, modulo the marking of their states as final. Indeed, this invariant holds by construction for the N initial prefix tree acceptors, and the additional merge constraints make sure it is maintained throughout the algorithm. Therefore, the product formed at the end of the algorithm can be obtained by simply "overlaying" the N DFAs on top of one another, as in the PTAP approach, which implies no state explosion. The absence of invalid output codes is also easy to see. Invalid codes generally are results of problematic state tuples in the DFA product, that cannot appear in MooreMI due to the additional merge constraints. Indeed, if a state tuple occurs in the final product, it must also occur in the initial prefix tree acceptor product, and if it occurs there, its code cannot be invalid.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.3">Properties of the algorithms</head><p>All three algorithms described above satisfy consistency w.r.t. the input training set. For PTAP and PRPNI, this is a direct consequence of the properties of PTAs, of the basic RPNI algorithm, and of the synchronous product. The proof for MooreMI is somewhat more involved, therefore the result for MooreMI is stated as a theorem: Theorem 1 (Consistency). The output of the MooreMI algorithm is a complete Moore machine, consistent with the training set. Formally, let S IO be the set of Moore (I, O)-traces used as input for the algorithm, and let M = (I, O, Q, q 0 , δ, λ) be the resulting Moore machine. Then, δ and λ are total functions and ∀ (ρ</p><formula xml:id="formula_27">I , ρ O ) ∈ S IO : λ * (q 0 , ρ I ) = ρ O .</formula><p>Proof. The fact that δ and λ are total is guaranteed by the final step of the algorithm (line 49). Consistency with the training set can be proved inductively. Let N denote the number of DFAs learned by the algorithm, which is equal to the number of bits required to represent an element of O. By definition, the Moore machine implicitly defined (by means of a synchronous product) by the N prefix tree acceptors initially built by the algorithm is consistent with the training set. Assume that, before a merge operation is performed, the Moore machine implicitly defined by the (possibly incomplete) DFAs learned so far is consistent with the training set. It suffices to show that the result of the next merge operation also has this property. Suppose it does not. This means that there exists a (ρ I , ρ O ) ∈ S IO , such that λ * (q 0 , ρ I ) = ρ O , which implies that in at least one of the learned DFAs, at least one state was added to the corresponding set of final states, while it should not have been (note that performing a merge operation on a DFA always yields a result accepting a superset of the language accepted prior to the merge). In other words, there is at least one learned DFA that is not consistent with its corresponding projection of the training set. However, due to the additional merge constraints that were introduced, this cannot happen, since all DFAs must be compatible with a merge in order for it to take place (line 29).</p><p>We now show that MooreMI satisfies the characteristic sample requirement, i.e., if it is fed with a characteristic sample for a machine M , then it learns a machine equivalent to M . If M is minimal then the learned machine will in fact be isomorphic to M . We first introduce some auxiliary definitions and notation, and make some observations which are important for the proof of the result.</p><p>Let M = (I, O, Q m , q 0 m , δ m , λ m ) be the minimal Moore machine from which we derive a characteristic sample, then given as input to the MooreMI algorithm. Let M A = (I, O, Q A , q , δ A , λ A ) be the machine produced by the algorithm. We will use plain Q and δ to denote the state set and possibly partial transition function of the learned machine in an intermediate step of the algorithm.</p><p>It can be seen in the pseudocode of the merge function (line 66) that when two states q u , q v are merged in order to preserve determinism, the input word used to identify the resulting state is min &lt; {u, v}, where &lt; is the total order defined in §4.1. When we say that q u is smaller than q v or q v bigger than q u , we will mean u = min &lt; {u, v}. We remark that when a blue state is merged with a red one, the latter is always smaller. This is a direct consequence of the tree-shaped nature of the initial prefix tree acceptor product, the fact that blue states are one-letter successors of red ones, and the specific order in which blue states are considered during the merging phase.</p><p>By saying that a state q u ∈ Q corresponds to a shortest prefix of M , we mean that u ∈ S P (M ). By saying that a state q v ∈ Q corresponds to an element in N L (M ), we mean that the state q v can be reached from q using an element in N L (M ).</p><p>red and blue refer to the sets of red and blue states, as in the pseudocode of MooreMI. Given a red state q u , we will use M erged(q u ) to denote the set of states that have been merged with / into q u .</p><p>In the following, we assume that the training set used as input to the MooreMI algorithm is a characteristic sample for a minimal Moore machine M .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Lemma 1.</head><p>(a) Each red state corresponds to an element of S P (M ) and as a consequence, to a state in M . (b) Each blue state corresponds to an element of N L (M ). (c) ∀q u ∈ red :</p><formula xml:id="formula_28">∀q v ∈ M erged(q u ) : δ * m (q 0 m , v) = δ * m (q 0 m , u).</formula><p>Proof. By induction. Initially, red = {q }, blue ⊆ {q a | a ∈ I}, and (a), (b), (c) all hold trivially. We assume they hold for the current sets of red, blue and unmarked states and will show they still hold after all possible operations performed by the algorithm:</p><p>(1) If a state q v ∈ blue is merged into a state q u ∈ red, then (a) trivially holds: The red state set remains the same, and the successors of q v are marked blue. Since they now are successors of a state corresponding to a shortest prefix (the red state q u ), they correspond to elements in the nucleus of M , so (b) holds too. Suppose now that (c) does not hold, i.e. it is δ * m (q 0 m , v) = δ * m (q 0 m , u). Since, by the induction hypothesis, u ∈ S P (M ) and q v corresponds to an element in N L (M ), by the characteristic sample definition, there exist (I, O)-traces that distinguish q v and q u and prohibit their merge. But q v and q u were successfully merged, therefore δ * m (q 0 m , v) = δ * m (q 0 m , u) and (c) holds.</p><p>(2) If a state q v ∈ blue is promoted to a red state, then it is distinct from all other red states. Moreover, since (i) the algorithm considers blue states in a specific order and (ii) whenever we perform a merge between two states q x and q y to preserve determinism the result is identified as q min&lt;(x,y) , q v is the smallest state distinct from the existing red states, therefore it corresponds to a shortest prefix. Its successors are now marked blue and since q v corresponds to a shortest prefix, they correspond to states in N L (M ). Also, since the newly promoted red state is a shortest prefix distinct from the previous ones, it corresponds to a unique, different state in M . The above imply that (a) and (b) hold. Moreover, (c) trivially holds too. (3) Regarding the additional state merges possibly required to maintain determinism after <ref type="bibr" target="#b0">(1)</ref>, they can occur between a red and a blue state, in which case the same as in <ref type="bibr" target="#b0">(1)</ref> hold, between a blue state and a state that is either blue or unmarked, in which case we have what we want by the induction hypothesis, and between two unmarked states, in which case we do not need to show anything. However, we should mention here that for every pair of states being merged to preserve determinism, the two states involved necessarily represent the same state in M . Suppose, without loss of generality that after merging states q u and q v as in (1), states q ua = δ * (q u , a) and q va = δ * (q v , a) need to also be merged to preserve determinism. If q ua and q va do not represent the same state in M , their minimum distinguishing suffix w = M D (q ua , q va ) exists. But then, a • w is a distinguishing suffix for q u and q v , which means that q u and q v represent different states in M . However, this cannot be, because, since by the induction hypothesis u ∈ S P (M ) and q v corresponds to an element in N L (M ), by the characteristic sample definition, if q u and q v were different states, (I, O)-traces prohibiting their merge would be present in the algorithm input. Therefore, q ua and q va represent the same state in M . The same argument can now be made if e.g. states q uab and q vab need to be merged to preserve determinism after q ua and q va are merged, and so on.</p><formula xml:id="formula_29">Lemma 2. |Q m | ≤ |Q A |.</formula><p>Proof. Suppose that |Q m | &gt; |Q A |, i.e. there exists q ∈ Q m such that there is no equivalent of q in Q A . However, by the definition of the characteristic sample, the shortest prefix of q appears in the algorithm input, and, according to Lemma 1, it must eventually form a red state on its own. Therefore, there is no such state as q, and |Q m | ≤ |Q A | holds.</p><p>Corollary 1. The previous lemmas imply the existence of a bijection f iso :</p><formula xml:id="formula_30">Q A → Q m such that f iso (q u ) = δ * m (q 0 m , u). Lemma 3. ∀q u ∈ Q A : λ A (q u ) = λ m (f iso (q u )).</formula><p>Proof. We have shown that q u ∈ Q A corresponds to a unique state in M , specifically δ * m (q 0 m , u). We have also shown that the algorithm is consistent with the training examples. This implies λ A (q u ) = λ m (δ * m (q 0 m , u)). Now, since, by definition, f iso (q u ) = δ * m (q 0 m , u), we have what we wanted.</p><formula xml:id="formula_31">Lemma 4. ∀q u ∈ Q A : ∀a ∈ I : δ m (f iso (q u ), a) = f iso (δ A (q u , a)). Proof. Let δ A (q u , a) = δ * A (q , u • a) = q v ∈ Q A . By definition, we have f iso (q u ) = δ * m (q 0 m , u) and f iso (q v ) = δ * m (q 0 m , v). In addition, δ * m (f iso (q u ), a) = δ m (δ * m (q 0 m , u), a) = δ * m (q 0 m , u•a). But δ * A (q , u•a) = q v = δ * A (q , v), therefore, from Lemma 1 (c) we have δ * m (q 0 m , u • a) = δ * m (q 0 m , v). Finally, δ m (f iso (q u ), a) = δ m (q 0 m , u • a) = δ m (q 0 m , v) = f iso (q v ) = f iso (δ A (q u ,</formula><p>a)), as we wanted.</p><p>Theorem 2 (Characteristic sample requirement). If the input to MooreMI is a characteristic sample of a minimal Moore machine M , then the algorithm returns a machine M A that is isomorphic to M . Proof. Follows from Corollary 1, Lemmas 3, 4 and the observation that f iso (q ) = q 0 m . The bijection f iso constitutes a witness isomorphism between M and M A .</p><p>Finally, we show that the MooreMI algorithm achieves identification in the limit.</p><p>Theorem 3 (Identification in the limit). Let M = (I, O, Q, q 0 , δ, λ) be a minimal Moore machine. Let (ρ 1 I , ρ 1 O ), (ρ 2 I , ρ 2 O ), • • • be an infinite sequence of (I, O)-traces generated from M , such that ∀ρ ∈ I * : ∃i : ρ = ρ i I (i.e., every input word appears at least once in the sequence). Then there exists index k such that for all n ≥ k, the MooreMI algorithm learns a machine equivalent to M when given as input the training set {(ρ</p><formula xml:id="formula_32">1 I , ρ 1 O ), (ρ 2 I , ρ 2 O ), • • • , (ρ n I , ρ n O )}. Proof. Let S n IO = {(ρ 1 I , ρ 1 O ), (ρ 2 I , ρ 2 O ), • • • , (ρ n I , ρ n O )}, for any index n.</formula><p>Since M is a minimal Moore machine, there exists at least one characteristic sample</p><formula xml:id="formula_33">S IO = {(r 1 I , r 1 O ), (r 2 I , r 2 O ), • • • , (r N I , r N O )} for it. By the hypothe- sis, ∀j ∈ {1, • • • , N } : ∃i j such that ρ ij I = r j I . Let then k = max j∈{1,•••,N } i j . It is easy to see now that S k IO = {(ρ 1 I , ρ 1 O ), (ρ 2 I , ρ 2 O ), • • • , (ρ k I , ρ k O )</formula><p>} is a characteristic sample (as a superset of S IO ). From the properties of characteristic samples it also follows that for any n ≥ k, S n IO is also a characteristic sample (since in that case S n IO ⊇ S k IO ). Finally, from Theorem 2, when MooreMI is given S n IO , for any n ≥ k, as input, it will output a Moore machine isomorphic, and therefore equivalent, to M .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.4">Performance optimizations</head><p>Compared to the pseudocode our implementation includes several optimizations. First, to limit the amount of copying involved in performing a merge operation, we perform the required state merges in-place, and at the same time record the actions needed to undo them in case the merge is not accepted.</p><p>Second, the merge function needs to know the unique (due to the tree-shaped nature of PTAs) parent of the blue state passed to it as an argument. The naive way of doing this, simply iterating over the states until we reach the parent, can seriously harm performance. Instead, in our implementation, we build during PTA construction, and maintain throughout the algorithm, a mapping of states to their parents, and consult this when needed.</p><p>Third, in the negative examples consistency test, many of the acceptance checks involved are redundant. For example, suppose that starting from the initial state it is only possible to reach red states (i.e. not blue or unmarked ones) within n steps (transitions). Then, there is no need to include negative examples of length less than n in the consistency test. Our implementation optimizes such cases by integrating the consistency test with the merge operation. In particular, we construct the initial PTAs based not only on positive but also on negative examples, and mark states not only as accepting but also as rejecting when appropriate, as described in <ref type="bibr" target="#b13">[14]</ref>. Then, during the merge operation, if an attempt to merge an accepting state with a rejecting one occurs, the merge is rejected.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.5">Complexity analysis</head><p>In order to build a prefix tree acceptor we need to consider all prefixes of words in the set of positive examples S + . This yields a complexity of O( w∈S+ |w|), where |w| indicates the length of the word w. A prefix tree acceptor product is represented by N prefix tree acceptors that have the same state-transition structure, where N is the number of bits required to represent an output letter. Therefore, constructing a prefix tree acceptor product having 2 N -1 &lt; |O| ≤ 2 N distinct output symbols, requires O(N • w∈S all + |w|) work, where S all + denotes the union of the N positive example sets, S i+ (we need to consider all for each PTA, because we want the PTAs to have the same state-transition structure).</p><p>During the main loop of the basic RPNI algorithm, at most |Q P T A | 2 merge operations are attempted, where Q P T A denotes the set of states in the PTA. Each merge operation (including all additional state merges required to maintain determinism) requires O(|Q P T A |) work. After every merge operation, a compatibility check is performed to determine whether it should be accepted or not, requiring O( w∈S-|w|) work. Bearing in mind that |Q P T A | is bounded by w∈S+ |w|, all this amounts for a total work in the order of O(( w∈S+ |w|) 2 • ( w∈S+ |w| + w∈S-|w|)).</p><p>In the PRPNI algorithm, the basic RPNI loop is repeated N times in sequence, which amounts for a total complexity of O(  The table also shows that PTAP and PRPNI generate much larger machines than the correct ones. This in turn explains why MooreMI performs better in terms of running time than the other two algorithms, which spend a lot of time completing the large number of generated states.</p><p>6.2 Comparison with OSTIA q 0 q 1 q 2 a/ , b/ a/02 a/0 b/220 b/0122 OSTIA <ref type="bibr" target="#b39">[40]</ref> is a well-known algorithm that learns onward subsequential transducers, a class of transducers more general than Moore and Mealy machines. Then, a question arising naturally is whether it is possible to use OSTIA for learning Moore machines. In particular, we would like to know what happens when the input to OSTIA is a set of Moore (I,O)-traces: will OSTIA learn a Moore machine?</p><p>The answer here is negative, as indicated by an experiment we performed. We constructed a characteristic sample for the Moore machine in Figure <ref type="figure" target="#fig_5">5a</ref> and ran the OSTIA algorithm on it (we used the open source implementation described in <ref type="bibr" target="#b2">[3]</ref>). The resulting machine is depicted in Figure <ref type="figure" target="#fig_9">6</ref>. Notice that there are transitions whose corresponding outputs are words of length more than 1 (e.g., transition label b/0122), or even the empty word (output of initial state q 0 ). We conclude that in general OSTIA cannot learn Moore machines, even when the training set is a set of Moore traces, and is also a characteristic sample.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7">Conclusion &amp; Future Work</head><p>We formalized the problem of learning Moore machines for input-output traces and developed three algorithms to solve this problem. We showed that the most advanced of these algorithms, MooreMI, has desirable theoretical properties: in particular it satisfies the characteristic sample requirement and achieves identification in the limit. We also compared the algorithms experimentally and showed that MooreMI is also superior in practice.</p><p>Future work includes: (1) studying learning for Mealy and other types of state machines; (2) developing incremental versions of the learning algorithms presented here; (3) further implementation and experimentation; and (4) application of the methods presented here for learning models of various types of black-box systems.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><figDesc>b) Mealy machine M2 on input-output sets I = {x1, x2} and O = {y1, y2}.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Fig. 1 :</head><label>1</label><figDesc>Fig. 1: Examples of finite state machines.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Fig. 2 :</head><label>2</label><figDesc>Fig. 2: Examples of finite state automata.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><figDesc>Target minimal Moore machine.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><figDesc>Moore machine learned by our MooreMI algorithm if we use a set of traces that does not satisfy Condition 2 of Definition 1.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Fig. 5 :</head><label>5</label><figDesc>Fig. 5: Example illustrating the need for Condition 2 of Definition 1.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><head>1 6 : 8 N 40 ∩if q 2 ∈</head><label>68402</label><figDesc>def MooreMI ( trace set , Σ I , Σ O ): = preprocess moore traces(trace set ) 7 := ceil( log 2 ( | Σ O | ) ) 9 10 DFA list := build pref ix tree acceptor product( 11 list of pos example sets , Σ I , Σ O ) 12 13 red = { q } 14 blue = { q a for a in Σ I } ∩ DFA list [0].Q 15 16 while blue = ∅: 17 18 q blue = pick next(blue) 19 blue := blue -{q blue} 20 21 merge accepted := false 22 23 for q red ∈ red: 24 25 for i ∈ {0, ... , N -1}: 26 new DFA list [i] := 27 merge(DFA list [i], q red , q blue ) 28 29 if ∀ i ∈ {0, ... , Nblue ∪ ( { one-letter 39 successors of red states } DFA list [0].Q ) DFA.F : 73 DFA.F := DFA.F ∪ {q 1} 74 75 for a ∈ DFA.Σ : 76 if is def ined(DFA.δ(q 2 , a)): 77 if is def ined(DFA.δ(q 1 , a)</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head>N i=1 (</head><label>i=1</label><figDesc>w∈Si+ |w|) 2 • ( w∈Si+ |w| + w∈Si-|w|)). In the MooreMI approach, N DFAs are learned in parallel, and the total work done is O(N • ( w∈S all + |w|) 2 • ( w∈S all + |w| + w∈S all -|w|)), where S all -, similarly to S all + , denotes the union of the N negative example sets, S i-. Note here that since the sets S i+ (resp. S i-) are not disjoint in general, w∈S all + |w| (resp. w∈S all -|w|) is bounded byN i=1 w∈Si+ |w| (resp. N i=1 w∈Si-|w|). Forming the DFA product to obtain a Moore machine requires O(N • |Q P T A |) work for the PTAP and MooreMI algorithms, but O(N • N i=1 |Q i P T A |) work for the PRPNI approach. Similarly, completing the resulting Moore ma-</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_9"><head>Fig. 6 :</head><label>6</label><figDesc>Fig. 6: The transducer learned by OSTIA given a characteristic sample for the Moore machine in Figure 5a as input.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 1 :</head><label>1</label><figDesc>50 (resp. 150) states tab: average training set size: 1305 (resp. 4540), average input word length in training set: 3.5 (resp. 4).But as it can be seen from the table, neither PTAP nor PRPNI learn the correct machines, even though the training set is a characteristic sample.</figDesc><table><row><cell></cell><cell></cell><cell>50 states</cell><cell></cell><cell></cell><cell cols="2">150 states</cell><cell></cell></row><row><cell cols="2">Algo Time States</cell><cell cols="3">Accuracy (%) Strong Medium Weak</cell><cell>Time States</cell><cell cols="3">Accuracy (%) Strong Medium Weak</cell></row><row><cell cols="2">1 0.973 2113</cell><cell>0</cell><cell cols="3">32.44 35.39 8.329 7135</cell><cell>0</cell><cell cols="2">28.28 31.13</cell></row><row><cell cols="2">2 12.753 8925</cell><cell>0</cell><cell cols="4">33.82 36.57 60 Timeout -</cell><cell>-</cell><cell>-</cell></row><row><cell>3 0.348</cell><cell>50</cell><cell>100</cell><cell>100</cell><cell cols="2">100 2.545 150</cell><cell>100</cell><cell>100</cell><cell>100</cell></row><row><cell>set).</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell></row></table></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="3" xml:id="foot_0"><p>The term smallest automaton is used in the exact identification problem, instead of the more well-known term minimal automaton. Among equivalent machines, one with the fewest states is called minimal. Among machines which are all consistent with a set of traces but not necessarily equivalent, one with the fewest states is called smallest.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="4" xml:id="foot_1"><p>We have implemented the k-tails algorithm and applied it on the characteristic sample for the Moore machine in Figure</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_2"><p>5a, described in Section 4.1. Using k = 0, we get a non-deterministic machine of 3 states. Using any k &gt; 0, we get a deterministic machine of 8 states. This excessive number of states is due to the way the k-tails equivalence relation is defined. In particular, in order for two input words to be considered equivalent, they must have successors in the training set with the same letters. This implies that a word with no successors in the training set can never be equivalent with a word with some successors, even if both words represent the same state in the target machine.</p></note>
+		</body>
+		<back>
+
+			<div type="funding">
+<div><p>This work was partially supported by the <rs type="funder">Academy of Finland</rs> and the <rs type="funder">U.S. National Science Foundation</rs> (awards #<rs type="grantNumber">1329759</rs> and #<rs type="grantNumber">1139138</rs>).</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_zPkHX8b">
+					<idno type="grant-number">1329759</idno>
+				</org>
+				<org type="funding" xml:id="_kpbvdpk">
+					<idno type="grant-number">1139138</idno>
+				</org>
+			</listOrg>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"> <ref type="bibr">46 47</ref> <p>return product( <ref type="formula">48</ref>DFA list , 49 bits to output func ).make complete() 50 51 def merge(DFA , q red , q blue ):</p><p>52 53 q u := unique parent of ( q blue ) 54 a u := unique input f rom to(q u , q blue ) 55 56 DFA.δ( q u , a u ) := q red 57 58 merge stack := [( q red , q blue )] 59 60 while merge stack = []: 61 62 ( q 1 , q 2 ) := pop(merge stack ) 63 64</p><p>if q 1 = q 2 : continue 65 66 if ( q 1 , q 2 ) = ( q red , q blue ) 67 and q 2 &lt; q 1 : 68 q 1 , q 2 := q 2 , q 1 69 70 Note that the above hold in the case we do not apply the final performance optimization. If we do, the terms corresponding to consistency checks ( w∈Si-|w|, w∈S all -|w|) are removed, and, since the prefix tree acceptors are now built using both positive and negative examples, S + and S all + are replaced by S + ∪S -and S all + ∪S all -, respectively. Summarizing the above, let I and O be the input and output alphabets, and let S IO be the set of Moore (I, O)-traces provided as input to the learning algorithms. Let N = log 2 (|O|) be the number of bits required to encode the symbols in O. Let S 1+ , S 1-, ..., S N + , S N -be the positive and negative example sets obtained by the preprocessing step at the beginning of each algorithm. Let</p><p>The time required for the preprocessing step is O(N • k), and is the same for all three algorithms. The time required for the rest of the phases of each algorithm is</p><p>for MooreMI. It can be seen that the complexity of MooreMI is no more than logarithmic in the number of output symbols, linear in the number of inputs, and cubic in the total length of training traces. This polynomial complexity does not contradict Gold's NP-hardness result <ref type="bibr" target="#b18">[19]</ref>, since the problem we solve is not the exact identification problem (c.f. also Section 2).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">Implementation &amp; Experiments</head><p>All three algorithms presented in §5.2 have been implemented in Python. The source code, including random Moore machine and characteristic sample generation, learning algorithms and testing, spans roughly 2000 lines of code. The code and experiments are available upon request.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.1">Experimental comparison</head><p>We randomly generated several minimal Moore machines of sizes 50 and 150 states, and input and alphabet sizes |I| = |O| = 25 . 5 From each such machine, we generated a characteristic sample, and ran each of the three algorithms on this characteristic sample, i.e., using it as the training set. Then we took the learned machines generated by the algorithms, and evaluated these machines in terms of size (# states) and accuracy. For accuracy, we used a test set of size double the size of the training set. The length of words in the test set was double the maximum training word length.</p><p>The results are shown in Table <ref type="table">1</ref>. "Algo 1,2,3" refers to PTAP, PRPNI, and MooreMI, respectively. "Time" refers to the average execution time of the learning algorithm, in seconds. "States" refers to the average number of states of the learned machines. For accuracy, we used the three AEPs, Strong, Medium, and Weak, defined in §5.1. The table is split into two tabs according to the size of the original machines mentioned above. Each row represents the average performance of an algorithm over training sets generated by 5 different Moore machines. The only exception is row 2 of the 50 states tab, where one of the 5 experiments timed out and the reported averages are over 4 experiments. "Timeout" means that the algorithm was unable to terminate within the given time limit (60 seconds) in any of the 5 experiments with 150 states. 6  As expected, MooreMI always achieves 100% accuracy, since the input is a characteristic sample (we verified that indeed the machines learned by MooreMI are in each case equivalent to the original machine that produced the training 5 The random generation procedure takes as inputs a random seed, the number of states, and the sizes of the input and output alphabets of the machine. Two intermediate steps are worth mentioning: (1) After assigning a random output to each state, we fix a random permutation of states and assign the i-th output to the i-th state. This ensures that all output symbols appear in the machine. (2) After assigning random landing states to each (state, letter) pair, we fix a random permutation of states that begins with the initial state, and add transitions with random letters from the i-th to the (i + 1)-th state. This ensures that all states in the machine are reachable. Finally, a minimization algorithm is employed to make sure the generated machine is indeed minimal. 6 Note, however, that our algorithms perform better in terms of execution time than approaches that solve exact identification problems. For example, <ref type="bibr" target="#b46">[47]</ref> report experiments where learning a Mealy machine of 18 states requires more than 29 hours. The majority of the execution time here is spent in proving that there exists no machine with fewer than 18 states which is also consistent with the examples. Since we don't require the smallest machine, our algorithms avoid this penalty.</p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Learning Register Automata with Fresh Value Generation</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Aarts</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Fiterau-Brostean</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Kuppens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">W</forename><surname>Vaandrager</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Theoretical Aspects of Computing -ICTAC</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="volume">9399</biblScope>
+			<biblScope unit="page" from="165" to="183" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Learning I/O Automata</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Aarts</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Vaandrager</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">CONCUR</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2010">2010</date>
+			<biblScope unit="page" from="71" to="85" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Grammatical inference algorithms in matlab</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">I</forename><surname>Akram</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>De La Higuera</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Xiao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Eckert</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICGI&apos;10, Proceedings</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2010">2010</date>
+			<biblScope unit="page" from="262" to="266" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">The use of evolutionary programming based on training examples for the generation of finite state machines for controlling objects with complex behavior</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">V</forename><surname>Aleksandrov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">V</forename><surname>Kazakov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">A</forename><surname>Sergushichev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">N</forename><surname>Tsarev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">A</forename><surname>Shalyto</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Comput. Sys. Sc. Int</title>
+		<imprint>
+			<biblScope unit="volume">52</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="410" to="425" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Synthesizing Finite-state Protocols from Scenarios and Requirements</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Alur</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Martin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Raghothaman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Stergiou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Tripakis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Udupa</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">HVC</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="volume">8855</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Mining specifications</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Ammons</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Bodík</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">R</forename><surname>Larus</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 29th ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages, POPL &apos;02</title>
+		<meeting>the 29th ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages, POPL &apos;02<address><addrLine>New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2002">2002</date>
+			<biblScope unit="page" from="4" to="16" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Learning regular sets from queries and counterexamples</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Angluin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Inf. Comput</title>
+		<imprint>
+			<biblScope unit="volume">75</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="87" to="106" />
+			<date type="published" when="1987">1987</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">On the correspondence between conformance testing and regular inference</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Berg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Grinchtein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Jonsson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Leucker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Raffelt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Steffen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Fundamental Approaches to Software Engineering, 8th International Conference, FASE 2005, Held as Part of the Joint European Conferences on Theory and Practice of Software, ETAPS 2005</title>
+		<title level="s">Lecture Notes in Computer Science</title>
+		<editor>
+			<persName><forename type="first">M</forename><surname>Cerioli</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Edinburgh, UK</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2005">April 4-8, 2005. 2005</date>
+			<biblScope unit="volume">3442</biblScope>
+			<biblScope unit="page" from="175" to="189" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">On the synthesis of finite-state machines from samples of their behavior</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">W</forename><surname>Biermann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">A</forename><surname>Feldman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Comput</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="592" to="597" />
+			<date type="published" when="1972-06">June 1972</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Inducing finite state machines from training samples using ant colony optimization</title>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">P</forename><surname>Buzhinsky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">I</forename><surname>Ulyantsev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">S</forename><surname>Chivilikhin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">A</forename><surname>Shalyto</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Comput. Sys. Sc. Int</title>
+		<imprint>
+			<biblScope unit="volume">53</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="256" to="266" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Learning Extended Finite State Machines</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Cassel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Howar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Jonsson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Steffen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">SEFM 2014, Proceedings</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="250" to="264" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Testing software design modeled by finite-state machines</title>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">S</forename><surname>Chow</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Softw. Eng</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="178" to="187" />
+			<date type="published" when="1978-05">May 1978</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Linear invariant generation using non-linear constraint solving</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A</forename><surname>Colón</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Sankaranarayanan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">B</forename><surname>Sipma</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Computer Aided Verification, CAV</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2003">2003</date>
+			<biblScope unit="page" from="420" to="432" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<title level="m" type="main">ICGI-98, Proceedings, chapter How considering incompatible state mergings may reduce the DFA induction search tree</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Coste</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Nicolas</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1998">1998</date>
+			<publisher>Springer</publisher>
+			<biblScope unit="page" from="199" to="210" />
+			<pubPlace>Berlin Heidelberg; Berlin, Heidelberg</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Grammatical Inference: Learning Automata and Grammars</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>De La Higuera</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">CUP</title>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Fsm-based conformance testing methods: A survey annotated with experimental evaluation</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Dorofeeva</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>El-Fakih</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Maag</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">R</forename><surname>Cavalli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Yevtushenko</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Inf. Softw. Technol</title>
+		<imprint>
+			<biblScope unit="volume">52</biblScope>
+			<biblScope unit="issue">12</biblScope>
+			<biblScope unit="page" from="1286" to="1297" />
+			<date type="published" when="2010-12">Dec. 2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Incremental regular inference</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Dupont</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICGI-96, Proceedings</title>
+		<imprint>
+			<date type="published" when="1996">1996</date>
+			<biblScope unit="page" from="222" to="237" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Language identification in the limit</title>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">M</forename><surname>Gold</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Information and Control</title>
+		<imprint>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="447" to="474" />
+			<date type="published" when="1967">1967</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Complexity of automaton identification from given data</title>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">M</forename><surname>Gold</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Information and Control</title>
+		<imprint>
+			<biblScope unit="volume">37</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="302" to="320" />
+			<date type="published" when="1978">1978</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Learning Finite-State Machines from Inexperienced Teachers</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Grinchtein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Leucker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">;</forename><forename type="middle">S</forename><surname>Kobayashi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Sato</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Nishino</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Tomita</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Grammatical Inference: Algorithms and Applications, 8th International Colloquium, ICGI 2006</title>
+		<title level="s">Lecture Notes in Computer Science</title>
+		<editor>
+			<persName><forename type="first">Y</forename><surname>Sakakibara</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Tokyo, Japan</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2006">September 20-22, 2006. 2006</date>
+			<biblScope unit="volume">4201</biblScope>
+			<biblScope unit="page" from="344" to="345" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Automating string processing in spreadsheets using input-output examples</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Gulwani</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">38th POPL</title>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+			<biblScope unit="page" from="317" to="330" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Program analysis as constraint solving</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Gulwani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Srivastava</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Venkatesan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 29th ACM SIGPLAN Conference on Programming Language Design and Implementation, PLDI &apos;08</title>
+		<meeting>the 29th ACM SIGPLAN Conference on Programming Language Design and Implementation, PLDI &apos;08<address><addrLine>New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2008">2008</date>
+			<biblScope unit="page" from="281" to="292" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Invgen: An efficient invariant generator</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gupta</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Rybalchenko</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Computer Aided Verification, CAV</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2009">2009</date>
+			<biblScope unit="page" from="634" to="640" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Building high assurance human-centric decision systems</title>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">L</forename><surname>Heitmeyer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Pickett</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">I</forename><surname>Leonard</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">M</forename><surname>Archer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Ray</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">W</forename><surname>Aha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">G</forename><surname>Trafton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Automated Software Engineering</title>
+		<imprint>
+			<biblScope unit="volume">22</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="159" to="197" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Software model synthesis using satisfiability solvers</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">J</forename><surname>Heule</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Verwer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Empirical Softw. Engg</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="825" to="856" />
+			<date type="published" when="2013-08">Aug. 2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Inferring Canonical Register Automata</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Howar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Steffen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Jonsson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Cassel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">VMCAI 2012, Proceedings</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="251" to="266" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Mining requirements from closed-loop control models</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Jin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Donz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">V</forename><surname>Deshmukh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">A</forename><surname>Seshia</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<biblScope unit="volume">34</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<biblScope unit="page" from="1704" to="1717" />
+			<date type="published" when="2015-11">Nov 2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Learning of Automata Models Extended with Data</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Jonsson</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">SFM 2011, Advanced Lectures</title>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+			<biblScope unit="page" from="327" to="349" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">ABCD-NL: Approximating continuous non-linear dynamical systems using purely boolean models for analog/mixed-signal verification</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">V</forename><surname>Karthik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ray</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Nuzzo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mishchenko</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Brayton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Roychowdhury</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ASP-DAC</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="250" to="255" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<monogr>
+		<title level="m" type="main">Switching and finite automata theory, 2nd ed</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Kohavi</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1978">1978</date>
+			<publisher>McGraw-Hill</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Results of the abbadingo one DFA learning competition and a new evidencedriven state merging algorithm</title>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">J</forename><surname>Lang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">A</forename><surname>Pearlmutter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">A</forename><surname>Price</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICGI-98, Proceedings</title>
+		<imprint>
+			<date type="published" when="1998">1998</date>
+			<biblScope unit="page" from="1" to="12" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Principles and methods of testing finite state machines-a survey</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Yannakakis</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the IEEE</title>
+		<imprint>
+			<biblScope unit="volume">84</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="1090" to="1123" />
+			<date type="published" when="1996-08">Aug 1996</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">General ltl specification mining (t)</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Lemieux</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Park</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Beschastnikh</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Automated Software Engineering (ASE), 2015 30th IEEE/ACM International Conference on</title>
+		<imprint>
+			<date type="published" when="2015-11">Nov 2015</date>
+			<biblScope unit="page" from="81" to="92" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Learning Minimal Deterministic Automata from Inexperienced Teachers</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Leucker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Neider</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Leveraging Applications of Formal Methods, Verification and Validation. Technologies for Mastering Change -5th International Symposium</title>
+		<title level="s">Lecture Notes in Computer Science</title>
+		<editor>
+			<persName><forename type="first">T</forename><surname>Margaria</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">B</forename><surname>Steffen</surname></persName>
+		</editor>
+		<meeting><address><addrLine>ISoLA; Heraklion, Crete, Greece</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2012-10-15">2012. October 15-18, 2012. 2012</date>
+			<biblScope unit="volume">7609</biblScope>
+			<biblScope unit="page" from="524" to="538" />
+		</imprint>
+	</monogr>
+	<note>Proceedings, Part I</note>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<monogr>
+		<author>
+			<persName><forename type="first">L</forename><surname>Ljung</surname></persName>
+		</author>
+		<title level="m">System Identification</title>
+		<imprint>
+			<publisher>Prentice Hall</publisher>
+			<date type="published" when="1999">1999</date>
+		</imprint>
+	</monogr>
+	<note>nd Ed Theory for the User</note>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">A framework for mining hybrid automata from input/output traces</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Medhat</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ramesh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Bonakdarpour</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Fischmeister</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Embedded Software (EMSOFT)</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="page" from="177" to="186" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<analytic>
+		<title level="a" type="main">CGE: A sequential learning algorithm for mealy automata</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Meinke</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Grammatical Inference: Theoretical Results and Applications, 10th International Colloquium, ICGI 2010</title>
+		<title level="s">Lecture Notes in Computer Science</title>
+		<editor>
+			<persName><forename type="first">J</forename><forename type="middle">M</forename><surname>Sempere</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">P</forename><surname>García</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Valencia, Spain</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2010">September 13-16, 2010. 2010</date>
+			<biblScope unit="volume">6339</biblScope>
+			<biblScope unit="page" from="148" to="162" />
+		</imprint>
+	</monogr>
+	<note>Proceedings</note>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<monogr>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">M</forename><surname>Mitchell</surname></persName>
+		</author>
+		<title level="m">Machine Learning</title>
+		<imprint>
+			<publisher>McGraw-Hill</publisher>
+			<date type="published" when="1997">1997</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<analytic>
+		<title level="a" type="main">Identifying regular languages in polynomial time</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Oncina</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Garcia</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Structural and Syntactic Pattern Recognition</title>
+		<imprint>
+			<date type="published" when="1992">1992</date>
+			<biblScope unit="page" from="99" to="108" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">Learning subsequential transducers for pattern recognition interpretation tasks</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Oncina</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>García</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Vidal</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Pattern Anal. Mach. Intell</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="448" to="458" />
+			<date type="published" when="1993">1993</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<analytic>
+		<title level="a" type="main">A large scale study of programming languages and code quality in github</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Ray</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Posnett</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Filkov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Devanbu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM SIGSOFT, FSE &apos;14</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title level="a" type="main">Sciduction: Combining induction, deduction, and structure for verification and synthesis</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">A</forename><surname>Seshia</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">DAC</title>
+		<imprint>
+			<date type="published" when="2012-06">June 2012</date>
+			<biblScope unit="page" from="356" to="365" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b42">
+	<analytic>
+		<title level="a" type="main">Inferring Mealy Machines</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Shahbaz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Groz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">FM 2009</title>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+			<biblScope unit="page" from="207" to="222" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b43">
+	<analytic>
+		<title/>
+	</analytic>
+	<monogr>
+		<title level="j">A. Solar-Lezama. Program sketching. STTT</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="issue">5-6</biblScope>
+			<biblScope unit="page" from="475" to="495" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b44">
+	<analytic>
+		<title level="a" type="main">An approach to inference of finite state machines based on gravitationally-inspired search algorithm</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Spichakova</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Proc. of Estonian Acad. of Sci</title>
+		<imprint>
+			<biblScope unit="volume">62</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="39" to="46" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b45">
+	<analytic>
+		<title level="a" type="main">A polynomial time algorithm to infer sequential machines</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Takahashi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Fujiyoshi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Kasai</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Systems and Computers in Japan</title>
+		<imprint>
+			<biblScope unit="volume">34</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="59" to="67" />
+			<date type="published" when="2003">2003</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b46">
+	<monogr>
+		<title level="m" type="main">Exact finite-state machine identification from scenarios and temporal properties</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Ulyantsev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Buzhinsky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Shalyto</surname></persName>
+		</author>
+		<idno>CoRR, abs/1601.06945</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b47">
+	<analytic>
+		<title level="a" type="main">BFS-based symmetry breaking predicates for DFA identification</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Ulyantsev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Zakirzyanov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Shalyto</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Language and Automata Theory and Applications (LATA)</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="volume">8977</biblScope>
+			<biblScope unit="page" from="611" to="622" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b48">
+	<analytic>
+		<title level="a" type="main">Inference of sequential machines from sample computations</title>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">P J</forename><surname>Veelenturf</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Computers</title>
+		<imprint>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="167" to="170" />
+			<date type="published" when="1978">1978</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

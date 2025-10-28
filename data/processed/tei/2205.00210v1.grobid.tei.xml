@@ -1,0 +1,838 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Software Testing for Machine Learning</title>
+				<funder ref="#_CPFTuaY">
+					<orgName type="full">Research Council of Norway</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2022-04-30">30 Apr 2022</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Dusica</forename><surname>Marijan</surname></persName>
+							<email>dusica@simula.no</email>
+							<affiliation key="aff0">
+								<orgName type="laboratory">Simula Research Laboratory</orgName>
+								<address>
+									<country key="NO">Norway</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Arnaud</forename><surname>Gotlieb</surname></persName>
+							<email>arnaud@simula.no</email>
+							<affiliation key="aff0">
+								<orgName type="laboratory">Simula Research Laboratory</orgName>
+								<address>
+									<country key="NO">Norway</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Software Testing for Machine Learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2022-04-30">30 Apr 2022</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">95C16BC2C4E898E06C464CEFDC7D36F8</idno>
+					<idno type="arXiv">arXiv:2205.00210v1[cs.SE]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Machine learning has become prevalent across a wide variety of applications. Unfortunately, machine learning has also shown to be susceptible to deception, leading to errors, and even fatal failures. This circumstance calls into question the widespread use of machine learning, especially in safety-critical applications, unless we are able to assure its correctness and trustworthiness properties. Software verification and testing are established technique for assuring such properties, for example by detecting errors. However, software testing challenges for machine learning are vast and profuse -yet critical to address. This summary talk discusses the current state-of-the-art of software testing for machine learning. More specifically, it discusses six key challenge areas for software testing of machine learning systems, examines current approaches to these challenges and highlights their limitations. The paper provides a research agenda with elaborated directions for making progress toward advancing the state-of-the-art on testing of machine learning.</p><p>Index termstesting challenges, machine learning, machine learning testing, testing ML, testing AI</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Applications of machine learning (ML) technology have become vital in many innovative domains. At the same time, the vulnerability of ML has become evident, sometimes leading to catastrophic failures<ref type="foot" target="#foot_0">foot_0</ref> . This entails that comprehensive testing of ML needs to be performed, to ensure the correctness and trustworthiness of ML-enabled systems.</p><p>Software testing of ML systems is susceptible to a number of challenges compared to testing of traditional software systems. In this paper, by traditional systems we mean software systems not integrating ML, and by ML systems we mean software systems containing ML-trained components (e.g self-driving cars, autonomous ships, or space exploration robots). As an example, one such challenge of testing ML systems stems from non-determinism intrinsic to ML. Traditional systems are typically pre-programmed and execute a set of rules, while ML systems reason in a probabilistic manner and exhibit non-deterministic behavior. This means that for constant test inputs and preconditions, an ML-trained software component can produce different outputs in consecutive runs. Researchers have tried using testing techniques from traditional software development <ref type="bibr" target="#b10">(Hutchison et al. 2018)</ref>, to deal with some of these challenges. However, it has been observed that traditional testing approaches in general fail to adequately address fundamental challenges of testing ML (Helle and Schamai 2016), and that these traditional approaches require adaptation to the new context of ML. The better we understand current research challenges of testing ML, the more successful we can be in developing novel techniques that effectively address these challenges and advance this scientific field.</p><p>In this paper, we: i) identify and discuss the most challenging areas in software testing for ML, ii) synthesize the most promising approaches to these challenges, iii) spotlight their limitations, and iv) make recommendations of further research efforts on software testing of ML. We note that the aim of the paper is not to exhaustively list all published work, but distill the most representative work.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Testing ML</head><p>As ML technologies become more pervasive enabling autonomous system functionality, it is more and more important to assure the quality of autonomous reasoning supported by ML. Testing is such a quality assurance activity that aims (in a broad sense) to determine the correctness of the systemunder-test, for example, by checking whether the system responds correctly to inputs, and to identify faults which may lead to failures. Interpreting "Testing ML": Two distinct communities have been studying the concept of testing ML, the ML scientific community (MLC) and the software testing community (STC). However, as the two communities study ML algorithms from different perspectives, they interpret the term testing ML differently, and we think it is worth noting the distinction. In MLC, testing an ML model is performed to estimate its prediction accuracy and improve its prediction performance. Testing happens during model creation, using validation and test datasets, to evaluate the model fit on the training dataset. In STC, testing an ML system has a more general scope aiming to evaluate the system behav-ior for a range of quality attributes. For example, in case of integration or system level testing, an ML component is tested in interaction with other system components for functional and non-functional requirements, such as correctness, robustness, reliability, or efficiency.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Challenges of Testing ML</head><p>Challenges of testing ML stem from the innate complexity of the underlying stochastic reasoning. Unlike traditional systems, for which the code is built deductively, ML systems are generated inductively. The logic defining system behavior is inferred from training data. Consequently, a fault could originate not only from a faulty software code, but also errors in training data. However, existing approaches often assume that high quality datasets are warranted, without applying systematic quality evaluation. Furthermore, ML systems require advanced reasoning and learning capabilities that can give answers in conditions where the correct answers are previously unknown <ref type="bibr" target="#b16">(Murphy, Kaiser, and Arias 2007)</ref>. Even though this may be the case for traditional systems, ML systems have inherent non-determinism which makes them constantly change behavior as more data becomes available, unlike traditional systems <ref type="bibr" target="#b14">(Marijan, Gotlieb, and Kumar Ahuja 2019)</ref>. Furthermore, for a system containing multiple ML models, the models will affect each other's training and tuning, potentially causing non-monotonic error propagation <ref type="bibr" target="#b0">(Amershi, Begel, and Bird 2019)</ref>.</p><p>We elaborate further challenges of testing ML in the following sections. Specifically, we identify six key challenge areas and discuss their implications. We synthesize existing work pertaining to these challenges and provide its structured presentation corresponding to the identified challenges.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Missing Test Oracles</head><p>Unlike traditional systems which operate pre-programmed deterministic instructions, ML systems operate based on stochastic reasoning. Such stochastic or probability-based reasoning introduces uncertainty in the system response, which gives rise to non-deterministic behavior, including unpredictable or underspecified behavior. Due to nondeterminism, ML systems can change behavior as they learn over time. The implications for testing are that system outputs can change over time for the same test inputs. This fact largely complicates test case specification.</p><p>Test cases are typically specified with specific inputs to the system under test and expected outputs for these inputs, known as test oracles. However, due to stochastic reasoning, the output of an ML system cannot be specified in advance, rather it is learned and predicted by an ML model. This means that ML systems do not have defined expected values against which actual values can be compared in testing. Thus, the correctness of the output in testing ML cannot be easily determined. While this problem has been known for traditional systems, called "non-testable" systems <ref type="bibr" target="#b27">(Weyuker 1982)</ref>, ML systems have non-determinism as part of their design, making the oracle problem even more challenging.</p><p>An approach that has been considered for non-testable systems are pseudo-oracles <ref type="bibr" target="#b27">(Weyuker 1982)</ref>. Pseudooracles are a differential testing technique that consists in running multiple systems satisfying the same specification as the original system under test, then feeding the same inputs to these systems and observing their outputs. Discrepancies in outputs are considered indicative of errors in the system under test. A limitation of differential testing is that it can be resource-inefficient as it requires multiple runs of the system, and error-prone, as the same errors are possible in multiple implementations of the system under test <ref type="bibr" target="#b11">(Knight and Leveson 1986)</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Metamorphic Testing</head><p>Metamorphic testing is another approach to testing of software without test oracles. In this approach, a transformation function is used to modify the existing test case input, and produce a new output. If the actual output for the modified input differs from the expected output, it is indicative of errors in the software under test. Metamorphic testing has been applied to machine learning classifiers <ref type="bibr" target="#b32">(Xie, Ho, and</ref><ref type="bibr">et al. 2011) (Dwarakanath et al. 2018)</ref>. However, in testing ML systems with a large input space, writing metamorphic transformations is laborious, and there is a great potential for ML to circumvent this difficulty by automating the creation of metamorphic relationships.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Test Data Prioritization</head><p>Since automated oracles are typically not available for testing of big and realistic ML models, there is a great effort involved in manual labeling of test data for ML models. Deep-Gini <ref type="bibr" target="#b22">(Shi et al. 2019</ref>) is an initial work on reducing the effort in labeling test data for DNNs by prioritizing tests that are likely to cause misclassifications. The assumption made by DeepGini is that a test is likely to be misclassified if a DNN outputs similar probabilities for each class. The limitation of this approach is that it requires running all tests first, to obtain the output vectors used to calculate the likelihood of misclassification.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Infeasibility of Complete Testing</head><p>ML systems are commonly deployed in application areas dealing with a large amount of data. This creates large and diverse test input space. Unfortunately, testing is rarely able to cover all valid inputs and their combinations to examine the correctness of a system-under-test, and therefore coverage metrics are typically applied to select an adequate set of inputs from a large input space, to generate tests, or to assess the completeness of a test set and improve its quality <ref type="bibr" target="#b15">(Marijan, Gotlieb, and Liaaen 2019;</ref><ref type="bibr" target="#b13">Marijan and Liaaen 2018)</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Test Coverage</head><p>The first attempts to define coverage metrics for testing of neural networks are inspired by the traditional code coverage metrics. A metric called neuron coverage was proposed in DeepXplore <ref type="bibr" target="#b17">(Pei et al. 2017)</ref> for testing deep neural networks (DNN). DeepXplore measures the amount of unique neurons activated by a set of inputs out of the total number of neurons in the DNN. The limitation of this coverage metric is that a test suite that has full neuron coverage (all neurons activated) can still miss to detect erroneous behavior if there was an error in all other DNNs that were part of a differential comparing <ref type="bibr" target="#b17">(Pei et al. 2017</ref>) used by neuron coverage (DeepXplore leverages the concept of differential testing). Furthermore, it has been shown that neuron coverage can be too coarse a coverage metric, meaning that a test suite that achieves full neuron coverage can be easily found, but the network can still be vulnerable to trivial adversarial examples <ref type="bibr">(Sun, Huang, and Kroening 2018)</ref>. Sun et al. therefore proposed DeepCover, a testing methodology for DNNs with four test criteria, inspired by the modified condition/decision coverage (MC/DC) for traditional software. Their approach includes a test case generation algorithm that perturbs a given test case using linear programming with a goal to encode the test requirement and a fragment of the DNN. The same author also developed a test case generation algorithm based on symbolic approach and the gradient-based heuristic <ref type="bibr" target="#b24">(Sun et al. 2019)</ref>. The difference between their coverage approach, based on MC/DC criterion, and neuron coverage is that the latter only considers individual activations of neurons, while the former considers causal relations between features at consecutive layers of the neural network.</p><p>Neuron coverage has been further extended in Deep-Gauge <ref type="bibr">(Ma et al. 2018a)</ref>, which aims to test DNN by combining the coverage of key function regions as well as corner case regions of DNN, represented by neuron boundary coverage. Neuron boundary coverage measures how well the test datasets cover upper and lower boundary values. DeepRoad <ref type="bibr" target="#b34">(Zhang et al. 2018</ref>) is another test generation approach for DNN-based autonomous driving. Deep-Road is based on generative adversarial networks and it generates realistic driving scenes with various weather conditions. DeepCruiser is an initial work towards testing recurrent-neural-network (RNN)-based stateful deep learning <ref type="bibr" target="#b6">(Du et al. 2018)</ref>. DeepCruiser represents RNN as an abstract state transition system and defines a set of test coverage criteria for generating test cases for stateful deep learning systems. Other approaches were proposed extending the notion of neuron coverage, such as DeepTest <ref type="bibr" target="#b25">(Tian et al. 2018)</ref> for testing other types of neural networks. DeepTest applies image transformations such as contrast, scaling, blurring to generate synthetic test images. However, such generated images were found to be insufficiently realistic for testing real-world systems.</p><p>In summary, a common limitation of techniques based on neuron coverage is that they can easily lead to combinatorial explosion. Ma et al. initiated the work on the adaptation of combinatorial testing techniques for the systematic sampling of a large space of neuron interactions at different layers of <ref type="bibr">DNN (Ma et al. 2018c)</ref>. This approach can be promising for taming combinatorial explosion in testing of DNN based systems, given that its current limitations are overcome. First, only 2-way interactions of input parameters are supported, while real systems typically have much higher interaction levels of inputs. Second, the approach has been found to face scalability problems for large and complex DNNs.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Fuzzing</head><p>Since the input space of DNNs is typically large and highlydimensional, selecting test data for DNNs can be highly laborious. One approach to deal with this challenge is fuzzing, which generates large amounts of random input data that is checked for failures. TensorFuzz is an initial work that applies fuzzing to testing of TensorFlow DNNs (Odena and Goodfellow 2018). TensorFuzz uses a coverage metric consisting of user-specified constraints to randomly mutate inputs. The coverage is measured by a fast approximate nearest neighbour algorithm. TensorFuzz has showed to outperform random testing. Another similar approach is DeepHunter <ref type="bibr" target="#b31">(Xie et al. 2018)</ref>. This is an initial work on automated feedback-guided fuzz testing for DNNs. Deep-Hunter runs metamorphic mutation to generate new semantically preserved tests, and uses multiple coverage criteria as a feedback to guide test generation from different perspectives. The limitation of this approach is that it uses only a single coverage criteria at the time, not supporting multicriteria test generation. Moreover, the general limitation of fuzzing is that it cannot ensure that certain test objectives will be satisfied.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Concolic Testing</head><p>To provide more effective input selection that increases test coverage, a concolic testing approach has been proposed in DeepConcolic <ref type="bibr" target="#b24">(Sun et al. 2018</ref>). The approach is parameterised with a set of coverage requirements. The requirements are used to incrementally generate a set of test inputs with a goal to improve the coverage of requirements by alternating between concrete execution (testing on particular inputs) and symbolic execution. For an unsatisfied requirement, a test input within the existing test suite that is close to satisfying that requirement is identified, based on concrete execution. Later, a new test input that satisfies the requirement is generated through symbolic execution and added to the test suite, improving test coverage.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Quality of Test Datasets for ML Models</head><p>When training ML models, the quality of the training dataset is important for achieving good performance of the learned model. The performance is evaluated using a test dataset.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Mutation Testing</head><p>To evaluate the quality of test dataset for DNNs, DeepMutation <ref type="bibr">(Ma et al. 2018b</ref>) proposes an initial work, inspired by traditional mutation testing concepts. DeepMutation first designs a set of mutation operators to inject faults into training data. Then, it retrains models with the mutated training data to generate mutated models, which means that faults are injected in the models. After that, mutated models are tested using a test dataset. Finally, the quality of the test dataset is evaluated by analysing to what extent the injected faults are detected. The limitation of this approach is that it employs basic mutation operators covering limited aspects of deep learning systems, so that the injected faults may not be representative enough of real faults. MuNN <ref type="bibr" target="#b21">(Shen, Wan, and Chen 2018)</ref> is another mutation testing approach for neural networks, which needs further work for the application on DNNs. Specifically, the authors of the approach showed that neural networks of different depth require different mutation operators. They also showed the importance of developing domain-dependent mutation operators rather than using common mutation operators.</p><p>6 Vulnerability to Adversaries ML classifiers are known to be vulnerable to attacks where small modifications are added to input data, causing misclassification and leading to failures of ML systems <ref type="bibr" target="#b24">(Szegedy et al. 2014)</ref>. Modifications made to input data, called adversarial examples, are small perturbations designed to be very close to the original data, yet able to cause misclassifications and to compromise the integrity (e.g. accuracy) of clasiffier. Such attacks have been observed for image recognition <ref type="bibr" target="#b30">(Xie et al. 2017</ref>), text <ref type="bibr" target="#b20">(Sato et al. 2018)</ref>, and speech recognition tasks <ref type="bibr" target="#b4">(Carlini et al. 2016</ref>) (Carlini and Wagner 2018) (Jia and Liang 2017). In the latter, it was shown that adversarially inserted sentences in the Stanford Question Answering Dataset can decrease reading comprehension of ML from 75% to 36% of F-measure (harmonic average of the precision and recall of a test).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Generating Adversarial Examples</head><p>Adversarial examples can be generated for the purpose of attack or defense of an ML classifier. The former often use heuristic algorithms to find adversarial examples that are very close to correctly classified examples. The latter aim to improve the robustness of ML classifiers. Some approaches to adversarial example generation include Fast Gradient Sign Method (FGSM) <ref type="bibr" target="#b8">(Goodfellow, Shlens, and Szegedy 2015)</ref>, which showed that linear behavior in high-dimensional spaces is sufficient to cause adversarial examples.</p><p>Later, FGSM was shown to be less effective for black-box attacks <ref type="bibr" target="#b25">(Tramèr et al. 2017)</ref>, and the authors developed RAND-FGSM method which adds random perturbations to modify adversarial perturbations. DeepFool (Moosavi-Dezfooli, Fawzi, and Frossard 2016) is another approach that generates adversarial examples based on an iterative linearization of the classifier to generate minimal perturbations that are sufficient to change classification labels. The limitation of this approach lies in the fact that it is a greedy heuristic, which cannot guarantee to find optimal adversarial examples. Further, a two-player turn-based stochastic game approach was developed for generating adversarial examples <ref type="bibr" target="#b28">(Wicker, Huang, and Kwiatkowska 2018)</ref>. The first player tries to minimise the distance to an adversarial example by manipulating the features, and the second player can be cooperative, adversarial, or random. The approach has shown to converge to the optimal strategy, which represents a globally minimal adversarial image. The limitation of this approach is long runtime. Extending the idea of DeepFool, a universal adversarial attack approach was developed <ref type="bibr" target="#b16">(Moosavi-Dezfooli et al. 2017)</ref>. This approach generates universal perturbations using a smaller set of input data, and uses DeepFool to obtain a minimal sample perturbation of input data, which is later modified into a final perturbation.</p><p>Adversarial examples can be generated with generative adversarial networks, such as <ref type="bibr">AdvGAN (Xiao et al. 2018)</ref>. This approach aims to generate perturbations for any instance, which can speed up adversarial training. The limitation of the approach is that the resulting adversarial examples are based on small norm-bounded perturbations. This challenge is further addressed in <ref type="bibr">(Song et al. 2018</ref>) by developing unrestricted adversarial examples. However, their approach exploits classifier vulnerability to covariate shift and is sensitive to different distributions of input data.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Countering Adversarial Examples</head><p>To counter adversarial attacks, reactive and proactive defensive methods against adversaries have been proposed. Defensive distillation is a proactive approach which aims to reduce the effectiveness of adversarial perturbations against DNNs <ref type="bibr">(Papernot et al. 2016)</ref>. Defensive distillation extracts additional knowledge about training points as class probability vectors produced by a DNN. The probability vectors are fed back into training, producing DNN-based classifier models that are more robust to perturbations. However, it has been shown that such defensive mechanisms are typically vulnerable to some new attacks <ref type="bibr" target="#b2">(Carlini and Wagner 2017)</ref>. Moreover, just like in testing, if a defense cannot find any adversarial examples, it does not mean that such examples do not exist.</p><p>Automated verification is a reactive defensive approach against adversarial perturbations which analyses the robustness of DNNs to improve their defensive capabilities. Several approaches exist to deal with the robustness challenge. An exhaustive search approach to verifying the correctness of a classification made by a DNN has been proposed <ref type="bibr" target="#b9">(Huang et al. 2017)</ref>. This approach checks the safety of a DNN by exploring the region around a data point to search for specific adversarial manipulations. The limitation of the approach is limited scalability and poor computational performance induced by state-space-explosion. Reluplex is a constraint-based approach for verifying the properties of DNNs by providing counter-examples (Katz et al. 2017), but is currently limited to small DNNs. An approach that can work with larger DNNs is global optimization based on adaptive nested optimisation <ref type="bibr" target="#b19">(Ruan, Huang, and Kwiatkowska 2018)</ref>. However, the approach is limited in the number of input dimensions to be perturbed.</p><p>A common challenge for verification approaches is their computational complexity. For both approaches <ref type="bibr" target="#b11">(Katz et al. 2017</ref>) and <ref type="bibr" target="#b19">(Ruan, Huang, and Kwiatkowska 2018)</ref>, the complexity is NP-complete. For the former, the complexity depends on the number of hidden neurons, and for the latter, on input dimensions.</p><p>To reduce the vulnerability of ML classifiers to adversaries, research efforts are made on systematically studying and evaluating the robustness of ML models, as well as on providing frameworks for benchmarking the robustness of ML models.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Robustness Metrics</head><p>Lack of robustness in neural networks raises valid concerns about the safety of systems relying on these networks, especially in safety-critical domains such as transportation, robotics, medicine, or warfare. A typical approach to improve the robustness of a neural network would be to identify adversarial examples that make the network fail, then augment the training dataset with these examples and train another neural network. The robustness of the new network is the ratio between the number of adversarial examples that failed the original network and that were found for the new network <ref type="bibr" target="#b8">(Goodfellow, Shlens, and Szegedy 2015)</ref>. The limitation of this approach is the lack of objective robustness measure <ref type="bibr" target="#b1">(Bastani et al. 2016)</ref>. Therefore, a metrics for measuring the robustness of DNNs using linear programming <ref type="bibr" target="#b1">(Bastani et al. 2016</ref>) was proposed. Other approaches include defining the upper bound on the robustness of classifiers to adversarial perturbations <ref type="bibr" target="#b7">(Fawzi, Fawzi, and Frossard 2018)</ref>. The upper bound is found to depend on a distinguishability measure between the classes, and can be established independently of the learning algorithms. In their work, Fawzi et al. report two findings: first, non-linear classifiers are more robust to adversarial perturbations than linear classifiers, and second, the depth (rather than breath) of a neural network has a key role for adversarial robustness.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Benchmarks for Robustness Evaluation</head><p>There is a difficulty of reproducing some of the methods developed for improving the robustness of neural networks or methods for comparing experimental results, as different sources of adversarial examples in the training process can make adversarial training more or less effective <ref type="bibr" target="#b8">(Goodfellow, Papernot, and McDaniel 2016)</ref>. To alleviate this challenge, Cleverhans <ref type="bibr" target="#b8">(Goodfellow, Papernot, and McDaniel 2016)</ref> and Foolbox <ref type="bibr" target="#b18">(Rauber, Brendel, and Bethge 2017)</ref> are adversarial example libraries for developing and benchmarking adversarial attacks and defenses, so that different benchmarks can be compared. The limitation of both of these frameworks is that they lack defensive adversarial generation strategies <ref type="bibr" target="#b33">(Yuan et al. 2019)</ref>. Robust Vision Benchmark 2 extends the idea of Foolbox, by allowing the development of novel attacks which are used to further strengthen robustness measurements of ML models. Other initiatives include a competition organized at NIPS 2017 conference by Google Brain, where researchers were encouraged to develop new methods for generating adversarial examples and new methods for defense against them <ref type="bibr" target="#b12">(Kurakin et al. 2018</ref>).</p><p>2 <ref type="url" target="http://robust.vision/benchmarks/leaderboard">http://robust.vision/benchmarks/leaderboard</ref> Formal Guarantees over Robustness For safety-critical domains which need to comply with safety regulation and certification, it is of critical importance to provide formal guarantees of performance of ML under adversarial input perturbations. Providing such guarantees is a real challenge of most of defense approaches, including the approaches discussed above.</p><p>Existing attempts in this direction include (Hein and Andriushchenko 2017), by using regularization in training, and <ref type="bibr" target="#b23">(Sinha, Namkoong, and Duchi 2018)</ref>, by updating the training objective to satisfy robustness constraints. While these initial approaches are interesting, they can provably achieve only moderate levels of robustness, i.e. provide approximate guarantees. As such, further research advances on providing robustness guarantees for ML models are needed.</p><p>8 Verifying Ethical Machine Reasoning ML systems can be deployed in environments where their actions have ethical implications, for example self-driving cars, and as a consequence, they need to have the capabilities to reason about such implications <ref type="bibr" target="#b5">(Deng 2015)</ref>. Even more so, if such systems are to become widely socially accepted technologies. While multiple approaches have been proposed for building ethics into ML, the real research challenge lies in building solutions for verifying such machine ethics. This research area has remained largly unaddressed. Existing efforts are limited and include a theoretical framework for ethical decision-making of autonomous systems that can be formally verified <ref type="bibr" target="#b6">(Dennis et al. 2016)</ref>. The framework assumes that system control is separated from a higher-order decision-making, and uses model checking to verify the rational agent (model checking is the most widely used approach to verifying ethical machine reasoning). However, as a limitation, the proposed approach requires ethics plans that have been correctly annotated with ethical consequences, which cannot be guaranteed. Second, the agent verification is demonstrated to be very slow. For situations where no ethical decision exists, the framework continuous ethical reasoning, negatively affecting overall performance. Third, the approach scales poorly to the number of sensors and sensor values, due to non-deterministic modelling of sensor inputs. Furthermore, the approach cannot provide any guarantees that a rational agent will always operate within certain bounds regardless of the ethics plan.</p><p>Regarding the certification of autonomous reasoning, a proof-of-concept approach <ref type="bibr" target="#b26">(Webster et al. 2014</ref>) was developed for the generation of certification evidence for autonomous aircraft using formal verification and flight simulation. However, the approach relies on a set of assumptions, such as that the requirements of a system are known, or that they have been accurately translated into a formal specification language, which may not always hold. Finally, ethical machine reasoning should be transparent to allow for checking of the underlying reasoning. These findings emphasize the need for further progress in verifying and certifying ethical machine reasoning. Software testing of ML faces a range of open research challenges, and further research work focused on addressing these challenges is needed. We envision such further work developing in the following directions. Automated test oracles. Test oracles are often missing in testing ML systems, which makes checking the correctness of their output highly challenging. Metamorphic testing can help address this challenge, and further work is needed on using ML to automate the creation of metamorphic relationships. Coverage metrics for ML models. Existing coverage metrics are inadequate in some contexts. Structural coverage criteria can be misleading, i.e. too coarse for adversarial inputs and too fine for misclassified natural inputs <ref type="bibr" target="#b13">(Li et al. 2019)</ref>. High neuron coverage does not mean invulnerability to adversarial examples <ref type="bibr" target="#b24">(Sun et al. 2019</ref>). In addition, neuron coverage can lead to input space explosion. Adaptation of combinatorial testing techniques is a promising approach to this challenge, given that progress is made on improving its scalability for real-word ML models. Quality of test datasets for ML models. Evaluation of the quality of datasets for ML models is in its early stages. Adaptation of mutation testing can alleviate this challenge. Common mutation operators are insufficient for mutation testing of DNNs. Instead, domain-specific operators are required.</p><p>Cost-effectiveness of adversarial examples. Generation strategies for adversarial examples need further advancing to reduce computational complexity and improve effectiveness for different classifiers. Cost-effectiveness of adversarial countermeasures. Current techniques are mainly vulnerable to advanced attacks. Verification approaches for DNNs to counter adversarial examples are computationally complex (especially constraintbased approaches) and unscalable for real DNNs. More cost-effective verification approaches are required. Robustness evaluation of ML models. Metrics for robustness evaluation of ML models and effectiveness evaluation of adversarial attacks need further advancing. Open benchmarks for developing and evaluating new adversarial attacks and defense mechanisms can be useful tools to achieve an improved robustness of defense. Further efforts on understanding the existence of adversarial examples is desired <ref type="bibr" target="#b33">(Yuan et al. 2019)</ref>. Certified guarantees over robustness of ML models. Such guarantees are required for the deployment of ML in safety-critical domains. Current approaches provide only approximate guarantees. Also, further research progress is needed to overcome high computational complexity of producing the guarantees. Verification of machine ethics. Formal verification and certification of ethical machine reasoning is uniquely challenging. Further efforts are needed to enable the scalability of these approaches for real systems operating in real-time, and to reach lower computational complexity. In addition, veri-fication approaches may leverage different formal methods, which underlines the open challenge of interoperability between different methods. Finally, research advances on enabling the transparency of ethical decision making process is required.</p><p>In conclusion, with this paper we hope to provide researchers with useful insights into an unaddressed challenges of testing of ML, along with an agenda for advancing the state-of-the-art in this research area.</p></div>			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0"><p>Tesla failure, www.theguardian.com/technology/2016/jul/01/tesladriver-killed-autopilot-self-driving-car</p></note>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head n="10">Acknowledgments</head><p>This work is supported by the <rs type="funder">Research Council of Norway</rs> through the project <rs type="grantNumber">T3AS No 287329</rs>.</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_CPFTuaY">
+					<idno type="grant-number">T3AS No 287329</idno>
+				</org>
+			</listOrg>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Software engineering for machine learning: A case study</title>
+		<author>
+			<persName><forename type="first">Begel</forename><surname>Amershi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Bird ; Amershi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Begel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Christian</forename><surname>Bird</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">In Int. Conf. on Soft. Eng.: SEIP</title>
+		<imprint>
+			<biblScope unit="page" from="291" to="300" />
+			<date type="published" when="2019">2019. 2019</date>
+			<publisher>IEEE Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Measuring neural net robustness with constraints</title>
+		<author>
+			<persName><surname>Bastani</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Int. Conf. on Neural Inf. Processing Systems</title>
+		<imprint>
+			<date type="published" when="2016">2016. 2016</date>
+			<biblScope unit="page" from="2621" to="2629" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Towards evaluating the robustness of neural networks</title>
+		<author>
+			<persName><surname>Carlini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Wagner ; Carlini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wagner</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Symp. on Security and Privacy</title>
+		<imprint>
+			<biblScope unit="page" from="39" to="57" />
+			<date type="published" when="2017">2017. 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Audio adversarial examples: Targeted attacks on speech-totext</title>
+		<author>
+			<persName><surname>Carlini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Wagner ; Carlini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wagner</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE Security and Privacy Worksh</title>
+		<imprint>
+			<date type="published" when="2018">2018. 2018</date>
+			<biblScope unit="page" from="1" to="7" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Hidden voice commands</title>
+		<author>
+			<persName><surname>Carlini</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">USENIX Conf. on Security Symp</title>
+		<imprint>
+			<date type="published" when="2016">2016. 2016</date>
+			<biblScope unit="page" from="513" to="530" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">The robot&apos;s dilemma</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Deng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<biblScope unit="volume">523</biblScope>
+			<biblScope unit="page">7558</biblScope>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Identifying implementation bugs in machine learning based image classifiers using metamorphic testing</title>
+		<author>
+			<persName><surname>Dennis</surname></persName>
+		</author>
+		<idno>CoRR abs/1812.05339</idno>
+	</analytic>
+	<monogr>
+		<title level="j">In Int. Symp. on Soft. Test. and Anal</title>
+		<imprint>
+			<biblScope unit="volume">77</biblScope>
+			<biblScope unit="page" from="118" to="128" />
+			<date type="published" when="2016">2016. 2016. 2018. 2018</date>
+		</imprint>
+	</monogr>
+	<note>Du et al. 2018 Formal verification of ethical choices in autonomous systems Dwarakanath et al. 2018 Deepcruiser: Automated guided testing for stateful deep learning systems Robotics and Autonomous Systems</note>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Analysis of classifiers&apos; robustness to adversarial perturbations</title>
+		<author>
+			<persName><forename type="first">Fawzi</forename><surname>Fawzi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Frossard ; Fawzi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Fawzi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Frossard</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Machine Learning</title>
+		<imprint>
+			<biblScope unit="volume">107</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="481" to="508" />
+			<date type="published" when="2018">2018. 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Formal guarantees on the robustness of a classifier against adversarial manipulation</title>
+		<author>
+			<persName><forename type="first">Papernot</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Mcdaniel ; Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Papernot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Mcdaniel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shlens</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Szegedy ; Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Shlens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Szegedy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Helle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Schamai</surname></persName>
+		</author>
+		<idno>Represen. abs/1412.6572</idno>
+	</analytic>
+	<monogr>
+		<title level="m">Annual Conf. on Neural Inf. Processing Systems</title>
+		<imprint>
+			<date type="published" when="2015">2016. 2016. 2015. 2015. 2017. 2017. 2016. 2016. 2016</date>
+		</imprint>
+	</monogr>
+	<note>Explaining and harnessing adversarial examples cleverhans v0.1: an adversarial machine learning library Testing of autonomous systems -challenges and current stateof-the-art INCOSE Int. Symposium</note>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Safety verification of deep neural networks</title>
+		<author>
+			<persName><surname>Huang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Computer Aided Verification</title>
+		<imprint>
+			<date type="published" when="2017">2017. 2017</date>
+			<biblScope unit="page" from="3" to="29" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Robustness testing of autonomy software</title>
+		<author>
+			<persName><surname>Hutchison</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE/ACM Int. Conf. on Soft. Eng</title>
+		<imprint>
+			<biblScope unit="page" from="276" to="285" />
+			<date type="published" when="2018">2018. 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">An experimental evaluation of the assumption of independence in multiversion programming</title>
+		<author>
+			<persName><forename type="first">Liang ;</forename><surname>Jia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Jia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Liang</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Katz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Conf. on Emp. Methods in Natural Lang. Process</title>
+		<imprint>
+			<date type="published" when="1986">2017. 2017. 2017. 2017. 1986. 1986</date>
+			<biblScope unit="page" from="96" to="109" />
+		</imprint>
+	</monogr>
+	<note>Adversarial examples for evaluating reading comprehension systems Computer Aided Verif Reluplex: An efficient smt solver for verifying deep neural networks</note>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Adversarial attacks and defences competition</title>
+		<author>
+			<persName><surname>Kurakin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">The NIPS &apos;17 Competition: Building Intelligent Systems</title>
+		<imprint>
+			<date type="published" when="2018">2018. 2018</date>
+			<biblScope unit="page" from="195" to="231" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Practical selective regression testing with effective redundancy in interleaved tests</title>
+		<author>
+			<persName><surname>Li</surname></persName>
+		</author>
+		<idno>CoRR abs/1806.07723. [Marijan and Liaaen 2018</idno>
+	</analytic>
+	<monogr>
+		<title level="m">Int. Conf. on Soft. Eng.: NIER</title>
+		<imprint>
+			<date type="published" when="2018">2019. 2019. 2018. 2018. 2018. 2018. 2018</date>
+			<biblScope unit="page" from="153" to="162" />
+		</imprint>
+	</monogr>
+	<note>Ma et al. 2018a Structural coverage criteria for neural networks could be misleading 2018b. Deepmutation: Mutation testing of deep learning systems In Int. Conf. on Aut. Soft. Eng. Combinatorial testing for deep learning systems 2018a. Deepgauge: Multi-granularity testing criteria for deep learning systems IEEE Int. Symp. on Soft. Reliab. Eng. in Practice Track (ICSE-SEIP</note>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Challenges of testing machine learning based systems</title>
+		<author>
+			<persName><forename type="first">Gotlieb</forename><surname>Marijan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Kumar ; Marijan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gotlieb</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kumar Ahuja</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE</title>
+		<imprint>
+			<biblScope unit="page" from="101" to="102" />
+			<date type="published" when="2019">Ahuja 2019. 2019. 2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">A learning algorithm for optimizing continuous integration development and testing practice</title>
+		<author>
+			<persName><forename type="first">Gotlieb</forename><surname>Marijan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Liaaen ; Marijan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gotlieb</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Liaaen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Soft. Pract. and Exper</title>
+		<imprint>
+			<biblScope unit="volume">49</biblScope>
+			<biblScope unit="page" from="192" to="213" />
+			<date type="published" when="2019">2019. 2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Distillation as a defense to adversarial perturbations against deep neural networks</title>
+		<author>
+			<persName><surname>Moosavi-Dezfooli</surname></persName>
+		</author>
+		<idno>CoRR abs/1807.10875</idno>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE Conf. on Computer Vision and Pattern Recognition</title>
+		<imprint>
+			<date type="published" when="2007">2017. 2017. 2016. 2016. 2007. 2007. 2018. 2016</date>
+			<biblScope unit="page" from="582" to="597" />
+		</imprint>
+	</monogr>
+	<note>Universal adversarial perturbations Conf. on Comp. Vis. and Pattern Recog An approach to software testing of machine learning applications Odena and Goodfellow 2018 Tensorfuzz: Debugging neural networks with coverageguided fuzzing Papernot et al. 2016 Deepfool: A simple and accurate method to fool deep neural networks In Soft. Eng. and Knowledge Eng</note>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Deepxplore: Automated whitebox testing of deep learning systems</title>
+		<author>
+			<persName><forename type="first">Pei</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">In Symp. on Oper. Syst. Princip</title>
+		<imprint>
+			<biblScope unit="page" from="1" to="18" />
+			<date type="published" when="2017">2017. 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title level="m" type="main">Foolbox v0.8.0: A python toolbox to benchmark the robustness of machine learning models</title>
+		<author>
+			<persName><forename type="first">Brendel</forename><surname>Rauber</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Bethge ; Rauber</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Brendel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Bethge</surname></persName>
+		</author>
+		<idno>CoRR abs/1707.04131</idno>
+		<imprint>
+			<date type="published" when="2017">2017. 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Reachability analysis of deep neural networks with provable guarantees</title>
+		<author>
+			<persName><forename type="first">Huang</forename><surname>Ruan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Kwiatkowska ; Ruan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kwiatkowska</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">In Int. J. Conf. on Artif. Intel</title>
+		<imprint>
+			<biblScope unit="page" from="2651" to="2659" />
+			<date type="published" when="2018">2018. 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Interpretable adversarial perturbation in input embedding space for text</title>
+		<author>
+			<persName><surname>Sato</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Int. J. Conf. on Artif. Intel</title>
+		<imprint>
+			<date type="published" when="2018">2018. 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Munn: Mutation analysis of neural networks</title>
+		<author>
+			<persName><forename type="first">Wan</forename><surname>Shen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Chen ; Shen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Chen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Int. Conf. on Soft. Quality, Reliab. and Secur. Comp</title>
+		<imprint>
+			<biblScope unit="page" from="108" to="115" />
+			<date type="published" when="2018">2018. 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<monogr>
+		<title level="m" type="main">Deepgini: Prioritizing massive tests to reduce labeling cost</title>
+		<author>
+			<persName><surname>Shi</surname></persName>
+		</author>
+		<idno>CoRR abs/1903.00661</idno>
+		<imprint>
+			<date type="published" when="2019">2019. 2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Certifiable distributional robustness with principled adversarial training</title>
+		<author>
+			<persName><forename type="first">Namkoong</forename><surname>Sinha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Duchi ; Sinha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Namkoong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Duchi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Song</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Shu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Kushman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ermon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Ruan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kwiatkowska</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Kroening</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Int. Conf. on Learning Representations abs/1710.10571</title>
+		<imprint>
+			<date type="published" when="2018">2018. 2018. 2018. 2018</date>
+			<biblScope unit="page" from="109" to="119" />
+		</imprint>
+	</monogr>
+	<note>Song et al. 2018 Constructing unrestricted adversarial examples with generative models Adv. in Neural Inf. Proc. Sys Sun et al. 2018 Concolic testing for deep neural networks</note>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Structural test coverage criteria for deep neural networks</title>
+		<author>
+			<persName><surname>Sun</surname></persName>
+		</author>
+		<idno>abs/1312.6199</idno>
+	</analytic>
+	<monogr>
+		<title level="m">Int. Conf. on Soft. Eng. [Sun, Huang, and Kroening</title>
+		<imprint>
+			<date type="published" when="2014">2019. 2019. 2018. 2018. 2014</date>
+		</imprint>
+	</monogr>
+	<note>Testing deep neural networks Szegedy et al. 2014 Intriguing properties of neural networks</note>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Deeptest: Automated testing of deep-neural-network-driven autonomous cars</title>
+		<author>
+			<persName><surname>Tian</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Int. Conf. on Soft. Eng</title>
+		<imprint>
+			<date type="published" when="2017">2018. 2018. 2017</date>
+			<biblScope unit="page" from="303" to="314" />
+		</imprint>
+	</monogr>
+	<note>Tramèr et al. 2017 Ensemble adversarial training: Attacks and defenses Int. Conf. on Learning Representations</note>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Generating certification evidence for autonomous unmanned aircraft using model checking and simulation</title>
+		<author>
+			<persName><surname>Webster</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Aerospace Inf. Sys</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="page" from="258" to="279" />
+			<date type="published" when="2014">2014. 2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">On testing non-testable programs</title>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">J</forename><surname>Weyuker</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Comput. J</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="page" from="465" to="470" />
+			<date type="published" when="1982">1982</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Feature-guided black-box safety testing of deep neural networks</title>
+		<author>
+			<persName><forename type="first">Huang</forename><surname>Wicker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kwiatkowska ; Wicker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kwiatkowska</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">In Tools and Alg. for the Construction and Anal. of Systems</title>
+		<imprint>
+			<biblScope unit="page" from="408" to="426" />
+			<date type="published" when="2018">2018. 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Generating adversarial examples with adversarial networks</title>
+		<author>
+			<persName><forename type="first">Xiao</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Int. Joint Conf. on Artif. Intel</title>
+		<imprint>
+			<date type="published" when="2018">2018. 2018</date>
+			<biblScope unit="page" from="3905" to="3911" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Adversarial examples for semantic segmentation and object detection</title>
+		<author>
+			<persName><surname>Xie</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE Int. Conf. on Computer Vision</title>
+		<imprint>
+			<date type="published" when="2017">2017. 2017</date>
+			<biblScope unit="page" from="1378" to="1387" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<monogr>
+		<title level="m" type="main">Coverage-guided fuzzing for deep neural networks</title>
+		<author>
+			<persName><surname>Xie</surname></persName>
+		</author>
+		<idno>CoRR abs/1809.01266</idno>
+		<imprint>
+			<date type="published" when="2018">2018. 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Testing and validating machine learning classififiers by metamorphic testing</title>
+		<author>
+			<persName><forename type="first">Ho</forename><surname>Xie</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. of Sys. and Soft</title>
+		<imprint>
+			<biblScope unit="issue">84</biblScope>
+			<biblScope unit="page" from="544" to="558" />
+			<date type="published" when="2011">2011. 2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Adversarial examples: Attacks and defenses for deep learning</title>
+		<author>
+			<persName><surname>Yuan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Tr. on Neural Net. and Learn. Syst</title>
+		<imprint>
+			<biblScope unit="page" from="1" to="20" />
+			<date type="published" when="2019">2019. 2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">Deeproad: Gan-based metamorphic testing and input validation framework for autonomous driving systems</title>
+		<author>
+			<persName><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">In Int. Conf. on Aut. Soft. Eng</title>
+		<imprint>
+			<biblScope unit="page" from="132" to="142" />
+			<date type="published" when="2018">2018. 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

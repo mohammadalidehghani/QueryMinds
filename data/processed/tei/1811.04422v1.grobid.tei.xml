@@ -1,0 +1,769 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">An Optimal Control View of Adversarial Machine Learning</title>
+				<funder ref="#_J5YYRgp #_2c7zshT #_Y7BXkTq #_TrX8mnU #_rRK2mNf">
+					<orgName type="full">National Science Foundation</orgName>
+					<orgName type="abbreviated">NSF</orgName>
+				</funder>
+				<funder ref="#_eBUVBGy">
+					<orgName type="full">MADLab AF Center of Excellence</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2018-11-11">11 Nov 2018</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Xiaojin</forename><surname>Zhu</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Computer Sciences</orgName>
+								<orgName type="institution">University of Wisconsin-Madison</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main">An Optimal Control View of Adversarial Machine Learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2018-11-11">11 Nov 2018</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">86F9FD491893ECD1C15864F2D4032737</idno>
+					<idno type="arXiv">arXiv:1811.04422v1[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>I describe an optimal control view of adversarial machine learning, where the dynamical system is the machine learner, the input are adversarial actions, and the control costs are defined by the adversary's goals to do harm and be hard to detect. This view encompasses many types of adversarial machine learning, including test-item attacks, training-data poisoning, and adversarial reward shaping. The view encourages adversarial machine learning researcher to utilize advances in control theory and reinforcement learning.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>1 Adversarial Machine Learning is not Machine Learning Machine learning has its mathematical foundation in concentration inequalities. This is a consequence of the independent and identically-distributed (i.i.d.) data assumption. In contrast, I suggest that adversarial machine learning may adopt optimal control as its mathematical foundation <ref type="bibr" target="#b2">[3,</ref><ref type="bibr" target="#b24">25]</ref>. There are telltale signs: adversarial attacks tend to be subtle and have peculiar non-i.i.d. structures -as control input might be.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Optimal Control</head><p>I will focus on deterministic discrete-time optimal control because it matches many existing adversarial attacks. Extensions to stochastic and continuous control are relevant to adversarial machine learning, too. The system to be controlled is called the plant, which is defined by the system dynamics:</p><formula xml:id="formula_0">x t+1 = f (x t , u t )<label>(1)</label></formula><p>where x t ∈ X t is the state of the system, u t ∈ U t is the control input, and U t is the control constraint set. The function f defines the evolution of state under external control. The time index t ranges from 0 to T -1, and the time horizon T can be finite or infinite. The quality of control is specified by the running cost:</p><formula xml:id="formula_1">g t (x t , u t )<label>(2)</label></formula><p>which defines the step-by-step control cost, and the terminal cost for finite horizon:</p><formula xml:id="formula_2">g T (x T )<label>(3)</label></formula><p>which defines the quality of the final state. The optimal control problem is to find control inputs u 0 . . . u T -1 in order to minimize the objective:</p><formula xml:id="formula_3">min u0...uT -1 g T (x T ) + T -1 t=0 g t (x t , u t ) (4) s.t. x t+1 = f (x t , u t ), u t ∈ U t , ∀t</formula><p>x 0 given More generally, the controller aims to find control policies φ t (x t ) = u t , namely functions that map observed states to inputs. In optimal control the dynamics f is known to the controller. There are two styles of solutions: dynamic programming and Pontryagin minimum principle <ref type="bibr" target="#b1">[2,</ref><ref type="bibr" target="#b9">10,</ref><ref type="bibr" target="#b16">17]</ref>. When f is not fully known, the problem becomes either robust control where control is carried out in a minimax fashion to accommodate the worst case dynamics <ref type="bibr" target="#b27">[28]</ref>, or reinforcement learning where the controller probes the dynamics <ref type="bibr" target="#b22">[23]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Adversarial Machine Learning as Control</head><p>Now let us translate adversarial machine learning into a control formulation. Adversarial machine learning studies vulnerability throughout the learning pipeline <ref type="bibr" target="#b3">[4,</ref><ref type="bibr" target="#b12">13,</ref><ref type="bibr" target="#b19">20,</ref><ref type="bibr" target="#b25">26]</ref>. As examples, I present training-data poisoning, test-time attacks, and adversarial reward shaping below. In all cases, the adversary attempts to control the machine learning system, and the control costs reflect the adversary's desire to do harm and be hard to detect.</p><p>Unfortunately, the notations from the control community and the machine learning community clash. For example, x denotes the state in control but the feature vector in machine learning. I will use the machine learning convention below.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Training-Data Poisoning</head><p>In training-data poisoning the adversary can modify the training data. The machine learner then trains a "wrong" model from the poisoned data. The adversary's goal is for the "wrong" model to be useful for some nefarious purpose. I use supervised learning for illustration.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1.1">Batch Learner</head><p>At this point, it becomes useful to distinguish batch learning and sequential (online) learning. If the machine learner performs batch learning, then the adversary has a degenerate one-step control problem. One-step control has not been the focus of the control community and there may not be ample algorithmic solutions to borrow from. Still, it is illustrative to pose batch training set poisoning as a control problem. I use Support Vector Machine (SVM) with a batch training set as an example below:</p><p>• The state is the learner's model h : X → Y. For instance, for SVM h is the classifier parametrized by a weight vector w. I will use h and w interchangeably.</p><p>• The control u 0 is a whole training set, for instance u 0 = {(x i , y i )} 1:n .</p><p>• The control constraint set U 0 consists of training sets available to the adversary; if the adversary can arbitrary modify a training set for supervised learning (including changing features and labels, inserting and deleting items), this could be U 0 = ∪ ∞ n=0 (X × Y) n , namely all training sets of all sizes. This is a large control space.</p><p>• The system dynamics (1) is defined by the learner's learning algorithm. For the SVM learner, this would be empirical risk minimization with hinge loss ℓ() and a regularizer:</p><formula xml:id="formula_4">w 1 = f (u 0 ) ∈ argmin w n i=1 ℓ(w, x i , y i ) + λ w 2 . (<label>5</label></formula><formula xml:id="formula_5">)</formula><p>The batch SVM does not need an initial weight w 0 . The adversary has full knowledge of the dynamics f () if it knows the form (5), ℓ(), and the value of λ.</p><p>• The time horizon T = 1.</p><p>• The adversary's running cost g 0 (u 0 ) measures the poisoning effort in preparing the training set u 0 . This is typically defined with respect to a given "clean" data set ũ before poisoning in the form of</p><formula xml:id="formula_6">g 0 (u 0 ) = distance(u 0 , ũ).<label>(6)</label></formula><p>The running cost is domain dependent. For example, the distance function may count the number of modified training items; or sum up the Euclidean distance of changes in feature vectors.</p><p>• The adversary's terminal cost g 1 (w 1 ) measures the lack of intended harm. The terminal cost is also domain dependent. For example:</p><p>-If the adversary must force the learner into exactly arriving at some target model w * , then</p><formula xml:id="formula_7">g 1 (w 1 ) = I ∞ [w 1 = w * ].</formula><p>Here I y [z] = y if z is true and 0 otherwise, which acts as a hard constraint.</p><p>-If the adversary only needs the learner to get near w * then g 1 (w 1 ) = w 1w * for some norm.</p><p>-If the adversary wants to ensure that a specific future item x * is classified ǫ-confidently as positive, it can use</p><formula xml:id="formula_8">g 1 (w 1 ) = I ∞ [w 1 / ∈ W * ] with the target set W * = {w : w ⊤ x * ≥ ǫ}.</formula><p>More generally, W * can be a polytope defined by multiple future classification constraints.</p><p>With these definitions, the adversary's one-step control problem (4) specializes to min u0 g 1 (w 1 ) + g 0 (w 0 , u 0 ) (7)</p><formula xml:id="formula_9">s.t. w 1 = f (w 0 , u 0 )</formula><p>Unsurprisingly, the adversary's one-step control problem is equivalent to a Stackelberg game and bi-level optimization (the lower level optimization is hidden in f ), a well-known formulation for training-data poisoning <ref type="bibr" target="#b11">[12,</ref><ref type="bibr" target="#b20">21]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1.2">Sequential Learner</head><p>The adversary performs classic discrete-time control if the learner is sequential:</p><p>• The learner starts from an initial model w 0 , which is the initial state.</p><p>• The control input at time t is u t = (x t , y t ), namely the t th training item for t = 0, 1, . . .</p><p>• The dynamics is the sequential update algorithm of the learner. For example, the learner may perform one step of gradient descent:</p><formula xml:id="formula_10">w t+1 = f (w t , u t ) = w t -η t ∇ℓ(w t , x t , y t ).<label>(8)</label></formula><p>• The adversary's running cost g t (w t , u t ) typically measures the effort of preparing u t . For example, it could measure the magnitude of change u t -ũt with respect to a "clean" reference training sequence ũ. Or it could be the constant 1 which reflects the desire to have a short control sequence.</p><p>• The adversary's terminal cost g T (w T ) is the same as in the batch case.</p><p>The problem (4) then produces the optimal training sequence poisoning. Earlier attempts on sequential teaching can be found in <ref type="bibr" target="#b0">[1,</ref><ref type="bibr" target="#b17">18,</ref><ref type="bibr" target="#b18">19]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Test-Time Attack</head><p>Test-time attack differs from training-data poisoning in that a machine learning model h : X → Y is alreadytrained and given. Also given is a "test item" x. There are several variants of test-time attacks, I use the following one for illustration: The adversary seeks to minimally perturb x into x ′ such that the machine learning model classifies x and x ′ differently. That is, min</p><formula xml:id="formula_11">x ′ distance(x, x ′ ) (9) s.t. h(x) = h(y).</formula><p>The distance function is domain-dependent, though in practice the adversary often uses a mathematically convenient surrogate such as some p-norm xx ′ p . One way to formulate test-time attack as optimal control is to treat the test-item itself as the state, and the adversarial actions as control input. Let us first look at the popular example of test-time attack against image classification:</p><p>• Let the initial state x 0 = x be the clean image.</p><p>• The adversary's control input u 0 is the vector of pixel value changes.</p><p>• The control constraint set is U 0 = {u : x 0 + u ∈ [0, 1] d } to ensure that the modified image has valid pixel values (assumed to be normalized in [0, 1]).</p><p>• The dynamical system is trivially vector addition:</p><formula xml:id="formula_12">x 1 = f (x 0 , u 0 ) = x 0 + u 0 .</formula><p>• The adversary's running cost is g 0 (x 0 , u 0 ) = distance(x 0 , x 1 ).</p><p>• The adversary's terminal cost is</p><formula xml:id="formula_13">g 1 (x 1 ) = I ∞ [h(x 1 ) = h(x 0 )].</formula><p>Note the machine learning model h is only used to define the hard constraint terminal cost; h itself is not modified.</p><p>With these definitions this is a one-step control problem (4) that is equivalent to the test-time attack problem <ref type="bibr" target="#b8">(9)</ref>. This control view on test-time attack is more interesting when the adversary's actions are sequential U 0 , U 1 , . . ., and the system dynamics render the action sequence non-commutative. The adversary's running cost g t then measures the effort in performing the action at step t. One limitation of the optimal control view is that the action cost is assumed to be additive over the steps.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Defense Against Test-Time Attack by Adversarial Training</head><p>Some defense strategies can be viewed as optimal control, too. One defense against test-time attack is to require the learned model h to have the large-margin property with respect to a training set. Let (x, y) be any training item, and ǫ a margin parameter. Then the large-margin property states that the decision boundary induced by h should not pass ǫ-close to (x, y):</p><formula xml:id="formula_14">∀x ′ : ( x ′ -x p ≤ ǫ) ⇒ h(x ′ ) = y. (<label>10</label></formula><formula xml:id="formula_15">)</formula><p>This is an uncountable number of constraints. It is relatively easy to enforce for linear learners such as SVMs, but impractical otherwise.</p><p>Adversarial training can be viewed as a heuristic to approximate the uncountable constraint <ref type="bibr" target="#b9">(10)</ref> with a finite number of active constraints: one performs test-time attack against the current h from x to find an adversarial item x (1) , such that x (1)x p ≤ ǫ but h(x (1) ) = y. Instead of adding a single constraint h(x (1) ) = y, an additional training item (x (1) , y) then added to the training set. The machine learning algorithm learns a different h, with the hope (but not constraining) that h(x (1) ) = y. This process repeats for k iteration, resulting in k additional training items (x (i) , y) for i = 1 . . . k.</p><p>It should be clear that such defense is similar to training-data poisoning, in that the defender uses data to modify the learned model. This is especially interesting when the learner performs sequential updates. One way to formulate adversarial training defense as control is the following:</p><p>• The state is the model h t . Initially h 0 can be the model trained on the original training data.</p><p>• The control input u t = (x t , y t ) is an additional training item with the trivial constraint set U t = X×y.</p><p>• The dynamics h t+1 = f (h t , u t ) is one-step update of the model, e.g. by back-propagation.</p><p>• The defender's running cost g t (h t , u t ) can simply be 1 to reflect the desire for less effort (the running cost sums up to k).</p><p>• The defender's terminal cost g T (h T ) penalizes small margin of the final model h T with respect to the original training data.</p><p>Of course, the resulting control problem (4) does not directly utilize adversarial examples. One way to incorporate them is to restrict U t to a set of adversarial examples found by invoking test-time attackers on h t , similar to the heuristic in <ref type="bibr" target="#b6">[7]</ref>. These adversarial examples do not even need to be successful attacks.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.4">Adversarial Reward Shaping</head><p>When adversarial attacks are applied to sequential decision makers such as multi-armed bandits or reinforcement learning agents, a typical attack goal is to force the latter to learn a wrong policy useful to the adversary. The adversary may do so by manipulating the rewards and the states experienced by the learner <ref type="bibr" target="#b10">[11,</ref><ref type="bibr" target="#b13">14]</ref>.</p><p>To simplify the exposition, I focus on adversarial reward shaping against stochastic multi-armed bandit, because this does not involve deception through perceived states. To review, in stochastic multi-armed bandit the learner at iteration t chooses one of k arms, denoted by I t ∈ [k], to pull according to some strategy <ref type="bibr" target="#b5">[6]</ref>. For example, the (α, ψ)-Upper Confidence Bound (UCB) strategy chooses the arm</p><formula xml:id="formula_16">I t ∈ argmax i∈[k] μi,Ti(t-1) + ψ * -1 α log t T i (t -1)<label>(11)</label></formula><p>where T i (t -1) is the number of times arm i has been pulled up to time t -1, μi,Ti(t-1) is the empirical mean of arm i so far, and ψ * is the dual of a convex function ψ. The environment generates a stochastic reward r It ∼ ν It . The learner updates its estimate of the pulled arm: μIt,TI t (t) = μIt,TI t (t-1) T It (t -1) + r It T It (t -1) + 1 <ref type="bibr" target="#b11">(12)</ref> which in turn affects which arm it will pull in the next iteration. The learner's goal is to minimize the pseudo-regret T µ max -E T t=1 µ It where µ i = Eν i and µ max = max i∈[k] µ i . Stochastic multi-armed bandit strategies offer upper bounds on the pseudo-regret.</p><p>With adversarial reward shaping, an adversary fully observes the bandit. The adversary intercepts the environmental reward r It in each iteration, and may choose to modify ("shape") the reward into r It + u t with some u t ∈ R before sending the modified reward to the learner. The adversary's goal is to use minimal reward shaping to force the learner into performing specific wrong actions. For example, the adversary may want the learner to frequently pull a particular target arm i * ∈ [k]. It should be noted that the adversary's goal may not be the exact opposite of the learner's goal: the target arm i * is not necessarily the one with the worst mean reward, and the adversary may not seek pseudo-regret maximization.</p><p>Adversarial reward shaping can be formulated as stochastic optimal control:</p><p>• The state s t , now called control state to avoid confusion with the Markov Decision Process states experienced by an reinforcement learning agent, consists of the sufficient statistic tuple at time t: s t = (T 1 (t -1), μ1,T1(t-1) , . . . , T k (t -1), μk,T k (t-1) , I t ).</p><p>• The control input is u t ∈ U t with U t = R in the unconstrained shaping case, or the appropriate U t if the rewards must be binary, for example.</p><p>• The dynamics s t+1 = f (s t , u t ) is straightforward via empirical mean update (12), T It increment, and new arm choice <ref type="bibr" target="#b10">(11)</ref>.</p><p>• The adversary's running cost g t (s t , u t ) reflects shaping effort and target arm achievement in iteration t. For instance,</p><formula xml:id="formula_17">g t (s t , u t ) = u 2 t + I λ [I t = i * ].<label>(13)</label></formula><p>where λ &gt; 0 is a trade off parameter.</p><p>• There is not necessarily a time horizon T or a terminal cost g T (s T ).</p><p>The control state is stochastic due to the stochastic reward r It entering through <ref type="bibr" target="#b11">(12)</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Advantages of the Optimal Control View</head><p>There are a number of potential benefits in taking the optimal control view:</p><p>• It offers a unified conceptual framework for adversarial machine learning;</p><p>• The optimal control literature provides efficient solutions when the dynamics f is known and one can take the continuous limit to solve the differential equations <ref type="bibr" target="#b14">[15]</ref>;</p><p>• Reinforcement learning, either model-based with coarse system identification or model-free policy iteration, allows approximate optimal control when f is unknown, as long as the adversary can probe the dynamics <ref type="bibr" target="#b7">[8,</ref><ref type="bibr" target="#b8">9]</ref>;</p><p>• A generic defense strategy may be to limit the controllability the adversary has over the learner.</p><p>• I mention in passing that the optimal control view applies equally to machine teaching <ref type="bibr" target="#b26">[27,</ref><ref type="bibr" target="#b28">29]</ref>, and thus extends to the application of personalized education <ref type="bibr" target="#b21">[22,</ref><ref type="bibr" target="#b23">24]</ref>.</p><p>I need to point out some limitations:</p><p>• Having a unified optimal control view does not automatically produce efficient solutions to the control problem (4). For adversarial machine learning applications the dynamics f is usually highly nonlinear and complex. Furthermore, in graybox and blackbox attack settings f is not fully known to the attacker. They affect the complexity in finding an optimal control.</p><p>• The adversarial learning setting is largely non-game theoretic, though there are exceptions <ref type="bibr" target="#b4">[5,</ref><ref type="bibr" target="#b15">16]</ref>.</p><p>These problems call for future research from both machine learning and control communities.</p></div>		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><p>Acknowledgments. I acknowledge funding <rs type="funder">NSF</rs> <rs type="grantNumber">1837132</rs>, <rs type="grantNumber">1545481</rs>, <rs type="grantNumber">1704117</rs>, <rs type="grantNumber">1623605</rs>, <rs type="grantNumber">1561512</rs>, and the <rs type="funder">MADLab AF Center of Excellence</rs> <rs type="grantNumber">FA9550-18-1-0166</rs>.</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_J5YYRgp">
+					<idno type="grant-number">1837132</idno>
+				</org>
+				<org type="funding" xml:id="_2c7zshT">
+					<idno type="grant-number">1545481</idno>
+				</org>
+				<org type="funding" xml:id="_Y7BXkTq">
+					<idno type="grant-number">1704117</idno>
+				</org>
+				<org type="funding" xml:id="_TrX8mnU">
+					<idno type="grant-number">1623605</idno>
+				</org>
+				<org type="funding" xml:id="_rRK2mNf">
+					<idno type="grant-number">1561512</idno>
+				</org>
+				<org type="funding" xml:id="_eBUVBGy">
+					<idno type="grant-number">FA9550-18-1-0166</idno>
+				</org>
+			</listOrg>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Data poisoning attacks against autoregressive models</title>
+		<author>
+			<persName><forename type="first">Scott</forename><surname>Alfeld</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xiaojin</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Paul</forename><surname>Barford</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">The Thirtieth AAAI Conference on Artificial Intelligence (AAAI-16)</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Optimal control: An introduction to the theory and its applications</title>
+		<author>
+			<persName><forename type="first">Michael</forename><surname>Athans</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Peter</forename><forename type="middle">L</forename><surname>Falb</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+		<respStmt>
+			<orgName>Courier Corporation</orgName>
+		</respStmt>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Dynamic Programming and Optimal Control</title>
+		<author>
+			<persName><forename type="first">Dimitri</forename><forename type="middle">P</forename><surname>Bertsekas</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Athena Scientific</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note>4th edition</note>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">Wild patterns: Ten years after the rise of adversarial machine learning</title>
+		<author>
+			<persName><forename type="first">Battista</forename><surname>Biggio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Fabio</forename><surname>Roli</surname></persName>
+		</author>
+		<idno>CoRR, abs/1712.03141</idno>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Stackelberg games for adversarial prediction problems</title>
+		<author>
+			<persName><forename type="first">Michael</forename><surname>Brückner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tobias</forename><surname>Scheffer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 17th ACM SIGKDD international conference on Knowledge discovery and data mining</title>
+		<meeting>the 17th ACM SIGKDD international conference on Knowledge discovery and data mining</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2011">2011</date>
+			<biblScope unit="page" from="547" to="555" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Regret analysis of stochastic and nonstochastic multi-armed bandit problems</title>
+		<author>
+			<persName><forename type="first">Sébastien</forename><surname>Bubeck</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nicolo</forename><surname>Cesa-Bianchi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Foundations and Trends in Machine Learning</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="122" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Curriculum adversarial training</title>
+		<author>
+			<persName><forename type="first">Qi-Zhi</forename><surname>Cai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Min</forename><surname>Du</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chang</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dawn</forename><surname>Song</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">The 27th International Joint Conference on Artificial Intelligence (IJCAI)</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Adversarial attack on graph structured data</title>
+		<author>
+			<persName><forename type="first">Hanjun</forename><surname>Dai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hui</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tian</forename><surname>Tian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xin</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lin</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jun</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Le</forename><surname>Song</surname></persName>
+		</author>
+		<idno>PMLR</idno>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 35th International Conference on Machine Learning</title>
+		<editor>
+			<persName><forename type="first">Jennifer</forename><surname>Dy</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Andreas</forename><surname>Krause</surname></persName>
+		</editor>
+		<meeting>the 35th International Conference on Machine Learning<address><addrLine>Stockholmsmssan, Stockholm Sweden</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2018-07">Jul 2018</date>
+			<biblScope unit="volume">80</biblScope>
+			<biblScope unit="page" from="10" to="15" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">Yang</forename><surname>Fan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Fei</forename><surname>Tian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tao</forename><surname>Qin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tie-Yan</forename><surname>Liu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Learning to teach. In ICLR</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<title level="m" type="main">Dynamic optimization and differential games</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Terry</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Friesz</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+			<publisher>Springer Science &amp; Business Media</publisher>
+			<biblScope unit="volume">135</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Adversarial attacks on neural network policies</title>
+		<author>
+			<persName><forename type="first">Sandy</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nicolas</forename><surname>Papernot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ian</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yan</forename><surname>Duan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pieter</forename><surname>Abbeel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">arXiv</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Manipulating machine learning: Poisoning attacks and countermeasures for regression learning</title>
+		<author>
+			<persName><forename type="first">Matthew</forename><surname>Jagielski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alina</forename><surname>Oprea</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Battista</forename><surname>Biggio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chang</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cristina</forename><surname>Nita-Rotaru</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bo</forename><surname>Li</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">The 39th IEEE Symposium on Security and Privacy</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<author>
+			<persName><forename type="first">Anthony</forename><forename type="middle">D</forename><surname>Joseph</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Blaine</forename><surname>Nelson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">P</forename><surname>Benjamin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">D</forename><surname>Rubinstein</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Tygar</surname></persName>
+		</author>
+		<title level="m">Adversarial Machine Learning</title>
+		<imprint>
+			<publisher>Cambridge University Press</publisher>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note>in press</note>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Adversarial attacks on stochastic bandits</title>
+		<author>
+			<persName><forename type="first">Kwang-Sung</forename><surname>Jun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lihong</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yuzhe</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xiaojin</forename><surname>Zhu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems (NIPS)</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title level="m" type="main">An Optimal Control Approach to Sequential Machine Teaching</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Lessard</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zhu</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018-10">October 2018</date>
+		</imprint>
+	</monogr>
+	<note>ArXiv e-prints</note>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Scalable Optimization of Randomized Operational Decisions in Adversarial Classification Settings</title>
+		<author>
+			<persName><forename type="first">Bo</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yevgeniy</forename><surname>Vorobeychik</surname></persName>
+		</author>
+		<idno>PMLR</idno>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Eighteenth International Conference on Artificial Intelligence and Statistics</title>
+		<editor>
+			<persName><forename type="first">Guy</forename><surname>Lebanon</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">S</forename><forename type="middle">V N</forename><surname>Vishwanathan</surname></persName>
+		</editor>
+		<meeting>the Eighteenth International Conference on Artificial Intelligence and Statistics<address><addrLine>San Diego, California, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2015-05">May 2015</date>
+			<biblScope unit="volume">38</biblScope>
+			<biblScope unit="page" from="9" to="12" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<monogr>
+		<title level="m" type="main">Calculus of variations and optimal control theory: A concise introduction</title>
+		<author>
+			<persName><forename type="first">Daniel</forename><surname>Liberzon</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+			<publisher>Princeton University Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Iterative machine teaching</title>
+		<author>
+			<persName><forename type="first">Weiyang</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bo</forename><surname>Dai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ahmad</forename><surname>Humayun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Charlene</forename><surname>Tay</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chen</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Linda</forename><forename type="middle">B</forename><surname>Smith</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">James</forename><forename type="middle">M</forename><surname>Rehg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Le</forename><surname>Song</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Machine Learning</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="2149" to="2158" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Towards black-box iterative machine teaching</title>
+		<author>
+			<persName><forename type="first">Weiyang</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bo</forename><surname>Dai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xingguo</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhen</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">James</forename><forename type="middle">M</forename><surname>Rehg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Le</forename><surname>Song</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">JMLR Workshop and Conference Proceedings</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="volume">80</biblScope>
+			<biblScope unit="page" from="3147" to="3155" />
+		</imprint>
+	</monogr>
+	<note>ICML</note>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Adversarial learning</title>
+		<author>
+			<persName><forename type="first">Daniel</forename><surname>Lowd</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Christopher</forename><surname>Meek</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the eleventh ACM SIGKDD international conference on Knowledge discovery in data mining</title>
+		<meeting>the eleventh ACM SIGKDD international conference on Knowledge discovery in data mining</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2005">2005</date>
+			<biblScope unit="page" from="641" to="647" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Using machine teaching to identify optimal training-set attacks on machine learners</title>
+		<author>
+			<persName><forename type="first">Shike</forename><surname>Mei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xiaojin</forename><surname>Zhu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">The Twenty-Ninth AAAI Conference on Artificial Intelligence</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Optimal teaching for limited-capacity human learners</title>
+		<author>
+			<persName><forename type="first">Kaustubh</forename><surname>Patil</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xiaojin</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lukasz</forename><surname>Kopec</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bradley</forename><surname>Love</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems (NIPS)</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<monogr>
+		<title level="m" type="main">A Tour of Reinforcement Learning: The View from Continuous Control</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Recht</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018-06">June 2018</date>
+		</imprint>
+	</monogr>
+	<note>ArXiv e-prints</note>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Machine beats human at sequencing visuals for perceptual-fluency practice</title>
+		<author>
+			<persName><forename type="first">Ayon</forename><surname>Sen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Purav</forename><surname>Patel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Martina</forename><forename type="middle">A</forename><surname>Rau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Blake</forename><surname>Mason</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Robert</forename><surname>Nowak</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Timothy</forename><forename type="middle">T</forename><surname>Rogers</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xiaojin</forename><surname>Zhu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Educational Data Mining</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<monogr>
+		<title level="m" type="main">Bayesian brain: probabilistic approaches to neural coding</title>
+		<author>
+			<persName><forename type="first">Emanuel</forename><surname>Todorov</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+			<biblScope unit="page" from="269" to="298" />
+		</imprint>
+	</monogr>
+	<note>Optimal control theory</note>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Adversarial machine learning</title>
+		<author>
+			<persName><forename type="first">Yevgeniy</forename><surname>Vorobeychik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Murat</forename><surname>Kantarcioglu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Synthesis Lectures on Artificial Intelligence and Machine Learning</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="1" to="169" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Machine teaching: an inverse problem to machine learning and an approach toward optimal education</title>
+		<author>
+			<persName><forename type="first">Xiaojin</forename><surname>Zhu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">The Twenty-Ninth AAAI Conference on Artificial Intelligence (AAAI &quot;Blue Sky&quot; Senior Member Presentation Track)</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">No learner left behind: On the complexity of teaching multiple learners simultaneously</title>
+		<author>
+			<persName><forename type="first">Xiaojin</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ji</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Manuel</forename><surname>Lopes</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">The 26th International Joint Conference on Artificial Intelligence (IJCAI)</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<monogr>
+		<title level="m" type="main">An Overview of Machine Teaching</title>
+		<author>
+			<persName><forename type="first">Xiaojin</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Adish</forename><surname>Singla</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sandra</forename><surname>Zilles</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Anna</forename><forename type="middle">N</forename><surname>Rafferty</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/1801.05927" />
+		<imprint>
+			<date type="published" when="2018-01">January 2018</date>
+		</imprint>
+	</monogr>
+	<note>ArXiv e-prints</note>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

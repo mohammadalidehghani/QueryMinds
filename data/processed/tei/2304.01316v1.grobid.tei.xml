@@ -1,0 +1,1243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Matched Machine Learning: A Generalized Framework for Treatment Effect Inference With Learned Metrics</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2023-04-03">3 Apr 2023</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Marco</forename><surname>Morucci</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Center for Data Science</orgName>
+								<orgName type="institution">New York University</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Cynthia</forename><surname>Rudin</surname></persName>
+							<affiliation key="aff1">
+								<orgName type="department">Department of Computer Science</orgName>
+								<address>
+									<country>Duke University</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Alexander</forename><surname>Volfovsky</surname></persName>
+							<affiliation key="aff2">
+								<orgName type="department">Department of Statistical Science</orgName>
+								<orgName type="institution">Duke University</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Matched Machine Learning: A Generalized Framework for Treatment Effect Inference With Learned Metrics</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2023-04-03">3 Apr 2023</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">5449651071860D9DA2E6F70402B927BF</idno>
+					<idno type="arXiv">arXiv:2304.01316v1[stat.ME]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>Matching</term>
+					<term>Causal Inference</term>
+					<term>Nonparametric</term>
+					<term>Dimension Reduction</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>We introduce Matched Machine Learning, a framework that combines the flexibility of machine learning black boxes with the interpretability of matching, a longstanding tool in observational causal inference. Interpretability is paramount in many highstakes application of causal inference. Current tools for nonparametric estimation of both average and individualized treatment effects are black-boxes that do not allow for human auditing of estimates. Our framework uses machine learning to learn an optimal metric for matching units and estimating outcomes, thus achieving the performance of machine learning black-boxes, while being interpretable. Our general framework encompasses several published works as special cases. We provide asymptotic inference theory for our proposed framework, enabling users to construct approximate confidence intervals around estimates of both individualized and average treatment effects. We show empirically that instances of Matched Machine Learning perform on par with black-box machine learning methods and better than existing matching methods for similar problems. Finally, in our application we show how Matched Machine Learning can be used to perform causal inference even when covariate data are highly complex: we study an image dataset, and produce high quality matches and estimates of treatment effects.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Matching methods have a long history in observational causal inference. Their simplicity makes them interpretable even by non-technical audiences, as well as guarantees fast execution of causal analyses with known statistical properties, all while requiring no parametric assumptions on either outcome or treatment distributions <ref type="bibr" target="#b32">(Rosenbaum and Rubin, 1983)</ref>.</p><p>Recently, black-box machine learning (ML) tools for nonparametric estimation have come to supplant matching as the default for treatment effect estimation with contextual covariates (e.g., <ref type="bibr" target="#b16">Hill, 2011;</ref><ref type="bibr" target="#b45">Wager and Athey, 2018;</ref><ref type="bibr" target="#b5">Chernozhukov et al., 2018;</ref><ref type="bibr" target="#b14">Hahn et al., 2020)</ref>.</p><p>There are good reasons for this: the complexity of ML black boxes allows them to predict treatment effects with an unprecedented degree of accuracy, which is sometimes not achieved by matching methods. However, the use of black box ML comes at a cost of interpretability in the results. Our main concern is that models that are not interpretable are difficult to audit, i.e., it is difficult to assess the robustness and credibility of results from an uninterpretable model using contextual information about the data, problem, or population under study. This in turn is problematic since most causal inference datasets can have myriad forms of hidden noise, as well as unmeasured confounding. In this paper, we propose to bridge the gap between the accuracy of ML and the auditability of matching by using the first to inform the second. We propose a general framework that first uses flexible ML to learn a distance metric for matching units, and then employs a matching algorithm that uses the learned metric to construct high-quality matches. These matches are designed to approximate the predictions of the black-box ML while still being auditable; after the matches are made, the black box is thrown out and the analysis proceeds with the matches only.</p><p>Analysts can then audit quality of the matched estimate by simply examining the matches themselves. Methods from our framework output estimates for the Conditional Average Treatment Effect (CATE), i.e., the expected effect on any individual unit (also known as individualized treatment effect), the Average Treatment Effect (ATE), and Average Treatment Effect on the Treated (ATT), which are average treatment effects on respectively all or only the treated units. Our paper makes several key contributions to the literature on matching and treatment effect estimation in general:</p><p>(i) We introduce a framework for the production of interpretable treatment effect estimates that are still black-box accurate for the CATE.</p><p>(ii) We derive the asymptotic distributions and error bounds for CATE estimates made with any matching method falling under our framework.</p><p>(iii) We expand our framework into a general, doubly-robust matching framework for valid √ n-asymptotic inference for the ATE/ATT.</p><p>We also show empirically that the finite-sample performance of our tools does indeed match that of black box ML, and theoretically, that our matched estimates are asymptotically normal and with known and estimable variance for conditional treatment effects. In addition, we leverage Double Machine Learning (DML) <ref type="bibr" target="#b5">(Chernozhukov et al., 2018)</ref> methodologies to combine CATEs from matching into a doubly-robust estimator to obtain estimates for average treatment effects that are asymptotically normal at a rate of √ n. Importantly, this last method allows us to sidestep the issue of the slow-vanishing asymptotic bias of many common matching methods brought up by <ref type="bibr" target="#b0">Abadie and Imbens (2006)</ref>. Our framework generalizes many known and widely-employed matching methods, some of which are summarized in Table <ref type="table">1</ref>. Importantly, the theoretical guarantees that we establish for our framework can be applied to any of the matching methods it generalizes. We expand on how our framework generalizes the matching methods in Table <ref type="table">1</ref> in Section 6. We will demonstrate the power and flexibility of our method by matching on images, where we learn a low-dimensional representation of image covariates with a convolutional neural network. We will show that our method produces interpretable matched groups even when input covariates are complex and high-dimensional, like images. While the representation we match on is uninterpretable, the results are visually auditable: humans will be able to visually inspect the matched groups of images and easily assess their quality and trustworthiness. This will enable us to study whether brand responsiveness to consumers on social media is associated with an increase Table <ref type="table">1</ref>: Some existing matching methods that are special cases of M-ML.</p><p>Method Choice of φ Choice of q Nearest Neighbor φ(x) = x, 2 Propensity Score Matching φ(x) = h(x), h ∈ arg min h∈H E X [(h(X) -Pr(T i = t|X)) 2 ] 1 <ref type="bibr" target="#b32">(Rosenbaum and Rubin, 1983)</ref> Prognostic Score Matching φ(x) = h(x), h ∈ arg min h∈H E X,Y i (t) <ref type="bibr">[(h(X)</ref> -Y i (t)) 2 ] 1 <ref type="bibr" target="#b15">(Hansen, 2008)</ref> Adaptive Hyper-Boxes * φ(x) = [h t (x), h t (x)] ( <ref type="bibr" target="#b26">Morucci et al., 2020)</ref> h t ∈ arg min h∈H E X,Y i (t) <ref type="bibr">[(h(X)</ref>  <ref type="bibr">et al., 2012)</ref> Γ ∈ R p×p diag is a matrix of dimension-wise calipers Genetic φ(x) = Mx 2 <ref type="bibr" target="#b8">(Diamond and Sekhon, 2013)</ref> M ∈ arg min M∈R p×p diag i,j∈Tr Maha(x i , x j , M) MALTS φ(x) = Mx, 2 <ref type="bibr" target="#b28">(Parikh et al., 2022)</ref> M ∈ arg min M∈R p×p diag i,j∈Tr (y i -y j ) exp(-Maha(x i ,x j ,M)I(T i =T j ))</p><formula xml:id="formula_0">-Y i (t)) 2 ] 1 h t ∈ arg min h∈H E X,Y i (t ) [(h(X) -Y i (t )) 2 ] Coarsened Exact Matching φ(x) = Γx ∞ (Iacus</formula><p>k∈T r exp(-Maha(x i ,x k ,M)I(t i =t k ))</p><p>Fine Balance * φ(x) = h(x), h ∈ arg min h∈H E X [(h(X) -Pr(T i = t|X)) 2 ] 1 <ref type="bibr" target="#b36">(Rosenbaum et al., 2007)</ref> Note: * Requires additional constraints on the matching problem. The parameters φ and q are M-ML hyperparameters that will be defined later; setting them to the values in the table give us the methods in the left column. φ is a mapping from the original space to a useful feature space. It is estimated using a machine learning model. That machine learning model minimizes the loss function shown in the table. q defines a distance metric in the learned feature space. See Section 6 for an in-depth explanation of this table. Treatment represented by the random variable T , a specific treatment level is t, covariates are X (or x if not random), potential outcomes are Y (t), Tr is a training set, Maha(x i , x j , M) is the Mahalanobis distance of the covariate vectors of units i and j weighted by the positive, real-valued diagonal matrix M.</p><p>in consumer interaction with the brand. This is an important problem in marketing and consumer behavior (e.g., <ref type="bibr" target="#b23">Laroche et al., 2013)</ref>, but so far it has not been studied at the level of granularity that our method enables. Our paper will proceed as follows: In Section 2, we introduce matching methods in general. In Section 3, we outline the Matched Machine Learning framework for estimation of Conditional Average Treatment Effects by matching units on learned distance metrics. In Section 4, we present large-sample theoretical properties of our methodology. In Section 5, we propose an algorithm for asymptotically efficient matched estimation of the Average Treatment Effect. Section 7 presents empirical evidence of the performance of our methods on simulated datasets. Finally, in Section 8, we apply our methods to the problem of studying the impact of brand responsiveness on social media on the amount of consumer interaction with the brand.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Matching and Observational Causal Inference</head><p>We first introduce notation. We have a sample of n units, i = 1, . . . , n, having potential outcomes Y i (1), . . . , Y i (M ) ∈ R for a treatment that can take M possible values, t ∈ {1, . . . , M }.</p><p>Assigned treatments are denoted by the random variable T i ∈ {1, . . . , M }. We never observe the full vector of potential outcomes for each unit, but instead we observe the outcome vari-</p><formula xml:id="formula_1">able Y i = n i=1 Y i (t)I[T i = t],</formula><p>where I[E] is the indicator function for event E. Each unit has is assigned a p-dimensional random vector of covariates X i taking values in X, where X ⊂ R p is a compact set; observed covariate vectors are x i ∈ X. For an arbitrary random variable A, will use the notation f A to denote the Probability Mass Function (PMF) or Probability Distribution Function (PDF) of A, and use F A to denote the Cumulative Distribution Function (CDF) of A, and we will also use f A to denote the distribution of A. We use the notation</p><formula xml:id="formula_2">E A [A] and V A [A]</formula><p>to denote expectation and variance of A with respect to the distribution of A. When we use this notation without subscripts we mean that the expectation operator is with respect to all the random quantities inside of the square brackets. We make the following classical assumptions, for all i:</p><formula xml:id="formula_3">A1 (Data Distribution): (a) The data O n = {O i } n i=1 = {Y i , X i , T i } n i=1 is a set of n i.i.d. copies of O.</formula><p>(b) The domain of the covariate distribution, X is a compact subset of R p .</p><p>(c) The covariates have marginal distribution with differentiable CDF (w.r.t. the lebesgue measure) F X (x), and constants</p><formula xml:id="formula_4">c f X , C f X , such that 0 &lt; c f X &lt; f X (x) &lt; C f X &lt; ∞ everywhere over X.</formula><p>A2 (Overlap): For all x ∈ X and t = 1, . . . , M we have 0 &lt; Pr(T = t|X = x) &lt; 1.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A3 (Conditional Ignorability</head><formula xml:id="formula_5">): T ⊥ ⊥ (Y (1), . . . , Y (M ))|X.</formula><p>A4 (Bounded Higher Moments): For all t, t ∈ {1, . . . , M }, all x ∈ X and for some δ &gt; 0 and a constant C δ we have:</p><formula xml:id="formula_6">E[|Y (t)| 2+δ |X = x, T = t ] ≤ C δ .</formula><p>This paper is largely focused on estimating the Conditional Response Function (CRF)</p><p>and Conditional Average Treatment Effect for a given covariate vector, x. These are denoted, respectively, by: µ(x, t) = E[Y (t)|X = x], and τ (x) = µ(x, t) -µ(x, t ), for two treatments t, t . Note that Assumption 3 allows us to write:</p><formula xml:id="formula_7">E[Y |X = x, T = t] = E[Y (t)|X = x],</formula><p>and, therefore, implies that our quantities of interest can be consistently estimated from our observed data. We will also use the notation</p><formula xml:id="formula_8">σ 2 (x, t) = V[Y (t)|X = x] to denote</formula><p>the conditional variance of the potential outcomes. Later in this paper, we will be concerned with estimating averaged versions of the CRF and the CATE, which are defined as follows: Average Response Function (ARF)</p><formula xml:id="formula_9">µ(t) = E[Y (t)], Average Treatment Effect (ATE): τ (t, t ) = E[Y (t)] -E[Y (t )],</formula><p>and Average Treatment Effect on the Treated (ATT):</p><formula xml:id="formula_10">δ(t, t ) = E[Y (t)|T = t] -E[Y (t )|T = t].</formula><p>We will see how consistent estimation of the CRF allows for consistent estimation of all the other quantities. The main idea of matching is to create a Matched Group, i.e., a subset of units: MG( φ, x, t) ⊂ {1, . . . , n} that contains units whose observed outcomes will be used to estimate the quantities of interest defined above for the desired value x. It follows that the main problem of a matching procedure is to select which units we should include in MG( φ, x, t). In the following section we outline our strategy to do so.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Matched Machine Learning: A General Procedure</head><p>The key idea of this paper is to take advantage of powerful black-box machine learning models to inform how we should make matched groups, and, consequently, estimate CRFs and CATEs. To do this, we propose using machine learning to construct a d-dimensional representation of the covariates, and to subsequently match on these representations instead of the raw covariate values: ML will flexibly learn representations that are informative about the relationship between X, T , and Y , leading to higher-quality matches. To accomplish the goal just described, we introduce the function φ : X → R d , which is a representation function for the observed covariates. We assume that φ(x) exists for all x in their respective domains and is continuous. It is also possible for φ to depend on the treatment level, meaning that one separate φ will be estimated per treatment group. We omit this from the notation for ease of readership. We then propose that φ is learned with a ML method on a separate training set. The idea behind this representation is to map the covariates to a space where units are close if their potential outcomes are close, which is ultimately the goal of matching. For example, if we considered similarity between three units i, j, k based on X alone, we might might match i to k even though i is more similar to j in terms of (unobserved) potential outcomes. Instead, if we considered some transformation φ(X) that is informative as to the relationship between X and Y (t), we might be able to correctly conclude that i should be matched to j instead of k. Specifying a useful map φ can lead to great improvement in match quality over simple matches on raw covariate values. This idea has already been explored in the existing literature on matching, and popular examples of φ that have been used previously include the propensity score for covariates x and a desired treatment level, t, x: <ref type="bibr" target="#b32">and Rubin, 1983)</ref>, the prognostic score, or expected potential outcome under control:</p><formula xml:id="formula_11">φ(x) = Pr(T = t|X = x) (Rosenbaum</formula><formula xml:id="formula_12">φ(x) = E[Y (0)|X = x]</formula><p>(Hansen, 2008) (assuming that t = 0 represents the control condition), and the Mahalanobis distance: φ(x) = Mx, with M being a diagonal p×p matrix of positive weights <ref type="bibr" target="#b38">(Rubin, 1980;</ref><ref type="bibr" target="#b8">Diamond and Sekhon, 2013;</ref><ref type="bibr" target="#b28">Parikh et al., 2022)</ref>. Once we have formulated a representation of the covariates that we wish to use for matching, we will need a distance metric that encodes similarity of units on the transformed covariates. We employ a general L q norm for this purpose. For any (u, v) ∈ X × X, let:</p><formula xml:id="formula_13">D q φ (u, v) = d j=1 |φ(u) j -φ(v) j | q 1</formula><p>q , be the q-norm distance between u and v. q can be any integer or infinity, which we define as usual as</p><formula xml:id="formula_14">D ∞ φ (u, v) = max j=1,...,d |φ(u) j -φ(v) j |.</formula><p>In practice, the most popular choices of norm are q = 2 (e.g., <ref type="bibr" target="#b38">Rubin, 1980;</ref><ref type="bibr" target="#b1">Abadie and Imbens, 2011;</ref><ref type="bibr" target="#b8">Diamond and Sekhon, 2013)</ref>, for matching on the covariates themselves on the L 2 distance, absolute value distance (which is any L q in 1D) (e.g., <ref type="bibr" target="#b32">Rosenbaum and Rubin, 1983)</ref>, for matching on 1-dimensional representations of the covariates, such as the propensity score, and q = ∞ (e.g., <ref type="bibr" target="#b33">Rosenbaum and Rubin, 1984;</ref><ref type="bibr" target="#b17">Iacus et al., 2012)</ref>, for coarsening-based matching methods. Our main algorithm is as follows: Algorithm: Matched Machine Learning (M-ML) Input: A dataset of n observations D = {x i , y i , t i } n i=1 split into a training set and a matching set. A desired covariate value x, desired treatment level t, a matching set of units, and a separate training set, a positive, real-valued caliper, Γ n &gt; 0. Output: Estimator of conditional response function for covariate value x and treatment level t. Stage 1: Using the separate training set, construct an estimator of the representation φ(•), denoted φ(•). Calculate φ(x i ) for all units i in the matching set as well as the input values: φ(x).</p><p>Stage 2: Form the Matched Group by choosing units in the matching set that have the desired treatment level and are at a distance less than Γ n from x:</p><formula xml:id="formula_15">MG( φ, x, t) = i = 1, . . . , n : D q φ (x, x i ) ≤ Γ n , T i = t .<label>(1)</label></formula><p>Stage 3: Construct the estimator:</p><formula xml:id="formula_16">μ(x, t) = 1 |MG( φ, x, t)| i∈MG( φ,x,t) y i .<label>(2)</label></formula><p>In Stage 1, we split the data into a training and matching set, and learn an estimator the function φ on the training set, and use it to estimate φ(x i ) for every unit in the matching set.</p><p>In Stage 2, we construct our matches by maximizing the weighted sum of units with distance less than some generalized caliper, Γ n . In Stage 3, we use the matched group constructed at Stage 2 to estimate the CRF for x. We choose to control the size of the matched group and who gets included with a constraint on the representation distance defined in (3): units with a distance from our target value less than Γ n are included in the matched group. The way in which Γ n is defined results in two variants of the M-ML algorithm:</p><p>Caliper M-ML: In this case, Γ n is defined to be some positive, real value chosen by the analyst. This is the technique known as caliper matching (e.g., <ref type="bibr">Rosenbaum and Rubin, 1985b)</ref>. This technique guarantees that the distance between units within a matched group will never be less than a known value. Note that in Caliper M-ML, it could happen that there are no units in MG( φ, x, t): in this case, the estimator cannot be constructed; we should use a larger value of Γ n so that matches can be constructed.</p><p>KNN M-ML: In this case, Γ n = D q φ (x, x (kn) ), where (k n ) is the k th n order statistic of the vector (D q φ (x, x 1 ), . . . , D q φ (x, x n )). This technique is known as K-Nearest-Neighbor matching (e.g., <ref type="bibr" target="#b37">Rubin, 1976)</ref>. This method guarantees that each matched group will contain exactly k n units (assuming no ties), however, in this case the caliper Γ n will be a function of x, and of the data, which implies that users will not be able to directly control its value.</p><p>We will show in the next section that these two variants of the M-ML algorithm are essentially equivalent asymptotically, under appropriate choices of Γ n and k n .</p><p>In Stage 3, a canonical matching estimators for µ(x, t) is constructed with matches made at the prior step. An estimator for the CATE, τ (x, t, t ) can be intuitively constructed by running the M-ML algorithm twice: once with x and t as inputs, obtaining μ(x, t) as output, and once with x, t as inputs, obtaining μ(x, t ) as output; and finally by taking the difference between the two: τ (x, t, t ) = μ(x, t) -μ(x, t ). We will see in an upcoming section that this estimator shares the desirable asymptotic properties of μ(x, t) constructed with M-ML.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Matched Machine Learning: Asymptotic Properties</head><p>We now study the statistical behavior of our M-ML estimator. This is important because doing so will allow us not only to give bounds on estimation error as n grows, but also because it will allow us to construct approximate confidence intervals for our CATE and ATE/ATT estimates. Quantifying uncertainty in this way is paramount in virtually all scientific application of matching, and is necessary to improve the trustworthiness of matched estimates. Since M-ML is nonparametric, we focus on establishing results concerning its asymptotic properties, and study finite-sample behavior empirically via simulations. We will show in this section that CRF and CATE estimates for any x in the domain of the distribution of our data can be estimated consistently and efficiently at the nonparametrically optimal rate in the sense of <ref type="bibr" target="#b42">Stone (1982)</ref>. We will see in Section 5 that achieving this rate allows us to use Double Machine Learning methods with M-ML estimates as inputs to obtain root-n asymptotically normal estimates of ARF, ATE and ATT. It follows from these results that conventional sample variance estimators applied to MG( φ, x, t) are consistent for</p><formula xml:id="formula_17">V[Y (t)|X = x],</formula><p>and that, therefore, approximate confidence intervals can be constructed for M-ML CRF and CATE estimates. We will see that letting either the caliper Γ n shrink or the number of matches k n grow as n grows is fundamental to achieve consistency for M-ML estimates. Additionally, one key intuition behind our results is that the first-stage estimates do not affect the asymptotic behavior of the matching estimators, only its convergence rate, and the matching estimator can be understood asymptotically as if matches were made on the true value of φ, as we will show. All proofs for the results below are available in the supplement. They key assumption is that the following condition holds with respect to D q φ : A5 (Lipschitz Condition): For all x, z ∈ X and t ∈ {1, . . . , M } there exists a constant C L such that: (a) |µ(x, t) -µ(z, t)| ≤ C L D q φ (x, z), and (b) |σ 2 (x, t) -σ 2 (z, t)| ≤ C L D q φ (x, z). This (or a similar) smoothness condition on the outcome function is a common assumption in virtually all nonparametric estimation frameworks similar to matching (e.g., <ref type="bibr" target="#b19">Kallus, 2020;</ref><ref type="bibr" target="#b11">Farrell et al., 2021;</ref><ref type="bibr" target="#b45">Wager and Athey, 2018)</ref>, but the key difference here is that we would like it to hold for our transformed covariates, but not necessarily on the raw covariates. Assuming smoothness on the raw covariates, as is commonly done in matching and nonparametric methods, is a much stronger assumption: it would directly imply that the condition is also respected for the transformed covariates, as long as φ is Lipschitz-continuous in the covariate values, which is a simple and widely-satisfied requirement for many choices of φ.</p><p>The final component of our framework is a flexible ML method to estimate φ from the data. To this end, we introduce a separate training set, of size ρn, for some fraction ρ ∈ (0, 1).</p><p>This training set can be obtained by randomly subsetting the whole data into two sets: a training set, and a matching set. For notational simplicity, we will assume that the total number of units is n + ρn. We then assume that a ML method will be applied to the training data, to construct an estimator of φ denoted by φ. In practice φ can be modeled as the minimizer of some population loss function over a space of functions, and φ as its empirical counterpart, but this need not always be the case. The requirement that we will need on φ for our theoretical results to hold is that φ is a consistent estimator of φ, as well as both being differentiable functions. In order to establish the asymptotic properties of M-ML estimates, we need to make one additional but reasonable assumption for the first-stage distance metric estimates:</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A6 (Representation function):</head><formula xml:id="formula_18">There exists a function φ(x, O n ) : X × Ω → R d such that, for real-valued r M L &gt; 0: (a) The functions φ(x, O n ) and φ(x) are f O -almost surely continuous with respect to x at all x ∈ X, (b) φ(x, O n ) -φ(x) P,q = o(n -r M L ) almost surely over f X , (c) φ(X, O n ) -φ(X) P,q = o(n -r M L ).</formula><p>Part a) of this assumption limits potential representation to continuously differentiable functions of x, which is a common property of most ML algorithms. Part b) of this assumption states that the process used for learning φ must lead to a quantity with a proper distribution for all possible inputs. Part c) is satisfied as long as φ is learned from an independent training sample. Finally, part d) of this assumption states that first-stage ML estimates of φ must converge to the true value of φ both point-wise and in mean square. This assumption is relatively standard in nonparametric two-stage estimation settings <ref type="bibr" target="#b5">(Chernozhukov et al., 2018)</ref>, and has been verified for a number of different ML methods such as LASSO <ref type="bibr" target="#b4">(Belloni et al., 2014)</ref>, Random Forests <ref type="bibr" target="#b45">(Wager and Athey, 2018)</ref>, Support Vector Machines <ref type="bibr" target="#b7">(Devroye et al., 2013)</ref>, and Deep Neural Networks <ref type="bibr" target="#b11">(Farrell et al., 2021)</ref>, which are all also shown to converge at a rate r ≥ 1/4 under relatively mild assumptions.</p><p>Consider a unit outside of the data, which has observed covariates x. The probability that any of the units in our data are a match for x is given in the following lemma.</p><p>Lemma 1. Let A1-A6 hold. For x ∈ X, let matches be made with Caliper M-ML for a fixed Γ n ≥ 0, i.e.: MG( φ, x, t) = {i = 1, . . . , n : D q φ (X i , x) ≤ Γ n , T i = t}. Then, if Γ n → 0 as n → ∞ we have, for arbitrary i ∈ 1, . . . , n:</p><formula xml:id="formula_19">1. Γ -d n Pr On,X i ,T i (i ∈ MG( φ, x, t)) → V d e(t)f φ(X)|T =t (φ(x)) for all x ∈ X, 2. Γ -d n Pr X,On,X i ,T i (i ∈ MG( φ, X, t)) → V d e(t)E X [f φ(X)|T =t (φ(X))],</formula><p>where e(t) = Pr(</p><formula xml:id="formula_20">T = t), V d = 2Ga( 2 q +1) d Ga( d q +1</formula><p>) , where Ga is the Gamma function, and f φ(X)|T =t (φ(x)) is the pdf of φ(X) conditional on T = t.</p><p>Note that the first statement concerns almost sure convergence over f X , while the second concerns convergence in expectation over the same distribution. The above result is both intuitive and interesting: its proof does not rely on the ML convergence rate r at all, but instead takes advantage of continuity of φ, together with a generalized change of variables to establish the result. The theorem shows that Pr(i ∈ MG( φ, x, t)) is asyptotically proportional to Γ d n : this has the important consequence that, asymptotically, the rate at which our caliper Γ n contracts is the only relevant one for the probability of matching any unit i, and that the dimensionality of φ, d, will influence this rate regardless of the original number of covariates.</p><p>After this result is established, it can be used to prove the main theoretical result for CRF estimates obtained with M-ML, using the constants defined in the assumptions A4 and A5:</p><p>Theorem 1. (Asymptotic Behavior of Caliper M-ML CRF Estimates)</p><p>Let A1-A6 hold, with A5 holding for some δ &gt; 0. Let e(t), V d , and f φ(X)|T =t (φ(x)) be defined as in Lemma 1. Let r = min 1 2+d , r M L . For matches made with Caliper M-ML we have:</p><formula xml:id="formula_21">(i) For caliper Γ n = Kn 2r-1 d : n r (μ(x, t) -µ(x, t)) d → N 0, σ 2 (x,t) K d V d e(t)f φ(X)|T =t (φ(x)) . (ii) For caliper Γ n = n -1 2+d and s = 2 + δ: μ(X, t) -µ(X, t) P,s = O(n -1 2+d ) + o(n -r M L ),</formula><p>and this bound is minimal over all possible values of Γ n .</p><p>The same result holds for KNN M-ML: the following theorem establishes that, under suitable conditions on k n , M-ML CRF estimates made with this methodology are asymptotically equivalent to estimates made by controlling Γ n directly.</p><formula xml:id="formula_22">Theorem 2. (Asymptotic Behavior of KNN M-ML CRF estimates) Let A1-A6 hold. Let MG( φ, x, t) = {i = 1, . . . , n : D q φ ≤ Γ n , T i = t}, with Γ n equal to the k th n order statistic of the vector (D q φ (x, X i ), . . . , D q φ (x, X n )) (note that in this case Γ n is a function of x and X 1 , • • • X n ) with k n being a positive integer. Let r = min 1 2+d , r M L . We have: (i) For k n = Kn 2r , for a positive constant K &gt; 0: n r (μ(x, t) -µ(x, t)) d → N 0, σ 2 (x,t) K . (ii) For k n = n 2 2+d and integer s &gt; 2: μ(x, t) -µ(x, t) P,s = O(n -1 2+d ) + o(n -r M L ),</formula><formula xml:id="formula_23">and</formula><p>this bound is minimal over all possible values of k n .</p><p>Lemma 1, which gives us a way to establish the asymptotic order of the size of the matched group, |MG( φ, x, t)|, in Theorem 1 and of Γ n in Theorem 2, is of fundamental importance in the proof of both theorems. An important implication of both theorems is that the choice of Γ n and k n directly impacts the convergence rate and asymptotic variance of M-ML estimates.</p><p>In the case of Caliper M-ML, using the same reasoning as in the proof of Theorem 1, the asymptotic variance can be made equal to 1 by setting</p><formula xml:id="formula_24">Γ n = n r-1 K d V d e(t)f φ(X)|T =t (φ(x)) σ 2 (x,t)</formula><p>1 p , and it can be made arbitrarily small by multiplying the above by a positive constant. Obviously, this decrease in variance is paid for by an increase in bias due to the larger matched group, making it impractical to achieve an asymptotic variance lower than 1 in most cases. An analogous relationship is true for KNN M-ML: here one option to choose k n is to set it to the integer closest to n r K. In this case, when we choose K = 1, the asymptotic variance is exactly σ 2 (x, t), however, depending on the data, there might not be n r high quality matches for x, and K &lt; 1 might have to be chosen, leading to larger asymptotic variance. We note that our results on asymptotic normality of KNN regression generalize those of <ref type="bibr" target="#b43">Stute et al. (1984)</ref> by incorporating a distance metric learning step.</p><p>The bounds given in Theorems 1 and 2 have two important consequences. First, that the optimal convergence rates of KNN matching and caliper matching are the same, determining the asymptotic equivalence of these two long-standing matching procedures. Second, our bounds are directly related to the results on the convergence rates for KNN classification and regression on matches made on the L q distance of the raw covariates established in various works and summarized by <ref type="bibr" target="#b12">Györfi (1981)</ref>; <ref type="bibr" target="#b13">Györfi et al. (2002)</ref>. Notably, the main difference between our bound and other bounds on non-transformed matching have a difference of a factor of o(n -r M L ), which is due to the covariate transformation having to be learned in our case. This fact has an important consequence for our setting: gains in performance due to learning a distance metric, rather than matching on raw values of the covariates, can only be made in finite samples, rather than asymptotically. This conclusion is supported by recent work of <ref type="bibr" target="#b30">Rimanic et al. (2020)</ref>, who derive a similar bound for KNN regression but under different assumptions on the representation function φ. We will show in our simulations section that these finite-sample gains are substantial. Even more importantly, the bound implies that greatly improving the predictive accuracy of matching by adding a distance-learning step via ML comes at almost no cost in terms of convergence rate, since the matching portion of the error bound decreases at its nonparametric rate.</p><p>Let us move on to discuss the asymptotic variance of the potential outcomes, σ 2 (x, t), which is of importance for asymptotic inference. This quantity can also be estimated via M-ML by applying the traditional variance estimator to the matched groups constructed with M-ML. This is stated formally in the following theorem:</p><p>Theorem 3. (Consistency of Sample Variance Estimator) Let the sample variance estimator for σ 2 (x, t) be defined as:</p><formula xml:id="formula_25">σ2 (x, t) = 1 N ( φ,x,t) i∈MG( φ,x,t) (Y i -μ(x, t)) 2 . Let A1-A6 hold,</formula><p>and let MG( φ, x, t) be constructed either with Caliper M-ML or KNN M-ML. Then we have:</p><formula xml:id="formula_26">σ2 (x, t) p → σ 2 (x, t) for all t as n → ∞.</formula><p>Note that the result holds independently of whether the number of units to match to x is chosen or whether Γ n is chosen to control the radius of MG( φ, x, t).</p><p>Finally, the theorems just introduced have the following direct consequence as a corollary, which permits us to construct asymptotic confidence intervals for the CATE. </p><formula xml:id="formula_27">: n r (τ (x, t, t ) -τ (x, t, t )) d → N 0, σ 2 (x,t) K d V d e(t)f φ(X)|T =t (φ(x)) + σ 2 (x,t ) K d V d e(t )f φ(X)|T =t (φ(x)) . (ii) If matches are made with KNN M-ML and k n = n 2r K : n r (τ (x, t, t ) -τ (x, t, t )) d → N 0, σ 2 (x,t) K + σ 2 (x,t ) K .</formula><p>This corollary is possible because only units with observed treatment T i = t are used to construct μ(x, t), and only units with T i = t are used to construct μ(x, t ): this renders the two estimators independent of each other. With the two estimators independent of one another, the continuous mapping theorem applied to the vector (μ(x, t), μ(x, t )) allows the conclusion in the corollary to be reached. The result in the corollary implies that an approximate 1 -α confidence interval can be constructed for a fixed x with:CI</p><formula xml:id="formula_28">(x, t, t ) = τ (x, t, t ) ± Φ -1 (1 -α/2) σ2 (x,t) c(x,t) + σ2 (x,t ) c(x,t ) , where c(x, t) = n r K d V d e(t)f φ(X)|T =t (φ(x)</formula><p>) for caliper matches (Thm. 1), or c(x, t) = k n for KNN matches (Thm. 2). This will permit analysts to quantify the uncertainty around their CATE estimates in a way that is widely accepted, and has known guarantees.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Matched Double Machine Learning For Average Estimands</head><p>The M-ML framework can naturally be extended to nonparametric estimation of ATE and ATT in a way that maintains the auditability of matching, as well as the ability to construct asymptotically valid confidence intervals. This is possible because M-ML estimates can be used as input for first-stage estimates in Augmented Inverted Propensity Weighted (AIPW) estimators <ref type="bibr" target="#b31">(Robins et al., 1994)</ref>. These estimators have been found to behave normally asymptotically and with known variance, provided that first-stage estimates of CRF and propensity converge sufficiently fast <ref type="bibr" target="#b5">(Chernozhukov et al., 2018;</ref><ref type="bibr" target="#b44">Van Der Laan and Rubin, 2006)</ref>, which is a property that our methods have, as shown in the analysis above.</p><p>Thanks to this property, we can formulate a version of the M-ML algorithm for ATE and ATT estimation modeled after the DML algorithm of <ref type="bibr" target="#b5">Chernozhukov et al. (2018)</ref>. The algorithm we propose is called Matched Double Machine Learning (M-DML), and is defined as follows:</p><formula xml:id="formula_29">ATE or ATT Estimation: Matched Double Machine Learning (M-DML) Stage 1: Randomly split the data {x i , y i , t i } n i=1 into L folds each of size n/L. Let S ℓ</formula><p>denote all the indices of units in fold ℓ, and S \ℓ all the indices of units not in that fold.</p><p>The units in fold ℓ are used for estimating the ATE and ATT.</p><p>Repeat the following steps for ℓ = 1, . . . , L.</p><p>Stage 2: Further split the units in S \ℓ into a training set, denoted by T S ℓ and a matching set, denoted by MS ℓ . Using only the units in T S ℓ , learn the representation function φ(x). Using all units in S \ℓ , construct a consistent estimator of the propensity for each treatment level t, denoted by ê(x, t), and of the marginal propensity for receiving treatment t: Pr(T = t), the latter denoted by ê(t).</p><p>Stage 3: For each unit i ∈ S ℓ , and for treatment levels t, t , run the M-ML algorithm for each treatment level, with all the units in MS ℓ as candidates for matching to obtain μ(x i , t), μ(x i , t ). Additionally predict the propensity score of i for each treatment level, ê(x i , t), using the propensity models learned in Stage 2.</p><p>Stage 3: For each unit i ∈ S ℓ , using the outputs of the previous stage, construct the doubly robust score function:</p><formula xml:id="formula_30">ψ(x i , t) = μ(x i , t) + I[t i =t](y i -μ(x i ,t)) ê(x i ,t)</formula><p>, and compute ψ(x i , t ) analogously, then compute:</p><formula xml:id="formula_31">ψ(x i , t, t ) = I[t i =t](y i -μ(x i ,t )) ê(t) -I[t i =t ]ê(x i ,t)(y i -μ(x i ,t )) ê(t)ê(x i ,t )</formula><p>.</p><p>Stage 4: Construct the estimators: μDR</p><formula xml:id="formula_32">ℓ (t) = L n i∈S ℓ ψ(x i , t), for both t,t', τ DR AT E (t, t ) ℓ = μDR ℓ (t) -μDR ℓ (t ), τ DR AT T (t, t ) ℓ = L n i∈S ℓ ψ(x i , t, t ). Stage 5: Average across folds: μDR (t) = 1 L ℓ μDR ℓ (t), τ DR ATE (t, t ) = 1 L ℓ τ DR AT E (t, t ) ℓ , and τ DR ATT (t, t ) = 1 L ℓ</formula><p>τ DR AT T (t, t ) ℓ . These three quantities are the output of M-DML.</p><p>The algorithm works by splitting the data into L folds (Stage 1), which are then further split into training and matching set. Note that this is a 3-way data split, which is intuitively required by the matching step added on top of the ML prediction step, a similar splitting procedure is also used in <ref type="bibr" target="#b46">(Wang et al., 2021)</ref>. The M-ML algorithm is then fit separately to each fold (Stage 2) and results are averaged to obtain a final estimate of the parameter of interest (Stage 5). Note that if one has enough data, then one could use only a single held out training split and eliminate the need to further split units outside fold ℓ into training and matching sets. This avoids increasing the complexity of cross-fitting, which could be computationally expensive for large datasets.</p><p>Given two treatment levels of interest to the user, t and t , the M-ML algorithm is run twice on each fold, once for treatment level t and once for t . The estimators constructed using μ(x, t) output by M-ML are given in Equations ( <ref type="formula">5</ref>) and ( <ref type="formula">5</ref>) and they are the doubly robust score functions, used in the AIPW estimators of <ref type="bibr" target="#b31">Robins et al. (1994)</ref>. The idea of these estimators is to use the observed data to correct the first-stage predictions, and thus ensure asymptotic normality of estimates. As shown in the algorithm, one needs a consistent estimate of the propensity score, e(x i , t) for all units, i, and treatment levels of interest. Many good estimators exist for this quantity, and the use of any estimator based on a ML method that satisfies the requirements on convergence rates given in Theorem 4</p><p>will result in the asymptotic guarantees on M-DML given in the theorem.</p><p>The M-DML algorithm is a special case of the DML2 algorithm given in Definition 3.2 of <ref type="bibr" target="#b5">Chernozhukov et al. (2018)</ref>. To match M-DML to that definition, M-ML is taken to be the first stage estimator in the definition. The properties of the AIPW estimators, together with the convergence rates of M-ML give us guarantees on the asymptotic normality and convergence rate of M-DML. This is stated in the following theorem. further that the user has chosen a propensity score estimator that satisfies, for a positive, real r e : (i) ê(X, t) -e(X, t) P,2 = O(n -re ), (ii) ê(X, t) -1/2 P,∞ ≤ 1/2 -, for some &gt; 0, (iii) 0 &lt; ê(x, t) &lt; 1 for all x and t. Let r = min 1 2+d , r M L and assume that r + r e ≥ 1/2. Let MG( φ, X, t) be constructed either with Caliper M-ML or with KNN M-ML with either Γ n = Kn 2r-1 d , or k n = Kn 2r , for a fixed integer K &gt; 0. Then the following holds for M-DML estimates:</p><formula xml:id="formula_33">1) Asymptotic Normality: √ n(μ DR (t) -µ(t)) d → N (0, σ 2 (t)), with σ 2 (t) = E X [ψ(X, t) 2 ], √ n(τ DR AT E (t, t ) -τ (t, t )) d → N (0, σ 2 AT E (t, t )), with σ 2 AT E (t, t ) = E X [(ψ(X, t) -ψ(X, t )) 2 ],</formula><p>and</p><formula xml:id="formula_34">√ n(τ DR AT T (t, t ) -τ (t, t )) d → N (0, σ 2 AT T (t, t )), with σ 2 AT T (t, t ) = E X [ψ(X, t, t ) 2 ].</formula><p>2) Consistency of the sample variance estimators applied to the second-stage estimators, i.e.:</p><formula xml:id="formula_35">σ2 (t) = 1 n n i=1 ( ψ(X i , t) -μDR (t)) 2 p → σ 2 (t), σ2 AT E (t, t ) = 1 n n i=1 ( ψ(X i , t) -ψ(X i , t ) - τ DR AT E (t, t )) 2 p → σ 2 AT E (t, t ), and, σ2 AT T (t, t ) = 1 n n i=1 ( ψ(X i , t, t ) -τ DR AT T (t, t )) 2 p → σ 2 AT T (t, t ).</formula><p>3) Approximate confidence intervals:</p><p>Let ∆ be a M-DML estimator from Stage 5 of the M-DML algorithm, ∆ its corresponding estimand, and σ2 its respective asymptotic variance. An approximate 1-α confidence interval for the parameter of interest is:</p><formula xml:id="formula_36">CI(δ) = ∆ ± Φ -1 1 -α 2 σ2</formula><p>n , where Φ -1 (a) is the a th quantile of the standard normal distribution.</p><p>The statement follows almost directly from our Theorems 1, 2 and Theorem 5.1 in <ref type="bibr" target="#b5">Chernozhukov et al. (2018)</ref>. This result establishes asymptotic normality at a √ n rate for ATE and ATT estimates obtained with M-DML. This is of primary importance because it enables us to approximate confidence intervals on our average parameters of interest with the asymptotic distribution of our estimators, thus providing the uncertainty quantification that is needed for causal inference. Note that, if the same ML estimator is used for both φ and ê, then the requirement on its rate becomes: r M L ≥ 1 4 , which is the same rough requirement given in <ref type="bibr" target="#b5">Chernozhukov et al. (2018)</ref>. Note that this rate can be achieved by M-ML and first stage methods under the condition that β ≥ p 2 , i.e., if outcomes are smooth enough as a function of the covariates, which is a common requirement in nonparametric estimation frameworks. In order to achieve the rate needed it is also important to choose the dimensionality of the representation φ in such a way that the condition 1 2+d + r e ≥ 1 2 holds. This can be achieved by choosing d ≤ 2re</p><p>1 2 -re . If r e is the optimal nonparametric convergence rate with a β-smooth propensity score and p covariates <ref type="bibr" target="#b42">(Stone, 1982)</ref>, then the condition reduces to d ≤ 4β</p><p>p .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">M-ML and M-DML: Examples and Extensions</head><p>In this section, we present some practical examples of how M-ML and M-DML might be used, and give some case-specific considerations that apply to the algorithms in these settings. In addition, we present an extension to the M-ML algorithm that allows the user to add arbitrary constraints to the matching optimization problem at Stage 2 of the M-ML algorithm.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.1">Matching to explain ML predictions</head><p>The most straightforward application of M-ML is to match on the estimated potential outcomes from a black-box ML model in order to audit the model's predictions with case-based reasoning. In the causal inference literature, matching on an estimate of µ(x, t) is known as prognostic score matching <ref type="bibr" target="#b15">(Hansen, 2008)</ref>, which displays many of the properties of propensity score matching. In this case, we would define φ as min h E[ℓ(Y (t), X, h)], where ℓ is a loss function. For regression problems, for example, one could use the loss ℓ(Y (t),</p><formula xml:id="formula_37">X, h) = (Y (t) -h(X)) 2 . It is easy to show that in this case φ(x) = E[Y (t)|X = x] = µ(x, t). Conven-</formula><p>tional ML methods will estimate φ by minimizing the empirical risk</p><formula xml:id="formula_38">1 n n i=1 ℓ(Y i (t), X i , h</formula><p>) over a space of hypothesis functions, H, which is potentially very large, complex, uninterpretable, and therefore almost impossible to audit. As argued before, matching will remedy this lack of interpretability by replacing the output of black box h(x, t) with the average of the observed outcomes of nearby units; if we construct the distance metric well, those units will have similar predicted Y (t) values. Importantly, in this case d = 1, implying that the convergence rate for M-ML will be min(n 1 3 , n r M L ), which will almost always equal r M L , since it is very unlikely that any ML method may achieve a convergence rate greater than 1/3, especially when p &gt; 1. This consequently implies that adding matching on top of ML for auditability comes at virtually no cost in terms of convergence rate of the ML predictions.</p><p>Notably, in this case the dimensionality of φ will be exactly d = 1. This implies that the rate of convergence for the matching portion of our estimators will be exactly equal to the nonparametrically optimal one (see <ref type="bibr" target="#b42">Stone (1982)</ref> as well as Sec. 6.3 of <ref type="bibr" target="#b13">Györfi et al. (2002)</ref>).</p><p>This implies that, in this case, the rate of convergence of the CATE M-ML estimator will be r = r M L , i.e., the M-ML estimator will converge as fast as any backend ML estimator of φ can. This has the important implication that adding a layer of interpretability on top of ML predictions with matching comes at no cost in terms of convergence rates.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.2">Matching on the Mahalanobis distance with learned weights</head><p>One potential use of M-ML is to construct covariate weights that describe the importance of each feature for outcome generation, and to then match on a weighted L 2 distance with those weights. This is already accomplished by several existing matching methods <ref type="bibr" target="#b46">(Wang et al., 2021;</ref><ref type="bibr" target="#b28">Parikh et al., 2022;</ref><ref type="bibr" target="#b8">Diamond and Sekhon, 2013)</ref>, each targeting a different set of weights that ensures different desirable properties of the matches. This setting can be expressed in the M-ML framework by setting φ(x) = Mx, where M is a p × p diagonal matrix of weights that are either known or learned from the data. In this case, φ(x) is invertible, and the asymptotic probability of a match, n r K d V d e(t)f φ(X)|T =t (φ(x)), used in our framework to estimate the asymptotic variance of caliper matches, becomes:</p><formula xml:id="formula_39">n r K d V d e(t)f X|T =t (x) p j=1 m j</formula><p>, where m j is the true value of the weight on covariate j.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.3">M-ML as a General Matching Framework</head><p>As the previous examples suggest, the M-ML algorithm can also be seen as a generalization of several other popular matching methods when matching is done with replacement, either with a caliper on the pair-wise distance of units to be matched, or with a fixed number of matches.</p><p>We give a description of methods that are special cases of M-ML here, and a summary in Table <ref type="table">1</ref>. Specifically, the following methods are special cases of the M-ML framework:</p><p>Nearest Neighbors, Propensity Score Matching, Prognostic Score Matching, Prognostic Score Matching, Adaptive Hyperboxes, Coarsened Exact Matching, Genetic Matching, Genetic Matching, Matching After Learning to Stretch (MALTS), and Fine Balance.</p><p>Let us describe in more detail how these are special cases of M-ML, starting with Mahalanobis distance matching, which includes MALTS and Genetic Matching. Mahalanobis distance matching <ref type="bibr" target="#b38">(Rubin, 1980)</ref> matches units that are close in terms of Mahalanobis distance, which is defined for two vectors u, v ∈ R p and a square matrix M ∈ R p×p as:</p><formula xml:id="formula_40">Maha(u, v, M) = (u -v) T M(u -v).</formula><p>M is usually chosen to be diagonal, and we will use diagonal M. Mahalanobis matching can be implemented as M-ML by choosing φ(x) = Mx and then matching on the L 2 distance. Setting M = I, where I is the identity matrix in the same scenario will result in simple Nearest-Neighbor Matching, used, for example, by <ref type="bibr" target="#b0">Abadie and Imbens (2006)</ref>. Methods like Genetic Matching <ref type="bibr" target="#b8">(Diamond and Sekhon, 2013)</ref> and MALTS <ref type="bibr" target="#b28">(Parikh et al., 2022)</ref> perform Mahalanobis matching just as described, but they add a first step for learning an optimal M, thus also taking advantage of the learning component of M-ML. For a version of Genetic Matching that learns its distance on a separate training set, this first step can be expressed as finding M that solves: M ∈ arg min</p><formula xml:id="formula_41">M∈R p×p diag i,j∈Tr Maha(x i , x j , M),</formula><p>where Tr is a set of indices indicating which of the units belong to the training set. In the case of MALTS, M is found by optimizing: M ∈ arg min</p><formula xml:id="formula_42">M∈R p×p diag i,j∈Tr (y i -y j )I(t i =t j ) exp(-Maha(x i ,x j ,M)) k∈Tr I(t i =t k ) exp(-Maha(x i ,x k ,M)) .</formula><p>Methods that use predictors of treatment and outcomes and match on those can also be implemented as special cases of M-ML. For propensity score matching (Rosenbaum and Rubin, 1985a), φ(x) = h(x) and h is chosen to be the best predictor of treatment assignment within a class of functions, H, i.e: h ∈ arg min h∈H E X [(h(X)-Pr(T i = t|X)) 2 ]. For prognostic score matching <ref type="bibr" target="#b15">(Hansen, 2008)</ref>, the same is done, but with h being the best predictor of the control outcome, denoted here by t :</p><formula xml:id="formula_43">h ∈ arg min h∈H E X,Y (t ) [(h(X) -Y (t )) 2 ]. A pre-</formula><p>trained version of the Adaptive Hyperboxes (AHB) matching algorithm <ref type="bibr" target="#b26">(Morucci et al., 2020)</ref> can also be cast as a version of M-ML, by adopting the same form for h as in prognostic score matching, but for both treatment levels of interest, t, t , and constructing the vector:</p><formula xml:id="formula_44">φ(x) = (h t (x), h t (x)), where h t ∈ arg min h∈H E X,Y (t) [(h(X) -Y (t)) 2 ]</formula><p>, and h t is defined in an analogous manner. In addition to this, AHB matches units in a hyperrectangular region of the covariate space that is learned from the data: while this is not directly achievable within M-ML, it is possible to pre-specify a rectangular region of the covariate space, H(x), and to add a constraint to the M-ML matched group that requires matched units to be within that region: MG( φ, x, t) = {i = 1, . . . , n :</p><formula xml:id="formula_45">t i = t, D q φ (x i , x) ≤ Γ n , x i ∈ H(x)}.</formula><p>After estimating φ, all of these matching methods match using the L 1 distance, which could be chosen for M-ML as well. Coarsened Exact Matching <ref type="bibr" target="#b17">(Iacus et al., 2012)</ref> can be implemented as M-ML by creating a diagonal matrix of dimension-wise calipers, Γ, where the diagonal is given by the vector 1 γ 1 , . . . , 1 γp , and each value of γ j is the maximum allowed distance for two units on the j th dimension. To fully emulate CEM, matches should then be made on the sup norm, i.e., by setting q = ∞. In a similar vein, matching with near-fine balance on the j th covariate <ref type="bibr" target="#b36">(Rosenbaum et al., 2007)</ref> can be implemented as M-ML by adding a constraint to the matched group that takes the form |x ij -x j | ≤ γ j , where γ j is a small caliper on the j th dimension; fine balance can be achieved by setting γ j = 0. Fine balance matches can be made with any choice of φ and q, but to emulate the implementation of Rosenbaum et al.</p><p>(2007), one would choose φ to be the propensity score, and set q = 1.</p><p>Finally, analysts could be interested in creating optimal matched groups by solving a weighted version of an optimization problem, where the number of units to include in MG( φ, x, t) is chosen as the optimum of a weighted combination of cumulative distance and number of units. This is a type of bias-variance trade-off, as larger groups have lower variance, but higher bias since they include points that are farther away. The following lemma establishes that the matched group formulation defined in Eq. ( <ref type="formula" target="#formula_15">1</ref>) is also an optimal solution to such a weighted problem: Lemma 2. (M-ML is a solution to the weighted matching problem.) Let W i ( φ, x, t) = I[i ∈ MG( φ, x, t)] represent whether unit i is included in MG( φ, x, t), then the matched group MG( φ, x, t), defined in (1), is also a solution to the problem: min W 1 (x,t),..., <ref type="bibr">Wn(x,t)</ref></p><formula xml:id="formula_46">:∈{0,1} n n i=1 D q φ (x, X i )- Γ n n i=1 W i ( φ, x, t).</formula><p>The above formulation is used, for example, in <ref type="bibr" target="#b26">Morucci et al. (2020)</ref>, or in some of the optimization problems of Zubizarreta ( <ref type="formula">2012</ref>), together with additional constraints on the matching problem. This lemma importantly shows that the M-ML framework incorporates matching algorithms that target combined optimization problems, implying that the asymptotic and empirical results we obtain for M-ML can also be extended to such methods.</p><p>In conclusion, we have shown that our methodology and theoretical results apply generally to many existing matching algorithms, and this in turn enables easy computation of asymptotic confidence intervals for these algorithms.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.4">Related Work</head><p>The idea of matching on a learned function of the covariates has been previously explored in the literature on matching in various specialized and restricted settings. Of these settings, the first to emerge and to be extensively studied was Propensity Score Matching (PSM) <ref type="bibr" target="#b32">(Rosenbaum and Rubin, 1983)</ref>. Of the various analyses of propensity score matching, the two closest to our setting are that of <ref type="bibr" target="#b39">Rubin and Thomas (1992)</ref>, and that of <ref type="bibr" target="#b3">Abadie and Imbens (2016)</ref>. The former shows that theoretical guarantees on finite-sample bias and variance can be derived for matching methods when covariate transformations are affine, and outcomes have ellipsoidal distributions. The latter shows that propensity score matching does indeed exhibit efficient asymptotic behavior when propensity scores are linear and for average effects only. Other recent work that considers matching on a transformation of the covariates includes <ref type="bibr" target="#b25">Luo and Zhu (2020)</ref>, who consider matching on linear transformations of the covariates, and Kallus (2020), who proposes a method for estimation of the ATT that is √ n-consistent without requiring additional nonparametric adjustments, and relying on a kernel mapping of the covariates. Our paper is more general in that our matching framework works with any transformation of the covariates and require minimal distributional assumptions on the outcome data, as well as encompassing estimation of both ATE/ATT and CATE.</p><p>Aside from tools for statistical inference, the literature on matching for treatment effect estimation has seen a proliferation of methods to make matches on the raw, untransformed values of the covariates (e.g., <ref type="bibr" target="#b17">Iacus et al., 2012;</ref><ref type="bibr" target="#b8">Diamond and Sekhon, 2013;</ref><ref type="bibr" target="#b49">Zubizarreta, 2012)</ref>, but most of these methods focus on matching to optimize some aggregate metric of quality across units, and therefore perform poorly when estimating CATEs, unlike our proposed approach, and for the ATE/ATT they are prone to the issues of convergence outlined by <ref type="bibr" target="#b0">Abadie and Imbens (2006)</ref>. That work shows that nearest-neighbor matching methods fail to attain the nominal, √ n, convergence rate for the ATE/ATT, a problem important for our setting. Recent work by <ref type="bibr" target="#b40">Sävje (2022)</ref> shows that matching methods that match without replacement fail to attain this rate as well. We introduce a methodology based on recent results for efficient two-stage estimation <ref type="bibr" target="#b5">(Chernozhukov et al., 2018;</ref><ref type="bibr" target="#b44">Van Der Laan and Rubin, 2006</ref>) that allows our average estimates to be consistent at the nominal rate.</p><p>Other methods to address this issue include work by <ref type="bibr" target="#b1">Abadie and Imbens (2011)</ref> and <ref type="bibr" target="#b27">Otsu and Rai (2017)</ref>, but both of those methods require combining matching with independent nonparametric estimates of outcome and propensity functions that do not involve matching and therefore render final estimates hard to audit. Another existing method that addresses this issue is that of <ref type="bibr">Wang and Zubizarreta (Forthcoming)</ref>, who show that matching methods that target average balance, rather than nearest-neighbor balance per unit, can achieve the nominal rate. Our results and proposed framework differ in that it uses nearest-neighbor matches, which is both computationally faster than optimizing the full set of matches simultaneously (which is done by mixed-integer program), and enables direct estimation of unit-level treatment effects, unlike their method. There also exists a literature on matching methods for individualized treatment effect estimation that combines machine learning of distance functions with matching <ref type="bibr" target="#b9">(Dieng et al., 2019;</ref><ref type="bibr" target="#b28">Parikh et al., 2022;</ref><ref type="bibr" target="#b26">Morucci et al., 2020;</ref><ref type="bibr" target="#b46">Wang et al., 2021)</ref>: our paper aims to generalize all these methods under a single framework, and to provide users of these methods with a way to perform inference for their output estimates. Finally, the literature on nonparametric CATE estimation is related to our work.</p><p>This literature has mainly focused on powerful black-box methods <ref type="bibr" target="#b6">(Chipman et al., 2010;</ref><ref type="bibr" target="#b45">Wager and Athey, 2018;</ref><ref type="bibr" target="#b11">Farrell et al., 2021)</ref> whose predictions are not auditable by analysts and decision-makers, leading to substantially less trustworthy and potentially wrong results in many settings. Our method explicitly addresses this problem with matching.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7">Simulations</head><p>We present results from an empirical evaluation of the performance of M-ML for CATE and ATE estimation on several simulated datasets for which we know ground truth causal effects. As a setting, we focus on the application of M-ML as an auditing tool for ML by matching on outcome predictions made by black-box algorithms, as this is one of the most natural uses of M-ML. We show that, on average, M-ML performs comparably to blackbox methods that it is based on, and in some settings even improves on their performance.</p><p>Global to all simulations, we generate data for n = 20000 units and p = 20 covariates, where 5000 units are used for training and the remaining for matching/estimation. For i = 1, . . . , n, we generate:</p><formula xml:id="formula_47">X i ∼ N p (1, 1), σ i ∼ Uniform(1, 2), λ ∼ Uniform p (-4, 4), β lin = λ, β qua ∼ Uniform p (0, 1) + λ, β cos ∼ Uniform p (0, 1) + λ, δ ∼ Uniform p (-1, 1), δ int ∼</formula><p>Uniform p×p (-0.5, 0.5), τ = 5, α = 5, i ∼ N (0, σ i where, for some vector u ∈ R p , u ∼ f p denotes a vector made up of p draws from the same distribution, f . We then generate outcomes according to the following DGP, for two treatment levels t = 0, 1:</p><formula xml:id="formula_48">Nonlinear: Y i (t) = α+tτ +X i β lin +X 2 i β qua +cos(X i )β cos +tX i δ+t p j=1 p k=1 X ij X ik δ int jk + i Piecewise: Y i (t) = α + tτ + p j=1 I(X ij &gt; 0)β lin j + t p j=1 I(X ij &gt; 0)δ j + i Selection: Y i (t) = α + tτ + 10</formula><p>j=1 X j β lin j + t 10 j=1 X j δ j + i . We choose the DGPs above because they simulate three settings that are complicated to deal with nonparametrically, but that may occur in applied scenarios. The nonlinear setting is one in which the outcome is a complex function of the covariates that may vary in unexpected ways, the piecewise setting is simpler, but each covariate is considered as a simple threshold, which adds a stepwise component to the function. Finally, the selection setting is also linear, but involves a variable selection component, as only 10 of the 20 simulated covariates are used to generate outcomes, and estimation methods need to be flexible enough to exclude or downweight the unused covariates to attain optimal results. Finally, we also generate propensity scores and treatment indicators with:</p><formula xml:id="formula_49">u i ∼ Uniform(0.1, 1), e(X i , 1) = exp(u i (Y i (1) + Y i (0))/2 -i ) 1 + exp(u i (Y i (1) + Y i (0))/2 -i ) , T i ∼ Bernoulli(e(X i , 1)),</formula><p>note that the correlation between potential outcomes and treatment assignment is controlled by the random variable u i , which we introduce to avoid fully correlated treatment and outcomes and potential overlap violations. Our simulations will include BART, Gaussian Process, SVM as baseline predictors for M-ML as well as several other comparison methods including Causal Forests. A complete list of methods used can be found in Table <ref type="table" target="#tab_2">2</ref> of the Appendix.For all the M-ML methods employed in our simulations, we match on the unweighted L2 distance, where φ is either the propensity score or the difference in potential outcomes estimated with one of three ML methods. We use KNN M-ML matching with fixed k n and k n set to n 1/2 , so that √ k n is a lower bound on the first stage convergence rates of most ML methods, under sufficient regularity assumptions on the data <ref type="bibr" target="#b5">(Chernozhukov et al., 2018)</ref>. We first present results for CATE estimation in the top row of Figure <ref type="figure" target="#fig_0">1</ref>.</p><p>CATEs in this setting are estimated as simple differences of predicted potential outcomes fitted by each method under consideration. Our results for this setting show that, while M-ML does not generally outperform the non-parametric black box methods that we compare it to, it also does not generally underperform them. This lends evidence to the idea that adding matching on top of ML methods can boost interpretability, auditability and enable uncertainty quantification, while leading to minimal or no loss in performance. Results also show that the DGP does have an influence on performance: specifically, M-ML seems to perform better under the Nonlinear and Selection DGPs, and outperforms nonparametric causal methods such as causal forests and X-learner in these settings. The bottom row of Note: Top Row: CATE, Bottom Row: ATE. Different methods compared are on the horizontal axis, and the vertical axis is the mean absolute estimation error at each each iteration. Acronyms are described in Table <ref type="table" target="#tab_2">2</ref>.</p><p>Figure <ref type="figure" target="#fig_0">1</ref> presents results for a similar set of simulations, but for ATE estimation. We use the M-DML algorithm with the KNN M-ML algorithm to construct first-stage predictions of conditional response functions. Causal forests, and bias-corrected matching methods, are used with the estimators provided in the original papers and packages that implement them. We compare to matching methods intended for ATE estimation, such as GenMatch, as well as the other nonparametric ML methods. Results are presented for 500 simulation rounds, at each of which a dataset of n = 5000 units was generated with the same DGP as before, and 3000 units were separated as a training set. Parameters other than , X,, and Y were generated first and kept the same for all 500 rounds, while other variables were generated at each round. Again we see that M-ML performs comparably with other ML methods, and can outperform some of them in certain settings. Again, choice of baseline algorithm and DGP seem to have an influence on performance. Finally, we conduct a set of simulations to study the coverage of 95% asymptotic confidence intervals obtained with M-ML and a BART ML backend. We choose to compare the coverage of M-ML against Causal Forests <ref type="bibr" target="#b45">(Wager and Athey, 2018)</ref>, as this is the only other method we know of that produces asymptotically valid confidence intervals for CATE estimation. We run the same set of simulations as before, but vary the size of the training set each time. At each train set size, we randomly draw 250 CATEs to estimate from the distribution of X, and compute the proportion covered by their respective estimated CI. This procedure is repeated and averaged over 1000 simulations for each setting. Results are reported in the bottom row of Figure <ref type="figure" target="#fig_3">2</ref> . We see that M-ML performs much better than Causal Forests in Figure <ref type="figure" target="#fig_3">2</ref>, having larger coverage in all our simulation settings. Additionally we can see that M-ML still does not reach the nominal coverage level: this is expected as existing methods for CATE estimation also rarely do <ref type="bibr" target="#b21">(Künzel et al., 2019)</ref>, given the hardness of the problem. Turning to the ATE, we compare coverage of M-DML to coverage obtained by causal forests with the same 8 Application: Matching with Image Data</p><p>We apply our method to the study of the returns of brand responsiveness to social media followers. This is a well-studied issue in online marketing and consumer behavior: there is a cyclical relationship between brand relationships and engagement on social media. Engaging with a brand on social media can strengthen the consumer-brand relationship <ref type="bibr" target="#b23">(Laroche et al., 2013;</ref><ref type="bibr" target="#b22">Labrecque, 2014)</ref>. Social media engagement strengthens the consumer-brand relationship when the consumer feels like the brand is responsive to them <ref type="bibr" target="#b22">(Labrecque, 2014)</ref>.</p><p>However, considerable evidence also shows that consumers who already have strong relationships with a brand are more likely to engage with that brand on social media <ref type="bibr" target="#b18">(John et al., 2017;</ref><ref type="bibr" target="#b41">Simon and Tossan, 2018)</ref>. Because of this, understanding the effect of brand responsiveness to consumers on social media presents a clear causal inference challenge that we try to address here. Specifically, in order to control for potential confounders of the relationship in question, we match posts on metadata, such as date/time and number of comments, but also on the image that was posted. Matching on images is important because the content of an image in a post likely has an influence on the likelihood of interaction with that post. This application also demonstrates how M-ML allows matching of units on complex covariates such as images, and how one can audit results by simple inspection of the matches.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="8.1">Data and Methodology</head><p>We trained the model on 70% of the post data and used the remaining 30% for inference. This left us with n = 1677 posts that we matched and estimated CATEs for. We chose the size of the matched groups as follows: for t = 0, 1 we set k nt set to the integer closest to n</p><formula xml:id="formula_50">1/2 t ,</formula><p>where n t is the size of the group with treatment t in the matching set, using this procedure for both the treated and control group, we obtained k 1 = 7 to estimate µ(x, 1) and k 0 = 6 units to estimate µ(x, 0).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="8.2">Results</head><p>The ATE of having at least one brand interaction during the same day a post was made on the number of comments received by that post in the following days was 0.36 with a 95% asymptotic confidence interval between 0.27 and 0.63. Since the outcome variable is the natural logarithm of a count, the result can be interpreted as saying that adding a brand interaction within the day of posting produces approximately a 44% increase in the number of comments received by that post in the following days. Additional results are presented in Figure <ref type="figure" target="#fig_5">3</ref>, which shows individual ATE estimates for each brand. These estimates were obtained by aggregating CATEs for individual posts for each brand with the M-DML estimator. Notably, most brands seem to exhibit a similar positive treatment effect, while only RightRice has a negative and statistically significant treatment effect. This suggests the presence of heterogeneities in the treatment effect that could motivate further investigation. Finally, we present some sample images from the matched groups created by M-ML with the VAE back-end. This is important because it allows us to better audit our estimates by looking at the cases that were used to generate them, i.e., the matched groups: if matched groups do not make intuitive sense, then there is reason to doubt their usefulness and overall trustworthiness for treatment effect estimation. The sample groups shown in Figure 4 highlight how images with similar elements are matched together: most of the groups contain posts from the same brand and contain visual representations of similar foods. Additional sample matched groups displaying a similar pattern are available in the supplement. This shows that our results are interpretable on a human level, and based on clear visual cues present in the matching covariates. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="9">Conclusion</head><p>Interpretability is paramount in the high-stakes decision making settings in which causal inference is used because it enables estimates to be audited based on analysts' contextual knowledge. In this paper we have introduced Matched Machine Learning, a method that aims to combine the predictive capabilities of black-box ML methods with the auditability and user-friendliness of matching. We have presented M-ML algorithms for both CATE and ATE estimation in a general framework. Many different choices of matching metrics, representation functions, and additional constraints can be formulated as M-ML. We have theoretically shown that, under reasonable conditions, M-ML for CATE estimation achieves asymptotic normality and consistency at a rate close to the nonparametrically optimal one.</p><p>We have also shown that, by using M-ML estimates as inputs to AIPW estimators, ATE and ATT can be estimated consistently at a √ n rate. Empirically, we have shown that M-ML does not compromise accuracy for auditability. In our application, we have shown how M-ML can be used to analyze causally non-standard data such as images. Overall, M-ML expands the boundary of research in interpretable but accurate causal inference. Potential extensions of M-ML include matching with continuous treatments that are transformed via ML methods, as well as developing milder theoretical conditions on first-stage ML estimates than those introduced in the present paper.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Supplement A Preliminaries</head><p>A.1 Assumptions and Main Notation</p><p>Here we restate the main notation and assumptions of the paper. Let (Ω, F, P) be a probability space, with Ω = R × X × {1, . . . , M }, and let O = (Y, X, T ) be a set of random variables on this space, with</p><formula xml:id="formula_51">Y = M j=1 Y (j)I[T = j].</formula><p>Note that Y (t) has domain in R, X in X and T in {1, . . . , M }. Denote the joint distribution of O by P. For a random variable A, we use F A to denote its CDF and f A to denote its PDF, as well as E A and V A to denote expectation and variance wrt A. When the notation E[•] or V[•] is used without any indices it is taken to be with respect to all the random variates within the brackets. For a function g : R p → R d , define the distance function: D q g (u, v) := g(u) -g(v) q , where • q is the standard q-norm. Let A be a random variable over R p , and let f (A) : R p → R d . We will use the notation f (A) P,q = q max j=1,...,d |f (a) j | q dP(a) to denote the L q norm wrt measure P. We use the notation: µ(x, t)</p><formula xml:id="formula_52">:= E[Y |X = x, T = t], σ 2 (x, t) = V[Y |X = x, T = t],</formula><p>and τ (x, t, t ) = µ(x, t) -µ(x, t ) to refer to quantities of interest.</p><p>We assume the following:</p><formula xml:id="formula_53">A1 (Data Distribution): (a) The data O n = {O i } n i=1 = {Y i , X i , T i } n i=1 is a set of n i.i.d. copies of O. (b)</formula><p>The domain of the covariate distribution, X is a compact subset of R p . (c) The covariates have marginal distribution with differentiable CDF (w.r.t. the lebesgue measure) F X (x), and constants c f X , C f X , such that 0 &lt; c f X &lt; f X (x) &lt; C f X &lt; ∞ everywhere over X. A2 (Overlap): For all x ∈ X and t = 1, . . . , M we have 0 &lt; Pr(T = t|X = x) &lt; 1.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A3 (Conditional Ignorability</head><formula xml:id="formula_54">): T ⊥ ⊥ (Y (1), . . . , Y (M ))|X.</formula><p>A4 (Bounded Higher Moments): For all t, t ∈ {1, . . . , M }, all x ∈ X and for some δ &gt; 0 and a constant C δ we have:</p><formula xml:id="formula_55">E[|Y (t)| 2+δ |X = x, T = t ] ≤ C δ . A5 (Lipschitz Condition): For all x, z ∈ X and t ∈ {1, . . . , M } there exists a constant C L such that: (a) |µ(x, t) -µ(z, t)| ≤ C L D q φ (x, z) (b) |σ 2 (x, t) -σ 2 (z, t)| ≤ C L D q φ (x, z) A6 (Representation function): There exists a function φ(x, O n ) : X × Ω → R d such that,</formula><p>for real-valued r M L &gt; 0, and q &gt; 0: (a) The functions φ(x, O n ) and φ(x) are f O -almost surely continuous with respect to x at all x ∈ X.</p><formula xml:id="formula_56">(b) φ(x, O n ) -φ(x) P,q = o(n -r M L ) almost surely over f X . (c) φ(X, O n ) -φ(X) P,q = o(n -r M L ).</formula><p>Throughout this appendix we will also make use of some specialized notation to refer to matching operations. We will use MG( φ, x, t) ⊂ {1, . . . , n} to denote the matched group made around covariate value x, treatment value t, and with representation function φ. Note that the definition of MG( φ, x, t) will vary depending on whether Caliper M-ML or KNN-M-ML is used, and what definition is used will be specified in each theorem. We will also use the notation W i ( φ, x, t) = I[i ∈ MG( φ, x, t)] to denote membership of units i in MG( φ, x, t), and N ( φ, x, t) = n i=1 W i ( φ, x, t) to count the number of units in MG( φ, x, t).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B Proofs B.1 Proof of Lemma 1</head><p>Proof. Before proving the result we establish some important facts. Consider the quantity φ(x, O n ) =: φ(x), where we remove the explicit dependence of φ on O n for notational simplicity. By A6 (b) and (c), we know that it must be a random variable (i.e., measurable function) over some subset A ⊂ R d . Denote the CDF of this random variable by F φ(x) . By A6 (b), we have that, for any u ∈ A:</p><formula xml:id="formula_57">lim n→∞ F φ(x) (u) = F φ(x) (u) = 1 if u j ≥ φ(x) j , j = 1, . . . , d 0 otherwise. ,</formula><p>due to the fact that φ(x) is a constant with respect to u. This also implies that dF φ(x) (u) = δ(φ(x)-u)du, where δ(u) is Dirac's delta function that puts density 1 at 0 and 0 everywhere else. By the above, we can also conclude that the joint CDF of the pair ( φ(x), φ(z)), denoted by</p><formula xml:id="formula_58">F ( φ(x), φ(z)) (u, v) will converge to F φ(x) (u)F φ(z) (v).</formula><p>For arbitrary x, z ∈ X and Γ n ≥ 0, we can write the quantity: Pr On ( φ(x)-φ(z) q ≤ Γ n ) (where the randomness is over the training data) as a function of the quantities just studied:</p><formula xml:id="formula_59">Pr On ( φ(x) -φ(z) q ≤ Γ n ) = R d R d I[ u -v q ≤ Γ n ]dF ( φ(x), φ(z)) (u, v).</formula><p>Let us change variables from u, v to u, r, where r = u-v</p><p>Γn with Jacobian determinant equal to Γ d n . We have:</p><p>Pr</p><formula xml:id="formula_60">On ( φ(x) -φ(z) q ≤ Γ n ) = Γ d n R d R d I[ r q ≤ 1]dF ( φ(x), φ(z)) (u, u -Γ n r).</formula><p>Consider now the limiting behavior of Γ -d n Pr On ( φ(x) -φ(z) q ≤ Γ n ), we have:</p><formula xml:id="formula_61">lim n→∞ Γ -d n Pr On ( φ(x) -φ(z) q ≤ Γ n ) = lim n→∞ R d R d I[ r q ≤ 1]dF ( φ(x), φ(z)) (u, u -Γ n r) = R d R d I[ r q ≤ 1] lim n→∞ dF ( φ(x), φ(z)) (u, u -Γ n r) = R d R d I[ r q ≤ 1]dF φ(x) (u)F φ(z) (u) = R d R d I[ r q ≤ 1]δ(φ(x) -u)δ(φ(z) -u)dudr = R d I[ r q ≤ 1]dr R d δ(φ(x) -u)δ(φ(z) -u)du = 2Ga( 2 q + 1) d Ga( d q + 1) δ(φ(x) -φ(z)) = V d δ(φ(x) -φ(z)).</formula><p>where the second equality follows from the dominated convergence theorem (DCT), which we can apply because the indicator function is upper bounded by 1. The fourth equality follows from the fact that F φ(x) is absolutely continuous wrt. the Lebesgue measure, and therefore has density equal to δ(φ(x)). The final equality follows from the definition of the volume under the d-dimensional unit ball around 0 defined by the q-norm, i.e.,</p><formula xml:id="formula_62">V d = R d I[ r q ≤ 1]dr = 2Ga( 2 q +1) d Ga( d namely that: 1) R φ ( φ, x, t) = o p (n -r ), 2) n 2r N ( φ,x,t) (N ( φ,x,t)+1) 2 p → 1</formula><p>K for some constant, K, and</p><p>3) E</p><formula xml:id="formula_63">n 2r N ( φ,x,t)+1 2 = O(1).</formula><p>Starting from the first condition, let X max = X i * , s.t: i * ∈ arg max i∈MG( φ,x,t) D q φ (X i , x), and recall that, by definition: R φ ( φ, x, t) = D q φ (X max , x). By assumption that matches are made with Caliper M-ML, we have D q φ (X max , x) ≤ Γ n , and by assumption that Γ n n 2r-1 d it follows that:</p><formula xml:id="formula_64">n r D q φ (X max , x) ≤ n r Γ n = O(n r n 2r-1 d ) (3) = O(n r(1+ 2 d )-1 d ) → 0,</formula><p>for any r &lt; 1 2+d . Using this fact, along with A6c, we can show n r R φ ( φ, x, t) p → 0 and verify Condition 1 as follows:</p><formula xml:id="formula_65">n r R φ ( φ, x, t) = n r D q φ (X max , x) = n r φ(X max ) -φ(x) + φ(X max ) -φ(X max ) + φ(x) -φ(x) q ≤ n r φ(X max ) -φ(X max ) q + n r φ(x) -φ(x) q + n r φ(X max ) -φ(x) q = o p (1) + o p (1) + n r D q φ (X max , x) = o p (1).</formula><p>The inequality follows from the triangle inequality, and the last line follows by Assumption A6 and Eq. ( <ref type="formula">3</ref>). Second, we will show that Condition 2 holds by showing that n 2r N ( φ,x,t) t) , where: ν φ (x, t) = V d e(t)f φ(X)|T =t (φ(x)) as defined in Lemma 1. Note that N ( φ, x, t) is a binomial random variable with size n and probability Pr(i ∈ MG( φ, x, t)). We know by Lemma 1 that:</p><formula xml:id="formula_66">(N ( φ,x,t)+1) 2 p → 1 ν φ (x,</formula><formula xml:id="formula_67">E N ( φ,x,t) N ( φ, x, t) n 2r = n 1-2r Pr(i ∈ MG( φ, x, t)) p → ν φ (x, t)<label>(4)</label></formula><p>whenever Γ n n 2r-1 d as we have assumed in this theorem. By Markov's inequality, this implies that N ( φ,x,t) n 2r p → ν φ (x, t). Consider now the quantity: (N ( φ, x, t) + 1) 2 : we know by Eq. ( <ref type="formula" target="#formula_67">4</ref>) that: N ( φ, x, t) = O p (n 2r ), which implies that N ( φ, x, t) 2 = O p (n 4r ) and therefore:</p><formula xml:id="formula_68">n -2r (N ( φ, x, t) + 1) 2 ≥ n -2r N ( φ, x, t) 2 = n -2r O p (n 4r ) p → ∞.</formula><p>Then we can apply the continuous mapping theorem to g(N ( φ, x, t) + 1), where: g(a) = 1 n -2r a -1 n -2r a 2 , because a = N ( φ, x, t)+1 &gt; 0 in our context, and g(a) as defined is continuous over that domain. Then Condition 2 is verified as follows:</p><formula xml:id="formula_69">n 2r N ( φ, x, t) (N ( φ, x, t) + 1) 2 = N ( φ, x, t) + 1 -1 n -2r (N ( φ, x, t) + 1) 2 = 1 n -2r (N ( φ, x, t) + 1) - 1 n -2r (N ( φ, x, t) + 1) 2 p → ν φ (x, t) -1 .</formula><p>To verify the last condition needed for Lemma 3 we first examine two related quantities. First, we know that N ( φ, x, t) is binomial with size n and probability Pr(i ∈ MG( φ, x, t)), and, therefore, its second moment is</p><formula xml:id="formula_70">E[N ( φ, x, t) 2 ] = n(n -1)γ 2 + nγ, where γ = Pr(i ∈ MG( φ, x, t)) = O(Γ d n ) = O(n 2r-1</formula><p>), and (n 1-2r γ) 2 → ν φ (x, t) 2 , by Lemma 1 and the Continuous Mapping Theorem. Therefore we have:</p><formula xml:id="formula_71">E   N ( φ, x, t) n 2r 2   = n(n -1) n 4r γ 2 + n n 4r γ = n 2-4r γ 2 -n 1-4r γ 2 + n 1-4r γ = (n 1-2r γ) 2 -n 1-4r O(n 4r-2 ) + n 1-4r O(n 2r-1 ) = (n 1-2r γ) 2 -O(n -1 ) + O(n -2r ) → ν φ (x, t) 2 .</formula><p>Another application of the results just stated gives us the following:</p><formula xml:id="formula_72">E   N ( φ, x, t) + 1 n 2r 2   = E N ( φ, x, t) 2 + 2N ( φ, x, t) + 1 n 4r = E   N ( φ, x, t) n 2r 2   + 2 n 4r E[N ( φ, x, t)] + n -4r = E   N ( φ, x, t) n 2r 2   + o(1) + o(1) = O(1) → ν φ (x, t) 2 .</formula><p>The above display implies, by Markov's inequality, that N ( φ,x,t)+1 n 2r</p><p>2 p → ν φ (x, t) 2 . Additionally, since the function g(a) = 1/a is continuous over the positive reals, and N ( φ, x, t) + 1 is within this domain, we can apply the continuous mapping theorem to conclude that:</p><formula xml:id="formula_73">n 2r N ( φ,x,t)+1 2 p → ν φ (x, t) -2 . Since g(a)</formula><p>is also bounded above by 1 over the same domain, the dominated convergence theorem can be applied to conclude that E n 2r N ( φ,x,t)+1 2 p → ν φ (x, t) -2 as well, which directly implies the condition we needed to verify. Since all three conditions are verified, result (i) in the theorem follows from applying Lemma 3.</p><p>Claim (ii) Let μ(x, t) = 1 N ( φ,x,t)+1 n i=1 W i ( φ, x, t)µ(X i , t): we apply the triangle inequality to break up the error into two components featuring this term:</p><formula xml:id="formula_74">μ(x, t) -µ(x, t) P,s = (E[|μ(x, t) -μ(x, t) + μ(x, t) -µ(x, t)| s ]) 1/s ≤ 2 1-1/s   (E[|μ(x, t) -μ(x, t)| s ] I 1 ) 1/s + (E[|μ(x, t) -µ(x, t)| s ] I 2 ) 1/s   .</formula><p>(5)</p><p>We proceed by upper bounding I 1 and I 2 separately. Starting with component I 2 , recall that N ( φ, x, t) = n i=1 W i ( φ, x, t) and that N ( φ, x, t) follows a binomial distribution. Now by Lemma 1 and continuous mapping, we have (nΓ d n ) -s N ( φ, x, t) s p → ν φ (x, t) s , therefore:</p><formula xml:id="formula_75">(nΓ d n ) s (N ( φ,x,t)+1) s p → ν φ (x, t) -s</formula><p>also by continuous mapping theorem. Finally, by dominated convergence we have:</p><formula xml:id="formula_76">E 1 (N ( φ, x, t) + 1) s = O((nΓ d n ) -s ). (<label>6</label></formula><formula xml:id="formula_77">)</formula><formula xml:id="formula_78">I 2 = E[|μ(x, t) -µ(x, t)| s ] = E 1 N ( φ, x, t) + 1 n i=1 W i ( φ, x, t)µ(X i , t) -µ(x, t) s = E 1 N ( φ, x, t) + 1 n i=1 W i ( φ, x, t)µ(X i , t) -µ(x, t) + µ(x, t) N ( φ, x, t) + 1 s ≤ 2 s-1 E 1 N ( φ, x, t) + 1 n i=1 W i ( φ, x, t)µ(X i , t) -µ(x, t) s + µ(x, t) N ( φ, x, t) + 1 s ≤ 2 s-1 E 1 N ( φ, x, t) + 1 n i=1 W i ( φ, x, t)C L D q φ (X i , x) s + µ(x, t) N ( φ, x, t) + 1 s ≤ 2 s-1 E C L N ( φ, x, t) + 1 n i=1 W i ( φ, x, t)R φ ( φ, x, t) s + 2 s-1 E µ(x, t) N ( φ, x, t) + 1 s = 2 s-1 C s L E N ( φ, x, t) N ( φ, x, t) + 1 s R φ ( φ, x, t) s + 2 s-1 |µ(x, t)| s E 1 (N ( φ, x, t) + 1) s ≤ 2 s-1 C s L E φ(X max ) -φ(X max ) + φ(X max ) -φ(x) + φ(x) -φ(x) s q + O((nΓ d n ) -s ) ≤ 2 s-1 C s L E[ φ(X max ) -φ(X max ) s q ] + 2 s-1 C s L E[ φ(x) -φ(x) s q ] + 2 s-1 C s L E[ φ(X max ) -φ(x) s q ] + O((nΓ d n ) -s ) = o(n -sr M L ) + o(n -sr M L ) + O(Γ s n ) + O((nΓ d n ) -s ).<label>(7)</label></formula><p>The first inequality follows from A5, the second by definition of R φ ( φ, x, t), and the fourth from the triangle inequality. Note also that the fraction at the fourth line is always less than 1. The statement in the last line follows from A6, and from the fact that φ(X max )-φ(x) s q ≤ Γ n under caliper M-ML. We use Lemma 4 in order to upper bound I 1 . Letting Ỹ = (Y 1 , . . . Y n ), X = (X 1 , . . . , X n ), and T = (T 1 , . . . , T n ), we have:</p><formula xml:id="formula_79">I 1 = E 1 N ( φ, X, t) + 1 n i=1 (Y i -µ(X, t))W i ( φ, X, t) s = E 1 N ( φ, X, t) + 1 s E Ỹ | X, T n i=1 (Y i -µ(X, t))W i ( φ, X, t) s (By Lemma 4) ≤ E B s C s N ( φ, x, t) s/2 (N ( φ, X, t) + 1) s ≤ B s C s E N ( φ, x, t) s/2 (N ( φ, X, t)) s = B s C s E 1 (N ( φ, X, t)) s/2 . (<label>8</label></formula><formula xml:id="formula_80">)</formula><p>Therefore we have:</p><formula xml:id="formula_81">I 1 ≤ B s C s E 1 (N ( φ, X, t)) s/2 = O((nΓ d n ) -s/2 ).<label>(9)</label></formula><p>Putting together ( <ref type="formula">5</ref>), ( <ref type="formula" target="#formula_81">9</ref>), and ( <ref type="formula" target="#formula_78">7</ref>), and applying Jensen's inequality, we obtain:</p><formula xml:id="formula_82">μ(x, t) -µ(x, t) P,s ≤ 2 1-1/s (I 1 + I 2 ) 1/s = O((nΓ d n ) -1/2 ) + O(Γ n ) + o(n -r M L ). (<label>10</label></formula><formula xml:id="formula_83">)</formula><p>The bound in the theorem can be obtained by setting Γ n = n 2r-1 d and r = 1 2+d and plugging into (10):</p><formula xml:id="formula_84">μ(x, t) -µ(x, t) P,s = O(n -1 2+d ) + o(n -r M L ).<label>(11)</label></formula><p>Since the domain of X is bounded, we can apply the DCT to μ(X, t) -µ(X, t) P,s = E X [ μ(X, t) -µ(X, t) s P ] 1/s to see that the bound holds in expectation over X as well. This concludes the proof.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B.3 Proof of Theorem 2</head><p>Proof. Claim (ii) We will start by bounding the error: μ(x, t) -µ(x, t) P,s for arbitrary x ∈ X, as many of the steps of the proof of Claim (i) become simple after introducing this result. The result in Claim (ii) will follow by application of the DCT to this first result. Recall that we have defined μ(x, t) = 1 kn n i=1 W i ( φ, x, t)µ(X i , t), we apply the triangle inequality to break up the error into two components featuring this term:</p><formula xml:id="formula_85">μ(x, t) -µ(x, t) P,s = E[ μ(x, t) -μ(x, t) + μ(x, t) -µ(x, t) s ] 1/s ≤ 2 1-1/s   (E[ μ(x, t) -μ(x, t) s ] I 1 ) 1/s + (E[ μ(x, t) -µ(x, t) s ] I 2 ) 1/s   .</formula><p>We use Lemma 4 in order to upper bound I 1 . Letting Ỹ = (Y 1 , . . . Y n ), X = (X 1 , . . . , X n ), and T = (T 1 , . . . , T n ), we have:</p><formula xml:id="formula_86">I 1 = E 1 k n n i=1 (Y i -µ(X, t))W i ( φ, X, t) s = E 1 k n s E Ỹ | X, T n i=1 (Y i -µ(X, t))W i ( φ, X, t) s (By Lemma 4) ≤ E B s C s k s/2 n k s n = B s C s 1 k s/2 n .</formula><p>Before directly upper-bounding bias term I 2 , we establish a bound on the quantity: E[ φ(X (kn) ) -φ(x) s q ] = D q φ (X (kn) , x) s . Note that the transformed covariates, φ(X), have continuous and bounded density by continuity and boundedness of f X (the density function of the original covariates), and continuity of φ(x) at all x ∈ X. With these facts, we can apply Lemma 5 to φ(X 1 ), . . . , φ(X n ) as inputs, and with λ = -s and γ = 0 (λ and γ are defined in Lemma 5). From this we obtain:</p><formula xml:id="formula_87">E[D q φ (X (kn) , x) s ] = O k n n s/d . (<label>12</label></formula><formula xml:id="formula_88">)</formula><p>Using this result we can now switch to upper-bounding the bias term I 2 . Recall that R φ ( φ, x, t) = max i=1,...,n W i ( φ, x, t)D q φ (x, X i ), and note that in this case R φ ( φ, x, t) is the φ-distance between x and its k th n nearest neighbor within the matching sample. We have:</p><formula xml:id="formula_89">I 2 = E[|μ(x, t) -µ(x, t)| s ] = E 1 k n n i=1 W i ( φ, x, t)µ(X i , t) -µ(x, t) s = E 1 k n n i=1 W i ( φ, x, t)(µ(X i , t) -µ(x, t)) s ≤ E 1 k n n i=1 W i ( φ, x, t)C L D q φ (X i , x) s ≤ E C L k n n i=1 W i ( φ, x, t)R φ ( φ, x, t) s = C L E[R φ ( φ, x, t) s ]</formula><p>where the first inequality follows from Assumption 5 and the second from the definition of R φ ( φ, x, t). Let X (kn) be the covariates of x's k th n nearest neighbor in terms of D q φ , and note that, using (12), we have:</p><formula xml:id="formula_90">E[R φ ( φ, x, t) s ] = E[ φ(X (kn) ) -φ(x) s q ] ≤ 2 s-1 (E[ φ(X (kn) ) -φ(X (kn) ) s q ] + E φ(x) -φ(x) s q ] + E[ φ(X (kn) ) -φ(x) s q ]) = o(n -r M L s ) + o(n -r M L s ) + 2 s-1 E[D q φ (X (kn) , x) s ] = o(n -r M L s ) + O k n n s/d<label>(13)</label></formula><p>where the fact that terms like E[ φ(x) -φ(x) q ] are o(n -r M L ) follows from Assumption 6. Finally, we can put together the bounds obtained so far to establish the result in the theorem:</p><formula xml:id="formula_91">μ(x, t) -µ(x, t) P,s ≤ 2 1-1/s (I 1 + I 2 ) 1/s ≤ 2 1-1/s   (B s C s k -s/2 n ) 1 s + O k n n s/d + (o(n -sr M L )) 1 s   ≤ 2 1-1/s C s B 1/s s k -1/2 n + O k n n 1/d + o(n -r M L ) = O(k -1/2 n ) + O k n n 1/d + o(n -r M L ).</formula><p>This result can be easily extended to μ(X, t) -µ(X, t) P,s by application of the DCT to μ(X, t) -µ(X, t) P,s = (E x∼f X [ μ(x, t) -µ(x, t) s P,s ]) 1/s . The final lower bound in the Theorem can be obtained by plugging k n = n 2 2+d into the bound above and simplifying.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Claim (i)</head><p>We finish by proving the asymptotic normality result given in (i). We will appeal to Lemma 3 to verify this claim, and therefore need to verify that the three conditions required in the lemma hold in this case. Condition 1 holds since by ( <ref type="formula" target="#formula_90">13</ref>) and Markov's inequality we have: R φ ( φ, x, t) = o p (n -r ) almost surely over f X whenever we set k n = Kn 2r , where r = min( 1 2+d , r M L ). Second, for Conditions 2 and 3, we know that N ( φ, x, t) = k n , and therefore: n 2r N ( φ,x,t) = n 2r kn → 1 K by assumption. This also implies that E</p><formula xml:id="formula_92">n 2r N ( φ,x,t) 2 → 1 K 2 = O(1)</formula><p>. Therefore Conditions 2 and 3 of Lemma 3 are verified, and the lemma directly implies the result.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B.4 Proof of Theorem 3</head><p>Proof. We will essentially use all the same arguments employed before to show this fact. Let η(x, t) = E[Y (t) 2 |X = x], and recall that we have previously defined µ(x, t) = E[Y (t)|X = x], and W i ( φ, x, t) to be a binary variable denoting membership in MG( φ, x, t). We will first concentrate on showing that:</p><formula xml:id="formula_93">1 N ( φ,x,t) n i=1 W i ( φ, x, t)Y 2 i p → η(x, t). To see that this is indeed the case, notice that: 1 N ( φ, x, t) n i=1 W i ( φ, x, t)Y 2 i -η(x, t) = 1 N ( φ, x, t) n i=1 W i ( φ, x, t)(Y 2 i -η(X i , t)) + 1 N ( φ, x, t) n i=1 W i ( φ, x, t)(η(X i , t) -η(x, t)).</formula><p>Starting with the first term, we have, for any i:</p><formula xml:id="formula_94">E[Y 2 i -η(X i , t)|T i , X i ] = 0 by definition of η(X i , t), which implies that E[W i ( φ, x, t)(Y 2 i -η(X i , t))] = E T i ,X i [W i ( φ, x, t)E Y i |X i ,T i [(Y 2 i - η(X i , t))]] = 0,</formula><p>and therefore, by the weak law of large numbers:</p><formula xml:id="formula_95">1 N ( φ,x,t) n i=1 W i ( φ, x, t)(Y 2 i - η(X i , t)) p → 0.</formula><p>Moving on to the second term, note first that Assumption A5 implies, for all u, v ∈ X :</p><formula xml:id="formula_96">|µ(u, t) 2 -µ(v, t) 2 | = |(µ(u, t) -µ(v, t))(µ(u, t) + µ(v, t))| ≤ |(µ(u, t) -µ(v, t))||(µ(u, t) + µ(v, t))| ≤ C L D q φ (u, v)|(µ(u, t) + µ(v, t))| ≤ C L D q φ (u, v)2C δ ,</formula><p>where the first inequality follows by the Cauchy-Schwartz inequality, the second by the Lipschitz condition of Assumption A5, and the third by Assumption A4, which implies that |µ(u, t)| is bounded by some constant C δ . Applying the above to the second term of the previous expression we see that:</p><p>1</p><formula xml:id="formula_97">N ( φ, x, t) n i=1 W i ( φ, x, t)(η(X i , t) -η(x, t)) = 1 N ( φ, x, t) i∈MG( φ,x,t) (σ 2 (X i , t) + µ(X i , t) 2 -σ 2 (x, t) -µ(x, t) 2 ) = 1 N ( φ, x, t) i∈MG( φ,x,t) (σ 2 (X i , t) -σ 2 (x, t)) + (µ(X i , t) 2 -µ(x, t) 2 ) ≤ 1 N ( φ, x, t) i∈MG( φ,x,t) C L D q φ (X i , x) + 2C δ C L D q φ (X i , x) ≤ (C L + 2C δ C L ) max i∈MG( φ,x,t) D q φ (X i , x) = O p (R φ ( φ, x, t)),</formula><p>where the first equality follows by definition of variance, the first inequality by Assumption A5, and the second inequality by the definition of max. By the same argument as the proofs of Thms 1 and 2, we know that R φ ( φ, x, t) p → 0, both when matches are made with a caliper (by Eq. ( <ref type="formula" target="#formula_78">7</ref>)), and with fixed k n (by Eq. ( <ref type="formula" target="#formula_87">12</ref>)). Therefore,</p><formula xml:id="formula_98">1 N ( φ,x,t) n i=1 W i ( φ, x, t)(η(X i , t) - η(x, t)) p → 0. This establishes convergence of 1 N ( φ,x,t) i∈MG( φ,x,t) Y 2 i to η(x, t).</formula><p>Using this result, we can show that the simple variance estimator is indeed consistent for the CATE variance:</p><p>1</p><formula xml:id="formula_99">N ( φ, x, t) i∈MG( φ,x,t) (Y i -μ(x, t)) 2 = 1 N ( φ, x, t) i∈MG( φ,x,t) (Y 2 i -2Y i μ(x, t) + μ(x, t) 2 ) =   1 N ( φ, x, t) i∈MG( φ,x,t) Y 2 i   -   μ(x, t) 2 N ( φ, x, t) i∈MG( φ,x,t) Y i   + μ(x, t) 2 = 1 N ( φ, x, t) i∈MG( φ,x,t) Y 2 i -μ(x, t) 2 p → η(x, t) -µ(x, t) 2 = σ 2 (x, t),</formula><p>where converge of μ(x, t) 2 to µ(x, t) 2 follows from the continuous mapping theorem applied to μ(x, t) p → µ(x, t).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B.5 Proof of Theorem 4</head><p>Proof. The proof of this statement follows from applying Theorem 5.1 in <ref type="bibr" target="#b5">(Chernozhukov et al., 2018)</ref> to the estimators ψ(X i , t). The theorem can be applied because M-DML is a case of the DML2 algorithm in Definition 3.2 of the same paper, which is covered by Theorem 5.1. This theorem requires us to check that our estimators satisfy Assumption 5.1 in the same paper, which is comprised of several conditions. We first examine the primitive conditions of Assumption 5.1 of <ref type="bibr" target="#b5">Chernozhukov et al. (2018)</ref>. All of these conditions are satisfied by our main assumptions, specifically: Condition (i) is satisfied by assumption in the theorem, Condition (ii) is satisfied by A4, Condition (iii) is satisfied by A2, Condition (iv) is satisfied by A1, Condition (v) is satisfied by A4. We now need to verify three conditions on the estimators of μ and ê. First, let η(x) = (µ(x, 1), µ(x, 0), e(x, 1), e(x, 0)), where we use η(x) j to refer to the j th component of this vector, for j = 1, . . . , 4. Additionally, let the respective estimator for this quantity be ηO \ℓ (x) = (μ(x, 1), µ(x, 0), ê(x, 1), ê(x, 0)), where we use the notation O \ℓ to emphasize that the estimator ηO \ℓ (x) depends on data not in fold ℓ:</p><formula xml:id="formula_100">O \ℓ = {X i , T i , Y i } i∈S \ℓ . For s &gt; 2, define: ηO \ℓ -η P,s = max j∈1,...,4 O \ℓ ,X ηD (x) j -η(x) j q f O \ℓ (D)f X (x)dDx.</formula><p>In order to show that Assumption 5.1 of <ref type="bibr" target="#b5">Chernozhukov et al. (2018)</ref> is satisfied in our setting, we nee to show that ηO \ℓ -η P,s ≤ C for some strictly positive C. Note first that ê(x, t) -e(x, t) P,s &lt; 1, since 0 &lt; ê(x, t) &lt; 1, and 0 &lt; e(x, t) &lt; 1 for all datasets D, x and t by construction. It remains to show that μ -µ P,s ≤ C. This follows from our A4 by setting δ = s -2 therein. Then, for any unit, i, t, and x:</p><formula xml:id="formula_101">E Y i [ Y i -µ(x, t) s |X i = x i , T i = t] ≤ E Y [ Y i s |X i = x i , T i = t] + µ(x, t) s = E Y i [ s |Y i | s |X i = x i , T i = t] + E Y [ s |Y | s |X = x, T = t] ≤ E Y i [ Y i s |X i = x i , T i = t] + E Y [ Y s |X = x, T = t] ≤ C s + C s , therefore: μ -µ P,s = E[E Y \ℓ [ μ(x, t) -µ(x, t) q |X = x, X \ℓ , T \ℓ ]] = E   E Y \ℓ   1 N ( φ, x, t) i∈MG( φ,x,t) Y i -µ(x, t) q X = x, X \ℓ , T \ℓ     ≤ E E Y \ℓ max i∈MG( φ,x,t) Y i -µ(x, t) q X = x, X \ℓ , T \ℓ ≤ 2C s .</formula><p>Second, we must show that ηO \ℓ -η P,2 = o(1). This is true for ê -e P,2 by assumption, and it holds true for μ -µ P,2 by Theorems 1, for Caliper M-ML, and 2 for KNN-MML. Finally, the last requirement for Assumption 5.1 of <ref type="bibr" target="#b5">Chernozhukov et al. (2018)</ref> is that: μ -µ P,2 × ê -e P,2 = O(n -1 2 ), by Theorems 1, and 2, we know that μ -µ P,2 = O(n -r ), and by assumption that êe P,2 = O(n -re ), since we have assumed that r + r e = 1/2, we have: μ -µ P,2 × ê -e P,2 = O(n -r ) × O(n -re ) ≤ O(n -1/2 ).</p><p>The same exact argument can be used to show that the same is true for the case of the ATT.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B.6 Proof of Lemma 2</head><p>Proof. Let MG * = {i : D q φ (X i , x) ≤ Γ n }, and define the associated membership indicators:</p><formula xml:id="formula_102">W * i = 1 if D q φ (X i ,</formula><p>x) ≤ Γ n 0 otherwise. D( φ, x, t) + B( φ, x, t), as follows: μ(x, t) -µ(x, t) = 1 N ( φ, x, t) + c i∈MG( φ,x,t) Y i -µ(x, t) + 1 N ( φ, x, t) + c i∈MG( φ,x,t) µ(X i , t) -1 N ( φ, x, t) + c i∈MG( φ,x,t) µ(X i , t) = 1 N ( φ, x, t) + c i∈MG( φ,x,t) Y i -µ(X i , t) D( φ,x,t) + 1 N ( φ, x, t) + c i∈MG( φ,x,t) µ(X i , t) -µ(x, t) B( φ,x,t)</p><p>.</p><p>(</p><formula xml:id="formula_103">)<label>14</label></formula><p>We will, for now, disregard the B( φ, x, t) term, and come back to it later, as we will see that the conditions needed for asymptotic normality of μ(x, t) imply vanishing of this term. Because of this intuition, it will suffice to show asymptotic normality of n r D( φ, x, t) as Slutzky's theorem will imply that the asymptotic distribution of this term is the same as that of n r (μ(x, t) -µ(x, t)). To study the asymptotic distribution of D( φ, x, t), we wish to write it as a martingale, which will then enable us to employ central limit theorems for martingale arrays in order to establish its asymptotic normality. We can show that D( φ, x, t) does indeed constitute a martingale w.r.t. a certain filtration by rewriting it as a sum of martingale differences. Recall that the binary variable W i ( φ, x, t) = I[i ∈ MG( φ, x, t)] denotes membership of matching set unit i in MG( φ, x, t). Note that, W i ( φ, x, t) = 1 only if T i = t, and define, for any i ∈ 1, . . . , n:</p><p>ξ n,i (x) = n r N ( φ, x, t) + c W i ( φ, x, t)(Y i -µ(X i , t))</p><p>These quantities will be the martingale differences in the representation we will construct, and by definition: n r D( φ, x, t) = n i=1 ξ n,i (x). Finally, define the following σ-field:</p><p>F n,i (x) = σ{X 1 , . . . , X n , T 1 , . . . , T n , Y 1 , . . . , Y i , φ}.</p><p>Note that we include the representation φ directly in the filtration defined, but if the representation is learned from a separate training set, then this dataset can be included in the filtration instead of it to obtain the same results. Since the ξ n,i (x) have zero mean, and are adapted to the filtration F n,i (x), then the array:</p><formula xml:id="formula_105">i j=1 ξ n,j (x), F n,i (x), 1 ≤ i ≤ n (16)</formula><p>is a martingale for each n &gt; 2 by the same arguments in <ref type="bibr" target="#b2">Abadie and Imbens (2012)</ref>.</p><p>We can now apply Lindeberg's central limit theorem for triangular martingale arrays to the martingale array defined in ( <ref type="formula">16</ref>). The CLT in question states that if: → N (0, σ 2 ). We will now show that all three conditions hold. Starting with Condition 1, this condition is easily verified because E[ξ n,i (x)|F n,i-1 (x)] = 0, since ξ n,i (x) is a martingale difference term, and that, therefore, E[ξ n,i (x)] = E[E[ξ n,i (x)|F n,i-1 (x)]] = E[0] = 0.</p><p>Second, Condition 3, commonly known as Lindeberg's condition, is implied by Lyapunov's condition, which is much easier to check. Lyapunov's condition statest that, for some δ &gt; 0:</p><formula xml:id="formula_106">lim n→∞ N i=1 E[|ξ n,i (x)| 2+δ ] = 0.</formula><p>Lyapunov's condition can be seen to hold in our case by the following: fix a s &gt; 0, then,</p><formula xml:id="formula_107">E[|ξ n,i (x)| 2+δ ] = E      n r N ( φ, x, t) + c ≥0 W i ( φ, x, t) ∈{0,1} (Y i -µ(X i , t)) 2+δ      = E n 2r+rδ</formula><p>(N ( φ, x, t) + c) 2+δ W i ( φ, x, t)|Y i -µ(X i , t)| 2+δ , Recall now that, by Assumption A5, E[|Y i | 2+δ |X i , T i ] ≤ C δ for some constant C δ &lt; ∞. Additionally, since Y i ⊥ ⊥ φ by A6.b, it follows that: E[|Y i | 2+δ | φ, X i , T i ] ≤ C s . Since conditionally on φ, X i , and T i , all of µ(X i , t), N ( φ, x, t), W i ( φ, x, t) are constants, it follows that:</p><formula xml:id="formula_108">E W i ( φ, x, t) n 2r+rδ (N ( φ, x, t) + c) 2+δ |Y i -µ(X i , t)| 2+δ = E W i ( φ, x, t) n 2r+rδ (N ( φ, x, t) + c) 2+δ E[|Y i -µ(X i , t)| 2+δ | φ, X i , T i ] ≤ E W i ( φ, x, t) n 2r+rδ</formula><p>(N ( φ, x, t) + c) 2+δ C δ .</p><p>Note that Requirement (3) of this lemma implies that n r cµ(x,t) N ( φ,x,t)+c = o p (1) by Markov's inequality. This concludes the proof.</p><p>Lemma 4. (Bound on moments of matched outcomes) Let MG( φ, x, t) be a collection of units with treatment t matched to x and let N ( φ, x, t) denote the size of this collection. Let A1-A4 hold and let all other queantities be defined as in the rest of the paper. We have, for s ≥ 2:</p><formula xml:id="formula_109">E n i=1 W i ( φ, x, t)(Y i -µ(X i , t)) s ≤ B s C s N ( φ, x, t) s/2 , (<label>20</label></formula><formula xml:id="formula_110">)</formula><p>for a constant B s depending only on s, and C s defined in Assumption 4.</p><p>Proof. This is a well-known results that holds generally for mean-0 random variables. Here we simply adapt its proof to our setting. Let Ỹ = (Y 1 , . . . , Y n ), X = (X 1 , . . . , X n ), and T = (T 1 , . . . , T n ). Since the random variables Y i -µ(X i , t) have mean 0, conditional on X i , then by the Marcinkiewicz-Zygmund inequality, there exists a constant B s such that:</p><formula xml:id="formula_111">E Ỹ | X, T n i=1 W i ( φ, x, t)(Y i -µ(X i , t)) s ≤ B s E Ỹ | X, T   n i=1 |W i ( φ, x, t)(Y i -µ(X i , t))| 2 s/2   = B s N ( φ, x, t) s/2 E Ỹ | X, T   1 N ( φ, x, t) n i=1 |W i ( φ, x, t)(Y i -µ(X i , t))| 2 s/2  </formula><p>then by Jensen's inequality we have:</p><formula xml:id="formula_112">≤ B s N ( φ, x, t) s/2 E Ỹ | X, T<label>1</label></formula><formula xml:id="formula_113">N ( φ, x, t) n i=1 |W i ( φ, x, t)(Y i -µ(X i , t))| s = B s N ( φ, x, t) s/2 1 N ( φ, x, t) n i=1 W i ( φ, x, t)E Y i |X i ,T i [|(Y i -µ(X i , t))| s ]</formula><p>and since This lemma is a restatement of Lemma 14.1 of <ref type="bibr" target="#b24">Li and Racine (2007)</ref> and is proven therein.  </p><formula xml:id="formula_114">E Y i |X i ,T i [|(Y i -µ(X i , t))| s</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C Methods used in the simulation</head></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Corollary 1 .</head><label>1</label><figDesc>(Asymptotic Normality of CATE estimates) Let A1-A6 hold, and let let r = min 1 2+d , r M L . For two treatment levels t, t ∈ {1, . . . , M } and a real K &gt; 0: as n → ∞: (i) If matches are made with Caliper M-ML and Γ n = Kn 2r-1 p</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Theorem 4 .</head><label>4</label><figDesc>Let the observed outcome and treatment be defined as follows: Y = µ(X, D) + U, E[U |X, D] = 0, and D = e(X, D) + V, E[V |X] = 0. Let A1-A6 hold, and assume</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Estimation error</figDesc><graphic coords="27,72.00,172.45,468.01,234.00" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: 95% Asymptotic Confidence Interval Coverage</figDesc><graphic coords="28,72.00,412.19,468.01,234.00" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><figDesc>use a dataset of Instagram image posts made by 31 food brands between May 15th 2020 and May 15th 2021. The treatment is 1 if the post had any responses from the brand itself to comments left by the viewers in the same day it was posted, and the outcome variable is the number of comments received by a post a day or more after it was posted. The control covariates are hour, month and weekday that the original post was made, and total number of comments left by users on the post on the day it was posted, as well as the image of the post itself. The latter allows us to control directly for the content of the post. For this application, we first constructed our ML representation function by training a variational autoencoder (Kingma and Welling, 2013) on the training set. We used the representation function to construct a 100-dimensional representation of each image within the matching set. Our encoder-decoder architecture consists of two identical CNNs with 4 layers. We</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Figure 3 :</head><label>3</label><figDesc>Figure 3: CATE by brand</figDesc><graphic coords="31,72.00,220.27,467.97,187.19" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><head>Figure 4 :</head><label>4</label><figDesc>Figure 4: Sample matched groups</figDesc><graphic coords="32,193.25,99.79,107.64,107.64" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><figDesc>1. (Condition 1) E[ξ n,i (x)] = 0 2. (Condition 2) n i=1 E[ξ n,i (x) 2 |F n,i-1 (x)] p → σ 2 , for some constant, σ 2 , as n → ∞ 3. (Condition 3) ∀ &gt; 0 : N i=1 E[ξ n,i (x) 2 I [|ξ n,i (x)|&gt; ] ] → 0, as n → ∞,then n r D( φ, x, t) d</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_8"><figDesc>] ≤ C s by Assumption 4 with δ = s -2:≤ B s N ( φ, x, t) s/2 1 N ( φ, x, t) n i=1 W i ( φ, x, t)C s = B s C s N ( φ, x, t) s/2 .Lemma 5. (Bound on KN N distances, Lemma 14.1 in Li and Racine 2007) Let Z 1 , . . . , Z n be i.i.d. observations with bounded continuous density f Z supported over a subset of R d . For a point z in the support of f Z , let B(z, r) be a ball of radius r centered at z, and define G(r) = Pr Z (Z ∈ B(z, r)). Additionally let R k (z) be the Euclidean distance between z and its k th nearest neighbor among the Z 1 , . . . , Z n . Finally, let λ and γ be integers such that the function Φ(R k (z)) := 1 R k (z) λ G(R k (z)) γ exists. Then: E Z 1 ,...,Zn [Φ(R k (z))</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_9"><head>Figure 5 :</head><label>5</label><figDesc>Figure 5: 95% Asymptotic Confidence Interval Size for the CATE</figDesc><graphic coords="58,72.00,126.71,468.01,234.00" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="59,72.00,126.71,468.01,234.00" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="59,72.00,455.69,468.01,234.00" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="60,75.39,158.12,234.00,234.00" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="60,318.76,158.12,234.00,234.00" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="60,75.39,399.88,234.00,234.00" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="61,75.39,158.12,234.00,234.00" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="61,318.76,158.12,234.00,234.00" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="61,75.39,399.88,234.00,234.00" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="61,318.76,399.88,234.00,234.00" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_2"><head>Table 2 :</head><label>2</label><figDesc>Methods used in simulated experiments</figDesc><table><row><cell>Acronym</cell><cell>Method</cell></row></table></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_0"><p>q +1) , where Ga is the Gamma function (see e.g.,<ref type="bibr" target="#b47">Wang, 2005)</ref>, and from known properties of Dirac's δ function.We can now study the limiting behavior of Pr On (Z ∈ MG( φ, x, t)), for (Z, T ) ∼ f X,T , using the result just obtained and applying the DCT once again. Define first the density function f φ(X) (u) = X f X (z)δ(φ(z) -u)dz. Fix now an arbitrary unit i in the matching data with</p></note>
+		</body>
+		<back>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>covariates X i = Z and treatment indicator T i = T . We have:</p><p>Note that the independence of the probabilities in the second and fourth equalities come from the fact that Z and T are drawn independently of O n , and that the fifth equality comes from an application of the DCT, made possible by the fact that the probability inside the integral is upper bounded by 1. This proves point (i), we now move to point (ii). Since Pr On,Z,T (Z ∈ MG( φ, x, t)) is upper bounded by 1, another application of the DCT to the integral E X [Pr On,Z,T (Z ∈ MG( φ, X, t))] = X f X (x)Γ d n Pr On,Z,T (Z ∈ MG( φ, x, t))dx is sufficient to verify the second statement.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B.2 Proof of Theorem 1</head><p>Throughout the rest of this section we will be referring to the corrected estimator:</p><p>This estimator has asymptotic behavior identical to μ(x, t), but is easier to work with as it is still defined even if the matched group for x, t is empty. We will be proving the results for μ(x, t), but they will apply in the same way to μ(x, t).</p><p>Proof. We will first prove the result in (i), and after the result in (ii).</p><p>, n r M L ). By Lemma 3 (proved below), we know that we need to verify 3 conditions in order to prove asymptotic normality for μ(x, t), Choose any W i , . . . , W n ∈ {0, 1} n and let MG be the associated matched group. We have:</p><p>Therefore, W * 1 , . . . , W * n and MG * are the match indicators and the matched group that minimize the objective.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B.7 Lemma 3</head><p>Lemma 3. Let A1-A6 hold. For arbitrary x ∈ X and t ∈ {1, . . . , M }, let the matched group be a subset of the units with treatment t: MG( φ, x, t) ⊂ {1, . . . , n :</p><p>Additionally, define the number of units in the matched group as: N ( φ, x, t) = |MG( φ, x, t)|, and let R φ ( φ, x, t) = max i∈MG( φ,x,t) D q φ (X i , x) be the radius of the matched group. If MG( φ, x, t) satisfies the following requirements, for constants c ≥ 0, and r &gt; 0:</p><p>K ). Proof. First, we adapt the martingale representation that Abadie and Imbens (2012) construct for the matching estimator for the Average Treatment effect on the Treated (ATT), to a martingale representation for either matching estimator, μ(x, t). We begin by writing the estimation error of the matching CATE estimator as the sum of two terms: μ(x, t)-µ(x, t) = Putting the bounds together we have, as n → ∞:</p><p>Finally, by Requirement (3) of this lemma, we have that, for δ = 1:</p><p>Therefore, Condition 3 holds. Moving on to Condition 2, recall first that:</p><p>In light of this, we can write:</p><p>Recall that, by Assumption A5:</p><p>for any i, and, therefore:</p><p>where the last equality follows by Requirements (1), and (2) of this lemma.</p><p>For the other term (Eq. ( <ref type="formula">18</ref>)) we have:</p><p>by Requirement (2) of this lemma and Slutzky's theorem. Therefore:</p><p>which proves Condition 2 of Lindenberg's CLT. Since all the conditions are satisfied, the CLT implies that: n r D( φ, x, t) d → N (0, 1 K σ 2 (x, t)). The result for μ(x, t) -µ(x, t) follows immediately by applying the decomposition in Eq. ( <ref type="formula">14</ref>) to write: n r (μ(x, t) -µ(x, t)) = n r D( φ, x, t) + n r B( φ, x, t). The first quantity converges to N (0, 1 K σ 2 (x, t)) by Lindenberg's CLT, as just shown, and the second quantity converges to 0 in probability by Requirements (1) and (3) of this lemma: </p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Large sample properties of matching estimators for average treatment effects</title>
+		<author>
+			<persName><forename type="first">Alberto</forename><surname>Abadie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Guido</forename><forename type="middle">W</forename><surname>Imbens</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">econometrica</title>
+		<imprint>
+			<biblScope unit="volume">74</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="235" to="267" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Bias-corrected matching estimators for average treatment effects</title>
+		<author>
+			<persName><forename type="first">Alberto</forename><surname>Abadie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Guido</forename><forename type="middle">W</forename><surname>Imbens</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Business &amp; Economic Statistics</title>
+		<imprint>
+			<biblScope unit="volume">29</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="11" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">A martingale representation for matching estimators</title>
+		<author>
+			<persName><forename type="first">Alberto</forename><surname>Abadie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Guido</forename><forename type="middle">W</forename><surname>Imbens</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the American Statistical Association</title>
+		<imprint>
+			<biblScope unit="volume">107</biblScope>
+			<biblScope unit="issue">498</biblScope>
+			<biblScope unit="page" from="833" to="843" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Matching on the estimated propensity score</title>
+		<author>
+			<persName><forename type="first">Alberto</forename><surname>Abadie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Guido</forename><forename type="middle">W</forename><surname>Imbens</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Econometrica</title>
+		<imprint>
+			<biblScope unit="volume">84</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="781" to="807" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Pivotal estimation via square-root lasso in nonparametric regression</title>
+		<author>
+			<persName><forename type="first">Alexandre</forename><surname>Belloni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Victor</forename><surname>Chernozhukov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lie</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Annals of Statistics</title>
+		<imprint>
+			<biblScope unit="volume">42</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="757" to="788" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<title level="m" type="main">Double/debiased machine learning for treatment and structural parameters</title>
+		<author>
+			<persName><forename type="first">Victor</forename><surname>Chernozhukov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Denis</forename><surname>Chetverikov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mert</forename><surname>Demirer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Esther</forename><surname>Duflo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Christian</forename><surname>Hansen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Whitney</forename><surname>Newey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">James</forename><surname>Robins</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Bayesian additive regression trees</title>
+		<author>
+			<persName><forename type="first">Edward</forename><forename type="middle">I</forename><surname>Hugh A Chipman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Robert</forename><forename type="middle">E</forename><surname>George</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Mcculloch</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Annals of Applied Statistics</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="266" to="298" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">A probabilistic theory of pattern recognition</title>
+		<author>
+			<persName><forename type="first">Luc</forename><surname>Devroye</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">László</forename><surname>Györfi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gábor</forename><surname>Lugosi</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<publisher>Springer Science &amp; Business Media</publisher>
+			<biblScope unit="volume">31</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Genetic matching for estimating causal effects: A general multivariate matching method for achieving balance in observational studies</title>
+		<author>
+			<persName><forename type="first">Alexis</forename><surname>Diamond</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Jasjeet S Sekhon</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Review of Economics and Statistics</title>
+		<imprint>
+			<biblScope unit="volume">95</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="932" to="945" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Interpretable almost-exact matching for causal inference</title>
+		<author>
+			<persName><forename type="first">Awa</forename><surname>Dieng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yameng</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sudeepa</forename><surname>Roy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cynthia</forename><surname>Rudin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexander</forename><surname>Volfovsky</surname></persName>
+		</author>
+		<idno>PMLR</idno>
+	</analytic>
+	<monogr>
+		<title level="m">The 22nd International Conference on Artificial Intelligence and Statistics</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="2445" to="2453" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Support vector regression machines</title>
+		<author>
+			<persName><forename type="first">Harris</forename><surname>Drucker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">C</forename><surname>Chris</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Linda</forename><surname>Burges</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alex</forename><surname>Kaufman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vladimir</forename><surname>Smola</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Vapnik</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Advances in neural information processing systems</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="page" from="155" to="161" />
+			<date type="published" when="1997">1997</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Deep neural networks for estimation and inference</title>
+		<author>
+			<persName><forename type="first">Max</forename><forename type="middle">H</forename><surname>Farrell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tengyuan</forename><surname>Liang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sanjog</forename><surname>Misra</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Econometrica</title>
+		<imprint>
+			<biblScope unit="volume">89</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="181" to="213" />
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">The rate of convergence of k n-nn regression estimates and classification rules (corresp.)</title>
+		<author>
+			<persName><surname>Györfi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Information Theory</title>
+		<imprint>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="362" to="364" />
+			<date type="published" when="1981">1981</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<title level="m" type="main">A distribution-free theory of nonparametric regression</title>
+		<author>
+			<persName><forename type="first">László</forename><surname>Györfi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><surname>Kohler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Adam</forename><surname>Krzyżak</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Harro</forename><surname>Walk</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2002">2002</date>
+			<publisher>Springer</publisher>
+			<biblScope unit="volume">1</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Bayesian regression tree models for causal inference: Regularization, confounding, and heterogeneous effects (with discussion)</title>
+		<author>
+			<persName><forename type="first">Richard</forename><surname>Hahn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jared</forename><forename type="middle">S</forename><surname>Murray</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Carlos</forename><forename type="middle">M</forename><surname>Carvalho</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Bayesian Analysis</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="965" to="1056" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">The prognostic analogue of the propensity score</title>
+		<author>
+			<persName><surname>Ben B Hansen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Biometrika</title>
+		<imprint>
+			<biblScope unit="volume">95</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="481" to="488" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Bayesian nonparametric modeling for causal inference</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Jennifer</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Hill</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Computational and Graphical Statistics</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="217" to="240" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Causal inference without balance checking: Coarsened exact matching</title>
+		<author>
+			<persName><forename type="first">Gary</forename><surname>Stefano M Iacus</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Giuseppe</forename><surname>King</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Porro</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Political analysis</title>
+		<imprint>
+			<biblScope unit="page" from="1" to="24" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Does &quot;liking&quot; lead to loving? the impact of joining a brand&apos;s social network on marketing outcomes</title>
+		<author>
+			<persName><forename type="first">Oliver</forename><surname>Leslie K John</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sunil</forename><surname>Emrich</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Gupta</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Michael I Norton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Marketing Research</title>
+		<imprint>
+			<biblScope unit="volume">54</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="144" to="155" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Generalized optimal matching methods for causal inference</title>
+		<author>
+			<persName><forename type="first">Nathan</forename><surname>Kallus</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="issue">62</biblScope>
+			<biblScope unit="page" from="1" to="54" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<title level="m" type="main">Auto-encoding variational bayes</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Diederik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Max</forename><surname>Kingma</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Welling</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1312.6114</idno>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Metalearners for estimating heterogeneous treatment effects using machine learning</title>
+		<author>
+			<persName><surname>Sören R Künzel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Peter</forename><forename type="middle">J</forename><surname>Jasjeet S Sekhon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bin</forename><surname>Bickel</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Yu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the national academy of sciences</title>
+		<meeting>the national academy of sciences</meeting>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="volume">116</biblScope>
+			<biblScope unit="page" from="4156" to="4165" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Fostering consumer-brand relationships in social media environments: The role of parasocial interaction</title>
+		<author>
+			<persName><forename type="first">Lauren</forename><forename type="middle">I</forename><surname>Labrecque</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of interactive marketing</title>
+		<imprint>
+			<biblScope unit="volume">28</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="134" to="148" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">To be or not to be in social media: How brand loyalty is affected by social media?</title>
+		<author>
+			<persName><forename type="first">Michel</forename><surname>Laroche</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mohammad</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Reza</forename><surname>Habibi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Marie-Odile</forename><surname>Richard</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">International journal of information management</title>
+		<imprint>
+			<biblScope unit="volume">33</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="76" to="82" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<monogr>
+		<title level="m" type="main">Nonparametric econometrics: theory and practice</title>
+		<author>
+			<persName><forename type="first">Qi</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jeffrey</forename><surname>Scott Racine</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2007">2007</date>
+			<publisher>Princeton University Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Matching using sufficient dimension reduction for causal inference</title>
+		<author>
+			<persName><forename type="first">Wei</forename><surname>Luo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yeying</forename><surname>Zhu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Business &amp; Economic Statistics</title>
+		<imprint>
+			<biblScope unit="volume">38</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="888" to="900" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Adaptive hyper-box matching for interpretable individualized treatment effect estimation</title>
+		<author>
+			<persName><forename type="first">Marco</forename><surname>Morucci</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vittorio</forename><surname>Orlandi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sudeepa</forename><surname>Roy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cynthia</forename><surname>Rudin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexander</forename><surname>Volfovsky</surname></persName>
+		</author>
+		<idno>PMLR</idno>
+	</analytic>
+	<monogr>
+		<title level="m">Conference on Uncertainty in Artificial Intelligence</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page" from="1089" to="1098" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Bootstrap inference of matching estimators for average treatment effects</title>
+		<author>
+			<persName><forename type="first">Taisuke</forename><surname>Otsu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yoshiyasu</forename><surname>Rai</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the American Statistical Association</title>
+		<imprint>
+			<biblScope unit="volume">112</biblScope>
+			<biblScope unit="issue">520</biblScope>
+			<biblScope unit="page" from="1720" to="1732" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Malts: Matching after learning to stretch</title>
+		<author>
+			<persName><forename type="first">Harsh</forename><surname>Parikh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cynthia</forename><surname>Rudin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexander</forename><surname>Volfovsky</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Gaussian processes in machine learning</title>
+		<author>
+			<persName><forename type="first">Carl</forename><surname>Edward</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rasmussen</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Summer school on machine learning</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2003">2003</date>
+			<biblScope unit="page" from="63" to="71" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<monogr>
+		<title level="m" type="main">On convergence of nearest neighbor classifiers over feature transformations</title>
+		<author>
+			<persName><forename type="first">Luka</forename><surname>Rimanic</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cedric</forename><surname>Renggli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bo</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ce</forename><surname>Zhang</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2010.07765</idno>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Estimation of regression coefficients when some regressors are not always observed</title>
+		<author>
+			<persName><forename type="first">Andrea</forename><surname>James M Robins</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lue</forename><forename type="middle">Ping</forename><surname>Rotnitzky</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Zhao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the American statistical Association</title>
+		<imprint>
+			<biblScope unit="volume">89</biblScope>
+			<biblScope unit="issue">427</biblScope>
+			<biblScope unit="page" from="846" to="866" />
+			<date type="published" when="1994">1994</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">The central role of the propensity score in observational studies for causal effects</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Paul</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Donald</forename><forename type="middle">B</forename><surname>Rosenbaum</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Rubin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Biometrika</title>
+		<imprint>
+			<biblScope unit="volume">70</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="41" to="55" />
+			<date type="published" when="1983">1983</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Reducing bias in observational studies using subclassification on the propensity score</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Paul</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Donald</forename><forename type="middle">B</forename><surname>Rosenbaum</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Rubin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the American statistical Association</title>
+		<imprint>
+			<biblScope unit="volume">79</biblScope>
+			<biblScope unit="issue">387</biblScope>
+			<biblScope unit="page" from="516" to="524" />
+			<date type="published" when="1984">1984</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">The bias due to incomplete matching</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Paul</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Donald</forename><forename type="middle">B</forename><surname>Rosenbaum</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Rubin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Biometrics</title>
+		<imprint>
+			<biblScope unit="page" from="103" to="116" />
+			<date type="published" when="1985">1985</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Constructing a control group using multivariate matched sampling methods that incorporate the propensity score</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Paul</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Donald</forename><forename type="middle">B</forename><surname>Rosenbaum</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Rubin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The American Statistician</title>
+		<imprint>
+			<biblScope unit="volume">39</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="33" to="38" />
+			<date type="published" when="1985">1985</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<analytic>
+		<title level="a" type="main">Minimum distance matched sampling with fine balance in an observational study of treatment for ovarian cancer</title>
+		<author>
+			<persName><forename type="first">Richard</forename><forename type="middle">N</forename><surname>Paul R Rosenbaum</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jeffrey</forename><forename type="middle">H</forename><surname>Ross</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Silber</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the American Statistical Association</title>
+		<imprint>
+			<biblScope unit="volume">102</biblScope>
+			<biblScope unit="issue">477</biblScope>
+			<biblScope unit="page" from="75" to="83" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">Multivariate matching methods that are equal percent bias reducing, i: Some examples</title>
+		<author>
+			<persName><surname>Donald B Rubin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Biometrics</title>
+		<imprint>
+			<biblScope unit="page" from="109" to="120" />
+			<date type="published" when="1976">1976</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<analytic>
+		<title level="a" type="main">Bias reduction using mahalanobis-metric matching</title>
+		<author>
+			<persName><surname>Donald B Rubin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Biometrics</title>
+		<imprint>
+			<biblScope unit="page" from="293" to="298" />
+			<date type="published" when="1980">1980</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">Affinely invariant matching methods with ellipsoidal distributions</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Donald</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Neal</forename><surname>Rubin</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Thomas</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Annals of Statistics</title>
+		<imprint>
+			<biblScope unit="page" from="1079" to="1093" />
+			<date type="published" when="1992">1992</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<analytic>
+		<title level="a" type="main">On the inconsistency of matching without replacement</title>
+		<author>
+			<persName><forename type="first">Fredrik</forename><surname>Sävje</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Biometrika</title>
+		<imprint>
+			<biblScope unit="volume">109</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="551" to="558" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title level="a" type="main">Does brand-consumer social sharing matter? a relational framework of customer engagement to brand-hosted social media</title>
+		<author>
+			<persName><forename type="first">Françoise</forename><surname>Simon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vesselina</forename><surname>Tossan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Business Research</title>
+		<imprint>
+			<biblScope unit="volume">85</biblScope>
+			<biblScope unit="page" from="175" to="184" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b42">
+	<monogr>
+		<title level="m" type="main">Optimal global rates of convergence for nonparametric regression. The annals of statistics</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Charles</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Stone</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1982">1982</date>
+			<biblScope unit="page" from="1040" to="1053" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b43">
+	<analytic>
+		<title level="a" type="main">Asymptotic normality of nearest neighbor regression function estimates</title>
+		<author>
+			<persName><forename type="first">Winfried</forename><surname>Stute</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Annals of Statistics</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="917" to="926" />
+			<date type="published" when="1984">1984</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b44">
+	<analytic>
+		<title level="a" type="main">Targeted maximum likelihood learning</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Mark</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Daniel</forename><surname>Van Der Laan</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Rubin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The international journal of biostatistics</title>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b45">
+	<analytic>
+		<title level="a" type="main">Estimation and inference of heterogeneous treatment effects using random forests</title>
+		<author>
+			<persName><forename type="first">Stefan</forename><surname>Wager</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Susan</forename><surname>Athey</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the American Statistical Association</title>
+		<imprint>
+			<biblScope unit="volume">113</biblScope>
+			<biblScope unit="issue">523</biblScope>
+			<biblScope unit="page" from="1228" to="1242" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b46">
+	<analytic>
+		<title level="a" type="main">Flame: A fast large-scale almost matching exactly approach to causal inference</title>
+		<author>
+			<persName><forename type="first">Tianyu</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Marco</forename><surname>Morucci</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Usaid Awan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yameng</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sudeepa</forename><surname>Roy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cynthia</forename><surname>Rudin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexander</forename><surname>Volfovsky</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">22</biblScope>
+			<biblScope unit="issue">31</biblScope>
+			<biblScope unit="page" from="1" to="41" />
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b47">
+	<analytic>
+		<title level="a" type="main">Volumes of generalized unit balls</title>
+		<author>
+			<persName><forename type="first">Xianfu</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Mathematics Magazine</title>
+		<imprint>
+			<biblScope unit="volume">78</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="390" to="395" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b48">
+	<analytic>
+		<title level="a" type="main">Large sample properties of matching for balance</title>
+		<author>
+			<persName><forename type="first">Yixin</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><surname>José R Zubizarreta</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Statistica Sinica</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b49">
+	<analytic>
+		<title level="a" type="main">Using mixed integer programming for matching in an observational study of kidney failure after surgery</title>
+		<author>
+			<persName><surname>José R Zubizarreta</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the American Statistical Association</title>
+		<imprint>
+			<biblScope unit="volume">107</biblScope>
+			<biblScope unit="issue">500</biblScope>
+			<biblScope unit="page" from="1360" to="1371" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

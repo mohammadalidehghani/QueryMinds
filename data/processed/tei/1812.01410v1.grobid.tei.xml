@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Compressive Classification (Machine Learning without learning)</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Vincent</forename><surname>Schellekens</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Laurent</forename><surname>Jacques</surname></persName>
+						</author>
+						<title level="a" type="main">Compressive Classification (Machine Learning without learning)</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">58135FBF78E0E4432D581923EC9E78DD</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Compressive learning is a framework where (so far unsupervised) learning tasks use not the entire dataset but a compressed summary (sketch) of it. We propose a compressive learning classification method, and a novel sketch function for images.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction and background</head><p>Machine Learning (ML)-inferring models from datasets of numerous learning examples-recently showed unparalleled success on a wide variety of problems. However, modern massive datasets necessitate a long training time and large memory storage. The recent Compressive Learning (CL) framework alleviates those drawbacks by computing a compressed summary of the dataset-its sketch-prior to any learning <ref type="bibr" target="#b0">[1]</ref>. The sketch is easily computed in a single parallelizable pass, and its required size (to capture enough information for successful learning) does not grow with the number of examples: CLs time and memory requirements are thus unaffected by the dataset size.</p><p>So far, CL focused on unsupervised ML tasks, where learning examples don't belong to a (known) class <ref type="bibr" target="#b0">[1,</ref><ref type="bibr" target="#b1">2,</ref><ref type="bibr" target="#b2">3]</ref>. We show that CL easily extends to supervised ML tasks by proposing (Sec. 2) and experimentally validating (Sec. 3) a first simple compressive classification method using only a sketch of the labeled dataset (Fig. <ref type="figure" target="#fig_3">1</ref>). We also introduce a sketch feature function leveraging a random convolutional neural network to better capture information in images. While not as accurate as ML methods learning from the full dataset, this compressive classification scheme still attains remarkable accuracy considering its unlearned nature. Our method also enjoys from a nice geometric interpretation, i.e., Maximum A Posteriori classification performed in the Reproducible Kernel Hilbert Space associated with the sketch. (Unsupervised) Compressive Learning: Unsupervised ML usually amount to estimate parameters of a distribution P, from a dataset X :</p><formula xml:id="formula_0">= {x i ∼ iid P} N i=1 ⊂ R n of examples- associated to an empirical distribution PX := 1 N xi∈X δ xi ,</formula><p>with δ u the Dirac measure at u. While most unsupervised ML algorithms require (often multiple times) access to the entire dataset X , CL algorithms require only access to the sketch: a single vector z X ∈ C m summarizing X . This dataset sketch z X actually serves as a proxy for the true distribution sketch A(P), i.e., a linear embedding of the "infinite-dimensional" probability distribution P into C m , a space of lower dimension:</p><formula xml:id="formula_1">A(P) := E x∼P f (x) z X := A( PX ) = 1 N xi∈X f (x i ),<label>(1)</label></formula><p>where f is a random nonlinear feature map to C m . This map defines a positive definite kernel κ(u, v)</p><formula xml:id="formula_2">:= E f (u), f (v) ,</formula><p>and κ in turn provides a Reproducible Kernel Hilbert Space (RKHS) H κ to embed distributions; A indirectly maps P to its Mean Map κ(•, P) := E x∼P κ(•, x) ∈ H κ [4, 5, 6]. Existing * E-mail: {vincent.schellekens, laurent.jacques}@uclouvain.be. ISPGroup, ELEN/ICTEAM, UCLouvain (UCL), B1348 Louvain-la-Neuve, Belgium. VS and LJ are funded by Belgian National Science Foundation (F.R.S.-FNRS).</p><p>R n f (•) . . . . . .</p><p>x i . . .</p><p>f f R n y 0 =? x 0 . . . f (•) argmax Classification phase Observation phase memory methods <ref type="bibr" target="#b1">[2,</ref><ref type="bibr" target="#b2">3]</ref> use Random Fourier Features <ref type="bibr" target="#b6">[7]</ref> as map f :</p><formula xml:id="formula_3">z x 0 h•, z X1 i h•, z XK i z X K z X 1 average 1 N1 X xi2X1 f (xi) average 1 NK X xi2XK f (xi) k ⇤ ' arg max k pk (x 0 , Pk) z x i p1 pK</formula><formula xml:id="formula_4">f RFF (x) = exp(i ω T j x) m j=1 with ω j ∼ iid Λ,<label>(2)</label></formula><p>and κ is then shift-invariant and the Fourier transform of the distribution Λ: κ(x, x ) = (xx ) := (FΛ)(xx ) <ref type="bibr" target="#b7">[8]</ref>.</p><p>CL is promising because the sketch z X retains sufficient information (to compete with traditional ML) whenever its size m exceeds some value independent on the number of examples N , yielding algorithms that scale well when N increases. Random Convolutional Neural Networks (CNN): Shiftinvariant kernels are not that relevant when dealing with images (they are sensitive to image translations for example).</p><p>Recent studies have shown that the last layer of a randomly weighted (convolutional) neural network CNN (combining convolutions with random weights, nonlinear activations, and pooling operations) captures surprisingly meaningful image features <ref type="bibr" target="#b8">[9,</ref><ref type="bibr" target="#b9">10,</ref><ref type="bibr" target="#b10">11,</ref><ref type="bibr" target="#b11">12]</ref>. We thus propose the feature map f CNN (x) = CNN(x) ∈ R as sketch map f for images: the associated kernel κ is (for a fully connected network) an arccosine kernel, that surpasses shift-invariant kernels for solving image classification tasks with kernel methods <ref type="bibr" target="#b11">[12]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Compressive learning classification</head><p>Observation phase: Supervised ML infers a mathematical model from a labeled dataset X := {(x i , y i )} N i=1 where each signal x i ∈ R n belongs to a class C k as designated by its class label y i ∈ [K]. Denoting p k := P(x ∈ C k ) = P(y = k), the signals are assumed drawn from an unknown density P:</p><formula xml:id="formula_5">x i ∼ iid P = K k=1 p k p(x| x ∈ C k ) =: k p k P k (x). (3)</formula><p>As illustrated in Fig. <ref type="figure" target="#fig_3">1</ref>(top), our supervised compressive learning framework considers that X is not explicitly available but compressed as a collection of K class sketches z X k defined as: We can also require approximated a priori class probabilities pk , e.g., pk = N k N if we count the class occurrences N k = |X k |, or setting an uniform prior pk = 1 K otherwise. Classification phase: Under (3), the optimal classifier (minimal error probability) for a test example x is the Maximum A Posteriori (MAP) estimator k MAP := arg max k p k P k (x ), where P k is generally hard to estimate. In our CL framework, we classify x from z X k and pk only (Fig. <ref type="figure" target="#fig_3">1</ref>, bottom): we acquire its sketch z x = f (x ) and maximize the correlation with the class sketch weighted by pk , i.e., we assign to x the label</p><formula xml:id="formula_6">z X k = A( PX k ) where X k := {x i ∈ C k }. (<label>4</label></formula><formula xml:id="formula_7">k * := arg max k pk z x , z X k (CC)</formula><p>Note that this Compressive Classifier (CC) does not require parameter tuning. Interestingly, under a few approximations, this procedure can be seen as a MAP estimator in the RKHS H κ . Indeed, we first note that if m is large, the law of large numbers (LLN) provides the kernel approximation (KA)</p><formula xml:id="formula_8">f (u), f (v) κ(u, v), ∀u, v ∈ R n . (KA)</formula><p>Assuming N k is also large, another use of the LLN gives the mean map approximation (MMA): we have both pk p k and</p><formula xml:id="formula_9">z u , z X k = 1 N k xi∈X k f (u), f (x i ) (KA) 1 N k xi∈X k κ(u, x i ) E x∼P k κ(u, x) =: κ(u, P k ) ∀u ∈ R n . (MMA)</formula><p>Consequently, under the KA and MMA approximations,</p><formula xml:id="formula_10">k * arg max k p k κ(x , P k ),<label>(5)</label></formula><p>or in other words, we replace P k in the MAP estimator by its Mean Map κ(•, P k )-its embedding in H κ -such that CC computes a MAP estimation inside the RKHS H κ . In all generality κ(•, P k ) is not a probability density function, but can be interpreted as a smoothing of P k by convolution with (u) := κ(u, 0) if κ is a properly scaled shift-invariant kernel. Alternatively, (5) can be seen as a Parzen-windows classifier-a nonparametric Support Vector Machine (without weights learning)-evaluated compressively thanks to the sketch <ref type="bibr" target="#b12">[13,</ref><ref type="bibr" target="#b13">14]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Experimental proof of concept</head><p>Synthetic datasets: We build two datasets that are not linearly separable (Fig. <ref type="figure" target="#fig_5">2 left</ref>), and sketch them using</p><formula xml:id="formula_11">f = f RFF with Λ ∼ N (0, In σ -2 ): therefore κ(u, v) ∝ exp(-u-v 2<label>2σ</label></formula><p>2 ). As shown Fig. <ref type="figure" target="#fig_5">2</ref>(right), the test accuracy of CC improves with m until reaching-when the KA is good enough-a constant floor depending on the compatibility between κ and P. Accuracy is almost optimal when κ is close to the constituents of P (e.g., 1 st dataset, σ = 0.1), but degrades when the kernel scale and/or shape mismatches the data clusters (e.g., 1 st dataset, σ = 10; or 2 nd dataset). CC thus reaches good accuracy provided m is large enough and κ is well adapted to the task. Standard datasets: We also test CC on some well-known "real-life" datasets from the UCI ML Repository <ref type="bibr" target="#b14">[15]</ref>. Table <ref type="table" target="#tab_1">1</ref> compares the error rates of CC and SVM, a fully learned approach. Although worse than SVM, CC is surprisingly accurate considering its compressive nature, low computational cost (especially when m = 50), and that κ is a basic, non-tuned kernel. Image classification: More challenging are image classification datasets: handwritten digit recognition (MNIST <ref type="bibr" target="#b15">[16]</ref>) and vehicle/animal recognition (CIFAR-10 <ref type="bibr" target="#b16">[17]</ref>). We use f = f CNN (the default architecture provided by <ref type="bibr" target="#b17">[18]</ref>) because it yielded  Table 2: Image datasets: train (white) and test (gray) average error rates ± standard deviation (in %, 10 repetitions), for SVM and CC with m ∈ {250, 5000}.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Discussion and conclusion</head><p>We proposed a very simple and flexible compressive classification method, relying only on class sketches: accumulated random nonlinear signatures f (•) of the learning examples. This classifier is cheap to evaluate (e.g., in low-power hardware, following ideas from <ref type="bibr" target="#b18">[19]</ref>), involves no parameter tuning, and has an interesting interpretation: a MAP estimator inside the RKHS H κ associated with the kernel κ defined by f . Preliminary experimental results, relying on a basic Gaussian κ, are an encouraging proof of concept, but indicate room for improvement if the mapping f (and associated kernel κ) are optimized according to the true data distribution; for example, image classification accuracy improves when f is a random CNN (defining a shift-variant κ). Intuitively, κ should be such that the Mean Maps κ(•, P k ) ∈ H κ of different classes k are "well separated" (ideally as much separated as the initial, unknown densities P k ). This could be done by adding some a priori assumptions on the densities P k , or by first getting a rough estimation of them through a form of distilled sensing <ref type="bibr" target="#b19">[20]</ref>. To be reliable, compressive classification also requires precise, nonasymptotic guarantees, e.g., using results from <ref type="bibr" target="#b4">[5]</ref> and <ref type="bibr" target="#b6">[7]</ref>.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Observation phase: we record only a summary of the dataset X as the K class sketches z X k : the class average of non-linear maps zx i f (x i ) of the examples x . Classification phase: a sample x gets the class label k * that maximizes the correlation between its sketch z x and the stored class sketches; this can be interpreted as a MAP classifier in a RKHS Hκ.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><figDesc>) arXiv:1812.01410v1 [cs.LG] 4 Dec 2018</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: Left: synthetic 2-d datasets of N = 10 4 examples from K = 3 equiprobable classes, separated into 2/3 for "training" (observation phase) and 1/3 for testing (classification phase). Right: testing accuracy (average over 10 trials) of our compressive classification method for different values of σ (noted var) and increasing m (solid), compared to MAP classification (dashed).</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>Table 1 :</head><label>1</label><figDesc>4 examples from K = 3 equiprobable classes, separated into 2/3 for "training" (observation phase) and 1/3 for testing (classification phase). Right: testing accuracy (average over 10 trials) of our compressive classification method for different values of σ (noted var) and increasing m (solid), compared to MAP classification (dashed).Standard datasets: train set (white, 2/3 of data) and test set (gray) average error rates ± standard deviation (in %, 100 repetitions), for SVM and CC with m ∈ {50, 1000}, and with σ = 2 (data re-scaled inside [-1, +1] n ).better accuracy than f RFF , and compare CC to the same CNN architecture with a classification layer, with all weights learned in one pass over X for fairness. Again CC is outperformed by the learned approach, but still achieves reasonable, non-trivial accuracy. Surprisingly, CC performs here better on the test set than on the training set.</figDesc><table><row><cell></cell><cell></cell><cell>N</cell><cell>n</cell><cell>K</cell><cell>SVM</cell><cell cols="2">m = 50</cell><cell>m = 1000</cell></row><row><cell>Iris</cell><cell></cell><cell>150</cell><cell>4</cell><cell>3</cell><cell>2.00 4.00</cell><cell cols="2">6.51 ± 1.81 8.22 ± 3.25</cell><cell>5.51 ± 1.23 6.18 ± 2.40</cell></row><row><cell>Wine</cell><cell></cell><cell>178</cell><cell>13</cell><cell>3</cell><cell>0.84 1.69</cell><cell cols="2">4.56 ± 2.34 13.75 ± 4.09</cell><cell>2.43 ± 0.72 8.19 ± 1.29</cell></row><row><cell cols="2">Breast cancer</cell><cell>569</cell><cell>30</cell><cell>2</cell><cell>3.67 2.13</cell><cell cols="2">7.00 ± 1.40 9.22 ± 2.33</cell><cell>3.93 ± 0.39 6.23 ± 0.69</cell></row><row><cell cols="2">Adult (3 attr.)</cell><cell>30718</cell><cell>3</cell><cell>2</cell><cell>21.03 21.06</cell><cell cols="2">23.88 ± 4.37 36.09 ± 6.67</cell><cell>23.11 ± 1.05 35.04 ± 1.63</cell></row><row><cell></cell><cell>N</cell><cell>n</cell><cell></cell><cell></cell><cell>CNN</cell><cell></cell><cell>m = 250</cell><cell>m = 5000</cell></row><row><cell>MNIST</cell><cell>60000 10000</cell><cell cols="2">28 × 28 × 1</cell><cell></cell><cell>1.60 ± 0.12 1.63 ± 0.11</cell><cell></cell><cell>17.73 ± 1.43 16.83 ± 1.39</cell><cell>16.60 ± 1.54 15.80 ± 1.61</cell></row><row><cell>CIFAR10</cell><cell>50000 10000</cell><cell cols="2">32 × 32 × 3</cell><cell></cell><cell cols="2">39.08 ± 1.48 40.28 ± 1.36</cell><cell>71.76 ± 1.85 71.12 ± 1.72</cell><cell>72.83 ± 2.00 72.02 ± 1.85</cell></row></table></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title level="m" type="main">Compressive Statistical Learning with Random Feature Moments</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Gribonval</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Blanchard</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Keriven</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Traonmilin</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017-06">Jun. 2017</date>
+		</imprint>
+	</monogr>
+	<note>ArXiv e-prints</note>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Compressive K-means</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Keriven</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Tremblay</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Traonmilin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Gribonval</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICASSP 2017 -IEEE International Conference on Acoustics, Speech and Signal Processing</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Sketching for Large-Scale Learning of Mixture Models</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Keriven</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Bourrier</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Gribonval</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Pérez</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Information and Inference: A Journal of the IMA</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Theory of reproducing kernels</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Aronszajn</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Transactions of the Amererican Mathematical Sociecty</title>
+		<imprint>
+			<biblScope unit="issue">68</biblScope>
+			<biblScope unit="page" from="337" to="404" />
+			<date type="published" when="1950">1950</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">A Hilbert space embedding for distributions</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Smola</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gretton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Song</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Scholkopf</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Algorithmic Learning Theory</title>
+		<meeting><address><addrLine>Berlin, Heidelberg</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Hilbert Space Embeddings and Metrics on Probability Measures</title>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">K</forename><surname>Sriperumbudur</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gretton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Fukumizu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Schölkopf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">R</forename><surname>Lanckriet</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="page" from="1517" to="1561" />
+			<date type="published" when="2010-08">Aug. 2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Random Features for Large-Scale Kernel Machines</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Rahimi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Recht</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<editor>
+			<persName><forename type="first">J</forename><forename type="middle">C</forename><surname>Platt</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">D</forename><surname>Koller</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Y</forename><surname>Singer</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">S</forename><forename type="middle">T</forename><surname>Roweis</surname></persName>
+		</editor>
+		<imprint>
+			<publisher>Curran Associates, Inc</publisher>
+			<date type="published" when="2008">2008</date>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="page" from="1177" to="1184" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">Fourier Analysis on Groups</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Rudin</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1962">1962</date>
+			<publisher>Interscience Publishers</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<author>
+			<persName><forename type="first">D</forename><surname>Ulyanov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Vedaldi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Lempitsky</surname></persName>
+		</author>
+		<title level="m">Deep Image Prior</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Deep Neural Networks with Random Gaussian Weights: A Universal Classification Strategy?</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Giryes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Sapiro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">M</forename><surname>Bronstein</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Signal Processing</title>
+		<imprint>
+			<biblScope unit="volume">64</biblScope>
+			<biblScope unit="issue">13</biblScope>
+			<biblScope unit="page" from="3444" to="3457" />
+			<date type="published" when="2016-07">Jul. 2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">Intriguing Properties of Randomly Weighted Networks: Generalizing While Learning Next to Nothing</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Rosenfeld</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">K</forename><surname>Tsotsos</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Kernel methods for deep learning</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Cho</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">K</forename><surname>Saul</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in neural information processing systems</title>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">O</forename><surname>Duda</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">E</forename><surname>Hart</surname></persName>
+		</author>
+		<title level="m">Pattern Classification and Scene Analysis</title>
+		<imprint>
+			<publisher>Wiley Interscience</publisher>
+			<date type="published" when="1973">1973</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<title level="m" type="main">Learning with kernels: support vector machines, regularization, optimization, and beyond</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Scholkopf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">J</forename><surname>Smola</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2001">2001</date>
+			<publisher>MIT press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title level="m" type="main">UC Irvine Machine Learning Repository</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Asuncion</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">J</forename><surname>Newman</surname></persName>
+		</author>
+		<ptr target="http://archive.ics.uci.edu/ml/index.php" />
+		<imprint>
+			<biblScope unit="page" from="2018" to="2023" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<title level="m" type="main">The MNIST database of handwritten digits</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lecun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Cortes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">J</forename><surname>Burges</surname></persName>
+		</author>
+		<ptr target="http://yann.lecun.com/exdb/mnist/" />
+		<imprint>
+			<biblScope unit="page" from="2018" to="2023" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<monogr>
+		<author>
+			<persName><forename type="first">A</forename><surname>Krizhevsky</surname></persName>
+		</author>
+		<ptr target="https://www.cs.toronto.edu/~kriz/cifar.html" />
+		<title level="m">The CIFAR-10 dataset</title>
+		<imprint>
+			<biblScope unit="page" from="2018" to="2023" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<title level="m" type="main">MatConvNet: CNNs for MAT-LAB</title>
+		<author>
+			<persName><forename type="first">The</forename><surname>Matconvnet</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Team</forename></persName>
+		</author>
+		<ptr target="http://www.vlfeat.org/matconvnet/,Ac-cessed" />
+		<imprint>
+			<biblScope unit="page" from="2018" to="2024" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title level="m" type="main">Quantized Compressive K-Means</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Schellekens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Jacques</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1804.10109</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Distilled sensing: Adaptive sampling for sparse detection and estimation</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Haupt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">M</forename><surname>Castro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Nowak</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Information Theory</title>
+		<imprint>
+			<biblScope unit="volume">57</biblScope>
+			<biblScope unit="issue">9</biblScope>
+			<biblScope unit="page" from="6222" to="6235" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

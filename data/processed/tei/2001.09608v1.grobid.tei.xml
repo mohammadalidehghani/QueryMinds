@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Some Insights into Lifelong Reinforcement Learning Systems</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Changjian</forename><surname>Li</surname></persName>
+						</author>
+						<title level="a" type="main">Some Insights into Lifelong Reinforcement Learning Systems</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">78C4C8A6D5865768A311031BEE81E7C6</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>A lifelong reinforcement learning system is a learning system that has the ability to learn through trail-and-error interaction with the environment over its lifetime. In this paper, I give some arguments to show that the traditional reinforcement learning paradigm fails to model this type of learning system. Some insights into lifelong reinforcement learning are provided, along with a simplistic prototype lifelong reinforcement learning system.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.">Introduction</head><p>An agent is an abstraction of a decision-maker. At each time instance t, it receives an observation o t ∈ O, and outputs an action a t ∈ A to be carried out in the environment it lives in. Here, O is the (finite) set of possible observations the agent can receive, and A is the (finite) set of actions the agent can choose from. An agent's observation o t depends on the current environment state s t ∈ S through an agent observation function S → O, where S is the set of possible environment states. The observation history h o t = (o 1 , o 2 ..., o t ) is the sequence of observations the agent has received till time t. Let H o t be the set of possible observation histories of length t, the policy π t : H o t → A at time t is defined as the mapping from an observation history of length t to the action the agent will take. An agent's behavior can thus be fully specified by its policy across all timesteps π = (π 1 , π 2 , ..., π t , ...). Throughout the paper, it is assumed that an agent has a finite lifespan T .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.1.">Scalar Reward Reinforcement Learning System</head><p>We are interested in agents that can achieve some goal. In reinforcement learning, a goal is expressed by a scalar signal r t ∈ R called the reward. The reward is dependent on the agent's observation history, and is assumed to be available to the agent at each timestep in addition to the observation o t . Our aim is to find policies that maximize the expected cumulative reward an agent receives over its lifetime:</p><formula xml:id="formula_0">max π E[ T t=1 r t (h o t )]<label>(1)</label></formula><p>Using the maximization of expected cumulative scalar reward to formulate the general notion of goal is a design choice in reinforcement learning, based on what is commonly known as the reward hypothesis <ref type="bibr" target="#b6">(Sutton &amp; Barto, 2018)</ref>, In Sutton's own words:</p><p>That all of what we mean by goals and purposes can be well thought of as the maximization of the expected value of the cumulative sum of a received scalar signal (called reward).</p><p>This design choice, however, is somewhat arbitrary. Among other things, the reward needs not be a scalar (e.g. multiobjective reinforcement learning <ref type="bibr" target="#b10">(White, 1982)</ref>), nor does it have to be a quantity whose cumulative sum is to be maximized (which we will come to shortly). Leaving aside the question of whether or not all goals can be formulated by Eq. 1, I intend to show in this paper that the problem of lifelong reinforcement learning probably should not be formulated as such.</p><p>Note that in Eq. 1, I defined the reward in terms of the observation history, instead of the history of environment states as in most reinforcement learning literature. This reflects the view that reward signals are internal to the agent, as pointed out by <ref type="bibr" target="#b5">Singh et al. (2004)</ref> in their work on intrinsic motivation. Since the observations are all that the agent has access to from the external environment, the intrinsic reward should depend on the environment state only through the agent's observation history.</p><p>Although the above reinforcement learning formulation recognizes the reward as a signal intrinsic to an agent, it focuses on learning across different generations 1 of agents, as opposed to learning within an agent's lifespan. From an agent's point of view, the cumulative reward is known only when it reaches its end of life, by which time no learning can Figure <ref type="figure">1</ref>: Architecture of a traditional reinforcement learning system. At the beginning of an agent's life, it receives a policy π i = (π i 1 , π i 2 , ...π i T ) from the learning algorithm that carries out a mix of exploitation and exploration, where the superscript i indicates that the agent belongs to the ith generation. The agent receives an observation o t at each timestep t, and act according to π i t . At the end of the agent's life, the learning algorithm gathers the observation history h o T and the cumulative reward T t=1 r(h o t ) from the agent, and outputs the the next policy π i+1 to be executed. The learning algorithm does not need to optimize the performance of any particular π i , as long as it is guaranteed to be able to eventually find the policies that maximize the expected cumulative reward. be done by the 'dying' agent itself. The individual reward received at each timestep does not really matter, since the optimization objective is the cumulative sum (of reward). The information gathered by the agent, however, can be used to improve the policy of the next generation. In other words, with the conventional reinforcement learning formulation, learning can only happen at a level higher than the lives of individual agents (Figure <ref type="figure">1</ref>), with the goal that an optimal agent can eventually be found -the lifetime behavior of a particular agent is not of concern.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.2.">Towards Lifelong Reinforcement Learning</head><p>In lifelong reinforcement learning, on the other hand, the focus is the agent's ability to learn and adapt to the environment throughout its lifetime. Intuitively, this implies that learning component of the learning system should reside within the agent.</p><p>To shed some lights on lifelong reinforcement learning, consider the Q-learning <ref type="bibr" target="#b9">(Watkins &amp; Dayan, 1992)</ref> algorithm for the standard reinforcement learning problem formulated by Eq. 1. For the purpose of this example only, it is further assumed that:</p><p>• The reward depends only on the current observation.</p><p>I.e., r(h o t ) = r(o t )</p><p>• Observations are Markov with respect to past observations and actions. I.e., P (o t |o t-1 , a t-1 , ..., o 1 , a 1 ) = P (o t |o t-1 , a t-1 )</p><p>These assumptions are only made so that Q-learning will find the solution to Eq. 1, and are not essential for the general discussion. The (non-lifelong) learning system works as follows:</p><p>1. The agent receives its initial Q estimate from the past generation.</p><p>2. At each timestep t, the agent takes an -greedy action based on the current Q estimate, then does a Bellman update on the Q estimate:</p><formula xml:id="formula_1">Q(o t , a t ) := Q(o t , a t ) + α(r(o t ) + max a Q(o t+1 , a) -Q(o t , a t ))</formula><p>(2)</p><p>3. When the agent dies, pass the updated Q estimate to the next generation.</p><p>At first sight, the fact that the Q estimate is updated every timestep seems to contradict my argument that learning only happens across generations. However, for Eq. 2 to be a valid update, the timestep t needs to be part of the observation -the observation o t here is in fact the raw observation o - t augmented by time t, i.e., o t = (o - t , t). Since the timestep is part of the observation, no same observation will be experienced more than once throughout the agent's lifetime, and it makes no difference to the agent whether the Q estimate is updated every timestep, or after its life ends<ref type="foot" target="#foot_2">foot_2</ref> .</p><p>It's clear that for an agent to exhibit any sensible behavior, the initial Q estimate it inherits from the past generation is vital. If the agent receives a random initial Q estimate, then it's lifelong behavior is bound to be random and meaningless. On the other side of the spectrum, if the agent receives the true Q function, then it will behave optimally. This suggests that if we care about the lifetime behaviour (which includes lifelong learning behavior) of a Q-learning agent, then Q(o t , •) is a fundamental signal the agent needs to receive in addition to the scalar reward. In a sense, if the signal represented by the scalar reward is a specification of what the goal is, then the signal represented by the Q estimate is the knowledge past generations have collected about what the goal means for this type of agent. As an analogy, the pain associated with falling to the ground could be the former signal, while the innate fear of height could be the latter.</p><p>From a computational perspective, the separation of these two signals may not be necessary. Both signals can be considered as 'annotations' for the observation history that the agent receives along with its observation, and can be incorporated into the concept of reward. The reward signals are no longer restricted scalars, nor are they necessarily quantities whose cumulative sum is to be maximized -they are just messages in some reward language that 'encode' the knowledge pertaining to an agent's observation history -knowledge that enables the agent to learn continuously throughout its life. Such knowledge may include the goals of the agent, the subgoals that constitute these goals, the heuristics for achieving them, and so on. The reward is then 'decoded' by the learning algorithm, which defines how the agent responds to the reward given the observation history. The learning system should be designed such that by responding to the reward in its intended way, the agent will learn to achieve the goals implied by the reward before its end of life (Figure <ref type="figure">2</ref>).</p><p>To be precise, the reward r(h o t ) ∈ Σ now belongs to some reward space Σ. The learning algorithm is a mapping from reward histories to policies. Denoting the set of possible reward history of length t as H r t , and the set of all possible policies at time t as Π t , the learning algorithm m can be represented by m = (m 1 , m 2 , ..., m t , ..., m T ), where m t : H r t → Π t . The formulation is general, and a learning system formulated as such is not automatically a lifelong learning system. In fact, it subsumes traditional reinforcement learning: the reward space is set to the real numbers (Σ = R), and the learning algorithm can be set to any algorithm that converges to a policy that maximizes the expected cumulative reward. Unfortunately, the reward in traditional reinforcement learning does not contain enough information for an agent to learn within its lifetime.</p><p>Viewing the reward as a general language, and the learning algorithm as the response to the reward opens up the possibilities for principled ways to embed learning bias such as guidance and intrinsic motivation into the learning system, instead of relying solely on manipulating the scalar reward on an ad-hoc basis. In the rest of the paper, my focus remains on lifelong reinforcement learning, more specifically, what lifelong reinforcement learning requires of the reward language and the corresponding learning algorithm.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.3.">Reward as Formal Language</head><p>Although the term 'language' used above can be understood in its colloquial sense, it can also be understood as the formal term in automata theory. To see this, consider the following deterministic finite automaton Σ, Q, δ, q 0 , F , where:</p><p>• Σ is the alphabet of the automaton, and is set to the reward space of the learning system. In other words, Figure <ref type="figure">2</ref>: Architecture of lifelong reinforcement learning system. In contrast to traditional reinforcement learning (Figure <ref type="figure">1</ref>), the learning algorithm resides inside the agent.</p><p>The internal environment of the agent can be thought of as a built-in mechanism for the agent-designer to communicate with the agent (through the reward). At each timestep, the learning algorithm receives some message (encoded in the form of reward r(h o t )) from the agent's internal environment, and outputs a policy π t as a response.</p><p>the alphabet of this automaton consists of all possible reward the agent can receive at any single timestep. A string is a sequence of symbols chosen from some alphabet. For this particular automaton, a string is in fact a sequence of reward, so the notation for reward history h r t is also used to denote a string of length t. The set of all strings of length k over Σ is denoted as Σ k , and the set of all strings (of any length) is denoted as Σ * .</p><p>• Q is the set of states of the automaton. Each state of this automaton is a possible pair of reward history and policies till some timestep t. For example, members of</p><formula xml:id="formula_2">Q include: h r t=1 , (π 1 ) h r t=2 , (π 1 , π 2 ) ... h r t=T , (π 1 , π 2 , ..., π T ) for any π 1 ∈ Π 1 , π 2 ∈ Π 2 , ..., π T ∈ Π T , and h r t=1 ∈ Σ 1 , h r t=2 ∈ Σ 2 , ..., h r t=T ∈ Σ T .</formula><p>In addition, Q has a special 'empty' member q 0 , which corresponds to the initial state before any reward is received.</p><formula xml:id="formula_3">• δ : (Q × Σ) → Q is the transition function.</formula><p>The transition function corresponds to the learning algorithm of the learning system, so we have δ( h r t , (π 1 , ..., π t ) , r t+1 ) = h r t+1 , (π 1 , ..., π t , m t+1 (h r t+1 )) , where h r t+1 = (h r t , r t+1 ).</p><p>• q 0 is the initial state of the automaton as explained above.</p><p>• F ⊂ Q is the set of accepting states, which are the desired states of the automaton.</p><p>It's not hard to see that this automaton is a model of the learning system described in Section 1.2, with its desired property specified by the accepting states F . In this paper, the desired property is that the system be a lifelong learning system, so the accepting states F are the set of h r T , (π 1 , π 2 , ..., π T ) pairs that correspond to a lifelong learner 3 .</p><p>To specify learning objectives, each possible reward r ∈ Σ is assigned some semantics. These semantics implicitly define the set of valid reward sequences L ⊂ Σ * . Since L is a subset of Σ * , it is a language over Σ. We want to make sure that -for all reward sequences in L, lifelong learning can be achieved by the learning system abstracted by this automaton, or equivalently, all reward sequences in L lead to accepting states F .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.">A Prototype Lifelong Reinforcement Learning System</head><p>Designing a lifelong reinforcement learning system involves designing the reward language and the learning algorithm holistically. Intuitively, the reward needs to contain enough information to control the relevant aspects of the learning algorithm, and the learning algorithm in turn needs to 'interpret' the reward signal in its intended way. In this section, I aim to provide some insights into the design process with a prototype lifelong reinforcement learning system.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1.">Reward Language</head><p>The main reason lifelong learning is impossible in conventional reinforcement learning is that the learning objective in conventional reinforcement learning is global, in the sense that the goal of the agent is defined in terms of the observation history of its entire life. For a lifelong reinforcement learning agent, the learning objectives should instead be local, meaning that the goals should be defined only for some smaller tasks that the agent can encounter multiple times during its lifetime. Once a local goal expires, whether it is because the goal has been achieved or because the agent has failed to achieve it within a certain time limit, a new local goal (can potentially be another instantiation of the same goal) ensues. This way, the agent has the opportunity to gather knowledge for each of the goals, and improve upon 3 Recall that an agent's behavior is fully decided by its policy π = (π1, π2, ..., πT ). Therefore given a reward history h r T , the policy is sufficient for us to tell whether the agent is a successful lifelong learner.</p><p>them, all within one life. Local goals like this are ubiquitous for humans. For example, when a person is hungry, his main concern is probably not the global goal of being happy for the rest of his life -his goal is to have food. After the person is full, he might feel like taking a nap, which is another local goal. In fact, the local goals and the transition of them seems to embody what we mean by intrinsic motivation.</p><p>To be able to specify a series of local goals, the reward in this prototype learning system has two parts: the reward state r s t ∈ G, and the reward value r v t ∈ R, where G is the set of local goals the agent may have. This form of reward is inspired by the reward machine <ref type="bibr" target="#b2">(Icarte et al., 2018)</ref>, a Mealy machine for specifying history-dependent reward, but the semantics we assign to the reward will be different. Also note that this Mealy machine bears no relation to the automaton we discussed in Section 1.3 -the reward machine models the reward, while the automaton in Section 1.3 models the learning system, and takes the reward as input. Each reward state r s corresponds to a local goal. When a local goal (or equivalently, a reward state) expires, the agent receives a numerical reward value r v . For all other timesteps (other than the expiration of local goals), the reward value can be considered to take a special NULL value, meaning that no reward value is received. The reward value is an evaluation of the agent's performance in an episode of a reward state, where an episode of a reward state is defined as the time period between the expiration of the previous reward state (exclusive) and the expiration of the reward state itself (inclusive). The reward state can potentially depend on the entire observation history, while the reward value can only depend on the observation history of the episode it is assessing. Overall, the reward is specified by (r s t , r v t ) = r(h o t ). The local goals described here are technically similar to subgoals in hierarchical reinforcement learning <ref type="bibr" target="#b1">(Dietterich, 2000;</ref><ref type="bibr" target="#b7">Sutton et al., 1999;</ref><ref type="bibr" target="#b3">Parr &amp; Russell, 1997)</ref>. However, the term 'subgoal' suggests that there is some higher-level goal that the agent needs to achieve, and that the higher-level goal is the true objective the agent needs to optimize. That is not the case here -although it is totally possible that the local goals are designed in such a way that some global goal can be achieved, the agent only needs to optimize the local goals.</p><p>The reward language in this prototype system makes two assumptions on the learning algorithm. As long as the two assumptions are met, the learning algorithm is considered to 'interpret' the reward correctly. The first assumption is that the learning algorithm only generates policies that are episode-wise stationary, meaning that π t1 = π t2 for any timesteps t 1 and t 2 in the same episode of a reward state, and that π t1 : O → A. This assumption is not particularly restrictive, because in cases where a local goal requires a more complex policy, we can always split the goal into mul-tiple goals (by modifying the reward function) for which the policies are episode-wise stationary. With this assumption, we can use a single policy π r s : O → A to represent the policies at all timesteps within an episode of reward state r s . The second assumption is that the learning algorithm keeps a pool of 'elite' policies for each reward state: a policy that led to high reward value in some episode has the opportunity to enter the pool, and a policy that consistently leads to higher reward value eventually dominates the policy pool. The exact criterion for selection into the pool (e.g., to use the expected reward value as the criterion, or to use the probability of the reward value being higher than a certain threshold, etc.) is not enforced, and is left up to the learning algorithm.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2.">Learning Algorithm</head><p>The learning algorithm in this prototype lifelong learning system is an evolutionary algorithm, adjusted to meet the assumptions made by the reward. The algorithm maintains a policy pool D r s of maximum size d for each reward state r s ∈ G. Each item in the pool is a two tuple π, r v π where π is a policy and r v π is the reward value of the last episode in which π was executed. Conceptually, the algorithm consists of three steps: policy generation, policy execution, and (policy) pool update, which are described below.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>POLICY GENERATION</head><p>When an episode of reward state r s starts, a policy π r s is generated from one of the following methods with probability p 1 , p 2 , p 3 , respectively:</p><p>1. Randomly sample a policy from the policy pool D r s , and mutate the policy.</p><p>2. Randomly sample a policy from D r s and keep it as is. Remove the sampled policy from D r s . This is to re-evaluate a policy in the pool. Since the transition of observations might be stochastic, the same policy does not necessarily always result in the same reward value.</p><p>3. Randomly generate a new policy π r s : O → A from scratch. This is to keep the diversity of the policy pool.</p><p>p 1 , p 2 and p 3 should sum up to 1, and are hyper-parameters of the algorithm.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>POLICY EXECUTION</head><p>Execute the generated policy π r s until a numerical reward value r v is received.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>POOL UPDATE</head><p>If the policy pool is not full, insert π r s , r v into the pool. Otherwise compare r v with the minimum reward value in the pool. If r v is greater than or equal to the minimum reward value, replace the policy and reward value pair (that has the minimum reward value) with π r s , r v .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3.">Embedding Learning Bias</head><p>Learning bias in reinforcement learning systems refers to the explicit or implicit assumptions made by the learning algorithm about the policy. Our assumption that the policy is episode-wise stationary is an example of learning bias. Arguably, a good learning bias is as important as a good learning algorithm, therefore it is important that mechanisms are provided to embed learning bias into the learning system.</p><p>A straight-forward way to embed learning bias into the above lifelong learning system is through the policy generation process. This includes how existing policies are mutated, and what distribution new policies are sampled from. The learning bias provided this way does not depend on the agent's observation and reward history, and is sometimes implicit (e.g., the learning bias introduced by using a neural network of particular architecture).</p><p>Another type of learning bias common in reinforcement learning is guidance, the essence of which can be illustrated by Figure <ref type="figure" target="#fig_0">3</ref>. Suppose in some reward state, the agent starts from observation o and the goal is to reach<ref type="foot" target="#foot_3">foot_3</ref> observation o . Prior knowledge indicates that to reach o , visiting o is a good heuristic, but reaching o itself has little or no merit. In other words, we would like to encourage the agent to visit and explore around o more frequently (than other parts of the observation space) until a reliable policy to reach o is found. To provide guidance to the agent in the prototype lifelong learning system, we can utilize the property of the learning algorithm that policies leading to high reward values will enter the policy pool. Once a policy enters the pool, it has the opportunity to be sampled (possibly with mutation) and executed. Therefore, we just need to assign a higher reward value for reaching o (before the expiration of the reward state) than reaching neither o nor o . Also important is the ability to control the extent to which region around o is explored. To achieve this, recall that the learning algorithm occasionally re-evaluates policies in the policy pool. If we assign a lower reward value for reaching o with some probability, we can prevent the </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">Experiment</head><p>Now we evaluate the behaviour of the prototype lifelong reinforcement learning system. The source code of the experiments can be found at <ref type="url" target="https://gitlab.com/lifelong-rl/lifelongRL_gridworld">https://gitlab.com/  lifelong-rl/lifelongRL_gridworld</ref> </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1.">Environment</head><p>Consider a gridworld agent whose life revolves around getting food and taking the food back home for consumption.</p><p>The agent lives in a 11 by 11 gridworld shown in Figure <ref type="figure">4</ref>. The shaded areas are barriers that the agent cannot go through. Some potential positions of interest are marked with letters: F is the food source and is assumed to have infinite supply of food; H is the agent's home. To get to the food source from home, and to carry the food home, the agent must pass through one of the two tunnels -the tunnel on the left is marked with L and the tunnel on the right is marked with R. At each timestep, the agent observes its position in the gridworld as well as a signal indicating whether it is in one of the four positions of interest (if yes, which), and chooses from one of the four actions: UP, RIGHT, DOWN and LEFT. Each action deterministically takes the agent to the adjacent grid in the corresponding direction, unless the destination is a barrier, in which case the agent remains in its original position. The agent starts from home at the beginning of its life, and needs to go to the food source to get food. Once it reaches the food source, it needs to carry the food back home. This process repeats until the agent dies. The lifespan of the agent is assumed to be 100 million timesteps. The agent is supposed to learn to reliably achieve these two local goals within its lifetime.</p><p>Figure <ref type="figure">4</ref>: Gridworld environment.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2.">Learning System Setup</head><p>The reward state in this experiment is represented by the conjunction of Boolean variables. For example, if three Boolean variables A, B and C are defined, then the reward state would be in the form of r s = A ∧ B ∧ C or r s = A ∧ ¬B ∧ C, etc. At the bare minimum, one Boolean variable GET FOOD needs to be defined for this agent, where GET FOOD being true corresponds to the local goal of going to the food source, and ¬GET FOOD corresponds to the local goal of carrying the food home. The agent receives a reward value of +1 if GET FOOD is true and the agent reaches F, in which case the Boolean variable GET FOOD transitions to false. Similarly, the agent receives a reward value of +1 if ¬GET FOOD is true and the agent reaches H, in which case GET FOOD transitions to true. On top of GET FOOD, we define another Boolean variable TIMED OUT, which indicates whether the agent has exceeded a certain time limit for trying to get to the food source, or for trying to carry the food home. If the reward state is ¬TIMED OUT ∧ GET FOOD, and the agent fails to reach F within the time limit, itreceives a reward value of -1, and the reward state transition to TIMED OUT ∧ GET FOOD. From TIMED OUT ∧ GET FOOD, if the agent still fails to get to F within the time limit, it receives a reward value of 0. The agent will remain in TIMED OUT ∧ GET FOOD, until it reaches F, when the reward state transitions to ¬TIMED OUT ∧ ¬GET FOOD (and receive a +1 reward value as already mentioned). For the case when GET FOOD is false, the reward transition is defined similarly. Throughout the experiments, the time limit is set to 24, which is enough for the agent to accomplish any of the local goals. We refer to this reward design as the base case.</p><p>Unfortunately, even for a toy problem like this, learning can be difficult if no proper learning bias is provided. Since there are 4 actions and 74 possible positions, the number of possible episode-wise stationary policies is 4 74 for each reward state. Among those policies, very few can achieve the local goals. If the policy generation and mutation is purely random, it will take a long time for the agent to find a good policy.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>BIASED POLICY</head><p>The first learning bias we consider is biased policy, which is in contrast to the unbiased policy case where the policy generation and mutation is purely random. More specifically, we make the policy generation process biased towards policies that take the same action for similar observations. This would encourage policies that head consistently in one direction, and discourage those that indefinitely roam around between adjacent positions.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>PROGRESS-BASED GUIDANCE</head><p>The second learning bias we consider is guidance based on the agent's progress. Different from the base case where the agent always receives a 0 (if TIMED OUT is true) or -1 (if TIMED OUT is false) reward value when it fails to achieve the local goal within the time limit, the agent now has some probability p = 0.8 of receiving a reward value proportional to the Manhattan distance d it has traveled since the beginning of the episode. To be precise:</p><formula xml:id="formula_4">r v := 0.01d</formula><p>with probability p same as the base case with probability 1 -p This way, policies leading to more progress (albeit not necessary towards the local goal) will be encouraged.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>SUB-OPTIMAL GUIDANCE</head><p>Finally, we consider a case of sub-optimal guidance that encourages the agent to explore a sub-optimal trajectory. As we have mentioned, both reaching the food source from home and carrying the food home require the agent to go through one of the two tunnels. However, if the agent goes through the left tunnel, it has to travel more distance. Suppose that we prefer the agent to take the shorter route, but we only know the route that goes through the left tunnel; and as a result, we sub-optimally encourage the agent to explore the left tunnel. To guide the agent to take the left tunnel, Boolean variable VISITED LEFT is introduced as an indicator of whether L has been visited since the last visitation of F or H. Now we have 2 3 = 9 elements in the reward space, corresponding to 9 possible local goals. The reward transition is different from the base case in that if the agent has already visited L when the local goal GET FOOD ∧ ¬TIMED OUT ∧ ¬VISITED LEFT or ¬GET FOOD ∧ ¬TIMED OUT ∧ ¬VISITED LEFT times out, VISITED LEFT becomes true, and the agent will receive a reward value of +0.6 with 0.8 probability, and -0.2 with 0.2 probability. To express our preference for the shorter route, the agent receives a reward value of +0.8 (instead of +1) when it reaches F (when GET FOOD is true) or H (when GET FOOD is false) through the left tunnel. Figure <ref type="figure">5</ref> shows the learning curves for reward state GET FOOD ∧ ¬TIMED OUT with progress-based guidance. The x-axis is the timesteps (in million), and the y-axis is the percentage of times the agent transitions into a particular next reward state starting from GET FOOD ∧ ¬TIMED OUT. A next reward state of ¬GET FOOD ∧ ¬TIMED OUT means that the agent successfully reached F within the time limit, and a next reward state of GET FOOD ∧ TIMED OUT means that the agent failed to do so. As we can see, with unbiased policy, it took the agent around 25 million timesteps to achieve 100% success rate; while with biased policy, this only took around 8 million timesteps.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3.">Results</head><p>Figure <ref type="figure" target="#fig_4">6</ref> shows the learning curves for reward state GET FOOD ∧ ¬TIMED OUT ∧ ¬VISITED LEFT with the suboptimal guidance described in Section 3.2. Similar to Figure <ref type="figure">5</ref>, the x-axis is the timesteps (in million), and the yaxis is the percentage of times the agent transitioned into a particular next reward state starting from GET FOOD ∧  ¬TIMED OUT ∧ ¬VISITED LEFT. A next reward state of ¬GET FOOD ∧ ¬TIMED OUT ∧ ¬VISITED LEFT means that the agent successfully reached F within the time limit; a next reward state of GET FOOD ∧ TIMED OUT ∧ VISITED LEFT means that the agent failed to reach the food source, but was able to find a way to the left tunnel; and a next reward state of GET FOOD ∧ TIMED OUT ∧ ¬VISITED LEFT means that the agent was neither able to reach the left tunnel nor the food source within the time limit. As we can see, for both unbiased and biased policy, learning is much slower than progress-based guidance. This is likely due to the much sparser guidance signal -the agent receives guidance only when it reaches the left tunnel. For the unbiased policy case, 100% success rate was not achieved within 100 million timesteps, but we can clearly see that exploration around the left tunnel was encouraged as intended. For the biased policy case, the agent was able to reach 100% success rate after 50 million timesteps. But was the agent able to figure out the optimal route, or did it only learn to take the suboptimal route as guided? Recall that the agent receives a reward value of +1 if it takes the optimal route, and a reward value of +0.8 if it takes the sub-optimal route. As shown in Figure <ref type="figure" target="#fig_5">7</ref>, although the agent was taking the sub-optimal route by 50 million timesteps when it just learned to reach the food source reliably, it was eventually able to figure out the optimal route by 90 million timesteps. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.">Conclusions</head><p>Lifelong reinforcement learning is sometimes viewed as a multi-task reinforcement learning problem <ref type="bibr" target="#b0">(Abel et al., 2018)</ref>, where the agent must learn to solve tasks sampled from some distribution D. The agent is expected to (explicitly or implicitly) discover the relation between tasks, and generalize its policy to unseen tasks from D. The focus is therefore on the transfer learning <ref type="bibr" target="#b8">(Taylor &amp; Stone, 2009)</ref> and continual learning <ref type="bibr" target="#b4">(Ring, 1998)</ref> aspects of lifelong reinforcement learning.</p><p>In this paper, I provided a systems view on lifelong reinforcement learning. In particular, I showed that the reward in a lifelong reinforcement learning system can be a general language, and that the language needs to be designed holistically with the learning algorithm. A prototype lifelong reinforcement learning system was given, with an emphasize on how learning bias can be embedded into the learning system through the synergy of the reward language and the learning algorithm.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 3 :</head><label>3</label><figDesc>Figure 3: A simplistic abstraction of guidance in reinforcement learning.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><figDesc>policy pool from being overwhelmed only by policies that lead to o . In other words, the reward value for reaching o should have multiple candidates. Let r v ({O -{o , o }}) denote the reward value for an episode where the agent reaches neither o nor o , r v (o ) denote the reward value for reaching o , we can set the reward value r v (o ) for reaching o as: r v (o ) := a, with probability p b, with probability 1 -p where b &lt; r v ({O -{o , o }}) &lt; a &lt; r v (o ). The probability p controls the frequency region around o is to be explored compared the other parts of the observation space 5 .</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><figDesc>Figure 5: Learning curve for unbiased/biased policy with progress-based guidance, averaged over 20 runs.</figDesc><graphic coords="7,319.59,269.52,218.70,164.03" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><figDesc>(a) unbiased policy, sub-optimal guidance (b) biased policy, sub-optimal guidance</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Figure 6 :</head><label>6</label><figDesc>Figure 6: Learning curve for unbiased/biased policy with sub-optimal guidance, averaged over 20 runs.</figDesc><graphic coords="8,79.74,229.79,194.40,145.80" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Figure 7 :</head><label>7</label><figDesc>Figure 7: Reward value for GET FOOD ∧ ¬TIMED OUT ∧ ¬VISITED LEFT (biased policy with sub-optimal guidance, averaged over 20 runs).</figDesc><graphic coords="8,327.24,129.58,194.40,145.80" type="bitmap" /></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0"><p>Department of Electrical and Computer Engineering, University of Waterloo, Canada. Correspondence to: Changjian Li &lt;changjian.li@uwaterloo.ca&gt;.Preliminary work. Under Review.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_1"><p>Usage of the word 'generation' here is only to emphasize that learning cannot be achieved within an agent's lifespan, and does not imply that evolution algorithms need to be used.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_2"><p>The statement does not strictly hold true if function approximation is used. An update to Q θ (ot, a) can potentially affect the Q estimate of all other observations. However, this is more a side effect than a desired property.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="4" xml:id="foot_3"><p>For sake of terminological convenience, we pretend that the observations here are environment states.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="5" xml:id="foot_4"><p>Note that the word 'probability' here should be interpreted as the 'long-run proportion', and therefore the reward value needs not be truly stochastic. E.g., we can imagine that the reward has a third component which is the state of a pseudo-random generator.</p></note>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>Acknowledgements</head><p>The author would like to thank <rs type="person">Gaurav Sharma</rs> (<rs type="affiliation">Borealis AI</rs>) for his comments on a draft of the paper.</p></div>
+			</div>			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">State abstractions for lifelong reinforcement learning</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Abel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Arumugam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Lehnert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">L</forename><surname>Littman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 35th International Conference on Ma-chine Learning, ICML 2018</title>
+		<meeting>the 35th International Conference on Ma-chine Learning, ICML 2018<address><addrLine>Stockholmsmässan, Stockholm, Sweden</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2018">July 10-15, 2018. 2018</date>
+			<biblScope unit="page" from="10" to="19" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Hierarchical reinforcement learning with the MAXQ value function decomposition</title>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">G</forename><surname>Dietterich</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Artif. Intell. Res</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="page" from="227" to="303" />
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Using reward machines for high-level task specification and decomposition in reinforcement learning</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">T</forename><surname>Icarte</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">Q</forename><surname>Klassen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">A</forename><surname>Valenzano</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">A</forename><surname>Mcilraith</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 35th International Conference on Machine Learning, ICML 2018</title>
+		<meeting>the 35th International Conference on Machine Learning, ICML 2018<address><addrLine>Stockholmsmässan, Stockholm, Sweden</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2018">July 10-15, 2018. 2018</date>
+			<biblScope unit="page" from="2112" to="2121" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Reinforcement learning with hierarchies of machines</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Parr</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Russell</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<meeting><address><addrLine>Denver, Colorado, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="1997">1997. 1997</date>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="page" from="1043" to="1049" />
+		</imprint>
+	</monogr>
+	<note>NIPS Conference</note>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">A first step towards continual learning</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">B</forename><surname>Ring</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Child</surname></persName>
+		</author>
+		<idno type="DOI">10.1007/978-1-4615-5529-2_11</idno>
+		<ptr target="https://doi.org/10.1007/978-1-4615-5529-2_11" />
+	</analytic>
+	<monogr>
+		<title level="m">Learning to Learn</title>
+		<imprint>
+			<date type="published" when="1998">1998</date>
+			<biblScope unit="page" from="261" to="292" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Intrinsically motivated reinforcement learning</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">P</forename><surname>Singh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">G</forename><surname>Barto</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Chentanez</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems 17 [Neural Information Processing Systems, NIPS 2004</title>
+		<meeting><address><addrLine>Vancouver, British Columbia, Canada</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2004">December 13-18, 2004. 2004</date>
+			<biblScope unit="page" from="1281" to="1288" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">Reinforcement Learning: An Introduction</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">S</forename><surname>Sutton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">G</forename><surname>Barto</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<publisher>The MIT Press</publisher>
+		</imprint>
+	</monogr>
+	<note>second edition</note>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Between mdps and semi-mdps: A framework for temporal abstraction in reinforcement learning</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">S</forename><surname>Sutton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Precup</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">P</forename><surname>Singh</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Artif. Intell</title>
+		<imprint>
+			<biblScope unit="volume">112</biblScope>
+			<biblScope unit="issue">1-2</biblScope>
+			<biblScope unit="page" from="181" to="211" />
+			<date type="published" when="1999">1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Transfer learning for reinforcement learning domains: A survey</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">E</forename><surname>Taylor</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Stone</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Mach. Learn. Res</title>
+		<imprint>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="page" from="1633" to="1685" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Technical note q-learning</title>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">J C H</forename><surname>Watkins</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Dayan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Machine Learning</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="page" from="279" to="292" />
+			<date type="published" when="1992">1992</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Multi-objective infinite-horizon discounted markov decision processes</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>White</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Mathematical Analysis and Applications</title>
+		<idno type="ISSN">0022-247X</idno>
+		<imprint>
+			<biblScope unit="volume">89</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="639" to="647" />
+			<date type="published" when="1982">1982</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

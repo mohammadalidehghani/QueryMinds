@@ -1,0 +1,703 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Learning functions, operators and dynamical systems with kernels</title>
+				<funder>
+					<orgName type="full">European Commission</orgName>
+				</funder>
+				<funder ref="#_HUX4Tyz">
+					<orgName type="full">US Air Force Office of Scientific Research</orgName>
+				</funder>
+				<funder>
+					<orgName type="full">EU -NGEU)</orgName>
+				</funder>
+				<funder ref="#_7e5cf5t #_NZPbBPz">
+					<orgName type="full">Ministry of Education, University and Research</orgName>
+				</funder>
+				<funder ref="#_yyTWd8C">
+					<orgName type="full">European Research Council</orgName>
+				</funder>
+				<funder ref="#_p5KQnhn">
+					<orgName type="full">MIUR</orgName>
+				</funder>
+				<funder ref="#_gaSfBcQ">
+					<orgName type="full">European Commission (Horizon Europe</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2025-09-23">23 Sep 2025</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Lorenzo</forename><surname>Rosasco</surname></persName>
+						</author>
+						<title level="a" type="main">Learning functions, operators and dynamical systems with kernels</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2025-09-23">23 Sep 2025</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">628E5104FE6112AA79C81AE997F4EBAA</idno>
+					<idno type="arXiv">arXiv:2509.18071v2[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:07+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>This expository article presents the approach to statistical machine learning based on reproducing kernel Hilbert spaces. The basic framework is introduced for scalar-valued learning and then extended to operator learning. Finally, learning dynamical systems is formulated as a suitable operator learning problem, leveraging Koopman operator theory. The manuscript collects supporting material for the corresponding course taught at the CIME school "Machine Learning: From Data to Mathematical Understanding" in Cetraro.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Learning from data</head><p>The most fundamental problem in machine learning is estimating a function f from data, i.e., pairs of inputs and outputs (x 1 , y 1 ), . . . , (x n , y n ). The key intuition is that the function f should give an estimate of the output for any new input, ideally satisfying f (x new ) ≈ y new . The function to be learned can be interpreted as a task and the data as experience from which solving the task can be learned. The term "learning" arises from this perspective. This idea is the so-called learning-from-examples paradigm. We illustrate the generality of this approach with three different examples. Example 1 (Regression) Regression is a supervised learning problem where the outputs are scalar-valued. More precisely, consider the following data model,</p><formula xml:id="formula_0">y i = f * (x i ) + ϵ i i = 1, . . . , n.</formula><p>Here, for any i = 1, . . . , n, x i ∈ R d , d ≥ 1, y i ∈ R, f * : R d → R is a unknown function to be learned, and, for any i = 1, . . . , n, ϵ i ∼ N (0, σ 2 ). Both the function f * and the noise are fixed but unknown. Given the data (x i , y i ) n i=1 , the goal is to compute an estimate f of f * . This model is illustrated in Figure <ref type="figure" target="#fig_0">1</ref>. As an example, we can think of x i as a set of features describing a house (e.g., size, number of rooms, location) and y i as its market price. The task is to learn to predict house prices from given features.</p><p>Example 2 (Operator learning) Operator learning is a supervised learning problem where inputs and outputs belong to Hilbert (or Banach) spaces. More precisely, consider the following model,</p><formula xml:id="formula_1">y i = F * (x i ) + ϵ i i = 1, . . . , n.</formula><p>Here, for any i = 1, . . . , n, x i ∈ X and y i ∈ Y , where X and Y are Hilbert spaces. The function to be learned is a fixed but unknown linear operator F * : X → Y , and for any i = 1, . . . , n, the noise term ϵ i is a zero-mean random variable. Given the data (x i , y i ) n i=1 , the goal is to compute an estimate F of F * . As an example, we can think of y i as images and x i as their blurred, noisy versions. The task is to learn to reconstruct sharp images from their degraded versions.</p><p>Example 3 (Dynamical systems learning) Dynamical systems learning is a supervised learning setting where the goal is to estimate a state transition function from observed trajectories. More precisely, consider the following model, for some initial condition s 0 ,</p><formula xml:id="formula_2">s t+1 = f * (s t , ω t ) t = 0, . . . , T -1.</formula><p>Here, for any t = 0, . . . , T -1, s t ∈ S = R d is the system state, ω t is a random variable modeling stochasticity, and f * : S × Ω → S is a fixed but unknown function describing the state evolution. Given a trajectory (s 0 , s 1 , . . . , s T -1 ), the goal is to compute an estimate f of f * . As an example, we can think of s t as the position and velocity of a robot and ω t as external disturbances, such as sensor noise or environmental factors. The task is to learn to predict the robot's next state based on past observations.</p><p>The above examples show that Figure <ref type="bibr" target="#b0">(1)</ref> provides a simple but potentially misleading illustration. The figure depicts a low-dimensional setting, real-world data can have tens, or even tens of thousands, of dimensions, and datasets can contain millions or even billions of samples.</p><p>Beyond these examples and observations, ensuring that the learning problem is well-posed requires assumptions about the data. Available data must be informative about new data. As suggested in the previous examples, one possible assumption is the existence of a data-generating process. This is the perspective taken in the framework of statistical learning theory, which we describe next.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Statistical Learning</head><p>In this section, we introduce the problem of supervised machine learning within the framework of statistical learning theory. For the time being we focus on scalar valued learning.</p><p>The statistical learning problem. Let (X , A) be a measure space with σ -algebra A, and let Y ⊆ R with the corresponding Borel σ -algebra B. Let (X, Y ) be a pair of random variables taking values in (X × Y ) with law P . Let ℓ : Y × Y → [0, ∞) be a given measurable function.</p><p>Consider M(X , R) ⊂ R X , the space of all measurable functions from X to R. Define L :</p><formula xml:id="formula_3">M(X , R) → [0, ∞) as L(f ) = E[ℓ(Y , f (X))], ∀f ∈ M(X , R).</formula><p>The problem of learning is to solve min</p><formula xml:id="formula_4">f ∈M(X ,R) L(f ), (<label>1</label></formula><formula xml:id="formula_5">)</formula><p>where P is only known through a sample (x i , y i ) n i=1 of n independent and identically distributed copies of (X, Y ).</p><p>This framework is referred to as statistical supervised machine learning. Given data (x i , y i ) n i=1 drawn from a distribution, the goal is to find a function with small error on future data sampled from the same distribution. The error is measured pointwise by the loss ℓ, while the expected risk L represents the error over all possible future data.</p><p>In general, finding a perfect solution is infeasible since the data distribution is unknown; but one can find empirical solutions that become more accurate as more data become available. The problem is supervised since each input x i has a corresponding output y i .</p><p>Next, we discuss the interpretation of the quantities introduced above and provide examples. Later, we describe how empirical solutions can be found.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">Data Space and Distribution</head><p>We next discuss the interpretation and examples of the probability space (X ×Y , A⊗B, P ) where the data reside.</p><p>Input and output spaces. The space X is called the input space. An example is X ⊆ R d with the corresponding Borel σ -algebra. More generally, X can be a metric space equipped with the corresponding Borel σ -algebra. For example, X could be the space of binary strings {0, 1} d with the Hamming distance</p><formula xml:id="formula_6">d Ham (x, x) = d j=1 1 x j xj , or the simplex {x ∈ R d | d j=1</formula><p>x j = 1 and x j ≥ 0 for j = 0, . . . , d} with the Hellinger distance</p><formula xml:id="formula_7">d Hel (x, x) = 1 2 d i=1 ( x j -xj ) 2 ,</formula><p>or another metric on probability distributions. The space Y ⊆ R is called the output space. A special case is when Y ⊂ R, and in particular, if Y takes only two values, such as {-1, 1}, the learning problem is referred to as binary classification.</p><p>Data distribution. The distribution P is a probability measure on the space (X × Y , A ⊗ B). The marginal measure P X on (X , A) is defined for all A ∈ A as</p><formula xml:id="formula_8">P X (A) = A×Y dP (x, y).</formula><p>For all x ∈ X , there exists a Borel probability measure P (• |x) on (Y , B), known as the conditional measure at x, such that for all B ∈ B, the function x → P (B |x) is measurable, and for all A ∈ A and B ∈ B,</p><formula xml:id="formula_9">P (A × B) = P (B | x)dP X (x).</formula><p>In binary classification, the conditional distribution reduces to the point mass function</p><formula xml:id="formula_10">{P (1 | x), P (-1 | x)}.</formula><p>The general proof of decomposition in marginal and conditional probability measures is technical, see bibliography. It becomes elementary for discrete random variables and for continuous random variables with a well-defined probability density function. In the latter case, the existence of a well-defined conditional distribution follows from Fubini's theorem.</p><p>Training set. The set of pairs (x i , y i ) n i=1 is referred to as the training set. The acronym i.i.d. (independent and identically distributed) is commonly used to describe such samples. While the i.i.d. assumption is strong, it is the standard one used to derive fundamental results.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">Loss Function, Expected Risk, and Target Function</head><p>Since we consider deterministic functions within a probabilistic setting, we must account for possible errors. This motivates the introduction of the loss function and the corresponding expected loss (risk).</p><p>Loss function. The function ℓ is called the loss function. It can be viewed as a pointwise error measure for any pair of outputs. In particular, ℓ(y, f (x)) represents the error incurred when predicting f (x) instead of y. It is often assumed to be continuous and convex in the second argument. The primary loss function we consider is the least squares loss ℓ(y, y ′ ) = (yy ′ ) 2 for all y, y ′ ∈ Y .</p><p>More generally, in regression, loss functions take the form ℓ(y, y ′ ) = V (yy ′ ) for all y, y ′ ∈ R, where V : R → [0, ∞). An example, besides the square loss, is the absolute value loss V (a) = |a|, a ∈ R. In binary classification, loss functions are of the form ℓ(y, y ′ ) = V (yy ′ ) for all y, y ′ ∈ R, with V : R → [0, ∞).</p><p>Examples include the misclassification loss V (a) = 1 a&lt;0 , the square loss V (a) = (1a) 2 , the logistic loss V (a) = log(1 + e -a ), the exponential loss V (a) = e -a , and the hinge loss</p><formula xml:id="formula_11">V (a) = |1 -a| + = max{0, 1 -a}, for a ∈ R.</formula><p>Expected risk and target function. For all f ∈ M, the functional L : M(X , R) → [0, ∞) defined as</p><formula xml:id="formula_12">L(f ) = E[ℓ(Y , f (X))] = ℓ(y, f (x))dP (x, y) (2)</formula><p>is called the expected loss or expected risk. Assume that there exists f P ∈ M(X , R) such that</p><formula xml:id="formula_13">L(f P ) = min f ∈M(X ,R) L(f ), then f P is called a target function.</formula><p>The expected risk can be interpreted as the error over all possible input-output pairs as measured by the loss function, where errors are weighted more for pairs that are more likely to be sampled. The target function can be seen as an ideal solution achieving the best possible error on all future data.</p><p>In practice, only empirical approximations of the target function can be computed. However, as describe next, analytic expressions can be derived in terms of the underlying probability distribution, providing insights into the problem.</p><p>Inner risk and target function. For almost all x ∈ X , let L x : R → [0, ∞) be defined as L x (a) = ℓ(y, a)dP (y | x) for all a ∈ R. The function L x is referred to as the inner risk at x. Note that, for all f ∈ M(X , R),</p><formula xml:id="formula_14">L(f ) = ℓ(y, f (x))dP (x, y) =       ℓ(y, f (x))dP (y|x)       dP X (x) = L x (f (x))dP X (x).</formula><p>The inner risk is useful for characterizing the minimizers of the risk analytically. Indeed, assume that, for almost all x ∈ X , there exists a x ∈ R such that</p><formula xml:id="formula_15">L x (a x ) = min a∈R L x (a).<label>(3)</label></formula><p>Then, defining</p><formula xml:id="formula_16">f P (x) = a x ,<label>(4)</label></formula><p>for almost all x ∈ X , it is possible to show that f P ∈ M(X , R) and that f P is a target function. It is an exercise to prove that f P as in Equation ( <ref type="formula" target="#formula_16">4</ref>) is indeed a target function. Proving that it is measurable relies on technical facts in measure theory, see bibliography.</p><p>We illustrate the usefulness of the above results by deriving the target function for the square loss.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Example 4 (Regression function)</head><p>The target function for the square loss is called the regression function and is given, for almost all x ∈ X , by</p><formula xml:id="formula_17">f P (x) = ydP (y | x),</formula><p>that is, the conditional mean of y given x. To see this, recalling (3) and (4), we verify that</p><formula xml:id="formula_18">f P (x) = arg min a∈R (y -a) 2 dP (y|x) = ydP (y | x).</formula><p>Analogous computations can be considered for other loss functions and are left to the interested reader.</p><p>Next, we move on to discuss the main approach to derive empirical solutions, namely empirical risk minimization.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3">Empirical risk minimization and hypothesis spaces</head><p>The basic intuition behind empirical risk minimization (ERM) is to take the problem in Equation ( <ref type="formula" target="#formula_4">1</ref>), replace the expectation with an average over the available data, i.e., the empirical risk, and restrict the space of candidate functions from M(X , R) to a smaller space, allowing for efficient computations.</p><p>Empirical risk. Given a training set (x i , y i ) n i=1 and a loss function ℓ, define L :</p><formula xml:id="formula_19">M(X , R) → [0, ∞) by L(f ) = 1 n n i=1 ℓ(y i , f (x i )). (<label>5</label></formula><formula xml:id="formula_20">)</formula><p>The functional L is referred to as the empirical risk, also known as the training error.</p><p>Hypothesis space. Let H ⊂ M(X , R) denote a subspace of candidate functions (hypotheses) from which a solution is selected. H is referred to as the hypothesis space.</p><p>Empirical risk minimization (ERM). Consider the problem min</p><formula xml:id="formula_21">f ∈H L(f ).</formula><p>In general, both the computation of a solution and its properties depend on the chosen hypothesis space H. Next, we discuss some basic examples.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3.1">Examples of hypothesis spaces</head><p>We provide some basic examples of hypothesis spaces.</p><p>Example 5 (Linear functions) Let X = R d and</p><formula xml:id="formula_22">H = {f : X → R | ∃w ∈ R d s.t. f (x) = w ⊤ x, ∀x ∈ X }.<label>(6)</label></formula><p>Example 6 (Dictionaries of features) For j = 1, . . . , p, let φ j : X → R, and define</p><formula xml:id="formula_23">H = {f : X → R | ∃w ∈ R p s.t. f (x) = p j=1 w j φ j (x), ∀x ∈ X }.<label>(7)</label></formula><p>The functions φ j are often referred to as atoms or features, and their collection is called a dictionary.</p><p>Example 7 (Neural networks) Let X = R d , σ : R → R, and define</p><formula xml:id="formula_24">H = {f : X → R | ∃β ∈ R p , w j ∈ R d , j = 1, . . . , p, s.t. f (x) = p j=1 β j σ (w ⊤ j x), ∀x ∈ X }.</formula><p>The function σ is called the activation function. For example, σ (a) = |a| + is known as the rectified linear unit (ReLU), while σ (a) = (1+e -a ) -1 is called the sigmoid function. A linear neural network corresponds to σ being the identity function. The vectors w j define the so-called hidden units σ (w ⊤ j •), and p is the number of hidden units. Often, additional offsets b j ∈ R, j = 1, . . . , p are considered, in which case the functional expression becomes</p><formula xml:id="formula_25">f (x) = p j=1 β j σ (w ⊤ j x + b j ).</formula><p>Let W : R d → R p be the matrix with rows w 1 , . . . , w p , we can also write</p><formula xml:id="formula_26">f (x) = β ⊤ σ (W x),</formula><p>where, by abuse of notation, the activation function applied to a vector is understood to act component-wise. If offsets are considered, then the matrix W is replaced by a suitable affine map.</p><formula xml:id="formula_27">Example 8 (Deep neural networks) Let X = R d , σ : R → R. Let L ∈ N, and for each ℓ = 0, . . . , L -1, let d ℓ ∈ N with d 0 = d. Define H = {f : X → R | ∃β ∈ R d L-1 , W ℓ ∈ R d ℓ ×d ℓ-1 , ℓ = 1, . . . , L -1, s.t. f (x) = β ⊤ σ (W L-1 . . . W 2 σ (W 1 x)), ∀x ∈ X }. (<label>8</label></formula><formula xml:id="formula_28">)</formula><p>The above function space describes deep neural networks (DNNs), also called multi-layer perceptrons or multilayer networks. Each matrix W ℓ corresponds to a hidden layer, and L represents the total number of layers.</p><p>We conclude with two remarks. First, we note that, aside from linear functions, all the above examples are spaces of nonlinear functions. However, like linear functions, feature-based functions are linearly parameterized, whereas neural networks are nonlinearly parameterized. Second, all the examples above describe functions defined by a finite number of parameters. Next, we introduce reproducing kernel Hilbert spaces, which allow us to consider infinitely many parameters, and discuss the corresponding ERM problem.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.4">Bibliography</head><p>Comprehensive treatments of statistical learning theory and empirical risk minimization are available in <ref type="bibr" target="#b24">[25,</ref><ref type="bibr" target="#b6">7,</ref><ref type="bibr" target="#b10">11]</ref>, as well as <ref type="bibr" target="#b5">[6,</ref><ref type="bibr" target="#b4">5]</ref>. A standard reference on probability theory is <ref type="bibr" target="#b7">[8]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Regularized ERM in reproducing kernel Hilbert spaces</head><p>Kernel methods for supervised machine learning rely on ERM in a reproducing kernel Hilbert space (RKHS), a general class of possibly infinite-dimensional function spaces.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Reproducing kernel Hilbert spaces</head><p>A reproducing kernel Hilbert space (RKHS) can be defined in several different yet equivalent ways, as discussed next.</p><p>Evaluation functionals and RKHS. Let X be a set. A reproducing kernel Hilbert space H ⊂ R X is a Hilbert space with inner product ⟨•, •⟩ H , such that for all x ∈ X , the evaluation functionals e x : H → R defined by</p><formula xml:id="formula_29">e x (f ) = f (x)<label>(9)</label></formula><p>are linear and continuous. Note that this implies, in particular, that</p><formula xml:id="formula_30">|f (x)| ≲ ∥f ∥ H .</formula><p>We add two remarks.</p><p>Remark 1 (The space of continuous functions is not an RKHS) Let X = R d , and consider C(X ) ⊂ R X , the space of continuous functions with the sup norm</p><formula xml:id="formula_31">∥f ∥ ∞ = sup x∈X |f (x)|, ∀f ∈ C(X ).</formula><p>Indeed, for all f ∈ C(X ) and for all x ∈ X , we have |f (x)| ≤ ∥f ∥ ∞ . However, C(X ) is not a Hilbert space, since the sup norm is not induced by an inner product. To verify this, we check that ∥f ∥ ∞ violates the parallelogram law.</p><p>Remark 2 (The space of square-integrable functions is not an RKHS) Consider the Hilbert space</p><formula xml:id="formula_32">L 2 (R d ) = {f : R d → R | ∥f ∥ 2 L 2 = |f (x)| 2 dx &lt; ∞}, with inner product f , f ′ L 2 = f (x)f ′ (x)dx.</formula><p>Since the norm ∥f ∥ L 2 is only defined up to sets of measure zero, it does not control the value of f at every x. Hence, L 2 is not an RKHS.</p><p>The definition in terms of evaluation functionals highlights the generality of the notion of RKHS. An equivalent definition reveals additional properties.</p><p>RKHS and reproducing kernels. A reproducing kernel Hilbert space H ⊂ R X is a Hilbert space with inner product ⟨•, •⟩ H , such that there exists a function k : X × X → R, called the reproducing kernel, satisfying the following properties:</p><formula xml:id="formula_33">• ∀x ∈ X , k x = k(x, •) ∈ H,<label>(10)</label></formula><formula xml:id="formula_34">• ∀f ∈ H, ∀x ∈ X , f (x) = k x , f H . (<label>11</label></formula><formula xml:id="formula_35">)</formula><p>The latter condition is called the reproducing property of the kernel. The following remark discusses the equivalence of the two above definitions.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Remark 3 (Evaluation functionals and reproducing kernel)</head><p>The existence of a reproducing kernel follows from the linearity and continuity of the evaluation functionals via the Riesz Representation Theorem. Conversely, the linearity and continuity of the evaluation functionals follow directly from Condition <ref type="bibr" target="#b9">(10)</ref> and the reproducing property.</p><p>Remark 4 (Regularity properties of an RKHS) It can be shown that the regularity properties of functions in an RKHS-e.g. measurability, continuity, or differentiability-are inherited from the corresponding kernel. We do not develop this discussion here.</p><p>Another notion relevant for RKHS is that of a positive definite function, which leads to yet another equivalent definition.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>RKHS and positive definite kernels. Recall that a function</head><formula xml:id="formula_36">k : X × X → R is called positive definite if, for all x 1 , . . . , x N ∈ X , given N ∈ N and c 1 , . . . , c N ∈ R, N i,j=1 k(x i , x j )c i c j ≥ 0.</formula><p>It is easy to see that every reproducing kernel k is symmetric and positive definite. Symmetry is straightforward, whereas positive definiteness can be proved using the reproducing property by noting that for all x i , x j with i, j = 1, . . . , N , we have k(</p><formula xml:id="formula_37">x i , x j ) = k x i , k x j H , so that N i,j=1 k(x i , x j )c i c j = N i=1 c i k x i , N j=1 c j k x j H = N i=1 c i k x i 2 H ≥ 0.</formula><p>The converse of the above observation is known as the Moore-Aronszajn theorem.</p><p>Remark 5 (Moore-Aronszajn theorem) It can be shown that given a symmetric and positive definite kernel k, there exists a unique RKHS associated with it, for which k is the reproducing kernel. The proof is constructive and is based on introducing the pre-Hilbert space</p><formula xml:id="formula_38">H 0 = {f : X → R | ∃N ∈ N, c 1 , . . . , c N ∈ R, x 1 , . . . , x N ∈ X , s.t. f = N i=1 c i k x i }</formula><p>endowed with the scalar product</p><formula xml:id="formula_39">f , f ′ H 0 = N i=1 N ′ j=1 k(x i , x ′ j )c i c ′ j , ∀f , f ′ ∈ H 0 .</formula><p>The inner product above can be shown to be well defined and independent of the choice of function representation. Then, the completion H of H 0 is a Hilbert space, and it can be easily verified that it is indeed an RKHS with reproducing kernel k.</p><p>Finally, RKHSs are related to feature maps.</p><p>RKHS and Feature Maps Let F be a Hilbert space with inner product ⟨•, •⟩ F . A feature map is a function Φ : X → F that embeds input points into F . Every reproducing kernel k : X × X → R defines a canonical feature map by setting F = H and</p><formula xml:id="formula_40">Φ(x) = k x , ∀x ∈ X . (<label>12</label></formula><formula xml:id="formula_41">)</formula><p>However, the same RKHS can define multiple feature maps. For example, given any orthonormal basis (a j ) j of H, we can set F = ℓ 2 and define</p><formula xml:id="formula_42">Φ(x) = (a j (x)) j , ∀x ∈ X . (<label>13</label></formula><formula xml:id="formula_43">)</formula><p>In turn, any feature map defines a corresponding RKHS. Indeed, given any Φ : X → F , define</p><formula xml:id="formula_44">H Φ = {f : X → R | ∃w ∈ F s.t. f (x) = ⟨w, Φ(x)⟩ F , ∀x ∈ X }. (<label>14</label></formula><formula xml:id="formula_45">)</formula><p>The norm in H Φ is given for all f ∈ H Φ by</p><formula xml:id="formula_46">∥f ∥ H Φ = inf{∥w∥ F | w ∈ F s.t. f (x) = ⟨w, Φ(x)⟩ F , ∀x ∈ X }.</formula><p>This space consists of functions that are linear in the feature representation Φ(x). Since Φ might not be injective, the correspondence between f ∈ H Φ and w ∈ F is not one-to-one, which justifies the infimum in the norm definition. It is possible to show that the space H Φ is an RKHS with reproducing kernel</p><formula xml:id="formula_47">k(x, x ′ ) = Φ(x), Φ(x ′ ) F . (<label>15</label></formula><formula xml:id="formula_48">)</formula><p>This proof, which is somewhat technical, is omitted. The above discussion shows how a RKHS can be defined taking many different perspectives. Before, discussing some examples we add a remark showing how kernels can be combined to build new ones.</p><p>Remark 6 (Closure Properties of RKHSs Under Sum and Product of Kernels) Given two reproducing kernels k 1 , k 2 : X × X → R with corresponding RKHSs H 1 and H 2 , their sum and product define valid RKHSs. The sum</p><formula xml:id="formula_49">k + (x, x ′ ) = k 1 (x, x ′ ) + k 2 (x, x ′ ) (<label>16</label></formula><formula xml:id="formula_50">)</formula><p>is a reproducing kernel. The associated RKHS H + consists of functions</p><formula xml:id="formula_51">f = f 1 + f 2 with f 1 ∈ H 1 and f 2 ∈ H 2 .</formula><p>The norm in H + is given by</p><formula xml:id="formula_52">∥f ∥ H + = inf{ ∥f 1 ∥ 2 H 1 + ∥f 2 ∥ 2 H 2 | f = f 1 + f 2 }. (<label>17</label></formula><formula xml:id="formula_53">)</formula><p>The pointwise product of kernels,</p><formula xml:id="formula_54">k × (x, x ′ ) = k 1 (x, x ′ ) k 2 (x, x ′ ),</formula><p>defines a reproducing kernel Hilbert space H × with kernel k × . The space H × contains functions that can be written as pointwise products f 1 f 2 with f 1 ∈ H 1 and f 2 ∈ H 2 , and in fact includes the algebraic span of such products. In general, H × is continuously embedded in the tensor product RKHS</p><formula xml:id="formula_55">H 1 ⊗ H 2 .</formula><p>Examples of RKHSs We next discuss some basic examples of RKHSs and their corresponding reproducing kernels.</p><p>Example 9 (Linear kernel) Let (X , ⟨•, •⟩ X ) be a real separable Hilbert space. In particular, we could take X = R d . For all x, x ′ ∈ X , the linear kernel is k(x, x ′ ) = ⟨x, x ′ ⟩ X . Then for all f ∈ H, there exists a unique w ∈ X such that f (x) = ⟨w, x⟩ X and ∥f ∥ H = ∥w∥ X .</p><p>To see this, note that from Equation <ref type="bibr" target="#b9">(10)</ref>, for all x ∈ X , k x ∈ H. Since for the linear kernel, k x (•) = ⟨x, •⟩ X ∈ L(X , R) = X * , then X * = H 0 ⊂ H. Thus, we can write</p><formula xml:id="formula_56">H 0 = {f ∈ H | ∃!w ∈ X s.t. f (•) = ⟨w, •⟩ X }. Moreover, for all f , f ′ ∈ H 0 , f , f ′ H = ⟨w, •⟩ X , w ′ , • X H = w, w ′ X , so that ∥f ∥ H = ∥w∥ X . Since H 0 is a closed subspace, we have the decomposition H = H 0 + H ⊥ 0 . However, H ⊥ 0 = {0}, since by Equation (11), if h ∈ H ⊥ 0 , then for all x ∈ X , ⟨h, ⟨x, •⟩ X ⟩ H = h(x) = 0,</formula><p>which implies h = 0. Thus, H 0 = H, and the proof is finished.</p><formula xml:id="formula_57">Example 10 (Gaussian kernel) Let X = R d and, for γ &gt; 0, consider the Gaussian kernel k(x, x ′ ) = e -γ∥x-x ′ ∥ 2 for x, x ′ ∈ X . Then, for f ∈ H ⊂ L 2 (R d ), the RKHS norm satisfies ∥f ∥ 2 H ∝ R d | f (ω)| 2 e ∥ω∥ 2 γ dω,</formula><p>where f denotes the Fourier transform of f . In particular, functions in H must have rapidly decaying Fourier transforms.</p><p>Example 11 (Random features and integral representation kernel) Let (B, π) be a probability space and define</p><formula xml:id="formula_58">L 2 π = {g : B → R | ∥g∥ 2 π = |g(β)| 2 dπ(β) &lt; ∞}. Let ψ : B × X → R be a measurable function such that for almost all x ∈ X , ψ(•, x) ∈ L 2 π .</formula><p>Then, for all x, x ′ ∈ X , define</p><formula xml:id="formula_59">k(x, x ′ ) = ψ(β, x)ψ(β, x ′ )dπ(β). (<label>18</label></formula><formula xml:id="formula_60">)</formula><p>Next, consider</p><formula xml:id="formula_61">(β i ) M i=1 ∼ π M and define k M (x, x ′ ) = 1 M M i=1 ψ(β i , x)ψ(β i , x ′ ).</formula><p>The kernel k M is called the random features kernel.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Regularized ERM in RKHS</head><p>Let H be a RKHS. Recalling the definition of the empirical risk (5), for each λ &gt; 0, define the regularized empirical risk</p><formula xml:id="formula_62">L λ : H → [0, ∞), such that for all f ∈ H, L λ (f ) = L(f ) + λ ∥f ∥ 2 H . (<label>19</label></formula><formula xml:id="formula_63">)</formula><p>Then, consider the regularized empirical risk minimization problem,</p><formula xml:id="formula_64">min f ∈H L λ (f ). (<label>20</label></formula><formula xml:id="formula_65">)</formula><p>The functional L λ is also called the Tikhonov functional; λ is the regularization parameter, and ∥•∥ 2 H is the regularizer. If for all y ∈ Y , ℓ(y, •) is continuous and convex, then for all λ &gt; 0, L λ is continuous, strictly convex, and coercive, so that there exists a unique minimizer f λ ∈ H. Next, we discuss how it can be computed considering the square loss.</p><p>Kernel ridge regression. Let ℓ(y, y ′ ) = (yy ′ ) 2 , for all y, y ′ ∈ R. Then, the regularized ERM problem in RKHS is called kernel ridge regression (KRR). If X = R d and k is the linear kernel, the method is called ridge regression (RR). It is useful to rewrite problem <ref type="bibr" target="#b19">(20)</ref> to highlight its connection to linear inverse problems. Towards this end, we introduce the sampling and extension operators defined by the kernel and the data.</p><p>Sampling and extension operators. Endow R n with the inner product</p><formula xml:id="formula_66">a, a ′ n = 1 n n i=1 a i a ′ i , for a, a ′ ∈ R n .</formula><p>Given an RKHS H ⊂ R X with reproducing kernel k and a set of n input points x 1 , . . . , x n ∈ X , define S :</p><formula xml:id="formula_67">H → R n for all f ∈ H by Sf = f , k x 1 H , . . . , f , k x n H . (<label>21</label></formula><formula xml:id="formula_68">)</formula><p>Note that S is linear and bounded. Moreover, the adjoint S * : R n → H satisfies for c = (c 1 , . . . , c n ) ∈ R n .</p><formula xml:id="formula_69">S * c = 1 n n i=1 c i k x i .</formula><p>We refer to S and S * as the sampling and extension operators, respectively. The former name follows from the fact that Sf = (f (x 1 ), . . . , f</p><formula xml:id="formula_70">(x n )).</formula><p>The latter is explained by considering c = (g(x 1 ), . . . , g(x n )), the values of a function g at x 1 , . . . , x n . Then, for all x ∈ X ,</p><formula xml:id="formula_71">( S * c)(x) = n i=1 g(x i )k(x i , x),</formula><p>which can be interpreted as extending the values of g to any other point through an averaging process performed via the kernel.</p><p>KRR and inverse problems. Given a training set of n points, and a kernel k, let y = (y 1 , . . . , y n ) ∈ R n . Then for all λ &gt; 0, and f ∈ H</p><formula xml:id="formula_72">L λ (f ) = Sf -y 2 n + λ ∥f ∥ 2 H . (<label>22</label></formula><formula xml:id="formula_73">)</formula><p>The minimization of the above functional is the regularized least squares problem associated to the linear inverse problem Sf = y.</p><p>Then, taking the functional derivative w.r.t. f in <ref type="bibr" target="#b21">(22)</ref> and setting it to zero we get that</p><formula xml:id="formula_74">f λ = ( S * S + λI) -1 S * y. (<label>23</label></formula><formula xml:id="formula_75">)</formula><p>Next we show how the above expression directly leads to computable quantities.</p><p>Representer theorem for KRR. The solution f λ admits an alternative representation,</p><formula xml:id="formula_76">f λ = S * ( S S * + λI) -1 y. (<label>24</label></formula><formula xml:id="formula_77">)</formula><p>The above expression can be derived in multiple ways, such as by direct manipulation using the Woodbury matrix identity or the singular value decomposition of S. This derivation is left as an exercise.</p><p>Here, we note that Equation ( <ref type="formula" target="#formula_76">24</ref>) can be further developed to show that for all x ∈ X ,</p><formula xml:id="formula_78">f λ (x) = n i=1 k(x, x i ) c i , c = ( K + nλI) -1 y, (<label>25</label></formula><formula xml:id="formula_79">)</formula><p>where c ∈ R n , K = n S S * is called the empirical kernel matrix and is symmetric, positive semi-definite, and such that K ij = k(x i , x j ) for all i, j = 1, . . . , n.</p><p>To derive <ref type="bibr" target="#b24">(25)</ref>, note that from Equation <ref type="bibr" target="#b23">(24)</ref>,</p><formula xml:id="formula_80">f λ = S * c = 1 n n i=1 k x i c i , where c = ( c 1 , . . . , c n ) ∈ R n satisfies c = ( S S * + λI) -1 y = K n + λI -1</formula><p>y.</p><p>Equation ( <ref type="formula" target="#formula_78">25</ref>) then follows by factoring out n. The above expression shows that the kernel ridge regression (KRR) solution can be computed by solving a finite-dimensional linear system, even though the corresponding RKHS is infinite-dimensional. While feasible the above computations can become cumbersome for large kernel matrices. In the next section, we discuss how efficiency can be improved through approximate computations.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Nyström approximation</head><p>For M ≤ n, let { x 1 , . . . , x M } ⊂ {x 1 , . . . , x n }. The points ( x j ) M j=1 are called Nyström centers or inducing points. Let Z : H → R M be such that for all f ∈ H,</p><formula xml:id="formula_81">Zf = f , k x 1 H , . . . , f , k x m H .</formula><p>Then, Z is linear and bounded. The adjoint Z * : R M → H is such that for a = (a 1 , . . . , a M ) ∈ R M ,</p><formula xml:id="formula_82">Z * a = M i=1 k x i a i .</formula><p>Let H be the subspace of H defined as</p><formula xml:id="formula_83">H = {f ∈ H | f = Z * a, a ∈ R M }.</formula><p>Consider the regularized ERM problem on H, given by min</p><formula xml:id="formula_84">f ∈ H L λ (f ). (<label>26</label></formula><formula xml:id="formula_85">)</formula><p>We refer to this problem as the Nyström KRR. Note that this minimization problem is defined by a strongly convex and coercive functional, so there is a unique solution f λ ∈ H such that</p><formula xml:id="formula_86">L λ ( f λ ) = min f ∈ H L λ (f ).</formula><p>For the square loss, we have that for all f ∈ H,</p><formula xml:id="formula_87">L λ (f ) = S Z * a -y 2 n + λ a, Z Z * a R M , so that problem (26) is equivalent to min a∈R M S Z * a -y 2 n + λ a, Z Z * a R M .</formula><p>By a direct computation, the solution of the above problem is</p><formula xml:id="formula_88">a = ( K ⊤ nM K nM + λn K MM ) -1 K ⊤ nM y, (<label>27</label></formula><formula xml:id="formula_89">)</formula><p>where K nM = S Z * is the matrix with entries ( K nM ) ij = k(x i , x j ) for i = 1, . . . , n, j = 1, . . . , M, and K MM = Z Z * is the matrix with entries ( K MM ) ij = k( x i , x j ) for i, j = 1, . . . , M. It is easy to see that for all x ∈ X ,</p><formula xml:id="formula_90">f λ (x) = M i=1 k( x i , x) a i . (<label>28</label></formula><formula xml:id="formula_91">) K K MM K nM Figure 2:</formula><p>The Nyström approximation greatly reduces the size of the kernel matrices involved in solving the learning problem. Instead of K, only K nM and K MM are needed.</p><p>Remark 7 (Computational costs) Equations ( <ref type="formula" target="#formula_88">27</ref>) and <ref type="bibr" target="#b27">(28)</ref> show that an efficient approximate KRR solution can be computed using a small number of Nyström centers. Indeed, the cost for computing the exact KRR solution is O(n 3 ) in time and O(n 2 ) in space. The cost for computing the Nyström KRR solution is O(nM 2 + M 3 ) in time and O(nM) in space.</p><p>Remark 8 (Column subsampling) As already, via the representer theorem, KRR reduces to solving a linear system, ( K + λnI)c = y, which can be seen as a regularized version of the linear system, Kc = y. Analogously, Nyström approximation can be seen to correspond to a regularized version of linear system K nM c = y. From this perspective Nyström approximation corresponds to so called column subsampling, a technique from randomized numerical linear algebra. See Figure <ref type="figure">2</ref> for a pictorial representation.</p><p>Remark 9 (Regularization by projection) Nyström approximations can also be related to so called projection regularization methods. These methods naturally arise when the discretization of possible infinite dimensional problems need be considered. Here, the idea is to consider a subspace H and the corresponding orthogonal projection P : H → H. Then, the following regularized problem</p><formula xml:id="formula_92">min f ∈H S P f -y 2 n + λ ∥f ∥ 2 H ,</formula><p>can be shown to be equivalent to Problem <ref type="bibr" target="#b25">(26)</ref>. This perspective suggests more general ways to choose a subspace H than the one discussed before.</p><p>Remark 10 (Approaches to select the Nyström centers) The Nyström centers are often sampled at random from the training set. The simplest idea is to sample uniformly without replacement, but other strategies can be considered. Deterministic choices are also possible and are closely related to quadrature methods.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.4">Bibliography</head><p>A classic reference for reproducing kernel hilbert spaces is <ref type="bibr" target="#b0">[1]</ref> and the study of regularized learning problem in RKHS originate in a number of foundational contributions in the '60s see e.g. <ref type="bibr" target="#b26">[27]</ref> and references therein. Ridge regression was proposed in <ref type="bibr" target="#b11">[12]</ref> in the context of statistics, and is called Tikhonov regularization in inverse problems <ref type="bibr" target="#b23">[24,</ref><ref type="bibr" target="#b8">9]</ref>. It is a form of empirical risk minimization in statistical learning theory <ref type="bibr" target="#b24">[25]</ref>. The formulation in terms of sampling operators was introduced in <ref type="bibr" target="#b25">[26]</ref> and <ref type="bibr" target="#b21">[22]</ref>. The Nyström approximation was introduced in <ref type="bibr" target="#b27">[28]</ref> and <ref type="bibr" target="#b22">[23]</ref> under the name of sparse greedy approximation, and its statistical learning properties were proved in <ref type="bibr" target="#b18">[19]</ref> and <ref type="bibr" target="#b19">[20]</ref> who also introduced a computationally efficient iterative algorithm, with connections to randomized linear algebra <ref type="bibr" target="#b14">[15]</ref>. The use of General projection regularization was first considered in <ref type="bibr" target="#b8">[9]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Learning operators</head><p>Instead of Y = R, consider (Y , ⟨•, •⟩ Y ) as a real separable Hilbert space. The statistical learning problem naturally extends to this setting. Moreover, the approach based on kernels also generalizes provided a suitable notion of vector valued reproducing kernel Hilbert spaces is introduced.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Vector valued statistical learning</head><p>Let (X , A) be a measure space with σ -algebra A, and let (Y , ⟨•, •⟩ Y ) be a real separable Hilbert space with its corresponding Borel σ -algebra B Y . Let (X, Y ) be a pair of random variables taking values in (X × Y ) with law</p><formula xml:id="formula_93">P . Let ℓ : Y × Y → [0, ∞) be a given measurable function. Consider M(X , Y ) ⊂ Y X , the space of all measurable functions from X to Y . Define L : M(X , Y ) → [0, ∞) as L(f ) = E[ℓ(Y , f (X))], ∀f ∈ M(X , Y ).</formula><p>The problem of learning is to solve min</p><formula xml:id="formula_94">f ∈M(X ,Y ) L(f ), (<label>29</label></formula><formula xml:id="formula_95">)</formula><p>where P is only known through a sample (x i , y i ) n i=1 of n independent and identically distributed copies of (X, Y ). Our primary example for the loss function ℓ is the squared loss,</p><formula xml:id="formula_96">ℓ(y, y ′ ) = y -y ′ 2 Y , ∀y, y ′ ∈ Y .</formula><p>The case where Y = R T is a special case of this formulation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Vector valued RKHS</head><p>The definition of vector valued reproducing kernel Hilbert space (vvRKHS) extend naturally to Hilbert spaces valued functions. In the following, we let (Y , ⟨•, •⟩ Y ) be a real separable Hilbert space.</p><p>Evaluation functionals and RKHS. Let X be a set. A vector valued reproducing kernel Hilbert space H ⊂ Y X is a Hilbert space with inner product ⟨•, •⟩ H , such that for all x ∈ X , the evaluation operators e x : H → Y defined for all f ∈ H by e x (f ) = f (x) (30) are linear and continuous. Note that this implies, in particular, that for all x ∈ X and f ∈ H</p><formula xml:id="formula_97">∥f (x)∥ Y ≲ ∥f ∥ H .</formula><p>Similarly, an equivalent definition can be given in terms of reproducing kernels. However, for vector valued RKHS, reproducing kernels are operator valued.</p><p>RKHS and reproducing kernels. A vector valued reproducing kernel Hilbert space H ⊂ R X is a Hilbert space with inner product ⟨•, •⟩ H , such that there exists Γ : X × X → L(Y ), called the operator valued reproducing kernel satisfying the following properties:</p><formula xml:id="formula_98">• ∀x ∈ X ,∀y ∈ Y , Γ (x, •)y ∈ H,<label>(31)</label></formula><formula xml:id="formula_99">• ∀f ∈ H, ∀x ∈ X , ∀y ∈ Y , Γ (x, •)y, f H = y, f (x) Y . (<label>32</label></formula><formula xml:id="formula_100">)</formula><p>The latter condition is analogous to the reproducing property in the scalar valued setting.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Remark 11 (Evaluation operator) In view of the above definition, we define the linear operator Γ</head><formula xml:id="formula_101">x : Y → H such that Γ x = Γ (x, •). Then, the corresponding adjoint operator Γ * x : H → Y satisfies Γ * x f = f (x)</formula><p>by the reproducing property. Hence, Γ * x provides a representation of the evaluation operator in Equation (30).</p><p>As in the scalar case, the two definitions above can once again be related through an extension of the Moore-Aronszajn theorem and an application of the Riesz representation theorem. Similarly, vvRKHSs can be characterized in terms of positive definite functions and feature maps, but we omit these developments here. Instead, we provide some relevant examples of operator-valued kernels.</p><p>Example 12 (Operator valued linear kernel) Let (X , ⟨•, •⟩ X ) be a real separable Hilbert space and let Γ (x, x ′ ) = ⟨x, x ′ ⟩ X I Y , for x, x ′ ∈ X , where I Y :Y → Y is the identity operator. Then for all f ∈ H, there exists a unique W ∈ L 2 (X , Y ) such that for all x ∈ X , f (x) = W x and ∥f ∥ H = ∥W ∥ L 2 (X ,Y ) .</p><p>Example 13 (Separable kernels I) Let X be a set and</p><formula xml:id="formula_102">H k ⊂ R X a RKHS with corresponding scalar valued reproducing kernel k : X × X → R. Let Γ (x, x ′ ) = k(x, x ′ )I Y , for x, x ′ ∈ X , where I Y :Y → Y is the identity operator. Then for all f ∈ H, there exists a unique W ∈ L 2 (H k , Y ) such that for all x ∈ X , f (x) = W k x and ∥f ∥ H = ∥W ∥ L 2 (H k ,Y ) .</formula><p>We call these kernels separable, since the contribution of inputs and output space to the operator valued kernel is factorized.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Example 14 (Separable kernels II) The above examples can be further developed considering operator valued kernels of the form</head><formula xml:id="formula_103">Γ (x, x ′ ) = k(x, x ′ )A, for x, x ′ ∈ X , where A : Y → Y is a positive semi-definite operator.</formula><p>Example 15 (Integral representation and random features for operator valued kernels) Let (B, π) be a probability space and</p><formula xml:id="formula_104">L 2 π (B, Y ) = {g : B → Y | ∥g∥ 2 π = |g(β)| 2 dπ(β) &lt; ∞}. Then, let ψ : B × X → Y a measurable function such that for almost all x ∈ X , ψ(•, x) ∈ L 2 π (B, Y ). Then, for all x, x ′ ∈ X , let Γ (x, x ′ ) = ψ(β, x) ⊗ ψ(β, x ′ )dπ(β). Next, consider (β i ) M i=1 ∼ π M and let Γ M (x, x ′ ) = 1 M M i=1 ψ(β i , x) ⊗ ψ(β i , x ′ ).</formula><p>The latter kernel is called a operator valued random features kernel.</p><p>Next, we discuss ERM in a vvRKHS.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.3">Regularized ERM in vvRKHS</head><p>The (regularized) ERM approach seamlessly extends to functions with values in a Hilbert space.</p><p>Vector valued Kernel ridge regression. Let ℓ(y, y ′ ) = yy ′ 2 Y , for y, y ′ ∈ Y , and consider the extension of Equations ( <ref type="formula" target="#formula_62">19</ref>) and <ref type="bibr" target="#b19">(20)</ref>. In this case, we call the regularized ERM in RKHS vector-valued kernel ridge regression (vvKRR). We now develop a discussion analogous to the one in the scalar setting.</p><p>Sampling and extension operators. Given an operator valued reproducing kernel Γ with RKHS H, for all x ∈ X , let Γ x : Y → H be the linear bounded operator such that Γ *</p><p>x : H → Y is given by Γ * x f = f (x) for f ∈ H, x ∈ X . These operators are well defined in view of Conditions (31), (32). Also, note that for all</p><formula xml:id="formula_105">x, x ′ ∈ X , Γ * x Γ x ′ = Γ (x, x ′ ). Let Y n = ⊕ n i=1 Y , with the normalized inner product ⟨a, a ′ ⟩ Y n = 1 n n i=1 a i , a ′ i Y</formula><p>for a, a ∈ Y n . Given a training set, let x 1 , . . . , x n ∈ X be the corresponding input points. Define the sampling operator for vvRKH spaces as S : H → Y n , such that for all f ∈ H,</p><formula xml:id="formula_106">Sf = Γ * x 1 f , . . . , Γ * x n f .</formula><p>Then, S is linear and bounded. Moreover, the corresponding extension operator is the adjoint</p><formula xml:id="formula_107">S * : Y n → H such that for a = (a 1 , . . . , a n ) ∈ Y n S * a = 1 n n i=1 Γ x i a i .</formula><p>vvKRR solution and representer theorem. Given a training set, and an operator valued kernel Γ , let y = (y 1 , . . . , y n ) ∈ Y n . Then for all λ &gt; 0</p><formula xml:id="formula_108">L λ (f ) = Sf -y 2 Y n + λ ∥f ∥ 2 H , f ∈ H.</formula><p>The same computations done for scalar functions show that</p><formula xml:id="formula_109">f λ = ( S * S + λI Y ) -1 S * y = S * ( S S * + λI Y ) -1 y.</formula><p>Further, we can also write for all x ∈ X ,</p><formula xml:id="formula_110">f λ (x) = n i=1 Γ (x, x i ) c i , c = ( Γ + λnI Y ) -1 y, (<label>33</label></formula><formula xml:id="formula_111">)</formula><p>where c = ( c 1 , . . . , c n ) ∈ Y n , Γ = n S S * is the corresponding empirical kernel operator.</p><p>Example 16 (Computations with operator valued linear kernels) Let (X , ⟨•, •⟩ X ) be a real separable Hilbert space and H ⊂ Y X a vvRKHS with reproducing kernel Γ . If Γ = ⟨•, •⟩ X I Y , then the vvKRR problem can be written as, min</p><formula xml:id="formula_112">W ∈L 2 (X ,Y ) 1 n Y -XW * 2 L 2 (Y ,R n ) + λ ∥W ∥ 2 L 2 (X ,Y ) ,</formula><p>where Y : Y → R n and X : X → R n and the corresponding solution is</p><formula xml:id="formula_113">W = Y * X( X * X + λIn) -1</formula><p>Remark 12 (Discretization) The above computations in general need some discretization to be performed. For example, considering X d ⊂ X , Y T ⊂ Y subspaces of dimensions d and T , respectively.</p><p>Remark 13 (Finite dimensional output spaces) Assume (X , ⟨•, •⟩ H ) and Y = R T . In particular, consider the operator (matrix) valued linear kernel Γ (x, x ′ ) = ⟨x, x ′ ⟩ X I Y . In this case, the empirical kernel operator can be identified with a nT × nT block diagonal matrix. Note that an analogous observation holds for separable kernels.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.4">Bibliography</head><p>Vector valued RKHSs were introduced in <ref type="bibr" target="#b20">[21]</ref> and we refer to <ref type="bibr" target="#b3">[4]</ref> for more recent results and further references. Their potential use in machine learning was highlighted in <ref type="bibr" target="#b17">[18]</ref>, while <ref type="bibr" target="#b2">[3]</ref> proved the first results on vector valued KRR. We refer to <ref type="bibr" target="#b13">[14]</ref> for more recent results and further references in the context of operator learning.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Learning dynamical systems</head><p>We next describe how discrete time stochastic dynamical systems can be learned using ideas from operator learning, by leveraging the Koopman operator theory.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1">Dynamical systems and Markov processes</head><p>The term dynamical system broadly refers to a quantity that evolves over time. For quantities represented by vectors in X ⊆ R d , a discrete-time evolution can be described by the iterative map</p><formula xml:id="formula_114">x t+1 = f (x t ),</formula><p>for a given initial condition x 0 . Here, X is called the state space, and its elements are called states, while the function f : X → X is called the evolution function. Such dynamical systems are called autonomous because the evolution function does not depend on time.</p><p>In many situations, it is useful to consider stochastic dynamics, given by</p><formula xml:id="formula_115">x t+1 = f (x t , ω t ),<label>(34)</label></formula><p>where the initial state x 0 is drawn from a given initial distribution ρ 0 on X . Here, (ω t ) t∈N are i.i.d. samples in some probability space (Ω, A, P), and encode the stochastic nature of the evolution. Stochasticity may arise as a perturbation to an underlying deterministic dynamics, or be intrinsic to the evolution itself. Stochastic dynamical systems can be equivalently described in terms of Markov processes, as described next.</p><p>Markov processes. Let (X t ) t∈N be a stochastic process with values in a measurable space (X , A). Assume that for all measurable set A ∈ A and for every t ∈ N,</p><formula xml:id="formula_116">P(X t+1 ∈ A | X t , . . . , X 1 ) = P(X t+1 ∈ A | X t ).<label>(35)</label></formula><p>Then, (X t ) t∈N is called a Markov process. The Markov process is called time-homogeneous if the conditional probability in Equation ( <ref type="formula" target="#formula_116">35</ref>) is the same for all t ∈ N. In this case, there exists a transition kernel p : X × A → [0, 1] such that for all t ∈ N, p(x, A) = P(X t+1 ∈ A | X t = x), for all x ∈ X and all A ∈ A. Conversely, given a transition kernel p and an initial distribution ρ 0 , a Markov process can be defined letting X 0 ∼ ρ 0 and for all x ∈ X , A ∈ A,</p><formula xml:id="formula_117">P(X t+1 ∈ A | X t = x) = p(x, A).</formula><p>Remark 14 (Stochastic dynamical systems and Markov processes) It can be shown that every stochastic dynamical system (34) defines a Markov process and conversely, any Markov process can be realized by a stochastic dynamical system (34). Roughly speaking, the autonomous nature of the system and the i.i.d. nature of the samples in (34) translate into the Markovianity of the process.</p><p>An important notion associated with a Markov process with transition kernel p is that of an invariant measure, which is a probability measure π on X such that</p><formula xml:id="formula_118">π(A) = X p(x, A) dπ(x), ∀A ∈ A.</formula><p>In general, we cannot expect a Markov process to have an invariant measure, but existence is ensured in a number of relevant cases. A sufficient condition is given in the following remark.</p><p>Remark 15 (Positive Harris recurrence and invariant measures) Let (X t ) t∈N be a Markov process with transition kernel p. For A ∈ A, define the return time to A as</p><formula xml:id="formula_119">τ A = inf{t ≥ 1 : X t ∈ A}.</formula><p>The process is called Harris recurrent if there exists a σ -finite measure µ on X such that for all measurable A ⊆ X with µ(A) &gt; 0 and all x ∈ X , P x (τ A &lt; ∞) = 1. The process is positive Harris recurrent if it is Harris recurrent and there exists a set A with µ(A) &gt; 0 such that</p><formula xml:id="formula_120">E x [τ A ] &lt; ∞, ∀x ∈ A.</formula><p>Under these conditions, the process admits a unique invariant probability measure π.</p><p>Another important notion is time reversibility, characterized by the so-called detailed balance condition p(x, dx ′ )dπ(x) = p(x ′ , dx)dπ(x ′ ).</p><p>(36)</p><p>More precisely, the above shorthand notation means that, for all measurable sets A, B ⊆ X ,</p><formula xml:id="formula_121">A p(x, B)dπ(x) = B p(x ′ , A)dπ(x ′ ).</formula><p>Intuitively, this means that the Markov process behaves the same way forward and backward in time.</p><p>Finally, it is useful to recall that linear dynamical systems have special properties that greatly simplify their study.</p><p>Remark 16 (Linear dynamical system) Let A ∈ R d×d , and consider the dynamical system</p><formula xml:id="formula_122">x t+1 = Ax t , (<label>37</label></formula><formula xml:id="formula_123">)</formula><p>for some initial condition x 0 . The study of the system dynamics can be greatly simplified if A admits a spectral decomposition</p><formula xml:id="formula_124">A = d j=1 λ j ψ j ⊗ ψ j , (<label>38</label></formula><formula xml:id="formula_125">)</formula><p>for some suitable eigenvalues λ 1 , . . . , λ d ∈ R and eigenvectors ψ 1 , . . . , ψ d ∈ X . This is the case, for instance, if A is symmetric or normal. Using the spectral decomposition (38), the system (37) can be written as</p><formula xml:id="formula_126">x t = A t x 0 = d j=1 λ t j ψ j , x 0 ψ j .</formula><p>This expression shows that the evolution of x t is governed by the eigenvalues λ j , with modes associated with |λ j | &gt; 1 growing and those with |λ j | &lt; 1 decaying over time.</p><p>In the following, we focus on nonlinear systems and discuss how the so-called Koopman operator theory extends ideas from linear systems.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2">Koopman operator theory</head><p>Consider a Markov process with transition kernel p and invariant measure π.</p><formula xml:id="formula_127">Let L 2 π = L 2 π (X , R) = {g : X → R | ∥g∥ π = |g| 2 dπ &lt; ∞}. Define the operator A π : L 2 π → L 2 π as A π g(x) = E[g(X t+1 ) | X t = x],</formula><p>for all g ∈ L 2</p><p>π and almost all x ∈ X . Equivalently, writing the expectation explicitly,</p><formula xml:id="formula_128">A π g(x) = X g(x ′ )p(x, dx ′ ).</formula><p>The operator A π is called the Koopman operator or Markov operator. It is linear and bounded with ∥A π ∥ ≤ 1. Moreover, for all τ ∈ N, it holds that</p><formula xml:id="formula_129">A τ π g(x) = E[g(X t+τ ) | X t = x]. The interpretation is that any g ∈ L 2</formula><p>π represents an observable of the system. Its evolution over time follows a linear transformation given by the Koopman operator.</p><p>If the Markov process is time reversible, then the Koopman operator is self-adjoint, that is, A π = A * π .</p><p>Remark 17 (Self-adjointness of the Koopman operator) For all g, h ∈ L 2 π , using the definition of the Koopman operator</p><formula xml:id="formula_130">⟨A π g, h⟩ L 2 π = X A π g(x)h(x)dπ(x) = X h(x) X g(x ′ )p(x, dx ′ ) dπ(x).</formula><p>Swapping the integrals and using the detailed balance condition (36), we get</p><formula xml:id="formula_131">⟨A π g, h⟩ L 2 π = X g(x ′ ) X h(x)p(x ′ , dx) dπ(x ′ ) = X g(x ′ )A π h(x ′ )dπ(x ′ ) = ⟨g, A π h⟩ L 2 π which shows that A π is self-adjoint.</formula><p>If the transition kernel is absolutely continuous with respect to the Lebesgue measure, with a square integrable density, then the Koopman operator is also compact.</p><p>Remark 18 (Compactness of the Koopman operator) Let q(x, x ′ ) be the density of the transition kernel with respect to the Lebesgue measure, i.e., p(x, dx ′ ) = q(x, x ′ )dx ′ . Then, the Koopman operator A π is the integral operator given by</p><formula xml:id="formula_132">A π g(x) = X q(x, x ′ )g(x ′ )dπ(x ′ ).</formula><p>It is a standard fact in functional analysis that, if</p><formula xml:id="formula_133">X X q 2 (x, x ′ )dπ(x)dπ(x ′ ) &lt; ∞,</formula><p>then the Koopman operator is a Hilbert-Schmidt operator and hence compact.</p><p>In the following, we assume the Koopman operator A π to be self-adjoint and compact. Then, A π admits an orthonormal eigensystem (λ i , ψ i ) i∈N , with λ i ≥ 0 and ψ i ∈ L 2 π , satisfying</p><formula xml:id="formula_134">A π ψ i = λ i ψ i , i = 1, 2, . . . ,</formula><p>and by the spectral theorem,</p><formula xml:id="formula_135">A π = ∞ i=1 λ i ψ i ⊗ ψ i .</formula><p>This expansion is known as the Koopman mode decomposition. The functions ψ i are called Koopman modes and represent spatial patterns of the system, while the eigenvalues λ i characterize their temporal evolution. Note that, for t ∈ N and g ∈ L</p><formula xml:id="formula_136">2 π A t π g = i λ t i ⟨g, ψ i ⟩ L 2 π ψ i .</formula><p>This decomposition provides a spectral perspective on nonlinear dynamical systems, analogous to the spectral expansion of linear systems discussed earlier in Remark 16.</p><p>The above discussion highlights how nonlinear dynamical systems can be characterized in terms of corresponding operators. In practice, Koopman operators might be hard to compute exactly, but empirical approximations can be derived based on observations from the corresponding dynamical systems. We next show how considering observables in an RKHS allows casting the estimation of the Koopman operator as a suitable operator learning problem.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.3">Learning the Koopman operator with kernels</head><p>Let H ⊂ R X be a scalar reproducing kernel Hilbert space with reproducing kernel k. The idea is to consider observables in H to estimate A π from data. We next provide an intuition for why restricting observables to an RKHS enables efficient algorithm design.</p><p>Kernel Koopman regression. The idea is to find W ∈ L(H) such that for any f ∈ H and any t</p><formula xml:id="formula_137">∈ N f (X t+1 ) ≈ W f (X t ).</formula><p>A useful observation is that if f ∈ H, then ∀W ∈ L(H) and ∀t ∈ N, by the reproducing property</p><formula xml:id="formula_138">E[(f (X t+1 ) -W f (X t )) 2 ] = E[ f , φ(X t+1 ) -W * φ(X t ) 2 H ],</formula><p>where φ(x) = k x = k(x, •) for all x ∈ X . Then, if (f j ) j is an orthonormal basis of H, then for all t ∈ N,</p><formula xml:id="formula_139">j E[(f j (x t+1 ) -W f j (X t )) 2 ] = j E[ f j , φ(X t+1 ) -W * φ(X t ) 2 H ] = E[ φ(X t+1 ) -W * φ(X t ) 2 H ].</formula><p>Finally, define the risk L : L(H) → R, for all W ∈ L(H) by</p><formula xml:id="formula_140">L(W ) = E[ φ(X t+1 ) -W * φ(X t ) 2 H ].<label>(39)</label></formula><p>The above computations lead to several observations. First, they suggest that considering an RKHS enables studying the evolution of the kernel rather than that of all observables. Second, given samples x 1 , . . . , x T , we can estimate the expectation in (39) by the empirical risk L : L(H) → R for all W ∈ L(H) as</p><formula xml:id="formula_141">L(W ) = 1 T T -1 t=0 φ(x t+1 ) -W * φ(x t ) 2 H . (<label>40</label></formula><formula xml:id="formula_142">)</formula><p>Before proceeding further, we discuss some implications of restricting observables to an RKHS.</p><p>RKHS restriction of the Koopman operator. Next, we develop the above dobservations, discussing how an operator W ∈ L(H) can approximate the Koopman operator, which naturally belongs to L(L 2 π ). We show that rather than the Koopman operator itself we are approximating its restriction to the RKHS.</p><p>To show this, we define a suitable embedding operator defined by the kernel and the invariant measure. Assume that there exists κ &gt; 0 such that for all x ∈ X , k(x, x) ≤ κ 2 .</p><p>(41)</p><formula xml:id="formula_143">Define S : H → L 2 π by Sf (x) = f , k x H ,<label>(42)</label></formula><p>for all f ∈ H and almost all x ∈ X . Several observations can be made. First, the operator S is linear and bounded by Assumption (41). Indeed, for all f ∈ H, we have</p><formula xml:id="formula_144">∥Sf ∥ π ≤ κ ∥f ∥ H ,</formula><p>by the reproducing property <ref type="bibr" target="#b10">(11)</ref> and Assumption (41). Second, S is the embedding operator from H to L 2 π , so that each function f ∈ H is seen as an element Sf ∈ L 2 π , with its norm changing from that in H to that in L 2 π . Third, if the support X π of the invariant measure is strictly contained in X , then S is not injective and acts as a restriction operator. From this latter perspective, it can be seen as a continuous analog of the sampling operator <ref type="bibr" target="#b20">(21)</ref>. Finally, it is easy to check that the operator S is Hilbert-Schmidt. Let (f j ) j be an orthonormal basis of H. Then Given the above premise, we derive an identity providing insights into the nature of the approximation attainable by minimizing the risk (39), as well as the empirical risk (40).</p><p>Define A H : H → L 2 π as A H = A π S, that is, the restriction of the Koopman operator to the RKHS. Note that, A H ∈ L 2 (H, L 2 π ) since the set of Hilbert-Schmidt operators forms a two-sided ideal in the algebra of bounded operators. Similarly, SW ∈ L 2 (H, L 2 π ) for all W ∈ L(H). Next we show that</p><formula xml:id="formula_145">L(W ) = ∥A H -SW ∥ 2 L 2 (H,L 2 π ) + σ 2 , (<label>43</label></formula><formula xml:id="formula_146">)</formula><p>for some suitable constant σ 2 . The above expression shows that when minimizing the risk (39) we are effectively finding an approximation to the Koopman operator restricted to the RKHS.</p><p>To prove Equation (43) we begin noting that for all W ∈ L(H)</p><formula xml:id="formula_147">L(W ) = E[ φ(X t+1 ) -W * φ(X t ) 2 H ] = E[ F * (X t ) -W * φ(X t ) 2 H ] + σ 2 , (<label>44</label></formula><formula xml:id="formula_148">)</formula><p>where for almost all x ∈ X</p><formula xml:id="formula_149">F * (x) = E[φ(X t+1 ) | X t = x]</formula><p>and <ref type="formula" target="#formula_147">44</ref>) is a classic result that can be easily checked developing the square and taking the expectation. We omit this calculation to note that for all f ∈ H, by linearity of the expectation</p><formula xml:id="formula_150">σ 2 = E[ φ(X t+1 ) -F * (X t ) 2 H ]. Equation (</formula><formula xml:id="formula_151">F * (x), f H = E[ φ(X t+1 ), f H | X t = x] = E[Sf (X t+1 ) | X t = x] = A π Sf (x),</formula><p>and</p><formula xml:id="formula_152">W * Φ(x), f H = Φ(x), W f H = SW f (x)</formula><p>for almost all x ∈ X . Moreover, recall that, for any orthonormal basis (f j ) j ∈ H and B ∈ L 2 (H, L 2 π ),</p><formula xml:id="formula_153">∥B∥ L 2 (H,L 2 π ) = j Bf j 2 L 2 π .</formula><p>Then, any orthonormal basis (f j ) j ∈ H the following equalities hold E[ F * (X t ) -W * φ(X t )</p><p>2</p><formula xml:id="formula_154">H ] = j E[( F * (X t ) -W * φ(X t ), f j H ) 2 ] = j E[(A π S -SW )f j (X t )) 2 ] = j (A π S -SW )f j 2 L 2 π = ∥A π S -SW ∥ 2 L 2 (H,L 2 π )</formula><p>Combining the above expression in Equation (44) leads to (43). Provided with the above discussion, we next discuss the computation of the empirical approximation of the Koopman operator restricted to a RKHS.</p><p>KRR for the Koopman operator. Following the discussion in the previous section, given a sample trajectory x 1 , . . . , x T and an RKHS H with reproducing kernel k, consider the regularized empirical risk minimization problem min</p><formula xml:id="formula_155">W ∈L 2 (H) 1 T T t=1 ∥φ(x t+1 ) -W * φ(x t )∥ 2 H + λ∥W ∥ 2 L 2 (H) . (<label>45</label></formula><formula xml:id="formula_156">)</formula><p>Note that, we further restricted the class of operator considering L 2 (H) rather than L(H). As discussed in Section 4, this corresponds to a suitable operator valued reproducing kernel and allows the computation of the solution denoted by W λ .</p><p>Let Y : H → R T be such that ( Y f ) t = k x t+1 , f H , and X : H → R T be such that ( Xf ) t = k x t , f H , t=1, . . . , T. Then, from the optimality condition of problem (45) the following formulas can be derived, W λ = Y * X( X * X + T λI) -1 = Y * ( X X * + T λI) -1 X Moreover, for all x ∈ X let k(x) = (k(x 1 , x), . . . , k(x T , x))</p><p>and α(x) = ( X X * + T λI) -1 κ(x) ∈ R T Note that, while W * λ is infinite dimensional, the coefficient vector α(x) is finite dimensional for all x ∈ X , and further its computations involves only finite dimensional quantities. Several observations a can be made. First, it is possible to predict any observable given a number of measurements f (x 1 ), . . . , f (x T -1 ). Indeed, for all f ∈ H, and x ∈ X</p><formula xml:id="formula_157">W λ f (x) = W λ f , k x H = f , Y * ( X X * + T λI) -1 Xk x H = Y f , ( X X * + T λI) -1 Xk x R T = T t=1 f (x t+1 )α(x) t .</formula><p>Note that in particular, we could consider f (x) = x j for x = (x 1 , . . . , x d ) to forecast (the coordinate of) future states. Second, it possible to show that empirical Koopman modes can also be computed but the reasoning is more involved and is omitted here.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.4">Bibliography</head><p>An introduction to several ideas related to dynamical systems and their empirical estimation can be found in <ref type="bibr" target="#b1">[2]</ref>. A standard reference for Markov processes is for example <ref type="bibr" target="#b15">[16]</ref>. Koopman operator theory is discussed in <ref type="bibr" target="#b9">[10,</ref><ref type="bibr" target="#b16">17,</ref><ref type="bibr" target="#b16">17]</ref>. The learning approach to dynamical systems based on Koopman operators and reproducing kernel Hilbert spaces is discussed in <ref type="bibr" target="#b12">[13]</ref>.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Supervised learning is the problem of finding an estimate f of a function f * given data (x i , y i ) n i=1 .</figDesc><graphic coords="1,256.00,580.57,66.44,66.44" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>|</head><figDesc>k x , f j H | 2 dπ(x) = ∞ j=1 | k x , f j H | 2 dπ(x) = k(x, x)dπ(x) ≤ κ 2 .</figDesc></figure>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>Acknowledgments</head><p>First, I would like to thank <rs type="person">Claudio Agostinelli</rs> for his patience and support. I am grateful to him and to <rs type="person">Massimo Fornasier</rs> for inviting me to co-organize and teach at the "Machine Learning: From Data to Mathematical Understanding" school in Cetraro. This manuscript is the supporting material for my lectures there. Note that the emphasis here is on simplifying the exposition, and I have included only a few basic references rather than attempting to provide a comprehensive survey of all contributions and results.</p><p>I would like to thank <rs type="person">Giacomo Meanti</rs> and <rs type="person">Pietro Zerbetto</rs>, who contributed to these notes, and <rs type="person">Oleksii Kachaiev</rs>, who proofread part of the manuscript. More generally, I would like to thank <rs type="person">Ernesto De Vito</rs> and all the many co-authors whose results are presented in these notes. I hope I have done justice to their work.</p><p>I acknowledge the financial support of the <rs type="funder">European Commission (Horizon Europe</rs> grant <rs type="grantNumber">ELIAS 101120237</rs>), the <rs type="funder">Ministry of Education, University and Research</rs> (<rs type="grantName">FARE grant</rs> <rs type="grantNumber">ML4IP R205T7J2KP</rs>), the <rs type="funder">European Research Council</rs> (grant SLING <rs type="grantNumber">819789</rs>), the <rs type="funder">US Air Force Office of Scientific Research</rs> (<rs type="grantNumber">FA8655-22-1-7034</rs>), the <rs type="funder">Ministry of Education, University and Research</rs> (grant BAC <rs type="grantNumber">FAIR PE00000013</rs>, funded by the <rs type="funder">EU -NGEU)</rs>, and <rs type="funder">MIUR</rs> (<rs type="grantNumber">PRIN 202244A7YL</rs>). This work represents only the views of the authors. The <rs type="funder">European Commission</rs> and the other organizations are not responsible for any use that may be made of the information it contains.</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_gaSfBcQ">
+					<idno type="grant-number">ELIAS 101120237</idno>
+				</org>
+				<org type="funding" xml:id="_7e5cf5t">
+					<idno type="grant-number">ML4IP R205T7J2KP</idno>
+					<orgName type="grant-name">FARE grant</orgName>
+				</org>
+				<org type="funding" xml:id="_yyTWd8C">
+					<idno type="grant-number">819789</idno>
+				</org>
+				<org type="funding" xml:id="_HUX4Tyz">
+					<idno type="grant-number">FA8655-22-1-7034</idno>
+				</org>
+				<org type="funding" xml:id="_NZPbBPz">
+					<idno type="grant-number">FAIR PE00000013</idno>
+				</org>
+				<org type="funding" xml:id="_p5KQnhn">
+					<idno type="grant-number">PRIN 202244A7YL</idno>
+				</org>
+			</listOrg>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A Basic facts and notation</head><p>We recall a few basic definitions useful in the following.</p><p>Random variables and their laws. Let (Ω, A, P) a probability space with measure P, and (Z, B) a measure space. Let Z : Ω → Z be a measurable function, then Z is called a random variable. The law of Z is the measure P = P Z on X given for almost all A ∈ A by</p><p>The following notation is often used</p><p>for B ∈ B. Let Y be a Hilbert space and g : Z → Y a measurable function.</p><p>A stochastic process in X is a family of random variables (Z t ) t∈T , indexed over some set T .</p><p>Operators and their norms. Let H, G be Hilbert spaces. Let L(H, G) be the space of linear bounded operators from H to G. If G = R then L(H, R) is the space of linear continuous functionals on H. Let L(H) = L(H, H). The operator norm is defined for all A ∈ L(H, G) as</p><p>The adjoint A * ∈ L(G, H) is the unique linear bounded operator such that for all h ∈ H, g ∈ G,</p><p>If (e j ) j ∈ H is an orthonormal basis, the trace of A ∈ L(H) is defined Tr(A) = j Ae j , e j H and is independent to the choice of the basis. Let L 2 (H, G) be the Hilbert space of Hilbert-Schmidt operators with inner product</p><p>Optimization, coercivity and convexity. Let H a Hilbert space and F : H → R a convex functional. We say that F is coercive if</p><p>If F is continuous, or even just lower semi-continuous, and coercive then it has a non empty set of minimizers. If F is strictly convex then there is a unique minimizer.</p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Theory of reproducing kernels</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Aronszajn</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Transactions of the American Mathematical Society</title>
+		<imprint>
+			<biblScope unit="volume">68</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="337" to="404" />
+			<date type="published" when="1950">1950</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<author>
+			<persName><forename type="first">Steven</forename><forename type="middle">L</forename><surname>Brunton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">Nathan</forename><surname>Kutz</surname></persName>
+		</author>
+		<title level="m">Data-Driven Science and Engineering: Machine Learning, Dynamical Systems, and Control</title>
+		<imprint>
+			<publisher>Cambridge University Press</publisher>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+	<note>2nd edition</note>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Optimal Rates for the Regularized Least-Squares Algorithm</title>
+		<author>
+			<persName><forename type="first">Andrea</forename><surname>Caponnetto</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ernesto</forename><surname>De</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vito</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Foundations of Computational Mathematics</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="page" from="331" to="368" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Vector valued reproducing kernel hilbert spaces of integrable functions and mercer theorem</title>
+		<author>
+			<persName><forename type="first">Claudio</forename><surname>Carmeli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ernesto</forename><forename type="middle">De</forename><surname>Vito</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alessandro</forename><surname>Toigo</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Analysis and Applications</title>
+		<imprint>
+			<biblScope unit="volume">04</biblScope>
+			<biblScope unit="issue">04</biblScope>
+			<biblScope unit="page" from="377" to="408" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">On the mathematical foundations of learning</title>
+		<author>
+			<persName><forename type="first">Felipe</forename><surname>Cucker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Steve</forename><surname>Smale</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Bulletin of the American Mathematical Society</title>
+		<imprint>
+			<biblScope unit="volume">39</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="49" />
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Approximation methods for supervised learning</title>
+		<author>
+			<persName><forename type="first">Ronald</forename><surname>Devore</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gerard</forename><surname>Kerkyacharian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dominique</forename><surname>Picard</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vladimir</forename><surname>Temlyakov</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Foundations of Computational Mathematics</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="3" to="58" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">A Probabilistic Theory of Pattern Recognition</title>
+		<author>
+			<persName><forename type="first">Luc</forename><surname>Devroye</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gábor</forename><surname>Lászl Ó Györfi</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Lugosi</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1996">1996</date>
+			<publisher>Springer</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">M</forename><surname>Dudley</surname></persName>
+		</author>
+		<title level="m">Real Analysis and Probability</title>
+		<imprint>
+			<publisher>Cambridge University Press</publisher>
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<author>
+			<persName><forename type="first">Heinz</forename><surname>Werner Engl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Martin</forename><surname>Hanke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Neubauer</surname></persName>
+		</author>
+		<title level="m">Regularization of Inverse Problems</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Data-driven spectral decomposition and forecasting of ergodic dynamical systems</title>
+		<author>
+			<persName><forename type="first">Dimitrios</forename><surname>Giannakis</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Applied and Computational Harmonic Analysis</title>
+		<imprint>
+			<biblScope unit="volume">47</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="338" to="396" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">Adam Krzy żak, and Harro Walk. A Distribution-Free Theory of Nonparametric Regression</title>
+		<author>
+			<persName><forename type="first">Michael</forename><surname>Lászl Ó Györfi</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Kohler</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2002">2002</date>
+			<publisher>Springer</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Ridge regression: Biased estimation for nonorthogonal problems</title>
+		<author>
+			<persName><forename type="first">Arthur</forename><forename type="middle">E</forename><surname>Hoerl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Robert</forename><forename type="middle">W</forename><surname>Kennard</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Technometrics</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="55" to="67" />
+			<date type="published" when="1970">1970</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Learning dynamical systems via koopman operator regression in reproducing kernel hilbert spaces</title>
+		<author>
+			<persName><forename type="first">Vladimir</forename><surname>Kostic</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pietro</forename><surname>Novelli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andreas</forename><surname>Maurer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Carlo</forename><surname>Ciliberto</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lorenzo</forename><surname>Rosasco</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Massimiliano</forename><surname>Pontil</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Operator learning: Algorithms and analysis</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Nikola</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Samuel</forename><surname>Kovachki</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><forename type="middle">M</forename><surname>Lanthaler</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Stuart</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Applied and Computational Harmonic Analysis</title>
+		<imprint>
+			<biblScope unit="volume">67</biblScope>
+			<biblScope unit="page">101731</biblScope>
+			<date type="published" when="2024">2024</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Randomized numerical linear algebra: Foundations and algorithms</title>
+		<author>
+			<persName><forename type="first">Per-Gunnar</forename><surname>Martinsson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joel</forename><forename type="middle">A</forename><surname>Tropp</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Acta Numerica</title>
+		<imprint>
+			<biblScope unit="volume">29</biblScope>
+			<biblScope unit="page" from="403" to="572" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<author>
+			<persName><forename type="first">Sean</forename><forename type="middle">P</forename><surname>Meyn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Richard</forename><forename type="middle">L</forename><surname>Tweedie</surname></persName>
+		</author>
+		<title level="m">Markov Chains and Stochastic Stability</title>
+		<imprint>
+			<publisher>Cambridge University Press</publisher>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+	<note>2nd edition</note>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Koopman operator, geometry, and learning of dynamical systems</title>
+		<author>
+			<persName><forename type="first">Igor</forename><surname>Mezić</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Notices of the American Mathematical Society</title>
+		<imprint>
+			<biblScope unit="volume">68</biblScope>
+			<biblScope unit="issue">7</biblScope>
+			<biblScope unit="page" from="1087" to="1105" />
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">On learning vector-valued functions</title>
+		<author>
+			<persName><forename type="first">Charles</forename><forename type="middle">A</forename><surname>Micchelli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Massimiliano</forename><surname>Pontil</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural computation</title>
+		<imprint>
+			<biblScope unit="volume">17</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="177" to="204" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Less is more: Nyström computational regularization</title>
+		<author>
+			<persName><forename type="first">Alessandro</forename><surname>Rudi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Raffaello</forename><surname>Camoriano</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lorenzo</forename><surname>Rosasco</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">FALKON: An Optimal Large Scale Kernel Method</title>
+		<author>
+			<persName><forename type="first">Alessandro</forename><surname>Rudi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Luigi</forename><surname>Carratino</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lorenzo</forename><surname>Rosasco</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Sous-espaces hilbertiens d&apos;espaces vectoriels topologiques et noyaux associés (noyaux reproduisants)</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Schwartz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Analyse Math</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="page" from="115" to="256" />
+			<date type="published" when="1964">1964</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Shannon sampling and function reconstruction from point values</title>
+		<author>
+			<persName><forename type="first">Steve</forename><surname>Smale</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ding-Xuan</forename><surname>Zhou</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Bull. Amer. Math. Soc. (N.S.)</title>
+		<imprint>
+			<biblScope unit="volume">41</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="279" to="305" />
+			<date type="published" when="2004">2004</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Sparse Greedy Matrix Approximation for Machine Learning</title>
+		<author>
+			<persName><forename type="first">Alex</forename><forename type="middle">J</forename><surname>Smola</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bernhard</forename><surname>Schölkopf</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICML 17</title>
+		<imprint>
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<monogr>
+		<title level="m" type="main">Solutions of Ill-posed Problems</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">N</forename><surname>Tikhonov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">Y</forename><surname>Arsenin</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1977">1977</date>
+			<publisher>Winston &amp; Sons</publisher>
+			<pubPlace>Washington</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<monogr>
+		<author>
+			<persName><forename type="first">Vladimir</forename><forename type="middle">N</forename><surname>Vapnik</surname></persName>
+		</author>
+		<title level="m">Statistical Learning Theory</title>
+		<imprint>
+			<publisher>Wiley</publisher>
+			<date type="published" when="1998">1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Learning from examples as an inverse problem</title>
+		<author>
+			<persName><forename type="first">Ernesto</forename><surname>De</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vito</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lorenzo</forename><surname>Rosasco</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrea</forename><surname>Caponnetto</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Umberto</forename><forename type="middle">De</forename><surname>Giovannini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Francesca</forename><surname>Odone</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="issue">30</biblScope>
+			<biblScope unit="page" from="883" to="904" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Spline Models for Observational Data</title>
+		<author>
+			<persName><forename type="first">Grace</forename><surname>Wahba</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">SIAM</title>
+		<imprint>
+			<date type="published" when="1990">1990</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Using the Nyström method to speed up kernel machines</title>
+		<author>
+			<persName><forename type="first">Christopher</forename><surname>Williams</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Matthias</forename><surname>Seeger</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2000">2000</date>
+			<biblScope unit="volume">13</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

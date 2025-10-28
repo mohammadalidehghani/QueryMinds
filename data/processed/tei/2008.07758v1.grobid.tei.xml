@@ -1,0 +1,564 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Efficient Private Machine Learning by Differentiable Random Transformations</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Fei</forename><surname>Zheng</surname></persName>
+							<email>zfscgy2@zju.edu.cn</email>
+							<affiliation key="aff0">
+								<orgName type="department">Dept. Computer Science</orgName>
+								<orgName type="institution">Zhejiang University Hangzhou</orgName>
+								<address>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Efficient Private Machine Learning by Differentiable Random Transformations</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">44D83CF66D416DB9BF2DE1769B09B75A</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>Secure Multiparty Computation</term>
+					<term>Machine Learning</term>
+					<term>Neural Network</term>
+					<term>Privacy Preserving</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>With the increasing demands for privacy protection, many privacy-preserving machine learning systems were proposed in recent years. However, most of them cannot be put into production due to their slow training and inference speed caused by the heavy cost of homomorphic encryption and secure multiparty computation(MPC) methods. To circumvent this, I proposed a privacy definition which is suitable for large amount of data in machine learning tasks. Based on that, I showed that random transformations like linear transformation and random permutation can well protect privacy. Merging random transformations and arithmetic sharing together, I designed a framework for private machine learning with high efficiency and low computation cost.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>I. INTRODUCTION</head><p>Machine learning has been widely used in many real-life scenarios in recent years. In most cases, training machine learning models requires a large amount of data. For example, training a neural network to determine whether two pictures belong to the same person may needs at least tens of thousands photos, and training a model to predict the possibility of credit default of someone needs tens of thousands credit records of different people. Those data are always distributed among different facilities. On the one hand, many governments have published the laws against abuses of data in order to protect people's privacy and prevent those data from being stolen for evil uses. On the other hand, the companies do not want their data being exposed to others. When they want to share data with others, it's always difficult to ensure that the other party will not store their data secretly for usages violates the contract. So to make different data holders to share their data and hence to build better machine learning models, privacypreserving machine learning technologies must be adopted. To achieve this, researchers have worked out many solutions, which can be generalized to two major methods.</p><p>• Homomorphic Encryptions. The homomorphic encryption methods allow arithmetic operations on the ciphertext. For example, the Paillier cryptosystem <ref type="bibr" target="#b0">[1]</ref> supports additions on ciphertext, and the Gentry cryptosystem supports both addition and multiplication, which is the first fully homomorphic encryption scheme. The security is based on the key length. But up until now, those methods are way too costly for most applications.</p><p>• Secure Multiparty Computation(MPC). MPC methods provide ways to calculate a function while keep the inputs private. The most famous scheme is Yao's garbled circuit(For details, refer to <ref type="bibr" target="#b1">[2]</ref>). There are also MPC methods based on secret sharing, such as SecureML <ref type="bibr" target="#b2">[3]</ref>. Besides, there are also some other techniques to protect data privacy, like differential privacy and secure aggregation. Differential privacy methods protect privacy by adding noise to the data or some intermediate values, while secure aggregation only applies to federated learning scenarios.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. My contributions</head><p>Existing methods mostly focus on designing a method or protocol that will leak no information about the raw data. Like using homomorphic encryption, no attackers can gain any information about the data in polynomial time w.r.t. security parameter. However, this definition is not suitable for the data in machine learning setting. What is necessary is that the data cannot be reused. So I proposed a metric to quantify the information leakage during computation, and a practical method to leverage between privacy preserving and efficiency. In this paper, I made the following contributions:</p><p>• A privacy definition that focus on the possibility on recovering raw data. • Proved random transformations, i.e. random linear transformation and random permutation can well protect privacy.</p><p>• Designed a private machine learning framework which combines random transformation and arithmetic sharing together and achieves very high efficiency in machine learning tasks.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>II. RELATED WORK A. Privacy Preserving</head><p>Privacy preserving during the data analysis process has long been concerned. <ref type="bibr" target="#b3">[4]</ref> shows that even a few record exposed, the attacker may be able to locate a specific person in the database. Various strategies were used in order to maintain privacy. The k-Anonymity methods is to perturb or hide some of the attributes which can be used to identify individual records, so called the 'quasi identifiers'. Beyond it, there are l-diversity aiming for adding diversity in a group of 'close' records, and t-Closeness aiming for make the distribution similar for different group of records. However, as the era of machine learning comes, the amount of data become enormous and the structure of data is fairly complicated, which is kind of incompatible with those previous privacy notions.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Solutions based on homomorphic encryption</head><p>In order to protect privacy, Cryptonets <ref type="bibr" target="#b4">[5]</ref> first applied the fully homomorphic encryption to deep neural network. All computations are done on the encrypted data. The authors tested this model on the MNIST dataset, and achieved 99% accuracy with a throughput about 59000 prediction per hour and a latency for about 250 seconds. Gazelle <ref type="bibr" target="#b5">[6]</ref> avoided expensive fully homomorphic encryption and used packed additive homomorphic encryption to improve efficiency, and used garbled circuit to calculate non-linear activations. It reduces single image classification latency to around 30 microseconds. GELU-Net <ref type="bibr" target="#b6">[7]</ref> let client to calculate the activations while server calculate the linear transformation using additive homomorphic encryption.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. Multiparty Computing Methods</head><p>Yao's Garbled Circuit first proposed a method for Two-Party secure computation. GMW protocol <ref type="bibr" target="#b7">[8]</ref> extended its work to multiparty conditions. Aside from boolean circuits, BGW protocol <ref type="bibr" target="#b8">[9]</ref> works on the arithmetic circuits based on Shamir's secret sharing scheme <ref type="bibr" target="#b9">[10]</ref>. And Beaver <ref type="bibr" target="#b10">[11]</ref> used precomputed triples to accelerate online multiplication. ABY <ref type="bibr" target="#b11">[12]</ref> mixed arithmetic, boolean and Yao's sharing together provided a efficient two-party computation protocol that supports various kinds of computations covered common machine learning functions. while ABY3 <ref type="bibr" target="#b12">[13]</ref> hugely improved its efficiency under 3PC setting. SecureML <ref type="bibr" target="#b2">[3]</ref> applied arithmetic sharing and garbled circuit to linear regression, logistic regression and neural network.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>D. Differential Privacy</head><p>Differential privacy was proposed by <ref type="bibr" target="#b13">[14]</ref>. It protects privacy by limiting the change of function when one record in the data changed. Differential privacy is always achieved by adding noises somewhere in the data analysis process. For example, <ref type="bibr" target="#b14">[15]</ref> adds the noise in the gradients of training. PATE <ref type="bibr" target="#b15">[16]</ref> applied differential privacy on the lable-generation phase of teacher models. And the ESA architecture <ref type="bibr" target="#b16">[17]</ref> uses local differential privacy to ensure the worst-case privacy when all other parties are colluding together.</p><p>Those methods all have their advantages: Homomorphic encryption has perfect privacy with big enough security parameter; Multiparty computing is faster, it's absolute secure in the information theoretic sense as long as the participants keep semi-honesty; Differential privacy provided a strong tool to evaluate privacy, and is very simple to implement, even on the client device. However, the cost for homomorphic encryption and multiparty computation is still too high to be widely used. And the differential privacy certainly affects the model performance in machine learning since noises are added. And it's focused on the effect of one record, but not the actual sensitive data.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>III. PRIVACY DEFINITION</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Reconstructive privacy</head><p>In most machine learning scenarios, the data used is a table. Every row is a training sample and every column is a feature. The metadatas, i.e. the ID of each row and the attribute name of each column are very easy to be hide. The only information exposed is the entries of the data table. In this case, the raw data are what matters. So I defined reconstructive privacy as follows:</p><p>Definition 1 ( -reconstructive privacy). A data transformation T is said to have -reconstructive privacy under auxiliary information a if an adversary A with input T (x) and auxiliary information a has a chance at most to recover the raw data x. In other words, for any function A, E x (p[A(T (x); a) = x]) &lt; . If there are no auxiliary informations, For example, consider shuffle on a array of length 5. Without any other information, the adversary can only guess randomly. So he has a 1 5! to get the correct raw data. That is, the transformation shuffle has a 1 5! -reconstructive privacy with no auxiliary information.</p><p>Definition 2 ( , δ-reconstructive privacy). A data transformation T is said to have -reconstructive privacy under auxiliary information a if an adversary A with input T (x) and auxiliary information a has chance to recover the raw data x with error δ. The error definition can be specifically choosed according to scenario. In other words, for any function A, E x (p[|A(T (x); a) -x| &lt; δ]) &lt; .</p><p>For example, consider adding noises e ∼ N (0, 1) to a value x. The adversary get the value x + e, with auxiliary input that the variation of noise is 1. so he can guess the real value is in [x + e -3, x + e + 3] with a Ψ(3) -Ψ(-3) = 0.997 confidence. That is, the transformation T (x) = x + e has a 0.997, 3-reconstructive privacy.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Common Transformations</head><p>Linear Transformation: Let raw data be a vector x of length n. A linear transformation turns x into Ax where A ∈ R m×n is a matrix. Calculating the and δ in linear transformation's reconstructive privacy is not trivial. In the following theorem, I assume that the raw data x and the elements in matrix A are all random variables drawn from a standard normal distribution.</p><p>Theorem 1 (Linear transformation's reconstructive privacy). Let raw data x ∈ R n be a vector with each element drawn from the standard normal distribution independently, the same as matrix A ∈ R m×n . And let the auxiliary information for adversary is the x and A both are drawn from standard normal distribution. The linear transformation T : x → Ax has a , δ-reconstructive privacy where &lt; p(|y| &lt; δ) with y ∈ R n-1 , y 1 , ..., y n-1 ∼ N (0, 1) and p is the density function.</p><p>In other words, it's like the adversary has no information in n -1 dimensions of the raw data x.</p><p>Proof. First, from the reconstructive privacy's definition, we have</p><formula xml:id="formula_0">E x (p[|C(Ax) -x| &lt; δ]) &lt;<label>(1)</label></formula><p>Here I use C() to denote adveray's function to avoid the confusion with transformation matrix A. Since A is also a random variable, we can change (1</p><formula xml:id="formula_1">) into E x,A I(|C(Ax) -x| &lt; δ),</formula><p>where I is a indicator function when the condition satisfies is 1, otherwise is 0.</p><formula xml:id="formula_2">= A,x p(T = A)p(X = x)I(|C(Ax) -x| &lt; δ)dxdA A,x p(T = A)p(X = x)dxdA<label>(2)</label></formula><p>Where I uses dx to denote dx 1 dx 2 ...dx n , and uses dA to denote dA 1,1 dA 1,2 ...dA m,n . In order to eliminate the annoying term C(Ax), we have to do a rotation on x's coordinates and extract y = Ax. That produces:</p><formula xml:id="formula_3">y A x,Ax=y p(T = A)p(X = x)I(|C(y) -x| &lt; δ)dvdAdy y A x,Ax=y p(T = A)p(X = x)dvdAdy<label>(3)</label></formula><p>Then how to find the upper bound of ? The intuition comes from the simple inequality </p><formula xml:id="formula_4">f (x)dx g(x)dx ≤ max f (x) g(x) for f (x), g(x) &gt; 0.</formula><formula xml:id="formula_5">(z) = 1 (2π) n-1 e -|z| 2</formula><p>. So the upperbound of is lower than the probability that the random vector x ∈ R n-1 has a length shorter than δ.</p><p>The above theorem shows the linear transformation will reveal no more information than one dimension of the raw data. Actually, since we used very strong conditions to proof the upperbound of , the information leakage can be far less than theory, that is, the adversary can only get a little information on one dimension of the raw data. Notice that one dimension does not mean one element in the vector.</p><p>Random permutation: Random permutation is a basic method to hide data. Since a random permutation on a sequence of length n can produce n! possibile outcoms, we can calculate the reconstructive privacy for it: Theorem 2 (Random permutation's reconstructive privacy).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Random permutation on an vector of length n has a</head><p>1 n! reconstructive privacy.</p><p>C. Attacker models 1) Attacker with some part of raw data: Assume raw data are a collection of samples {x 1 , x 2 , ..., x n }(can be also represented by X) with dimension d. The transformation matrix A ∈ R d×f and the transformed data are Y ∈ R f ×n . and the attacker have some part of raw data {x 1 , x 2 ...., x m } with dimension d &lt; d. In this case, the attacker's purpose is to join the table and get more attributes for his samples. The attacker have to guess the mapping from his sample to columns of Y , where there are n m m! possibilities. And within each possibility, according to (1), the attacker still have no more knowledge about n -m -1 dimensions of the raw data. Since n m m! is already big enough, and usually n -m -1 should be much larger than 1, so we can say linear transformation is resilient to this sort of attack. As for random permutation, the possibilities increases exponentially with the data size. With large enough data size, the attacker can hardly gain any knowledge on the raw data.</p><p>2) Attacker with knowledge of the transformation: Although it's hard for attackers to know anything about the random transformation, since the data holder decides it, but it is still worth discussion. For random permutations, if the attacker knows it, the raw data is instantly revealed. In order to prevent this, local differential privacy can be added. And for random linear transformations f : R m → R n , when n &lt; m, even if the attacker knows f , he cannot find f -1 since it's not a bijective function. One f (x) corresponds to infinite possible x. Only if the attacker also know the distribution of sample space {x} and the samples are actually lying on some subspace of R m and m &lt; n, could he have a chance to fully reconstruct the original data.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>D. Extending Raw Data's Definition</head><p>In the discussion above, we refer 'raw data' as the raw data value, i.e. a vector, a table. But some times, the numeric values are not the essence of the data. For example, a online store gathered milllions of people's purchase records. It uses different integers to refer different items and consumers, denoted by ID. For exmaple, a book is represented by 1, and a T-shirt is represented by 100. So the whole dataset can be a matrix where if consumer i bought item j, the entry (i, j) is 1, otherwise 0. Randomly swaps the ID of two items or consumers for multiple times, it's impossible to reconstruct the original matrix. So does it achieves a 'exponentially small '-reconstructive privacy? Of course not. Since the real information of the dataset is not the interaction matrix. It is the user-item graph. A graph can have exponentially large number of adjacent matrices. Although two matrices may look not like each other at all, but they can be the adjacent matrices of the same graph. An attcker can get the graph, and with some background knowledge, i.e. by examing the degrees of each user node and item node, he can guess which item node corresponding to which real item. Hence he can use those data for his own benefit, i.e. training a recommender system. So are the images. Since convolutional models do the same linear transformation on different parts of the image, thus, the relations of different parts of the image is reserved, and attackers can easily guess the content of the raw image. The above two cases show that the raw data is not always the numeric values, but some structure lies inside the numbers. So in order to achieve privacy preserving, the raw data's definition must be carefully chosen by domain experts.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>IV. FRAMEWORK DESIGN</head><p>In the last section, I showed that the random transformations can preserve privacy by disabling adversaries to recover raw data from the transformed data. So it is safe for data holders to give out its raw data to some third party to perform computation and the get back the results. To take advantage of this, I designed a framework merging random transformations and MPC operations together, in order to perform private machine learning tasks more efficiently.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Arithmetic Sharing</head><p>To my knowledge, arithmetic sharing was first formally proposed on the ABY <ref type="bibr" target="#b11">[12]</ref> framework. It's based on shamir's secret sharing scheme <ref type="bibr" target="#b9">[10]</ref>. In this paper, I use the 2-party setting for simplicity.</p><p>Shared Value: A value x is shared among parties P 0 , P 1 means that P 0 holds a value x 0 while P 1 holds a value x 1 with the constraint x 0 + x 1 = x.</p><p>Reconstruction: P 0 , P 1 both send their value some party, could be one of them or a third-party. The raw value is reconstructed immediately by summing two values.</p><p>Addition: When adding a public value a to a shared value x, the two parties just add a/2 to their shares of x. When adding a shared value a to a shared value x, the two parties just add their shares of a and x respectively.</p><p>Multiplication: When multiplying a public value a, the two parties just multiply their shares by a. Multiplication with a shared value is kind of tricky. I adopted the beaver triple in this framework. Suppose multiply shared value x with shared value y. This requires a precomputed triple uv = w. In the sense of matrix, the u should have the same shape with x and v should have the same shape with y. So xy = (x -u)(yv) + (x -u)v + u(y -v) + uv. And x -u and y -v can be public since u and v are shared private values, this formula can be evaluated in a shared manner. Both parties then shares the product xy.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Adding Random Transformation to Arithmetic Sharing</head><p>1) Nonlinear Functions: In traditional MPC systems, the most difficult and costly part is the computation of nonlinear functions, including neural network's activation functions and logical functions, i.e. comparisons. Existing works mostly uses garbled circuit or polynomial approximation to calculate them. These methods result in heavy computation and communication costs.</p><p>By adopting reconstructive privacy, this can be quite easy. My framework contains several semi-honest third parties who can perform computation. While P 1 , P 2 contains a shared vector x, when they wants to compute f (x), where f is some element-wise nonlinear function, they first get a random permutation of x, denoted by x . This can be achieved by sharing a random seed. Then they send the x to a third party P 3 who computes f (x ) and shares it to P 1 and P 2 . Permuting it back, P 1 and P 2 then get the shares of f (x).</p><p>Element-wise Functions: 1. Each party calculate x i = P ( x i ) where P is a random permutation. Two parties can share a secret or sync a random seed in order to produce the same permutation. 2. Then they reconstruct value x to a third party P 3 . P 3 computes f (x) then share it to P 1 and P 2 . P 1 and P 2 then reconstruct the shared value using the inverse permutation.</p><p>2) Distribute Works to Third Party: After appropriate random transformations, the data can be securely revealed to third party, then the third party can fit a model. But only fitting the model on transformed data, the performance will certainly dropped since the data are transformed and may lose some information. But this can be overcome by 'fitting' the transformation. A simple example is that two data holders with vertically partitioned data, then they can just using a local neural network to produce a hidden layer output with same shape. Then the third-party added their outputs and perform further training. In the backward phase, after the third-party updated its own parameters, it sends back the gradients on the hidden layer output to two data holders. Using the chain rule, the data holders are able to calculate their gradients and then update their parameters. In the third-party's perspective, since he knows nothing about the data holders' local networks, the local networks can be considered as random transformations. And with the gradients sent back, the random transformations are actually learning themselves. So the whole 'shared' model can achieve same performance just like a local model.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. Put it All Together</head><p>Combining arithmetic sharing and random transformations together, the framework mainly provides two functionalities:</p><p>1) Addition and multiplication based on secret sharing: Using additive secret sharing, it's simple to implement linear operations including addition, subtraction, and multiplication including element-wise multiplication and matrix multiplication. 2) Element-wise non-linear functions: Using random permutation, the computation of non-linear element-wise functions can be executed on semi-honest third parties. 3) Computation after transformation: For deep neural networks, the first layer's output computation can be executed in the secure way. Then output is revealed to third party to perform further computation. In the backward propagation phase, the third party passes gradients to the parties engaged in the first layer's computation, probably in a shared manner. And the actual implementation depends on different tasks. For example, logistic regression in federated learning setting, the data holders first share their data on two semi-honest servers, with other computation service providers as helpers of matrix multiplication and performing element-wise function calculation. For deep convolutional networks, first a few layers can be performed in a secure way. After that, the output can be considered as 'random transformed', so a third party with strong computation power can do afterwards computation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>V. EXPERIMENTS A. Implementation</head><p>To realize the framework, I uses tensorflow 2.x as the backend to perform the computations, and all computations is performed in the eager mode. I uses the GRPC library for making RPC calls across different parties. As for random permutation generation and inversion, I uses numpy's random generator. I creates a party to deliver all rpc calls according to the protocol, named the coordinator. When a computation needs to be performed on a party, i.e. loading a data file, doing addition, subtraction or matrix multiplication, the coordinator will generate a string representing the expression. The receiver party parses the string and do computation according to it. When the computation is finished, the receiver party saves the result tensor in its container, and then returns a unique key to the coordinator. For coordinator, the key is representing a 'remote tensor'. When one party needs the value of some other party's tensor, it also makes a rpc call. The tensor is serialized by first converting to numpy array and then uses pickle. Parallel rpc calls is made wherever it is possible. The computation can be composition of basic computations in order to reduce number of rpc calls. In the experiment, the batch size is set to 32 and the learning rate is set to 0.1. Mean squared loss and SGD optimization is used. I recorded the elapsed time and accuracy on the validation set every 100 batches. Total train batches is 10000.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Dataset and System Settings</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>D. Neural Network</head><p>I also tested neural network with one hidden layer of size 64. Considering the label alone does not reveal any useful information, I let first layer's output computed by arithmetic sharing and then feed it to a neural network. The network only gets the linear-transformed output. According to reconstructive privacy notion, it does not reveal any useful information. And the loss function is cross entropy. The other settings are the same as the logistic regression experiment.   TABLE I TRAINING TIME Framework Local Model Logistic DNN Logistic DNN Training time(s) 1981 1179 22 63</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>E. Conclusion</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>VI. CONCLUSIONS</head><p>This paper proposed a new privacy notion called reconstructive privacy. Unlike differential privacy, this privacy notion focuses on the probability of reconstructing useful information from the transformed data. Based on this, random transformations can be applied for private machine learning. After the data transformed, third party computation servicers can perform computations on the transformed data. Comparing with methods based on homomorphic encryptions or garbled circuits, this method hugely reduces the computation costs. But this method also need strong assumptions. The attackers is assumed to know nothing about the distribution of the raw data or the random transformations. If the raw data are sparse, i.e. words, rating histories or in graph form, i.e. social relations, the reconstructive privacy is hard to compute. The computation cost of reconstructing the raw data should also be considered.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><figDesc>Considering the hyperplane Ax = y, the formula Ax=y p(X = x)I(|C(y) -x| &lt; δ)dv Ax=y p(X = x)dv is actually the probability of x lies in the ball B(y, δ) on the hyperplane Ax = y. Since the marginal distribution on that hyperplane is still a standard normal distribution, Which can be expressed by p</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>I</head><figDesc>used the MNIST dataset for experiments. The MNIST dataset contains 55000 images of handwriten digits from number 0-9, equally numbered. Each image is of 8-bits gray scale and size 28 28. The label is a one hot vector of length 10 indicating the image belong to which number. I used 50000 images for training and 5000 for validating. During training and validating, the image pixel values are is scaled to [0,1) by multiply 1/256. The experiment is executed on a cloud server which has 16 processor cores of frequency 2.5GHz and 64GB memory, and a Tesla T4 GPU. All the parties are simulated by individual python processes. C. Logistic Regression I tested the framework with logistic regression on the MNIST dataset. In order to use element-wise functions, I used sigmoid function as the activation function instead of softmax, since softmax is not element-wise. So the model is: y = sigmoid(xW + b) where sigmoid(z) = 1 1 + e -z (4) z = xW + b is securely calculated by arithmetic sharing and the sigmoid function is calculated with random permutation by a third-party different from the party provides beaver triplets for shared multiplication.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Fig. 1 .</head><label>1</label><figDesc>Fig. 1. Training curve of logistic regression. Orange: training locally; Blue: training by the framework.</figDesc><graphic coords="5,324.12,173.33,226.77,151.56" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Fig. 2 .</head><label>2</label><figDesc>Fig. 2. Training curve of DNN. Orange: training locally; Blue: training by the framework.</figDesc><graphic coords="5,324.12,377.02,226.77,151.56" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Figure 1</head><label>1</label><figDesc>Figure 1 shows that training curves of local training and training by the framework of logistic regression. And figure 2 shows the curve of DNN. Using my framework and training locally, the curves are almost the same. It's not surprise since my framework has almost zero precision loss. However, as table I shows, the training time is still a lot longer than training locally. It takes 30x-100x more time than training locally. But compared methods based on homomorphic encryption and MPC, it's still fast enough. The inference time is only 0.06s for one image, while SecureML [3] taking 4.88s and CryptoNets [5] taking 297.5s for inferencing one image.</figDesc></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Public-key cryptosystems based on composite degree residuosity classes</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Paillier</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International conference on the theory and applications of cryptographic techniques</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="1999">1999</date>
+			<biblScope unit="page" from="223" to="238" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">A proof of security of yaos protocol for twoparty computation</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lindell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Pinkas</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Cryptology</title>
+		<imprint>
+			<biblScope unit="volume">22</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="161" to="188" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Secureml: A system for scalable privacy-preserving machine learning</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Mohassel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Zhang</surname></persName>
+		</author>
+		<idno type="DOI">10.1109/SP.2017.12</idno>
+		<ptr target="https://doi.org/10.1109/SP.2017.12" />
+	</analytic>
+	<monogr>
+		<title level="m">2017 IEEE Symposium on Security and Privacy</title>
+		<meeting><address><addrLine>San Jose, CA, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>IEEE Computer Society</publisher>
+			<date type="published" when="2017-05-22">2017. May 22-26, 2017. 2017</date>
+			<biblScope unit="page" from="19" to="38" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Robust de-anonymization of large sparse datasets</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Narayanan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Shmatikov</surname></persName>
+		</author>
+		<idno type="DOI">10.1109/SP.2008.33</idno>
+		<ptr target="https://doi.org/10.1109/SP.2008.33" />
+	</analytic>
+	<monogr>
+		<title level="m">2008 IEEE Symposium on Security and Privacy (S&amp;P 2008)</title>
+		<meeting><address><addrLine>Oakland, California, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>IEEE Computer Society</publisher>
+			<date type="published" when="2008-05-21">18-21 May 2008. 2008</date>
+			<biblScope unit="page" from="111" to="125" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Cryptonets: Applying neural networks to encrypted data with high throughput and accuracy</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Gilad-Bachrach</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Dowlin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Laine</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">E</forename><surname>Lauter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Naehrig</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wernsing</surname></persName>
+		</author>
+		<ptr target="http://proceedings.mlr.press/v48/gilad-bachrach16.html" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 33nd International Conference on Machine Learning</title>
+		<editor>
+			<persName><forename type="first">M</forename><surname>Proceedings</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">K</forename><forename type="middle">Q</forename><surname>Balcan</surname></persName>
+		</editor>
+		<editor>
+			<persName><surname>Weinberger</surname></persName>
+		</editor>
+		<meeting>the 33nd International Conference on Machine Learning<address><addrLine>New York City, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2016-06-19">2016. June 19-24, 2016. 2016</date>
+			<biblScope unit="volume">48</biblScope>
+			<biblScope unit="page" from="201" to="210" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">GAZELLE: A low latency framework for secure neural network inference</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Juvekar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Vaikuntanathan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Chandrakasan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">27th USENIX Security Symposium (USENIX Security</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="page" from="1651" to="1669" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Gelu-net: A globally encrypted, locally unencrypted deep neural network for privacy-preserved learning</title>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Xin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">V</forename><surname>Phuong</surname></persName>
+		</author>
+		<idno type="DOI">10.24963/ijcai.2018/547</idno>
+		<ptr target="https://doi.org/10.24963/ijcai.2018/547" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Twenty-Seventh International Joint Conference on Artificial Intelligence</title>
+		<editor>
+			<persName><forename type="first">J</forename><surname>Lang</surname></persName>
+		</editor>
+		<meeting>the Twenty-Seventh International Joint Conference on Artificial Intelligence<address><addrLine>Stockholm, Sweden</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2018-07-13">2018. July 13-19, 2018. 2018</date>
+			<biblScope unit="page" from="3933" to="3939" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">How to play any mental game or A completeness theorem for protocols with honest majority</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Goldreich</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Micali</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Wigderson</surname></persName>
+		</author>
+		<idno type="DOI">10.1145/28395.28420</idno>
+		<ptr target="https://doi.org/10.1145/28395.28420" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 19th Annual ACM Symposium on Theory of Computing</title>
+		<meeting>the 19th Annual ACM Symposium on Theory of Computing<address><addrLine>New York, New York, USA, A. V. Aho</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="1987">1987. 1987</date>
+			<biblScope unit="page" from="218" to="229" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Completeness theorems for non-cryptographic fault-tolerant distributed computation (extended abstract)</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Ben-Or</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Goldwasser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Wigderson</surname></persName>
+		</author>
+		<idno type="DOI">10.1145/62212.62213</idno>
+		<ptr target="https://doi.org/10.1145/62212.62213" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 20th Annual ACM Symposium on Theory of Computing</title>
+		<editor>
+			<persName><forename type="first">J</forename><surname>Simon</surname></persName>
+		</editor>
+		<meeting>the 20th Annual ACM Symposium on Theory of Computing<address><addrLine>Chicago, Illinois, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="1988">May 2-4, 1988. 1988</date>
+			<biblScope unit="page" from="1" to="10" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">How to share a secret</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Shamir</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Communications of the ACM</title>
+		<imprint>
+			<biblScope unit="volume">22</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<biblScope unit="page" from="612" to="613" />
+			<date type="published" when="1979">1979</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Efficient multiparty protocols using circuit randomization</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Beaver</surname></persName>
+		</author>
+		<idno type="DOI">10.1007/3-540-46766-1_34</idno>
+		<ptr target="https://doi.org/10.1007/3-540-46766-134" />
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Cryptology -CRYPTO &apos;91, 11th Annual International Cryptology Conference</title>
+		<meeting><address><addrLine>Santa Barbara, California, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="1991">August 11-15, 1991. 1991</date>
+			<biblScope unit="volume">576</biblScope>
+			<biblScope unit="page" from="420" to="432" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">ABY -A framework for efficient mixed-protocol secure two-party computation</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Demmler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Schneider</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Zohner</surname></persName>
+		</author>
+		<ptr target="https://www.ndss-symposium.org/ndss2015/aby---framework-efficient-mixed-protocol-secure-two-party-computation" />
+	</analytic>
+	<monogr>
+		<title level="m">22nd Annual Network and Distributed System Security Symposium, NDSS 2015</title>
+		<meeting><address><addrLine>San Diego, California, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>The Internet Society</publisher>
+			<date type="published" when="2015">February 8-11, 2015. 2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Aby 3 : A mixed protocol framework for machine learning</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Mohassel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename></persName>
+		</author>
+		<idno type="DOI">10.1145/3243734.3243760</idno>
+		<ptr target="https://doi.org/10.1145/3243734.3243760" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2018 ACM SIGSAC Conference on Computer and Communications Security, CCS 2018</title>
+		<editor>
+			<persName><forename type="first">D</forename><surname>Lie</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">M</forename><surname>Mannan</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">M</forename><surname>Backes</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">X</forename><surname>Wang</surname></persName>
+		</editor>
+		<meeting>the 2018 ACM SIGSAC Conference on Computer and Communications Security, CCS 2018<address><addrLine>Toronto, ON, Canada</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2018">October 15-19, 2018. 2018</date>
+			<biblScope unit="page" from="35" to="52" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<author>
+			<persName><forename type="first">C</forename><surname>Dwork</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Roth</surname></persName>
+		</author>
+		<title level="m">The Algorithmic Foundations of Differential Privacy</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Deep learning with differential privacy</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Abadi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Chu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">B</forename><surname>Mcmahan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Mironov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Talwar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2016 ACM SIGSAC Conference on Computer and Communications Security</title>
+		<meeting>the 2016 ACM SIGSAC Conference on Computer and Communications Security</meeting>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="308" to="318" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Semi-supervised knowledge transfer for deep learning from private training data</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Papernot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Abadi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ú</forename><surname>Erlingsson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">J</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Talwar</surname></persName>
+		</author>
+		<ptr target="https://openreview.net/forum?id=HkwoSDPgg" />
+	</analytic>
+	<monogr>
+		<title level="m">5th International Conference on Learning Representations</title>
+		<title level="s">Conference Track Proceedings. OpenReview.net</title>
+		<meeting><address><addrLine>Toulon, France</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2017-04-24">2017. April 24-26, 2017. 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Prochlo: Strong privacy for analytics in the crowd</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Bittau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ú</forename><surname>Erlingsson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Maniatis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Mironov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Raghunathan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Lie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Rudominer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">U</forename><surname>Kode</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Tinnés</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Seefeld</surname></persName>
+		</author>
+		<idno type="DOI">10.1145/3132747.3132769</idno>
+		<ptr target="https://doi.org/10.1145/3132747.3132769" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 26th Symposium on Operating Systems Principles</title>
+		<meeting>the 26th Symposium on Operating Systems Principles<address><addrLine>Shanghai, China</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2017">October 28-31, 2017. 2017</date>
+			<biblScope unit="page" from="441" to="459" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

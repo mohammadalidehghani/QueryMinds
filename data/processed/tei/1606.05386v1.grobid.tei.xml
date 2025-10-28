@@ -1,0 +1,709 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Model-Agnostic Interpretability of Machine Learning</title>
+				<funder>
+					<orgName type="full">DARPA</orgName>
+				</funder>
+				<funder>
+					<orgName type="full">MARCO</orgName>
+				</funder>
+				<funder ref="#_2KND8jm #_KDFsR7Y">
+					<orgName type="full">ONR</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Marco</forename><forename type="middle">Tulio</forename><surname>Ribeiro</surname></persName>
+							<email>marcotcr@cs.uw.edu</email>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Washington</orgName>
+								<address>
+									<postCode>98195</postCode>
+									<settlement>Seattle</settlement>
+									<region>WA</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Sameer</forename><surname>Singh</surname></persName>
+							<email>sameer@cs.uw.edu</email>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Washington</orgName>
+								<address>
+									<postCode>98195</postCode>
+									<settlement>Seattle</settlement>
+									<region>WA</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Carlos</forename><surname>Guestrin</surname></persName>
+							<email>guestrin@cs.uw.edu</email>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Washington</orgName>
+								<address>
+									<postCode>98195</postCode>
+									<settlement>Seattle</settlement>
+									<region>WA</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Model-Agnostic Interpretability of Machine Learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">D6374ED1F214D7AC15C7CF51850FA0A3</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:04+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Understanding why machine learning models behave the way they do empowers both system designers and end-users in many ways: in model selection, feature engineering, in order to trust and act upon the predictions, and in more intuitive user interfaces. Thus, interpretability has become a vital concern in machine learning, and work in the area of interpretable models has found renewed interest. In some applications, such models are as accurate as non-interpretable ones, and thus are preferred for their transparency. Even when they are not accurate, they may still be preferred when interpretability is of paramount importance. However, restricting machine learning to interpretable models is often a severe limitation. In this paper we argue for explaining machine learning predictions using model-agnostic approaches. By treating the machine learning models as blackbox functions, these approaches provide crucial flexibility in the choice of models, explanations, and representations, improving debugging, comparison, and interfaces for a variety of users and models. We also outline the main challenges for such methods, and review a recently-introduced model-agnostic explanation approach (LIME) that addresses these challenges.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.">Introduction</head><p>As machine learning becomes a crucial component of an ever-growing number of user-facing applications, interpretable machine learning has become an increasingly important area of research for a number of reasons. First, as humans are the ones who train, deploy, and often use the predictions of machine learning models in the real world, it is of utmost importance for them to be able to trust the model.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2016">ICML Workshop on Human Interpretability in Machine</head><p>Learning <ref type="bibr">(WHI 2016)</ref>, New York, NY, USA. Copyright by the author(s).</p><p>Apart from indicators such as accuracy on sample instances, a user's trust is directly impacted by how much they can understand and predict the model's behavior, as opposed to treating it as a black box. Second, a system designer who understands why their model is making predictions is certainly better equipped to improve it by means of feature engineering, parameter tuning, or even by replacing the model with a different one. Lastly, even in lower stakes domains such as movie or book recommendations, getting a rationale such as "you will probably like this book because of your interest in Russian Literature" makes the model much more useful to the users, and more likely to be trusted. Thus there is a crucial need to be able to explain machine learning predictions, i.e. provide users a rationale for why a prediction was made using textual and visual components of the data, and/or producing counter-factual knowledge of what would happen were the components different.</p><p>The prevailing solution to this explanation problem is to use so called "interpretable" models, such as decision trees, rules <ref type="bibr" target="#b8">(Letham et al., 2015;</ref><ref type="bibr" target="#b16">Wang &amp; Rudin, 2015)</ref>, additive models <ref type="bibr" target="#b1">(Caruana et al., 2015)</ref>, attention-based networks <ref type="bibr" target="#b18">(Xu et al., 2015)</ref>, or sparse linear models <ref type="bibr" target="#b15">(Ustun &amp; Rudin, 2015)</ref>. Instead of supporting models that are functionally blackboxes, such as an arbitrary neural network or random forests with thousands of trees, these approaches use models in which there is the possibility of meaningfully inspecting model components directly -e.g. a path in a decision tree, a single rule, or the weight of a specific feature in a linear model. As long as the model is accurate for the task, and uses a reasonably restricted number of internal components (i.e. paths, rules, or features), such approaches provide extremely useful insights.</p><p>An alternative approach to interpretability in machine learning is to be model-agnostic, i.e. to extract post-hoc explanations by treating the original model as a black box. This involves learning an interpretable model on the predictions of the black box model <ref type="bibr" target="#b2">(Craven &amp; Shavlik, 1996;</ref><ref type="bibr" target="#b0">Baehrens et al., 2010)</ref>, perturbing inputs and seeing how the black box model reacts <ref type="bibr" target="#b14">(Strumbelj &amp; Kononenko, 2010;</ref><ref type="bibr" target="#b7">Krause et al., 2016)</ref>, or both <ref type="bibr" target="#b11">(Ribeiro et al., 2016</ref>). 91 arXiv:1606.05386v1 [stat.ML] 16 Jun 2016</p><p>In this position paper, we argue for separating explanations from the model (i.e. being model agnostic). The summary of our position is that restricting the space of models to be interpretable is a constraint that results in less flexibility, accuracy, and usability. We develop this position with examples, while also describing the inherent challenges in model agnosticism. Finally, we review the recentlyintroduced LIME approach <ref type="bibr" target="#b11">(Ribeiro et al., 2016)</ref>, and discuss how it provides many of the desirable characteristics for model-agnostic explanations.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.">A Case for Model Agnosticism</head><p>In this section, we make a case for model-agnostic interpretability, as opposed to just using interpretable models.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1.">Model Flexibility</head><p>For most real-world applications, it is necessary to train models that are accurate for the task, irrespective of how complex or uninterpretable the underlying mechanism may be. We can observe this ideology manifesting with the increasing commonplace deployment of uninterpretable deep neural architectures for a wide variety of tasks.</p><p>Interpretable models for such tasks remain unsatisfying; such models are inherently crippled by the need to be understandable, being susceptible to the limited "perception budget" <ref type="bibr" target="#b10">(Miller, 1956)</ref> of the users. This trade-off between model flexibility and interpretability <ref type="bibr" target="#b4">(Freitas, 2014)</ref> implies one cannot use a model whose behavior is very complex, yet expect humans to fully comprehend it globally. For example, for a task such as predicting the sentiment of a sentence, producing an accurate model that is understandable seems like an unfeasible task. The size of the vocabulary alone makes it impossible for a short set of rules, a decision tree, or an additive model to be sufficiently accurate, not to mention more complex word interactions such as negation. Tasks that involve sensory data, such as audio and images, also suffer from the same problem: for a model to be useful, it must be sufficiently flexible to handle the data complexity.</p><p>In model-agnostic interpretability, the model is treated as a black box. The separation of interpretability from the model thus frees up the model to be as flexible as necessary for the task, enabling the use of any machine learning approachincluding, for example, arbitrary deep neural networks. It also allows for the control of the complexity-interpretability trade-off (see next section), or "failing gracefully" if an interpretable explanation is not possible.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2.">Explanation Flexibility</head><p>Different kinds of explanations meet different information needs. In some cases, users may only care about positive evidence towards a certain prediction (e.g. which part of an image is most responsible for the prediction), while in other instances knowing the negative evidence may be useful (e.g. in debugging a classifier). Yet in other cases, the information need may be of counter-factuals, e.g. how the model would behave if certain features had different values. Different users may also be able to handle different kinds of explanations; a user trained in statistics may be able to understand a Bayesian network, while a linear model is more intuitive to the layman. Even if the explanation type is kept fixed, users may tolerate different granularities in different situations. For example, Freitas (2014) notes a case where 41 rules are considered overwhelming, and contrasts it to another user who patiently analyzed 29,050 rules.</p><p>Most interpretable models are, however, restricted in what explanations are possible, be it a prototype <ref type="bibr" target="#b5">(Kim et al., 2014)</ref>, a set of rules <ref type="bibr" target="#b8">(Letham et al., 2015)</ref> or line graphs <ref type="bibr" target="#b1">(Caruana et al., 2015)</ref>. Further, other constraints on interpretability, such as granularity, also have to be set a priori (e.g. max number of rules). On the other hand, by keeping the model separate from the explanations, one is able to tailor the explanation to the information need, while keeping the model fixed. If it is possible to measure how faithful the explanation is to the original model, one can effectively control the trade-off between fidelity and interpretability, as favored by <ref type="bibr" target="#b4">Freitas (2014)</ref>. Such approaches may also be able to provide multiple explanations of different types to the user, perhaps automatically picking the one with the highest faithfulness. Thus, by being model-agnostic, the same model can be explained with different types of explanations, and different degrees of interpretability for each type of explanation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3.">Representation Flexibility</head><p>In domains such as images, audio and text, many of the features used to represent instances in state-of-the-art solutions are themselves not interpretable. Unsupervised feature learning produces representations such as word embeddings <ref type="bibr" target="#b9">(Mikolov et al., 2013)</ref>, or the so-called deep features <ref type="bibr" target="#b20">(Zhou et al., 2014)</ref>. While an interpretable model trained on such features is still uninterpretable, model-agnostic approaches can generate explanations using different features than the one used by the underlying model. Thus, even if the model is using word embeddings, the explanations can be in terms of words, for example.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.4.">Lower Cost to Switch</head><p>Switching models is not an uncommon operation in machine learning pipelines. If one commits to using an interpretable model, one is "locked-in" to a particular model and a particular kind of explanations -even if newer, more accurate models are developed. Even when the switch is from one interpretable model to another, users may have to be re-trained in understanding the new explanations, and the model's utility may decrease due to cognitive overhead. In contrast, if one uses model-agnostic explanations, switching the underlying model for a new one is trivial, while the way in which the explanations are presented is maintained.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.5.">Comparing Two Models</head><p>When deploying machine learning in the real world, a system designer often has to decide between one or more contenders, and an incumbent model. This comparison is hard to do if any of the systems are using interpretable models, while others are not. Further, even if all of the models are interpretable, it may still be difficult to compare the insights gained from each if the underlying explanations are different in their representation -for example comparing a rule-based model with a tree-based model. It is also not clear what to do if one of the contenders is less accurate but more interpretable, or vice versa. With model-agnostic explanations, the models being compared can be explained using the same techniques and representations.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">Challenges for Model-agnostic Explanations</head><p>While we have made a case for model agnosticism, this approach is not without its challenges. For example, getting a global understanding of the model may be hard if the model is very complex, due to the trade-off between flexibility and interpretability. To make matters worse, local explanations may be inconsistent with one another, since a flexible model may use a certain feature in different ways depending on the other features. In <ref type="bibr" target="#b11">Ribeiro et al. (2016)</ref> we explained text models by selecting a small number of representative and non-redundant individual prediction explanations obtained via submodular optimization, similar in spirit to showing prototypes <ref type="bibr" target="#b5">(Kim et al., 2014)</ref>. However, it is unclear on how to extend this approach to domains such as images or tabular data, where the data itself is not sparse.</p><p>In some domains, exact explanations may be required (e.g. for legal or ethical reasons), and using a black-box may be unacceptable (or even illegal). Interpretable models may also be more desirable when interpretability is much more important than accuracy, or when interpretable models trained on a small number of carefully engineered features are as accurate as black-box models.</p><p>Another challenge for model-agnostic explanations is to be actionable. Using a white box makes it easier to incorporate user feedback in systems like iBCM <ref type="bibr" target="#b6">(Kim et al., 2015)</ref>, or injecting logic into matrix factorization <ref type="bibr" target="#b12">(Rocktaschel et al., 2015)</ref>. Feature labeling <ref type="bibr" target="#b3">(Druck et al., 2008)</ref> or annotator rationales <ref type="bibr" target="#b19">(Zaidan &amp; Eisner, 2008)</ref> are other forms of feedback that should be supported for explanations. A basic form of feature engineering (removing bad features) via explanations has been shown to be effective <ref type="bibr" target="#b11">(Ribeiro et al., 2016)</ref>, but incorporating more powerful forms of feedback from the users is still a challenging research direction, in particular while remaining model-agnostic.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.">Local Interpretable Model-agnostic Explanations (LIME)</head><p>We now briefly review LIME <ref type="bibr" target="#b11">(Ribeiro et al., 2016)</ref>, and discuss how it maintains model-agnosticism, while addressing some of the challenges that are described in the previous section. We denote x ∈ R d as the original representation of an instance being explained, and we use x ∈ R d to denote a vector for its interpretable representation. As exemplified before, x may be a feature vector containing word embeddings, with x being the bag of words.</p><p>LIME's goal is to identify an interpretable model over the interpretable representation that is locally faithful to the classifier. Even though an interpretable model may not be able to approximate the black box model globally, approximating it in the vicinity of an individual instance may be feasible. Formally, the explanation model is g :</p><formula xml:id="formula_0">R d → R, g ∈ G,</formula><p>where G is a class of potentially interpretable models, such as linear models, decision trees, or rule lists, i.e. given a model g ∈ G, we can present it to the user as an explanation with visual or textual artifacts. As noted before, not every g ∈ G is simple enough to be interpretable -thus we let Ω(g) be a measure of complexity (as opposed to interpretability) of g, which may be either a soft constraint (e.g. the depth of a tree, or the number of non-zeros in a linear model) or a hard constraint (e.g. ∞ if the depth or the number of non-zeros is above a certain threshold).</p><p>Let the model being explained be f : R d → R, e.g. in classification f (x) is the probability that x belongs to a certain class. We further use Π x (z) as a proximity measure between an instance z to x, so as to define locality around x. Finally, let L(f, g, Π x ) be a measure of how unfaithful g is in approximating f in the locality defined by Π x . In order to ensure both interpretability and local fidelity, we must minimize L(f, g, Π x ) while having Ω(g) be low enough to be interpretable by humans. The explanation ξ(x) produced by LIME is obtained by solving:</p><formula xml:id="formula_1">ξ(x) = argmin g∈G L(f, g, Π x ) + Ω(g)<label>(1)</label></formula><p>This formulation can be used with different explanation families G, fidelity functions L, and complexity measures Ω. We estimate L by generating perturbed samples around x, making predictions with the black box model f and weighting them according to Π x . The intuition for this is presented in Figure <ref type="figure" target="#fig_0">1</ref>, where a globally complex model is explained using a locally-faithful linear explanation. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Discussion</head><p>Some approaches are model agnostic by approximating the black box model by an interpretable one globally <ref type="bibr" target="#b2">(Craven &amp; Shavlik, 1996;</ref><ref type="bibr" target="#b0">Baehrens et al., 2010;</ref><ref type="bibr" target="#b13">Sanchez et al., 2015)</ref>. Global explanation, however, are often either not interpretable, or too simplistic to represent the original model. LIME's focus on explaining individual predictions allows more accurate explanations while retaining model flexibility. For example, it is easy to explain why sentences such as "This is not bad." have a positive sentiment, even if we are not able to explain the complete sentiment model.</p><p>For explanation flexibility, the practitioner has complete control over G and Ω(g); in <ref type="bibr" target="#b11">Ribeiro et al. (2016)</ref>, for example, we use very sparse linear models. This representation is simple enough for non-expert Mechanical Turkers to perform model selection and feature engineering effectively for complex, uninterpretable models. Furthermore, since LIME estimates the local fidelity through L, we can directly control the interpretability of the explanations (e.g. using as many words as needed to maintain faithfulness) or whether to only display interpretable explanations when they are accurate to the black box model. LIME also supports exploring multiple explanation families G simultaneously, and picking the one with highest faithfulness.</p><p>Representation flexibility is built into LIME, with the distinction between original x and interpretable representation x . In <ref type="bibr" target="#b11">Ribeiro et al. (2016)</ref>, we explain models trained on on word embeddings by using words as interpretable representation, and a neural network trained on raw pixels by using contiguous super-pixels as x .</p><p>We demonstrate the small switching costs of LIME by explaining a wide variety of models (random forests, SVMs, neural networks, linear models, and nearest neighbors) using the same type of explanations. We also demonstrate LIME's utility for model comparison by enabling non-expert  Mechanical Turk users to select which of two competing models would generalize better using the explanations.</p><p>As a final illustration, we explain the predictions two sentiment analysis classifiers on the sentence "This is not bad.", using the class of linear models as G. The classifiers vary wildly in complexity and underlying representation -one is a logistic regression trained on unigrams, while the other an LSTM neural network trained on sentence embeddings <ref type="bibr" target="#b17">(Wieting et al., 2015)</ref>. Explanations, given in terms of words (and their associated weights in a bar chart) in Figure <ref type="figure" target="#fig_2">2</ref>, demonstrate that completely different classifiers can be described in a unified, interpretable manner. In Figure <ref type="figure" target="#fig_2">2</ref>(b), the explanation assigns positive weight to both "not" and "bad", as only the conjunction is responsible for the LSTM's positive prediction (even though interactions are not modeled explicitly).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.">Conclusion</head><p>Although interpretable models provide crucial insight into why predictions are made, they impose restrictions on the model, representation (features), and the expertise of the users. We argued that model-agnostic explanation systems provide a generic framework for interpretability that allows for flexibility in the choice of models, representations, and the user expertise. We outlined a number of challenges that need to be addressed for model-agnostic approaches; some of which are addressed by the recently introduced LIME <ref type="bibr" target="#b11">(Ribeiro et al., 2016)</ref>, while others are left as future work. We thus conclude that model-agnostic interpretability is a key component in making machine learning more trustworthy -and ultimately, more useful.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 .</head><label>1</label><figDesc>Figure 1. Toy example to present intuition for LIME. The blackbox model's complex decision function f (unknown to LIME)is represented by the blue/pink background. The bright bold red cross is the instance being explained. LIME samples instances, gets predictions using f , and weighs them by the proximity to the instance being explained (represented here by size). The dashed line is the explanation that is locally (but not globally) faithful.</figDesc><graphic coords="4,319.18,171.92,210.53,80.00" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><figDesc>(a) Logistic Regression trained on unigrams (b) LSTM trained on sentence embeddings.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 2 .</head><label>2</label><figDesc>Figure 2. Explaining sentiment predictions for the sentence "This is not bad.", using different models and representations</figDesc><graphic coords="4,102.24,67.06,140.41,87.34" type="bitmap" /></figure>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>Acknowledgements</head><p>This work was supported in part by <rs type="funder">ONR</rs> awards #<rs type="grantNumber">W911NF-13-1-0246</rs> and #<rs type="grantNumber">N00014-13-1-0023</rs>, and in part by Ter-raSwarm, one of six centers of STARnet, a Semiconductor Research Corporation program sponsored by <rs type="funder">MARCO</rs> and <rs type="funder">DARPA</rs>.</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_2KND8jm">
+					<idno type="grant-number">W911NF-13-1-0246</idno>
+				</org>
+				<org type="funding" xml:id="_KDFsR7Y">
+					<idno type="grant-number">N00014-13-1-0023</idno>
+				</org>
+			</listOrg>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">How to explain individual classification decisions</title>
+		<author>
+			<persName><forename type="first">David</forename><surname>Baehrens</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Schroeter</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Timon</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Harmeling</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Stefan</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Kawanabe</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Motoaki</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Katja</forename><surname>Hansen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Klaus-Robert</forename><surname>Müller</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="issue">11</biblScope>
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Intelligible models for healthcare: Predicting pneumonia risk and hospital 30-day readmission</title>
+		<author>
+			<persName><forename type="first">Rich</forename><surname>Caruana</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Lou</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Yin</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Gehrke</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Johannes</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Koch</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Paul</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Marc</forename><surname>Sturm</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Noemie</forename><surname>Elhadad</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Knowledge Discovery and Data Mining (KDD)</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Extracting treestructured representations of trained networks</title>
+		<author>
+			<persName><forename type="first">Mark</forename><forename type="middle">W</forename><surname>Craven</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jude</forename><forename type="middle">W</forename><surname>Shavlik</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in neural information processing systems</title>
+		<imprint>
+			<date type="published" when="1996">1996</date>
+			<biblScope unit="page" from="24" to="30" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Learning from labeled features using generalized expectation criteria</title>
+		<author>
+			<persName><forename type="first">Gregory</forename><surname>Druck</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gideon</forename><surname>Mann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><surname>Mccallum</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM SIGIR conference on Research and development in information retrieval</title>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2008">2008</date>
+			<biblScope unit="page" from="595" to="602" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Comprehensible classification models: A position paper</title>
+		<author>
+			<persName><forename type="first">Alex</forename><forename type="middle">A</forename><surname>Freitas</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">SIGKDD Explor. Newsl</title>
+		<idno type="ISSN">1931-0145</idno>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="10" />
+			<date type="published" when="2014-03">March 2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">The bayesian case model: A generative approach for case-based reasoning and prototype classification</title>
+		<author>
+			<persName><forename type="first">Been</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cynthia</forename><surname>Rudin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Julie</forename><forename type="middle">A</forename><surname>Shah</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<editor>
+			<persName><forename type="first">Z</forename><surname>Ghahramani</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">M</forename><surname>Welling</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">C</forename><surname>Cortes</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">N</forename><forename type="middle">D</forename><surname>Lawrence</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">K</forename><forename type="middle">Q</forename><surname>Weinberger</surname></persName>
+		</editor>
+		<imprint>
+			<publisher>Curran Associates, Inc</publisher>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="page" from="1952" to="1960" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<author>
+			<persName><forename type="first">Been</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Glassman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Johnson</forename><surname>Elena</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Brittney</forename><surname>Shah</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Julie</forename></persName>
+		</author>
+		<title level="m">ibcm: Interactive bayesian case model empowering humans via intuitive interaction</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">Interacting with predictions: Visual inspection of black-box machine learning models</title>
+		<author>
+			<persName><forename type="first">Josua</forename><surname>Krause</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Adam</forename><surname>Perer</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ng</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Kenney</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Interpretable classifiers using rules and bayesian analysis: Building a better stroke prediction model</title>
+		<author>
+			<persName><forename type="first">Benjamin</forename><surname>Letham</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Rudin</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Cynthia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tyler</forename><forename type="middle">H</forename><surname>Mccormick</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David</forename><surname>Madigan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Annals of Applied Statistics</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Distributed representations of words and phrases and their compositionality</title>
+		<author>
+			<persName><forename type="first">Tomas</forename><surname>Mikolov</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Sutskever</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ilya</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Kai</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Corrado</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Greg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jeff</forename><surname>Dean</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Neural Information Processing Systems (NIPS)</title>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">The magical number seven, plus or minus two: Some limits on our capacity for processing information</title>
+		<author>
+			<persName><forename type="first">George</forename><surname>Miller</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1956">1956</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">why should I trust you?&quot;: Explaining the predictions of any classifier</title>
+		<author>
+			<persName><forename type="first">Marco</forename><surname>Ribeiro</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Tulio</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Singh</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Sameer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Carlos</forename><surname>Guestrin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Knowledge Discovery and Data Mining</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Injecting logical background knowledge into embeddings for relation extraction</title>
+		<author>
+			<persName><forename type="first">Tim</forename><surname>Rocktaschel</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Singh</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Sameer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sebastian</forename><surname>Riedel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Annual Conference of the North American Chapter of the Association for Computational Linguistics (NAACL)</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Towards extracting faithful and descriptive representations of latent variable models</title>
+		<author>
+			<persName><forename type="first">Ivan</forename><surname>Sanchez</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Rocktaschel</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Tim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sebastian</forename><surname>Riedel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sameer</forename><surname>Singh</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">AAAI Spring Syposium on Knowledge Representation and Reasoning (KRR): Integrating Symbolic and Neural Approaches</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">An efficient explanation of individual classifications using game theory</title>
+		<author>
+			<persName><forename type="first">Erik</forename><surname>Strumbelj</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Igor</forename><surname>Kononenko</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Supersparse linear integer models for optimized medical scoring systems</title>
+		<author>
+			<persName><forename type="first">Berk</forename><surname>Ustun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cynthia</forename><surname>Rudin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Falling rule lists</title>
+		<author>
+			<persName><forename type="first">Fulton</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cynthia</forename><surname>Rudin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Artificial Intelligence and Statistics (AISTATS)</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<title level="m" type="main">Towards universal paraphrastic sentence embeddings</title>
+		<author>
+			<persName><forename type="first">John</forename><surname>Wieting</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Bansal</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Mohit</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kevin</forename><surname>Gimpel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Karen</forename><surname>Livescu</surname></persName>
+		</author>
+		<idno>CoRR, abs/1511.08198</idno>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Show, attend and tell: Neural image caption generation with visual attention</title>
+		<author>
+			<persName><forename type="first">Kelvin</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ba</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Jimmy</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Kiros</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ryan</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Cho</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Kyunghyun</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Courville</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Aaron</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Salakhutdinov</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ruslan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Richard</forename><surname>Zemel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yoshua</forename><surname>Bengio</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Machine Learning (ICML)</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Modeling annotators: A generative approach to learning from annotator rationales</title>
+		<author>
+			<persName><forename type="first">Omar</forename><forename type="middle">F</forename><surname>Zaidan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jason</forename><surname>Eisner</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">EMNLP 2008</title>
+		<imprint>
+			<date type="published" when="2008-10">October 2008</date>
+			<biblScope unit="page" from="31" to="40" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Learning deep features for scene recognition using places database</title>
+		<author>
+			<persName><forename type="first">Bolei</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Lapedriza</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Agata</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Xiao</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Jianxiong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Antonio</forename><surname>Torralba</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aude</forename><surname>Oliva</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<editor>
+			<persName><forename type="first">Z</forename><surname>Ghahramani</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">M</forename><surname>Welling</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">C</forename><surname>Cortes</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">N</forename><forename type="middle">D</forename><surname>Lawrence</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">K</forename><forename type="middle">Q</forename><surname>Weinberger</surname></persName>
+		</editor>
+		<imprint>
+			<publisher>Curran Associates, Inc</publisher>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="page" from="487" to="495" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

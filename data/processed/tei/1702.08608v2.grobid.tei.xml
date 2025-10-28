@@ -1,0 +1,1224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Towards A Rigorous Science of Interpretable Machine Learning</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2017-03-02">2 Mar 2017</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Finale</forename><surname>Doshi-Velez</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Been</forename><surname>Kim</surname></persName>
+						</author>
+						<title level="a" type="main">Towards A Rigorous Science of Interpretable Machine Learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2017-03-02">2 Mar 2017</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">E8FF382F2799CAD6D43A62B193DB9787</idno>
+					<idno type="arXiv">arXiv:1702.08608v2[stat.ML]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>From autonomous cars and adaptive email-filters to predictive policing systems, machine learning (ML) systems are increasingly ubiquitous; they outperform humans on specific tasks <ref type="bibr" target="#b32">[Mnih et al., 2013</ref><ref type="bibr" target="#b39">, Silver et al., 2016</ref><ref type="bibr" target="#b17">, Hamill, 2017]</ref> and often guide processes of human understanding and decisions <ref type="bibr" target="#b6">[Carton et al., 2016</ref><ref type="bibr" target="#b9">, Doshi-Velez et al., 2014]</ref>. The deployment of ML systems in complex applications has led to a surge of interest in systems optimized not only for expected task performance but also other important criteria such as safety [</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>that make decisions based on user-level predictors, which "significantly affect" users to provide explanation ("right to explanation") by 2018 [Parliament and of the European Union, 2016]. In addition, the volume of research on interpretability is rapidly growing. <ref type="foot" target="#foot_0">1</ref> In section 1, we discuss what interpretability is and contrast with other criteria such as reliability and fairness. In section 2, we consider scenarios in which interpretability is needed and why. In section 3, we propose a taxonomy for the evaluation of interpretability-application-grounded, human-grounded and functionallygrounded. We conclude with important open questions in section 4 and specific suggestions for researchers doing work in interpretability in section 5.</p><p>1 What is Interpretability?</p><p>Definition Interpret means to explain or to present in understandable terms. 2 In the context of ML systems, we define interpretability as the ability to explain or to present in understandable terms to a human. A formal definition of explanation remains elusive; in the field of psychology, <ref type="bibr" target="#b30">Lombrozo [2006]</ref> states "explanations are... the currency in which we exchanged beliefs" and notes that questions such as what constitutes an explanation, what makes some explanations better than others, how explanations are generated and when explanations are sought are just beginning to be addressed. Researchers have classified explanations from being "deductive-nomological" in nature <ref type="bibr" target="#b20">[Hempel and Oppenheim, 1948]</ref> (i.e. as logical proofs) to providing some sense of mechanism <ref type="bibr" target="#b2">[Bechtel and Abrahamsen, 2005</ref><ref type="bibr" target="#b8">, Chater and Oaksford, 2006</ref><ref type="bibr" target="#b14">, Glennan, 2002]</ref>. <ref type="bibr" target="#b22">Keil [2006]</ref> considered a broader definition: implicit explanatory understanding. In this work, we propose data-driven ways to derive operational definitions and evaluations of explanations, and thus, interpretability.</p><p>Interpretability is used to confirm other important desiderata of ML systems There exist many auxiliary criteria that one may wish to optimize. Notions of fairness or unbiasedness imply that protected groups (explicit or implicit) are not somehow discriminated against. Privacy means the method protects sensitive information in the data. Properties such as reliability and robustness ascertain whether algorithms reach certain levels of performance in the face of parameter or input variation. Causality implies that the predicted change in output due to a perturbation will occur in the real system. Usable methods provide information that assist users to accomplish a task-e.g. a knob to tweak image lighting-while trusted systems have the confidence of human users-e.g. aircraft collision avoidance systems. Some areas, such as the fairness <ref type="bibr" target="#b19">[Hardt et al., 2016]</ref> and privacy <ref type="bibr" target="#b42">[Toubiana et al., 2010</ref><ref type="bibr" target="#b11">, Dwork et al., 2012</ref><ref type="bibr" target="#b18">, Hardt and Talwar, 2010]</ref> the research communities have formalized their criteria, and these formalizations have allowed for a blossoming of rigorous research in these fields (without the need for interpretability). However, in many cases, formal definitions remain elusive. Following the psychology literature, where <ref type="bibr" target="#b23">Keil et al. [2004]</ref> notes "explanations may highlight an incompleteness," we argue that interpretability can assist in qualitatively ascertaining whether other desiderata-such as fairness, privacy, reliability, robustness, causality, usability and trust-are met. For example, one can provide a feasible explanation that fails to correspond to a causal structure, exposing a potential concern.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Why interpretability? Incompleteness</head><p>Not all ML systems require interpretability. Ad servers, postal code sorting, air craft collision avoidance systems-all compute their output without human intervention. Explanation is not necessary either because (1) there are no significant consequences for unacceptable results or (2) the problem is sufficiently well-studied and validated in real applications that we trust the system's decision, even if the system is not perfect.</p><p>So when is explanation necessary and appropriate? We argue that the need for interpretability stems from an incompleteness in the problem formalization, creating a fundamental barrier to optimization and evaluation. Note that incompleteness is distinct from uncertainty: the fused estimate of a missile location may be uncertain, but such uncertainty can be rigorously quantified and formally reasoned about. In machine learning terms, we distinguish between cases where unknowns result in quantified variance-e.g. trying to learn from small data set or with limited sensors-and incompleteness that produces some kind of unquantified bias-e.g. the effect of including domain knowledge in a model selection process. Below are some illustrative scenarios:</p><p>• Scientific Understanding: The human's goal is to gain knowledge. We do not have a complete way of stating what knowledge is; thus the best we can do is ask for explanations we can convert into knowledge.</p><p>• Safety: For complex tasks, the end-to-end system is almost never completely testable; one cannot create a complete list of scenarios in which the system may fail. Enumerating all possible outputs given all possible inputs be computationally or logistically infeasible, and we may be unable to flag all undesirable outputs.</p><p>• Ethics: The human may want to guard against certain kinds of discrimination, and their notion of fairness may be too abstract to be completely encoded into the system (e.g., one might desire a 'fair' classifier for loan approval). Even if we can encode protections for specific protected classes into the system, there might be biases that we did not consider a priori (e.g., one may not build gender-biased word embeddings on purpose, but it was a pattern in data that became apparent only after the fact).</p><p>• Mismatched objectives: The agent's algorithm may be optimizing an incomplete objectivethat is, a proxy function for the ultimate goal. For example, a clinical system may be optimized for cholesterol control, without considering the likelihood of adherence; an automotive engineer may be interested in engine data not to make predictions about engine failures but to more broadly build a better car.</p><p>• Multi-objective trade-offs: Two well-defined desiderata in ML systems may compete with each other, such as privacy and prediction quality <ref type="bibr" target="#b19">[Hardt et al., 2016]</ref> or privacy and nondiscrimination <ref type="bibr" target="#b40">[Strahilevitz, 2008]</ref>. Even if each objectives are fully-specified, the exact dynamics of the trade-off may not be fully known, and the decision may have to be case-by-case.</p><p>In the presence of an incompleteness, explanations are one of ways to ensure that effects of gaps in problem formalization are visible to us.</p><p>3 How? A Taxonomy of Interpretability Evaluation</p><p>Even in standard ML settings, there exists a taxonomy of evaluation that is considered appropriate.</p><p>In particular, the evaluation should match the claimed contribution. Evaluation of applied work should demonstrate success in the application: a game-playing agent might best a human player, a classifier may correctly identify star types relevant to astronomers. In contrast, core methods work should demonstrate generalizability via careful evaluation on a variety of synthetic and standard benchmarks.</p><p>In this section we lay out an analogous taxonomy of evaluation approaches for interpretability: application-grounded, human-grounded, and functionally-grounded. These range from taskrelevant to general, also acknowledge that while human evaluation is essential to assessing interpretability, human-subject evaluation is not an easy task. A human experiment needs to be well-designed to minimize confounding factors, consumed time, and other resources. We discuss the trade-offs between each type of evaluation and when each would be appropriate.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Application-grounded Evaluation: Real humans, real tasks</head><p>Application-grounded evaluation involves conducting human experiments within a real application.</p><p>If the researcher has a concrete application in mind-such as working with doctors on diagnosing patients with a particular disease-the best way to show that the model works is to evaluate it with respect to the task: doctors performing diagnoses. This reasoning aligns with the methods of evaluation common in the human-computer interaction and visualization communities, where there exists a strong ethos around making sure that the system delivers on its intended task <ref type="bibr" target="#b1">[Antunes et al., 2012</ref><ref type="bibr" target="#b28">, Lazar et al., 2010]</ref>. For example, a visualization for correcting segmentations from microscopy data would be evaluated via user studies on segmentation on the target image task <ref type="bibr" target="#b41">[Suissa-Peleg et al., 2016]</ref>; a homework-hint system is evaluated on whether the student achieves better post-test performance <ref type="bibr" target="#b47">[Williams et al., 2016]</ref>.</p><p>Specifically, we evaluate the quality of an explanation in the context of its end-task, such as whether it results in better identification of errors, new facts, or less discrimination. Examples of experiments include:</p><p>• Domain expert experiment with the exact application task.</p><p>• Domain expert experiment with a simpler or partial task to shorten experiment time and increase the pool of potentially-willing subjects.</p><p>In both cases, an important baseline is how well human-produced explanations assist in other humans trying to complete the task. To make high impact in real world applications, it is essential that we as a community respect the time and effort involved to do such evaluations, and also demand high standards of experimental design when such evaluations are performed. As HCI community recognizes <ref type="bibr" target="#b1">[Antunes et al., 2012]</ref>, this is not an easy evaluation metric. Nonetheless, it directly tests the objective that the system is built for, and thus performance with respect to that objective gives strong evidence of success.</p><p>3.2 Human-grounded Metrics: Real humans, simplified tasks</p><p>Human-grounded evaluation is about conducting simpler human-subject experiments that maintain the essence of the target application. Such an evaluation is appealing when experiments with the target community is challenging. These evaluations can be completed with lay humans, allowing for both a bigger subject pool and less expenses, since we do not have to compensate highly trained domain experts. Human-grounded evaluation is most appropriate when one wishes to test more general notions of the quality of an explanation. For example, to study what kinds of explanations are best understood under severe time constraints, one might create abstract tasks in which other factors-such as the overall task complexity-can be controlled <ref type="bibr" target="#b24">[Kim et al., 2013</ref><ref type="bibr" target="#b27">, Lakkaraju et al., 2016]</ref> The key question, of course, is how we can evaluate the quality of an explanation without a specific end-goal (such as identifying errors in a safety-oriented task or identifying relevant patterns in a science-oriented task). Ideally, our evaluation approach will depend only on the quality of the explanation, regardless of whether the explanation is the model itself or a post-hoc interpretation of a black-box model, and regardless of the correctness of the associated prediction. Examples of potential experiments include:</p><p>• Binary forced choice: humans are presented with pairs of explanations, and must choose the one that they find of higher quality (basic face-validity test made quantitative).</p><p>• Forward simulation/prediction: humans are presented with an explanation and an input, and must correctly simulate the model's output (regardless of the true output).</p><p>• Counterfactual simulation: humans are presented with an explanation, an input, and an output, and are asked what must be changed to change the method's prediction to a desired output (and related variants).</p><p>Here is a concrete example. The common intrusion-detection test <ref type="bibr" target="#b7">[Chang et al., 2009]</ref> in topic models is a form of the forward simulation/prediction task: we ask the human to find the difference between the model's true output and some corrupted output as a way to determine whether the human has correctly understood what the model's true output is.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Functionally-grounded Evaluation: No humans, proxy tasks</head><p>Functionally-grounded evaluation requires no human experiments; instead, it uses some formal definition of interpretability as a proxy for explanation quality. Such experiments are appealing because even general human-subject experiments require time and costs both to perform and to get necessary approvals (e.g., IRBs), which may be beyond the resources of a machine learning researcher. Functionally-grounded evaluations are most appropriate once we have a class of models or regularizers that have already been validated, e.g. via human-grounded experiments. They may also be appropriate when a method is not yet mature or when human subject experiments are unethical.</p><p>The challenge, of course, is to determine what proxies to use. For example, decision trees have been considered interpretable in many situations <ref type="bibr" target="#b12">[Freitas, 2014]</ref>. In section 4, we describe open problems in determining what proxies are reasonable. Once a proxy has been formalized, the challenge is squarely an optimization problem, as the model class or regularizer is likely to be discrete, non-convex and often non-differentiable. Examples of experiments include</p><p>• Show the improvement of prediction performance of a model that is already proven to be interpretable (assumes that someone has run human experiments to show that the model class is interpretable).</p><p>• Show that one's method performs better with respect to certain regularizers-for example, is more sparse-compared to other baselines (assumes someone has run human experiments to show that the regularizer is appropriate).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Open Problems in the Science of Interpretability, Theory and Practice</head><p>It is essential that the three types of evaluation in the previous section inform each other: the factors that capture the essential needs of real world tasks should inform what kinds of simplified tasks we perform, and the performance of our methods with respect to functional proxies should reflect their performance in real-world settings. In this section, we describe some important open problems for creating these links between the three types of evaluations:</p><p>1. What proxies are best for what real-world applications? (functionally to application-grounded)</p><p>2. What are the important factors to consider when designing simpler tasks that maintain the essence of the real end-task? (human to application-grounded)</p><p>3. What are the important factors to consider when characterizing proxies for explanation quality? (human to functionally-grounded)</p><p>Below, we describe a path to answering each of these questions.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Data-driven approach to discover factors of interpretability</head><p>Imagine a matrix where rows are specific real-world tasks, columns are specific methods, and the entries are the performance of the method on the end-task. For example, one could represent how well a decision tree of depth less than 4 worked in assisting doctors in identifying pneumonia patients under age 30 in US. Once constructed, methods in machine learning could be used to identify latent dimensions that represent factors that are important to interpretability. This approach is similar to efforts to characterize classification <ref type="bibr" target="#b21">[Ho and Basu, 2002]</ref> and clustering problems <ref type="bibr" target="#b13">[Garg and Kalai, 2016]</ref>. For example, one might perform matrix factorization to embed both tasks and methods respectively in low-dimensional spaces (which we can then seek to interpret), as shown in Figure <ref type="figure">2</ref>. These embeddings could help predict what methods would be most promising for a new problem, similarly to collaborative filtering.</p><p>The challenge, of course, is in creating this matrix. For example, one could imagine creating a repository of clinical cases in which the ML system has access to the patient's record but not certain Figure <ref type="figure">2</ref>: An example of data-driven approach to discover factors in interpretability current features that are only accessible to the clinician, or a repository of discrimination-in-loan cases where the ML system must provide outputs that assist a lawyer in their decision. Ideally these would be linked to domain experts who have agreed to be employed to evaluate methods when applied to their domain of expertise. Just as there are now large open repositories for problems in classification, regression, and reinforcement learning <ref type="bibr" target="#b3">[Blake and Merz, 1998</ref><ref type="bibr" target="#b4">, Brockman et al., 2016</ref><ref type="bibr" target="#b43">, Vanschoren et al., 2014]</ref>, we advocate for the creation of repositories that contain problems corresponding to real-world tasks in which human-input is required. Creating such repositories will be more challenging than creating collections of standard machine learning datasets because they must include a system for human assessment, but with the availablity of crowdsourcing tools these technical challenges can be surmounted.</p><p>In practice, constructing such a matrix will be expensive since each cell must be evaluated in the context of a real application, and interpreting the latent dimensions will be an iterative effort of hypothesizing why certain tasks or methods share dimensions and then checking whether our hypotheses are true. In the next two open problems, we lay out some hypotheses about what latent dimensions may correspond to; these hypotheses can be tested via much less expensive humangrounded evaluations on simulated tasks.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Hypothesis: task-related latent dimensions of interpretability</head><p>Disparate-seeming applications may share common categories: an application involving preventing medical error at the bedside and an application involving support for identifying inappropriate language on social media might be similar in that they involve making a decision about a specific case-a patient, a post-in a relatively short period of time. However, when it comes to time constraints, the needs in those scenarios might be different from an application involving the understanding of the main characteristics of a large omics data set, where the goal-science-is much more abstract and the scientist may have hours or days to inspect the model outputs.</p><p>Below, we list a (non-exhaustive!) set of hypotheses about what might make tasks similar in their explanation needs:</p><p>• Global vs. Local. Global interpretability implies knowing what patterns are present in general (such as key features governing galaxy formation), while local interpretability implies knowing the reasons for a specific decision (such as why a particular loan application was rejected). The former may be important for when scientific understanding or bias detection is the goal; the latter when one needs a justification for a specific decision.</p><p>• Area, Severity of Incompleteness. What part of the problem formulation is incomplete, and how incomplete is it? We hypothesize that the types of explanations needed may vary depending on whether the source of concern is due to incompletely specified inputs, constraints, domains, internal model structure, costs, or even in the need to understand the training algorithm. The severity of the incompleteness may also affect explanation needs. For example, one can imagine a spectrum of questions about the safety of self-driving cars. On one end, one may have general curiosity about how autonomous cars make decisions. At the other, one may wish to check a specific list of scenarios (e.g., sets of sensor inputs that causes the car to drive off of the road by 10cm). In between, one might want to check a general property-safe urban driving-without an exhaustive list of scenarios and safety criteria.</p><p>• Time Constraints. How long can the user afford to spend to understand the explanation? A decision that needs to be made at the bedside or during the operation of a plant must be understood quickly, while in scientific or anti-discrimination applications, the end-user may be willing to spend hours trying to fully understand an explanation.</p><p>• Nature of User Expertise. How experienced is the user in the task? The user's experience will affect what kind of cognitive chunks they have, that is, how they organize individual elements of information into collections <ref type="bibr" target="#b33">[Neath and Surprenant, 2003]</ref>. For example, a clinician may have a notion that autism and ADHD are both developmental diseases. The nature of the user's expertise will also influence what level of sophistication they expect in their explanations. For example, domain experts may expect or prefer a somewhat larger and sophisticated model-which confirms facts they know-over a smaller, more opaque one. These preferences may be quite different from hospital ethicist who may be more narrowly concerned about whether decisions are being made in an ethical manner. More broadly, decison-makers, scientists, compliance and safety engineers, data scientists, and machine learning researchers all come with different background knowledge and communication styles.</p><p>Each of these factors can be isolated in human-grounded experiments in simulated tasks to determine which methods work best when they are present.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.3">Hypothesis: method-related latent dimensions of interpretability</head><p>Just as disparate applications may share common categories, disparate methods may share common qualities that correlate to their utility as explanation. As before, we provide a (non-exhaustive!) set of factors that may correspond to different explanation needs: Here, we define cognitive chunks to be the basic units of explanation.</p><p>• Form of cognitive chunks. What are the basic units of the explanation? Are they raw features? Derived features that have some semantic meaning to the expert (e.g. "neurological disorder" for a collection of diseases or "chair" for a collection of pixels)? Prototypes?</p><p>• Number of cognitive chunks. How many cognitive chunks does the explanation contain? How does the quantity interact with the type: for example, a prototype can contain a lot more information than a feature; can we handle them in similar quantities?</p><p>• Level of compositionality. Are the cognitive chunks organized in a structured way? Rules, hierarchies, and other abstractions can limit what a human needs to process at one time. For example, part of an explanation may involve defining a new unit (a chunk) that is a function of raw units, and then providing an explanation in terms of that new unit.</p><p>• Monotonicity and other interactions between cognitive chunks. Does it matter if the cognitive chunks are combined in linear or nonlinear ways? In monotone ways <ref type="bibr" target="#b16">[Gupta et al., 2016]</ref>? Are some functions more natural to humans than others <ref type="bibr" target="#b48">[Wilson et al., 2015</ref><ref type="bibr" target="#b37">, Schulz et al., 2016]</ref>?</p><p>• Uncertainty and stochasticity. How well do people understand uncertainty measures? To what extent is stochasticity understood by humans?</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Conclusion: Recommendations for Researchers</head><p>In this work, we have laid the groundwork for a process to rigorously define and evaluate interpretability.</p><p>There are many open questions in creating the formal links between applications, the science of human understanding, and more traditional machine learning regularizers. In the mean time, we encourage the community to consider some general principles.</p><p>The claim of the research should match the type of the evaluation. Just as one would be critical of a reliability-oriented paper that only cites accuracy statistics, the choice of evaluation should match the specificity of the claim being made. A contribution that is focused on a particular application should be expected to be evaluated in the context of that application (applicationgrounded evaluation), or on a human experiment with a closely-related task (human-grounded evaluation). A contribution that is focused on better optimizing a model class for some definition of interpretability should be expected to be evaluated with functionally-grounded metrics. As a community, we must be careful in the work on interpretability, both recognizing the need for and the costs of human-subject experiments.</p><p>We should categorize our applications and methods with a common taxonomy. In section 4, we hypothesized factors that may be the latent dimensions of interpretability. Creating a shared language around such factors is essential not only to evaluation, but also for the citation and comparison of related work. For example, work on creating a safe healthcare agent might be framed as focused on the need for explanation due to unknown inputs at the local scale, evaluated at the level of an application. In contrast, work on learning sparse linear models might also be framed as focused on the need for explanation due to unknown inputs, but this time evaluated at global scale. As we share each of our work with the community, we can do each other a service by describing factors such as 1. How is the problem formulation incomplete? (Section 2)</p><p>2. At what level is the evaluation being performed? (application, general user study, proxy;</p><p>Section 3)</p><p>3. What are task-related relevant factors? (e.g. global vs. local, severity of incompleteness, level of user expertise, time constraints; Section 4.2) 4. What are method-related relevant factors being explored? (e.g. form of cognitive chunks, number of cognitive chunks, compositionality, monotonicity, uncertainty; Section 4.3)</p><p>and of course, adding and refining these factors as our taxonomies evolve. These considerations should move us away from vague claims about the interpretability of a particular model and toward classifying applications by a common set of terms.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Taxonomy of evaluation approaches for interpretability</figDesc></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0"><p>Google Scholar finds more than</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_1"><p>20,000 publications related to interpretability in ML in the last five years. 2 Merriam-Webster dictionary, accessed 2017-02-07</p></note>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><p>Acknowledgments This piece would not have been possible without the dozens of deep conversations about interpretability with machine learning researchers and domain experts. Our friends and colleagues, we appreciate your support. We want to particularity thank <rs type="person">Ian Goodfellow</rs>, <rs type="person">Kush Varshney</rs>, <rs type="person">Hanna Wallach</rs>, <rs type="person">Solon Barocas</rs>, <rs type="person">Stefan Rping</rs> and <rs type="person">Jesse Johnson</rs> for their feedback.</p></div>
+			</div>			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<author>
+			<persName><forename type="first">Dario</forename><surname>Amodei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chris</forename><surname>Olah</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jacob</forename><surname>Steinhardt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Paul</forename><surname>Christiano</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">John</forename><surname>Schulman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dan</forename><surname>Mané</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1606.06565</idno>
+		<title level="m">Concrete problems in AI safety</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Structuring dimensions for collaborative systems evaluation</title>
+		<author>
+			<persName><forename type="first">Pedro</forename><surname>Antunes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Valeria</forename><surname>Herskovic</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sergio</forename><forename type="middle">F</forename><surname>Ochoa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jose</forename><forename type="middle">A</forename><surname>Pino</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<publisher>ACM Computing Surveys</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Explanation: A mechanist alternative</title>
+		<author>
+			<persName><forename type="first">William</forename><surname>Bechtel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Adele</forename><surname>Abrahamsen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Studies in History and Philosophy of Science Part C: Studies in History and Philosophy of Biological and Biomedical Sciences</title>
+		<imprint>
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">Nick Bostrom and Eliezer Yudkowsky. The ethics of artificial intelligence. The Cambridge Handbook of Artificial Intelligence</title>
+		<author>
+			<persName><forename type="first">Catherine</forename><surname>Blake</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Christopher</forename><forename type="middle">J</forename><surname>Merz</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1998">1998. 2014</date>
+		</imprint>
+	</monogr>
+	<note>{UCI} repository of machine learning databases</note>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">Greg</forename><surname>Brockman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vicki</forename><surname>Cheung</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ludwig</forename><surname>Pettersson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jonas</forename><surname>Schneider</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">John</forename><surname>Schulman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jie</forename><surname>Tang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Wojciech</forename><surname>Zaremba</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1606.01540</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">Openai gym. arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Model compression</title>
+		<author>
+			<persName><forename type="first">Cristian</forename><surname>Bucilu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rich</forename><surname>Caruana</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexandru</forename><surname>Niculescu-Mizil</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 12th ACM SIGKDD international conference on Knowledge discovery and data mining</title>
+		<meeting>the 12th ACM SIGKDD international conference on Knowledge discovery and data mining</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Identifying police officers at risk of adverse events</title>
+		<author>
+			<persName><forename type="first">Jennifer</forename><surname>Samuel Carton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kenneth</forename><surname>Helsby</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ayesha</forename><surname>Joseph</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Youngsoo</forename><surname>Mahmud</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joe</forename><surname>Park</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Crystal</forename><surname>Walsh</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Cody</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Estella</forename><surname>Cpt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lauren</forename><surname>Patterson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rayid</forename><surname>Haynes</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ghani</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM SIGKDD International Conference on Knowledge Discovery and Data Mining</title>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Reading tea leaves: How humans interpret topic models</title>
+		<author>
+			<persName><forename type="first">Jonathan</forename><surname>Chang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jordan</forename><forename type="middle">L</forename><surname>Boyd-Graber</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sean</forename><surname>Gerrish</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chong</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David</forename><forename type="middle">M</forename><surname>Blei</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">NIPS</title>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<title level="m" type="main">Speculations on human causal learning and reasoning. Information sampling and adaptive cognition</title>
+		<author>
+			<persName><forename type="first">Nick</forename><surname>Chater</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mike</forename><surname>Oaksford</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Comorbidity clusters in autism spectrum disorders: an electronic health record time-series analysis</title>
+		<author>
+			<persName><forename type="first">Finale</forename><surname>Doshi-Velez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yaorong</forename><surname>Ge</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Isaac</forename><surname>Kohane</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Pediatrics</title>
+		<imprint>
+			<biblScope unit="volume">133</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="54" to="e63" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Graph-sparse lda: a topic model with structured sparsity</title>
+		<author>
+			<persName><forename type="first">Finale</forename><surname>Doshi-Velez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Byron</forename><surname>Wallace</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ryan</forename><surname>Adams</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Association for the Advancement of Artificial Intelligence</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Fairness through awareness</title>
+		<author>
+			<persName><forename type="first">Cynthia</forename><surname>Dwork</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Moritz</forename><surname>Hardt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Toniann</forename><surname>Pitassi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Omer</forename><surname>Reingold</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Richard</forename><surname>Zemel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Innovations in Theoretical Computer Science Conference</title>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Comprehensible classification models: a position paper</title>
+		<author>
+			<persName><forename type="first">Alex</forename><surname>Freitas</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM SIGKDD Explorations</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<title level="m" type="main">Meta-unsupervised-learning: A supervised approach to unsupervised learning</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Vikas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Adam</forename><surname>Garg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kalai</forename><surname>Tauman</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1612.09030</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Rethinking mechanistic explanation</title>
+		<author>
+			<persName><forename type="first">Stuart</forename><surname>Glennan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Philosophy of science</title>
+		<imprint>
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<title level="m" type="main">European union regulations on algorithmic decision-making and a&quot; right to explanation</title>
+		<author>
+			<persName><forename type="first">Bryce</forename><surname>Goodman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Seth</forename><surname>Flaxman</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1606.08813</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Monotonic calibrated interpolated look-up tables</title>
+		<author>
+			<persName><forename type="first">Maya</forename><surname>Gupta</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><surname>Cotter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jan</forename><surname>Pfeifer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Konstantin</forename><surname>Voevodski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kevin</forename><surname>Canini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexander</forename><surname>Mangylov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Wojciech</forename><surname>Moczydlowski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexander</forename><surname>Van Esbroeck</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<author>
+			<persName><forename type="first">Sean</forename><surname>Hamill</surname></persName>
+		</author>
+		<ptr target="http://www.post-gazette.com/business/tech-news/2017/01/31/CMU-computer-won-poker-battle-over-humans-by-statistically-significant-margin/stories/201701310250" />
+		<title level="m">CMU computer won poker battle over humans by statistically significant margin</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="2017" to="2019" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">On the geometry of differential privacy</title>
+		<author>
+			<persName><forename type="first">Moritz</forename><surname>Hardt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kunal</forename><surname>Talwar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM Symposium on Theory of Computing</title>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Equality of opportunity in supervised learning</title>
+		<author>
+			<persName><forename type="first">Moritz</forename><surname>Hardt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Eric</forename><surname>Price</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nati</forename><surname>Srebro</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Studies in the logic of explanation</title>
+		<author>
+			<persName><forename type="first">Carl</forename><surname>Hempel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Paul</forename><surname>Oppenheim</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Philosophy of science</title>
+		<imprint>
+			<date type="published" when="1948">1948</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Complexity measures of supervised classification problems</title>
+		<author>
+			<persName><forename type="first">Kam</forename><surname>Tin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mitra</forename><surname>Ho</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Basu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE transactions on pattern analysis and machine intelligence</title>
+		<imprint>
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Explanation and understanding</title>
+		<author>
+			<persName><forename type="first">Frank</forename><surname>Keil</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Annu. Rev. Psychol</title>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<monogr>
+		<title level="m" type="main">What lies beneath? understanding the limits of understanding. Thinking and seeing: Visual metacognition in adults and children</title>
+		<author>
+			<persName><forename type="first">Frank</forename><surname>Keil</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Leonid</forename><surname>Rozenblit</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Candice</forename><surname>Mills</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2004">2004</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Inferring robot task plans from human team meetings: A generative modeling approach with logic-based prior</title>
+		<author>
+			<persName><forename type="first">Been</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Caleb</forename><surname>Chacha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Julie</forename><surname>Shah</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Association for the Advancement of Artificial Intelligence</title>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<monogr>
+		<title level="m" type="main">iBCM: Interactive bayesian case model empowering humans via intuitive interaction</title>
+		<author>
+			<persName><forename type="first">Been</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Elena</forename><surname>Glassman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Brittney</forename><surname>Johnson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Julie</forename><surname>Shah</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Mind the gap: A generative approach to interpretable feature selection and extraction</title>
+		<author>
+			<persName><forename type="first">Been</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Julie</forename><surname>Shah</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Finale</forename><surname>Doshi-Velez</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Interpretable decision sets: A joint framework for description and prediction</title>
+		<author>
+			<persName><forename type="first">Himabindu</forename><surname>Lakkaraju</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stephen</forename><forename type="middle">H</forename><surname>Bach</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jure</forename><surname>Leskovec</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining</title>
+		<meeting>the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="1675" to="1684" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<monogr>
+		<title level="m" type="main">Research methods in human-computer interaction</title>
+		<author>
+			<persName><forename type="first">Jonathan</forename><surname>Lazar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jinjuan</forename><surname>Heidi Feng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Harry</forename><surname>Hochheiser</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+			<publisher>John Wiley &amp; Sons</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">Tao</forename><surname>Lei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Regina</forename><surname>Barzilay</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tommi</forename><surname>Jaakkola</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1606.04155</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">Rationalizing neural predictions. arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">The structure and function of explanations</title>
+		<author>
+			<persName><forename type="first">Tania</forename><surname>Lombrozo</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Trends in cognitive sciences</title>
+		<imprint>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page" from="464" to="470" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Intelligible models for classification and regression</title>
+		<author>
+			<persName><forename type="first">Yin</forename><surname>Lou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rich</forename><surname>Caruana</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Johannes</forename><surname>Gehrke</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM SIGKDD international conference on Knowledge discovery data mining</title>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<monogr>
+		<title level="m" type="main">Alex Graves, Ioannis Antonoglou, Daan Wierstra, and Martin Riedmiller. Playing atari with deep reinforcement learning</title>
+		<author>
+			<persName><forename type="first">Volodymyr</forename><surname>Mnih</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Koray</forename><surname>Kavukcuoglu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David</forename><surname>Silver</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1312.5602</idno>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">Ian</forename><surname>Neath</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aimee</forename><surname>Surprenant</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Human Memory</title>
+		<imprint>
+			<date type="published" when="2003">2003</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">Parliament and Council of the European Union. General data protection regulation</title>
+		<author>
+			<persName><forename type="first">Clemens</forename><surname>Otte</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Computational Intelligence in Intelligent Data Analysis</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2013">2013. 2016</date>
+		</imprint>
+	</monogr>
+	<note>Safe and interpretable machine learning: A methodological review</note>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">Marco</forename><surname>Tulio Ribeiro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sameer</forename><surname>Singh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Carlos</forename><surname>Guestrin</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1602.04938</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+	<note>why should i trust you?&quot;: Explaining the predictions of any classifier</note>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<analytic>
+		<title level="a" type="main">Data mining for discrimination discovery</title>
+		<author>
+			<persName><forename type="first">Salvatore</forename><surname>Ruggieri</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dino</forename><surname>Pedreschi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Franco</forename><surname>Turini</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM Transactions on Knowledge Discovery from Data</title>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">Compositional inductive biases in function learning</title>
+		<author>
+			<persName><forename type="first">Eric</forename><surname>Schulz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joshua</forename><surname>Tenenbaum</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David</forename><surname>Duvenaud</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Maarten</forename><surname>Speekenbrink</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Samuel</forename><surname>Gershman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">bioRxiv</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<analytic>
+		<title level="a" type="main">Hidden technical debt in machine learning systems</title>
+		<author>
+			<persName><forename type="first">Gary</forename><surname>Sculley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Daniel</forename><surname>Holt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Eugene</forename><surname>Golovin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Todd</forename><surname>Davydov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dietmar</forename><surname>Phillips</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vinay</forename><surname>Ebner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><surname>Chaudhary</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jean-François</forename><surname>Young</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dan</forename><surname>Crespo</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Dennison</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">Mastering the game of go with deep neural networks and tree search</title>
+		<author>
+			<persName><forename type="first">David</forename><surname>Silver</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aja</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chris</forename><forename type="middle">J</forename><surname>Maddison</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Arthur</forename><surname>Guez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Laurent</forename><surname>Sifre</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">George</forename><surname>Van Den</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Julian</forename><surname>Driessche</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ioannis</forename><surname>Schrittwieser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Veda</forename><surname>Antonoglou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Marc</forename><surname>Panneershelvam</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Lanctot</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<monogr>
+		<title level="m" type="main">Privacy versus antidiscrimination. University of Chicago Law School Working Paper</title>
+		<author>
+			<persName><forename type="first">Lior</forename><surname>Jacob</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Strahilevitz</forename></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title level="a" type="main">Automatic neural reconstruction from petavoxel of electron microscopy data</title>
+		<author>
+			<persName><forename type="first">Adi</forename><surname>Suissa-Peleg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Daniel</forename><surname>Haehn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Seymour</forename><surname>Knowles-Barley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Verena</forename><surname>Kaynig</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Thouis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alyssa</forename><surname>Jones</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Richard</forename><surname>Wilson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jeffery</forename><forename type="middle">W</forename><surname>Schalek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hanspeter</forename><surname>Lichtman</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Pfister</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Microscopy and Microanalysis</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b42">
+	<monogr>
+		<title level="m" type="main">Adnostic: Privacy preserving targeted advertising</title>
+		<author>
+			<persName><forename type="first">Vincent</forename><surname>Toubiana</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Arvind</forename><surname>Narayanan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dan</forename><surname>Boneh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Helen</forename><surname>Nissenbaum</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Solon</forename><surname>Barocas</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b43">
+	<analytic>
+		<title level="a" type="main">Openml: networked science in machine learning</title>
+		<author>
+			<persName><forename type="first">Joaquin</forename><surname>Vanschoren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jan</forename><forename type="middle">N</forename><surname>Van Rijn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bernd</forename><surname>Bischl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Luis</forename><surname>Torgo</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM SIGKDD Explorations Newsletter</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="49" to="60" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b44">
+	<monogr>
+		<title level="m" type="main">On the safety of machine learning: Cyber-physical systems, decision sciences, and data products</title>
+		<author>
+			<persName><forename type="first">Kush</forename><surname>Varshney</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Homa</forename><surname>Alemzadeh</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>CoRR</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b45">
+	<analytic>
+		<title level="a" type="main">Falling rule lists</title>
+		<author>
+			<persName><forename type="first">Fulton</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cynthia</forename><surname>Rudin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">AISTATS</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b46">
+	<analytic>
+		<title level="a" type="main">Bayesian rule sets for interpretable classification</title>
+		<author>
+			<persName><forename type="first">Tong</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cynthia</forename><surname>Rudin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Finale</forename><surname>Doshi-Velez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yimin</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Erica</forename><surname>Klampfl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Perry</forename><surname>Macneille</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Data Mining</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b47">
+	<analytic>
+		<title level="a" type="main">Axis: Generating explanations at scale with learnersourcing and machine learning</title>
+		<author>
+			<persName><forename type="first">Joseph</forename><surname>Jay</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Williams</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Juho</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Anna</forename><surname>Rafferty</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Samuel</forename><surname>Maldonado</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Krzysztof</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Walter</forename><forename type="middle">S</forename><surname>Gajos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Neil</forename><surname>Lasecki</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Heffernan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM Conference on Learning@ Scale</title>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b48">
+	<analytic>
+		<title level="a" type="main">The human kernel</title>
+		<author>
+			<persName><forename type="first">Andrew</forename><surname>Wilson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Christoph</forename><surname>Dann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chris</forename><surname>Lucas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Eric</forename><surname>Xing</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

@@ -1,0 +1,1343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Practical Solutions for Machine Learning Safety in Autonomous Vehicles</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Sina</forename><surname>Mohseni</surname></persName>
+							<email>sina.mohseni@tamu.edu</email>
+							<affiliation key="aff0">
+								<orgName type="institution">Texas A&amp;M University</orgName>
+								<address>
+									<settlement>College Station</settlement>
+									<country>TX</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff1">
+								<orgName type="institution">NVIDIA</orgName>
+								<address>
+									<settlement>Santa Clara</settlement>
+									<region>CA</region>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Mandar</forename><surname>Pitale</surname></persName>
+							<email>mpitale@nvidia.com</email>
+							<affiliation key="aff1">
+								<orgName type="institution">NVIDIA</orgName>
+								<address>
+									<settlement>Santa Clara</settlement>
+									<region>CA</region>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Vasu</forename><surname>Singh</surname></persName>
+							<email>vasus@nvidia.com</email>
+							<affiliation key="aff2">
+								<orgName type="institution">NVIDIA</orgName>
+								<address>
+									<settlement>Munich</settlement>
+									<country key="DE">Germany</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Zhangyang</forename><surname>Wang</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">Texas A&amp;M University</orgName>
+								<address>
+									<settlement>College Station</settlement>
+									<country>TX</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Practical Solutions for Machine Learning Safety in Autonomous Vehicles</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">6FCCD4C100B432D8AAEC16EBC0B3F601</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Autonomous vehicles rely on machine learning to solve challenging tasks in perception and motion planning. However, automotive software safety standards have not fully evolved to address the challenges of machine learning safety such as interpretability, verification, and performance limitations. In this paper, we review and organize practical machine learning safety techniques that can complement engineering safety for machine learning based software in autonomous vehicles. Our organization maps safety strategies to state-of-theart machine learning techniques in order to enhance dependability and safety of machine learning algorithms. We also discuss security limitations and user experience aspects of machine learning components in autonomous vehicles.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Advances in machine learning (ML) have been one of the biggest innovations of the last decade. Nowadays, ML models are used extensively in different industrial fields like autonomous vehicles, medical diagnosis, and robotics to perform various tasks such as speech recognition, object detection, and motion planning. Among different ML models, Deep Neural Networks (DNNs) <ref type="bibr" target="#b26">(LeCun, Bengio, and Hinton 2015)</ref> are well-known and widely used for their powerful representation learning in high-dimensional data. For instance, in the field of autonomous driving, various DNN object detection and image segmentation algorithms have been used as perception units to process camera (e.g., Pilot-Net <ref type="bibr" target="#b3">(Bojarski et al. 2016)</ref>, Fast RCNN <ref type="bibr" target="#b43">(Wang, Shrivastava, and Gupta 2017)</ref>) and Lidar (e.g., VoxelNet <ref type="bibr" target="#b49">(Zhou and Tuzel 2018)</ref>) data.</p><p>The development of safety critical systems relies on stringent safety methodologies, designs, and analyses to prevent hazards at the time of failure. In the automotive field, ISO26262 and ISO/PAS 21448 are two main safety standards used to address safety of electrical and electronic components. These standards mandate methodologies for system, hardware, and software development. Specifically for software development, the process ensures traceability across requirements, architectural and unit design, code, and verification. In cases of autonomous software with high complexity, iterative hazard analysis and risk assessment of Copyright c 2020, Association for the Advancement of Artificial Intelligence (<ref type="url" target="www.aaai.org">www.aaai.org</ref>). All rights reserved. autonomous software is required to formally represent the operational design domain.</p><p>On the other hand, ML models have numerous inherent safety drawbacks including accuracy on their training set and robustness in operational domain in open-world limitations. For example, ML models are fragile to domain shift <ref type="bibr" target="#b7">(Ganin and Lempitsky 2014)</ref>, data corruption and natural perturbations <ref type="bibr" target="#b18">(Hendrycks and Dietterich 2019)</ref>. Also, prediction probability scores in DNNs do not provide a true representation of model uncertainty. Moreover, from a security perspective, it has been shown that DNNs are susceptible to adversarial attacks that make small perturbations to the input sample (indistinguishable by human eye) but can fool a DNN <ref type="bibr" target="#b13">(Goodfellow, Shlens, and Szegedy 2014)</ref>. Due to the lack of verification techniques for DNNs, validation of ML models often relies on simple accuracy measures on different large test sets to cover the targeted operation design domain. While an important metric to gauge the success of the algorithm, it is definitely insufficient to measure performance in safety-critical applications as the real-world examples may differ from the test set.</p><p>With the realization that ML models will be increasingly used in safety critical systems, we need to investigate gaps these models expose in existing engineering safety standards. Several examples of these gaps have been discussed in machine learning safety including interpretability and traceability into code, formal verification, and design specification <ref type="bibr" target="#b36">(Salay, Queiroz, and Czarnecki 2017)</ref>.</p><p>In this paper, we review challenges and opportunities in algorithmic techniques for ML safety to complement existing software safety standards for autonomous vehicles. Section 2 briefly reviews the two main automotive industry safety standards and identifies their five fundamental gaps with machine learning algorithms. Section 3 describes practical algorithmic safety techniques by surveying machine learning research on 1) error detectors and 2) model robustness. We briefly present three of our own implementations for safety-critical applications. Section 4 discusses open challenges, directions for future work, and concludes the paper.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Background</head><p>Industrial safety broadly refers to the management of all operations and events within an industry in order to protect its <ref type="bibr">arXiv:1912.09630v1 [cs.</ref>LG] 20 Dec 2019 employees and users by minimizing hazards, risks, and accidents. Given the importance of correct operation of Electric and Electronic (E/E) components, the IEC 61508 is a basic functional safety standard developed for electrical and electronic safety related systems with two fundamental principles: (a) Safety life cycle: an engineering process based on best practices to discover and eliminate design errors, (b) Failure analysis: a probabilistic approach to account for the safety impact of system failures. IEC 61508 has several derivations specific to different industries. For example, to achieve safety in the automotive industry, engineers are required to follow the ISO 26262 standard to minimize safety risks due to E/E faults to an acceptable level.</p><p>In this section, we briefly review the two main automotive safety standards followed by an organized list of fundamental ML limitations to meet safety requirements. We note that both automotive standards mandate a meticulous analysis of hazards and risks, followed by a detailed development process focusing on system requirements, documented architecture and design, well structured code, and a thorough verification strategy for unit, integration, and system-level testing.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>ISO 26262 Standard</head><p>ISO 26262 or the automotive E/E functional safety standard defines vehicle safety as the absence of unreasonable risk due to malfunctioning E/E components. It requires a Hazard Analysis and Risk Assessment (HARA) to determine vehicle level hazards. The potential hazards and risks guide the safety engineers towards safety goals that are then used to create functional safety requirements. These safety requirements then guide the system development process which is then decomposed into hardware and software development processes. Figure <ref type="figure" target="#fig_0">1</ref> presents an overview of this standard. Our focus in this paper is Part 6 of ISO 26262 that defines the V-model for the software development process.</p><p>The objective of the V-Model in Figure <ref type="figure" target="#fig_0">1</ref> is to ensure that software safety requirements are sufficiently fulfilled by the software architectural design and sufficiently tested by the software verification tests. Similarly, the software architectural design is verified and the software integration tests prove that the interactions between the architectural entities including the static and dynamic aspects are tested. At the lowest level of the V-model, the unit design specifies the design details of each unit (that is identified during software architectural design) such as input, output error handling, behavior of the unit so that it can be coded. Finally, the unit tests ensure that the unit is tested so that its requirements and design aspects are met and sufficient structural coverage of the unit is met.</p><p>ISO 26262 also identifies the methods for fault detection and avoidance to minimize the risk to an acceptable level. However, when applied to autonomous driving, ISO 26262 has several limitations. It cannot account for faults occurring due to the inability of the component to comprehend the environment -for example due to performance limitations or robustness issues -or foreseeable misuse of the system. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>ISO/PAS 21448 Standard</head><p>ISO/PAS 21448 or SOTIF (Safety Of The Intended Functionality) standard describes an iterative development process consisting of design specification, development, and verification and validation phases. SOTIF standard recognizes performance limitations of software (including ML components) and expects that the scenarios/inputs that belong to unsafe-unknown (e.g., samples out of training distribution) and unsafe-known (e.g., samples out of operational design domain) situations shall be reduced to the extent such that the residual error risk is acceptable.</p><p>The SOTIF process augments the ISO 26262 with a SO-TIF specific HARA and safety concept. The hazard analysis consists of identifying the hazards due to inadequate performance functionality, insufficient situational awareness, reasonably foreseeable misuse or shortcomings of the human machine interface. In comparison, the hazard and risk analysis of ISO 26262 is limited to hazards due to E/E failures. If the SOTIF analysis results in risk that is higher than acceptable, functional modifications are performed to reduce SOTIF risks. A verification and validation strategy is then developed to argue that the residual risk is below the acceptable level.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Safety Gaps for ML Components</head><p>In recent years, there has been an increasing attention in identifying safety limitations of ML models. For example, Varshney et al. <ref type="bibr" target="#b40">(Varshney 2016)</ref> discussed the definition of safety for ML models and compared it with four main engineering safety strategies (1) inherently safe design, (2) safety reserve, (3) safe fail, and (4) procedural safeguards) in industry. In a review of automotive software safety methods, Salay et al. <ref type="bibr" target="#b36">(Salay, Queiroz, and Czarnecki 2017)</ref> presented an analysis of ISO-26262 part-6 methods with respect to safety of ML models. Their assessment of applicability of the software safety methods on machine learning algorithms (as software unit design) shows about 40% of software safety methods do not apply to ML models.</p><p>Safety and robustness of ML models problem has also been in the interest of ML scientists <ref type="bibr" target="#b21">(Hernández-Orallo et al. 2019</ref>). Amodei et al. <ref type="bibr" target="#b1">(Amodei et al. 2016)</ref> presented five concrete research problems that could result in unintended and unsafe behavior of real-world AI systems. They focus and characterize safety problems of AI into defining and evaluating the objective functions. Also, <ref type="bibr" target="#b34">Ortega et al.(Ortega and Maini 2018)</ref> introduced three areas of technical AI safety as specification (in design and emergent), robustness (for error prevention and recovery), and assurance (for monitoring and enforcement).</p><p>We categorize these open challenges in the terminology of automotive software safety standards and briefly review representative research (see first row of Table <ref type="table">1</ref>) to close these safety gaps.</p><p>• Design Specification. Documenting and reviewing the software specification is a crucial step in functional safety, however, the design specification of ML models is generally not adequate, as the models learn the patterns in data to discriminate or generate their distribution for new unseen input. Therefore, machine learning algorithms learn the target classes through their training data (and regularization constraints) and not using a formal specification. The lack of specifiability could cause mismatch between "designer objectives" and "what the model actually learned" which could result in unintended functionality of the system. This data-driven optimization of variables to train machine learning models makes it impossible to define and pose specific safety constraints. To this end, Seshia et al. <ref type="bibr" target="#b37">(Seshia et al. 2018</ref>) surveyed the landscape of formal specification for DNNs to lay an initial foundation for formalizing and reasoning about properties of DNNs.</p><p>Another practical way to manage this design specification problem is to break machine learning components into smaller algorithms (with smaller tasks) to work in hierarchical structures. Related to this, Dreossi et al. <ref type="bibr" target="#b4">(Dreossi et al. 2019)</ref> presented VerifAI toolkit for formal design and analysis of AI-based systems. • Implementation Transparency. ISO26262 requires traceability from requirements to design. However, advanced ML models trained on high dimensional data are not transparent. The very large number of variables in the models makes them incomprehensible or so-called blackbox for design review and inspection. In order to achieve traceability, significant research has been performed on interpretability methods for DNN to provide instance explanations of model prediction and DNN intermediate feature layers <ref type="bibr" target="#b45">(Zeiler and Fergus 2014)</ref>. In autonomous vehicles application, using the VisualBackProp technique <ref type="bibr" target="#b3">(Bojarski et al. 2018)</ref> shows that a DNN algorithm trained to control a steering wheel would in fact learn patterns of lane, road edges, and parked vehicles to execute the targeted task. However, the completeness of interpretability methods to grant traceability is not proven yet <ref type="bibr" target="#b0">(Adebayo et al. 2018)</ref> and in practice interpretability techniques are mainly used by designers to improve network structure and training process rather than support a safety assessment. • Testing and Verification. Significant verification of work products are required for unit testing to meet the ISO 26262 standard. For example, coding guidelines for soft-ware safety enforce that there is no dead or unreachable code. Depending upon the safety integrity level, complete statement, branch coverage, or modified condition and decision coverage are required to confirm adequacy of the unit tests. Coming to DNNs, formally verifying their correctness is challenging (provably NP-hard (Seshia, Sadigh, and Sastry 2016; 2016)) due to the high dimensionality of the data. Therefore, reaching a complete validation and testing bounded to the operational design domain is difficult. As a result, researchers proposed new techniques such as searching for unknownunknowns (Bansal and Weld 2018) and predictor-verifier training (Dvijotham et al. 2018). Other techniques including neuron coverage and fuzz testing(Wang et al. 2018) in neural networks covers these aspects. Note that formal verification of shallow and linear models for low dimensional sensor data does not have the challenges of DNN verification. • Performance and Robustness. SOTIF standard treats the ML models as a black box and suggests using methods to improve model performance and robustness. However, improving model performance and robustness in itself is a very challenging task. In learning problems, typically training a model ends with an error rate (due to false positive and false negative predictions) on the training set. Empirical error is prediction error rate of the learner function on its target distribution. Generalization error refers to the gap between model's empirical error on its training and test sets. On top of these, operational error is referred to model's error rate on open-world deployment that could be higher than test set error rate. Domain generalization refers to ability of model in learning generalizable data representations for open-world tasks. We will review more details and machine learning techniques to improve model robustness in Section 3. • Run-time Monitoring Function. SOTIF and ISO 26262 standards suggest run-time monitoring functions as software error detection solutions. Monitoring functions in classical software are based on a rule-set to detect cases like transient hardware error, software crash, and exit from operation design domain. However, designing monitoring functions to predict ML failure (e.g., false positive and false negative error) is different in nature. ML models generate prediction probability for input instances but research shows prediction probability does not guarantee failure prediction <ref type="bibr" target="#b17">(Hein, Andriushchenko, and Bitterwolf 2019)</ref>. In fact, DNN and many other ML models could generate incorrect outputs with high confidence in cases of distribution shift and adversarial attacks. We will review more details of error detection techniques for ML models in Section 3.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Techniques for ML Safety</head><p>We introduce algorithmic techniques for ML safety to maintain dependability of machine learning algorithms for safe execution in open-world tasks. The techniques we review in this section are meant to complement classic engineering strategies in software safety. We also connect ML safety techniques with appropriate engineering safety strategies (see Table <ref type="table">1</ref>) to help machine learning scientists and safety engineers find a common ground in the new topic of autonomous vehicle safety. We follow Varshney's <ref type="bibr" target="#b40">(Varshney 2016</ref>) four strategies to achieve machine learning safety to map AI Safety techniques with engineering strategies.</p><p>Considering the research debt left to assure different safety aspects of AI (see Section 2), we believe we are far from reaching (1) Inherently Safe AI. Therefore, we focus on practical machine learning solutions for the two following safety strategies: We propose using model robustness techniques to improve resilience and hence Safety Margin of machine learning components.</p><formula xml:id="formula_0">• (2) Safe</formula><p>We will also briefly review the importance of (4) Procedural Safeguards for non-experts end-users of autonomous vehicles (i.e. driver and passengers) later in the discussion about future work. To separate safety and security concerns, we consider external factors that intentionally exploit system vulnerabilities (e.g., sample manipulations in adversarial attack) as security concerns but not safety.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Monitoring Function</head><p>Our first practical ML safety solution leverages from the range of techniques for machine learning misclassification error detection to achieve Safe Fail behavior. For example, when transient errors in hardware like sensors affect the functionality of the software like that for cruise control, an error detection unit (monitoring function) can detect the error and degrade the system by appropriate warnings and allowing the driver to take over. Similarly, various run-time monitoring functions and error detectors could be designed for machine learning components to predict model failure and trigger appropriate warnings. In the following we introduce three types of error detectors for machine learning and review their relations and limitations. Note that although the three following groups of error detectors overlap, we separate detectors by their targeted error types.</p><p>Uncertainty Estimation Uncertainty in probabilistic learners is an important factor to maintain fail-safety of the system. Even well trained and calibrated predictors that are robust to noise, corruption, and perturbations can benefit from uncertainty estimation to detect domain shift and outof-distribution samples at run-time. Quantifying uncertainty can explain what a model does not know in terms of model confidence on its prediction (epistemic uncertainty or model uncertainty) and uncertainty for unknown samples (aleatoric uncertainty or data uncertainty). Regarding importance of uncertainty methods for safety critical applications, McAllister et al. (McAllister et al. 2017) proposed measuring uncertainties in ML models and propagating down in the decision-making pipeline as a key for safety of autonomous systems. However, quantifying predictive uncertainty in DNNs is a challenging task. Typically, DNN classification models generate normalised prediction scores which tend to be overconfident and regression DNN models do not give uncertainty representation in their output. Research in DNN presents solutions such as deep ensembles (Lakshminarayanan, Pritzel, and Blundell 2017) and Monte Carlo dropout (MC-dropout) (Gal and Ghahramani 2016) to estimate prediction uncertainty. Uncertainty estimation methods have been tested for various model error types (Kendall and Gal 2017) including adversarial attack detection (Smith and Gal 2018).</p><p>Although uncertainty estimation methods offer potential effective solutions for DNN failure prediction -in practicethey carry significant computation cost and latency which is not ideal for run-time failure prediction. For example, to design an error detector for a PilotNet algorithm, Michelmore et al. <ref type="bibr" target="#b31">(Michelmore, Kwiatkowska, and Gal 2018)</ref> present an implementation of MC-dropout uncertainty estimation which needs 128 stochastic forward passes to estimate uncertainty of the model. Therefore, in resource limited setups and for reasons like computation simplicity, researchers work on alternative error detection solutions which we review in the next two subsection.</p><p>In-distribution Error Detectors Misclassification of in domain samples often happens due to weak representation learning. In recent years, advanced neural networks, regularization techniques, and large training datasets significantly improved DNNs representation learning and therefore model performance and robustness. However, run-time prediction error detectors are still needed to maintain safety of the system in case of model failure. Selective classification (also known as classification with reject option) is a technique to cautiously provide prediction for highconfidence samples and abstain when in doubt. This method for confident prediction can significantly improve model performance at the cost of test coverage. Geifman and El-Yaniv (Geifman and El-Yaniv 2017) present a simple and effective implementation of selective classification for DNNs. They introduce a reject function which guarantees control over the true risk based on DNN softmax output. They later introduce SelectiveNet (Geifman and El-Yaniv 2019), a three-headed network to jointly train classification and rejection functions on the normal domain. Along similar lines, Guo et al. (Guo et al. 2017) presented temperature scaling as a post-processing calibration technique to adjust the model probability estimates being off due to over fitting. In an application to autonomous vehicles, Hecker et al.(Hecker, Dai, and Van Gool 2018) added and trained a failure head to the network in order to learn to predict the occurrence of model failures.</p><p>In our recent paper, we presented an error detector for regression models in autonomous vehicle applications <ref type="bibr" target="#b33">(Mohseni, Jagadeesh, and Wang 2019)</ref>. We proposed a new design which trains a student model (failure predictor) for predicting the teacher model's (main model) error at run-time. Figure <ref type="figure" target="#fig_2">2</ref> shows how the student model learns teacher model's prediction loss on a validation set in order to predict its failures on the test set. We also train the student model using the saliency maps from the main model to improve failure prediction performance. We evaluate our failure predictor model based on prediction error and the driving safety gained by this system.</p><p>Out-of-distribution Error Detectors Out-of-distribution (OOD) sample or outlier refers to inputs that are outside the normal training distribution. OOD error is referred to ML model misclassification error for OOD samples. Examples of OOD samples in autonomous vehicles include unique, unusual or unknown road signs, road marks, or rare object or scenario which either was not included in the training set or the model was not able to learn (e.g. due to class imbalance) during the training process. OOD error is an inherent problem with ReLU family activation functions that they produce arbitrary high confidence as inputs get further from the training distribution <ref type="bibr" target="#b17">(Hein, Andriushchenko, and Bitterwolf 2019)</ref>. However, various techniques known as OOD detector, novelty detector, and outlier detector have been pro-posed to detect OOD samples. Examples of OOD detector techniques include revising network architecture for learning the prediction-confidence (DeVries and Taylor 2018), employing ensemble of leaving-out classifiers <ref type="bibr" target="#b41">(Vyas et al. 2018)</ref>, and self-supervised representation learning <ref type="bibr" target="#b11">(Golan and El-Yaniv 2018)</ref> approaches for outlier detection. On the other hand, a fast and low cost approach in OOD detection is to use class probabilities as a measure for OOD detection <ref type="bibr" target="#b19">(Hendrycks and Gimpel 2016)</ref>. In this regard, new techniques have been proposed to calibrate DNN decisionboundaries for robust OOD detection <ref type="bibr" target="#b27">(Lee et al. 2017)</ref>.</p><p>In our recent work, we present a fast and memory efficient OOD error detection technique by embedding and training reject options into any DNN discriminative model with minimal architectural changes <ref type="bibr" target="#b32">(Mohseni et al. 2020)</ref>. This is shown in Figure <ref type="figure" target="#fig_3">3</ref>. Our fundamental idea is to exploit the high-level feature learning capacity of DNNs to jointly learn generalizable outlier features as well as in-distribution features for normal classification both in one network. Figure <ref type="figure" target="#fig_3">3</ref> shows how we train additional reject functions in the last layer of our neural network using a two steps of supervised (with labeled in-distribution training set) and self-supervised (with free unlabeled OOD natural samples) training. Our evaluation results show the proposed self-supervised learning of OOD features can very well generalize to reject other unseen distributions.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Algorithm Robustness</head><p>The second practical solution for ML safety leverages robustness techniques to improve Safety Margins of ML models in autonomous vehicles. Robustness techniques in ML research improve resiliency of the algorithms to unseen samples, natural corruptions and perturbations, adversarial example, and domain shifts. ML literature present multiple techniques such as dataset augmentation, noise injection, and multi-task learning to regularize DNNs to learning generalizable features <ref type="bibr" target="#b12">(Goodfellow, Bengio, and Courville 2016)</ref>. Other techniques, including transfer learning <ref type="bibr" target="#b20">(Hendrycks, Lee, and Mazeika 2019)</ref>, have shown to improve model robustness by transferring universal representation from a pre-trained model to the new domain. Further, Zhang and LeCun (Zhang and LeCun 2017) explored using unlabeled free data to regularize model training for its robustness. In the following, we review two major safetyrelated types of machine learning robustness techniques for open-world tasks. We will also briefly review robustness and detection techniques for adversarial examples in the discussion section.</p><p>Robustness to Domain Shift Domain shift (also known as distribution shift and dataset shift) describes variations in the input data distribution in comparison to the training set. Distribution shift reduces the operational performance compared to the test set performance by breaking the i.i.d assumption between training and testing data. In this regard, domain generalization is a crucial aspect of machine learning algorithms for open-world applications such as autonomous vehicles which data is captured from uncontrolled and fast changing environment. Domain generaliza-Table <ref type="table">1</ref>: Table of practical machine learning techniques to improve the safety of ML algorithms. Left column presents engineering safety strategies and right column maps machine learning techniques with three representative research papers for each row.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Safety Strategy Practical AI Safety Opportunities</head><p>Design Specification ( <ref type="bibr" target="#b1">(Amodei et al. 2016;</ref><ref type="bibr" target="#b29">Leike et al. 2017;</ref><ref type="bibr" target="#b37">Seshia et al. 2018</ref>)) Implementation Transparency ( <ref type="bibr" target="#b3">(Bojarski et al. 2018;</ref><ref type="bibr" target="#b45">Zeiler and Fergus 2014;</ref><ref type="bibr" target="#b0">Adebayo et al. 2018</ref>)) Inherently Safe Design Formal Verification ( <ref type="bibr">(Seshia, Sadigh, and Sastry 2016;</ref><ref type="bibr" target="#b4">Dvijotham et al. 2018;</ref><ref type="bibr" target="#b42">Wang et al. 2018</ref>))</p><p>Uncertainty Estimation ( <ref type="bibr" target="#b25">(Lakshminarayanan, Pritzel, and Blundell 2017;</ref><ref type="bibr" target="#b6">Gal and Ghahramani 2016)</ref>)</p><p>In-distribution error detection ( <ref type="bibr" target="#b8">(Geifman and El-Yaniv 2017;</ref><ref type="bibr">2019;</ref><ref type="bibr" target="#b15">Guo et al. 2017</ref>)) Safe Fail</p><p>Out-of-distribution error detection ( <ref type="bibr" target="#b32">(Mohseni et al. 2020;</ref><ref type="bibr" target="#b11">Golan and El-Yaniv 2018;</ref><ref type="bibr" target="#b41">Vyas et</ref> al. 2018)) Domain Generalization ((Zhang et al. 2019; Ganin and Lempitsky 2014; Lee, Eum, and Kwon 2019)) Safety Margin Perturbation and Corruptions Robustness ((Geirhos et al. 2019; Huang et al. 2018; Hendrycks, Lee, and Mazeika 2019)) tion could be achieved from many different One approach is adversarial domain adaptation (Ganin and Lempitsky 2014) that leverages from massive amount of unlabeled data captured from the targeted domain. For example, Zhang et al. (Zhang et al. 2019) implemented learning-based approaches to synthesize foreground objects and background contexts for new training samples. Multi-task learning is another technique to improve model robustness by simultaneously learning two (or more) tasks. For instance, Tang et al. (Tang et al. 2019) presents a pose-aware multi-task vehicle re-identification techniques to overcome view-point dependency of the objects. They created and used large-scale highly randomized synthetic dataset with automatically annotated vehicle attributes for training. From a different approach, Lee et al. (Lee, Eum, and Kwon 2019) propose using ensemble of models to capture and learn different poses and viewing angles of objects to improve overall robustness. Also, to improve robustness of object detection models to occlusions and deformations, Wang et al. (Wang, Shrivastava, and Gupta 2017) used an adversarial network to generate hard positive examples.</p><p>In a recent work <ref type="bibr" target="#b44">(Wu et al. 2019)</ref>, we proposed a new technique for improving model robustness to domain shift in unmanned aerial vehicle (UAV). We cast an object detection problem as a cross-domain object detection problem with multiple fine-grained domains. We then train our object detection model to extract invariant features shared by many different "non-ideal" variations (e.g., weather conditions, camera angle, light conditions) of the target domains. In order to do so, we add a nuisance disentangled feature transform block on the input and nuisance prediction branches (one for each non-ideal condition) in a modular fashion and jointly train the final network in an adversarial setting. Our implementation on Faster-RCNN backbone <ref type="bibr" target="#b43">(Wang, Shrivastava, and Gupta 2017)</ref> shows superior results compared to vanilla baseline on improving model robustness to weather, altitude, and view variations in UAV images.</p><p>Robustness to Corruptions and Perturbations Natural data perturbation and corruption commonly exist in openworld settings. Benchmarking DNN robustness to corruption and perturbations <ref type="bibr" target="#b18">(Hendrycks and Dietterich 2019)</ref> shows machine learning models exhibit unexpected prediction errors on simple perturbations. Achieving model robustness to natural corruptions (e.g., due to camera lens, snow, rain, fog in image data) and perturbations (e.g., sensor transients error, electromagnetic interference on sensors) requires techniques to improve model robustness above their clean datasets. Previously, classical data augmentations were used to gain robustness to simple image variations like rotation and scaling <ref type="bibr" target="#b12">(Goodfellow, Bengio, and Courville 2016)</ref>. Other techniques such as using adaptive algorithm for choosing the augmentation transformations <ref type="bibr" target="#b5">(Fawzi et al. 2016</ref>) and random patch erasing <ref type="bibr" target="#b48">(Zhong et al. 2017</ref>) also shown to be effective for both robustness and representation learning. Recently, advanced augmentations such as style transfer <ref type="bibr" target="#b10">(Geirhos et al. 2019)</ref> have shown to improve model robustness to texture bias. Another line of research proposes larger networks <ref type="bibr" target="#b22">(Huang et al. 2018)</ref> to improve DNN robustness through multiscale and redundant feature learning.</p><p>Adversarial perturbation <ref type="bibr" target="#b13">(Goodfellow, Shlens, and Szegedy 2014)</ref>, on the other hand, are small but worst-case perturbations intentionally created by an attacker so that the perturbed sample results in the model misclassify the sample with high confidence. We distinguish safety hazard due to natural perturbations from security hazard due to adversarial perturbations as the latter intentionally exploit system vulnerabilities to cause harm. Security concerns related to adversarial perturbation are briefly mentioned in the discussion about future work.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Conclusion and Future Work</head><p>In this work, we presented a review and categorization of classical software safety methods with fundamental limitations in machine learning algorithms. The impetus of this work was to leverage from both engineering safety strategies and state-of-the-art machine learning techniques to enhance dependability and safety of machine learning components in autonomous systems. In this regard, maintaining the safety of autonomous vehicles requires a multidisciplinary effort across multiple fields including human-computer interactions, machine learning, software engineering, hardware engineering <ref type="bibr" target="#b24">(Koopman and Wagner 2017)</ref>. We briefly review and discuss other dimensions of safety and security of MLinfused systems that could be benefit from research communities attention. Security Risks of Adversarial Attacks: An adversarial example is a clean image delicately perturbed (by an adversary) with a small distortion so that it visually looks identical to the original clean image but is misclassified by the ML model. Despite its popularity, adversarial attacks are not considered primarily a safety concern rather a security limitation <ref type="bibr">(Carlini and Wagner 2017)</ref>. Two main defense approaches for adversarial attacks are detection and robustness. For example, and Gal <ref type="bibr" target="#b38">(Smith and Gal 2018)</ref> present a case of MC-drop out uncertainty estimation technique for detecting adversarial examples. Further, to improve model robustness and resiliency to adversary perturbation Papernot et al. proposed an effective defense based on model distillation <ref type="bibr" target="#b35">(Papernot et al. 2016)</ref>. Still, the problem of adversarial examples is an unsolved problem when considering that attackers always react to current defense techniques by designing stronger attacks to undermine security of machine learning components (Carlini and Wagner 2017). Procedural Safeguards for ML Safety: Beyond functional safety of the system, procedural safeguards help operators and product end-users (e.g. driver in autonomous vehicle) avoid unintentional misuse of system due to lack of instructions and unawareness <ref type="bibr" target="#b40">(Varshney 2016)</ref>. User experience (UX) design and algorithmic transparency are two approaches to improve safety of the operation in autonomous vehicles. In such cases, end-users can benefit from explainable UX designs which provides useful and comprehensible information about model reasoning (Gunning 2017) and prediction uncertainty <ref type="bibr" target="#b31">(Michelmore, Kwiatkowska, and Gal 2018)</ref>. For example, UX design could leverage real-time visualization of model uncertainty for vehicle detection and path planning to help improve driver's understanding of vehicle safety on the road.</p><p>In our future work, we plan to review recent procedural safeguards designs and studies for autonomous vehicle applications. Including key techniques and factors in calibrating user trust in human-AI systems.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Comparison between the V-model in ISO 26262-6 (in Green) and ISO/PAS 21448 (in Blue) for software (SW) safety process.</figDesc><graphic coords="2,331.43,54.00,214.66,125.62" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><figDesc>Fail refers to strategies to keep the vehicle on road in a safe state at the time of failure. This strategy can mitigate hazards at the time of fault by use of monitoring functions and graceful degradation plans such as notifying the driver to take vehicle's control. We propose using runtime error detection techniques to detect erroneous output of machine learning algorithms (e.g. misclassification and misdetection) for the vehicle on the road. • (3) Safety Margins in the context of machine learning is described as difference between model's performance on training set and operational performance in open-world.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: Model failure prediction based on saliency map for ConvNet regression models. We trained a student model as monitoring function for run-time failure predictor of a Pilot-Net model (Mohseni, Jagadeesh, and Wang 2019).</figDesc><graphic coords="4,319.50,54.00,238.49,100.02" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 3 :</head><label>3</label><figDesc>Figure3: Out-of-distribution sample detection base on prediction confidence. We proposed an out-of-distribution sample detector to train reject classes to learn outlier features in a self-supervised step.<ref type="bibr" target="#b32">(Mohseni et al. 2020)</ref> </figDesc><graphic coords="5,54.00,54.00,238.50,111.71" type="bitmap" /></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Sanity checks for saliency maps</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Adebayo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Gilmer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Muelly</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Hardt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Kim</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">NIPS</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<author>
+			<persName><forename type="first">D</forename><surname>Amodei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Olah</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Steinhardt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Christiano</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Schulman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Mané</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1606.06565</idno>
+		<title level="m">Concrete problems in ai safety</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">A coverage-based utility model for identifying unknown unknowns</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Bansal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">S</forename><surname>Weld</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Thirty-Second AAAI Conference on AI</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Adversarial examples are not easily detected: Bypassing ten detection methods</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Bojarski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Del Testa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Dworakowski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Firner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Flepp</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Goyal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">D</forename><surname>Jackel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Monfort</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">U</forename><surname>Muller</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Zhang</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1604.07316</idno>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 10th ACM Workshop on Artificial Intelligence and Security</title>
+		<meeting>the 10th ACM Workshop on Artificial Intelligence and Security</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2016">2016. 2018. 2018. 2017</date>
+			<biblScope unit="page" from="3" to="14" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+	<note>End to end learning for self-driving cars Visualbackprop: Efficient visualization of cnns for autonomous driving</note>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Verifai: A toolkit for the formal design and analysis of artificial intelligence-based systems</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Devries</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">W</forename><surname>Taylor</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Iclr</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Dreossi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">J</forename><surname>Fremont</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ghosh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Ravanbakhsh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Vazquez-Chanlatte</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">A</forename><surname>Seshia</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Springer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Dvijotham</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Gowal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Stanforth</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Arandjelovic</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>O'donoghue</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Uesato</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Kohli</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1805.10265</idno>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Computer Aided Verification</title>
+		<imprint>
+			<date type="published" when="2018">2018. 2019. 2018</date>
+			<biblScope unit="page" from="432" to="442" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+	<note>Learning confidence for out-of-distribution detection in neural networks Training verified learners with learned verifiers</note>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Adaptive data augmentation for image classification</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Fawzi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Samulowitz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Turaga</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Frossard</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2016 IEEE International Conference on Image Processing (ICIP)</title>
+		<imprint>
+			<publisher>Ieee</publisher>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="3688" to="3692" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Dropout as a bayesian approximation: Representing model uncertainty in deep learning</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Gal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Ghahramani</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICML</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="1050" to="1059" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Ganin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Lempitsky</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1409.7495</idno>
+		<title level="m">Unsupervised domain adaptation by backpropagation</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Selective classification for deep neural networks</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Geifman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>El-Yaniv</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">NIPS</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="4878" to="4887" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Geifman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>El-Yaniv</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1901.09192</idno>
+		<title level="m">Selectivenet: A deep neural network with an integrated reject option</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">Imagenet-trained cnns are biased towards texture; increasing shape bias improves accuracy and robustness</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Geirhos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Rubisch</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Michaelis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Bethge</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">A</forename><surname>Wichmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Brendel</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<publisher>ICLR</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Deep anomaly detection using geometric transformations</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Golan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>El-Yaniv</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">NIPS</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="9758" to="9769" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<title level="m" type="main">Deep learning</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Courville</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>MIT press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<title level="m" type="main">Explaining and harnessing adversarial examples</title>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">J</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Shlens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Szegedy</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1412.6572</idno>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Explainable artificial intelligence (xai)</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Gunning</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Defense Advanced Research Projects Agency (DARPA)</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note>nd Web 2</note>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">On calibration of modern neural networks</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Guo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Pleiss</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">Q</forename><surname>Weinberger</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICML</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Failure prediction for autonomous driving</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Hecker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Dai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Van Gool</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2018 IEEE Intelligent Vehicles Symposium (IV)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="1792" to="1799" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Why relu networks yield high-confidence predictions far away from the training data and how to mitigate the problem</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Hein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Andriushchenko</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Bitterwolf</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">CVPR</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title level="m" type="main">Benchmarking neural network robustness to common corruptions and perturbations</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Hendrycks</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Dietterich</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<publisher>ICLR</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<monogr>
+		<title level="m" type="main">A baseline for detecting misclassified and out-of-distribution examples in neural networks</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Hendrycks</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Gimpel</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1610.02136</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<author>
+			<persName><forename type="first">D</forename><surname>Hendrycks</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Mazeika</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1901.09960</idno>
+		<title level="m">Using pre-training can improve model robustness and uncertainty</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Surveying safety-relevant ai characteristics</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Hernández-Orallo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Martínez-Plumed</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Avin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">Ó</forename><surname>Éigeartaigh</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">SafeAI@ AAAI</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<monogr>
+		<title level="m" type="main">Multi-scale dense networks for resource efficient image classification</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Van Der Maaten</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">Q</forename><surname>Weinberger</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<publisher>ICLR</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">What uncertainties do we need in bayesian deep learning for computer vision?</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kendall</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Gal</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">NIPS</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="5574" to="5584" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Autonomous vehicle safety: An interdisciplinary challenge</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Koopman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Wagner</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Intelligent Transportation Systems Magazine</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="90" to="96" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Simple and scalable predictive uncertainty estimation using deep ensembles</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Lakshminarayanan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Pritzel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Blundell</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">NIPS</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Deep learning</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lecun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">nature</title>
+		<imprint>
+			<biblScope unit="volume">521</biblScope>
+			<biblScope unit="issue">7553</biblScope>
+			<biblScope unit="page" from="436" to="444" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<monogr>
+		<title level="m" type="main">Training confidence-calibrated classifiers for detecting out-ofdistribution samples</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Shin</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1711.09325</idno>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Me r-cnn: Multiexpert r-cnn for object detection</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Eum</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Kwon</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE Transactions on Image Processing</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<monogr>
+		<author>
+			<persName><forename type="first">J</forename><surname>Leike</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Martic</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Krakovna</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">A</forename><surname>Ortega</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Everitt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Lefrancq</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Orseau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Legg</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1711.09883</idno>
+		<title level="m">Ai safety gridworlds</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Concrete problems for autonomous vehicle safety: Advantages of bayesian deep learning</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Mcallister</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Gal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kendall</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Van Der Wilk</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Shah</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Cipolla</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">V</forename><surname>Weller</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IJCAI</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<monogr>
+		<author>
+			<persName><forename type="first">R</forename><surname>Michelmore</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kwiatkowska</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Gal</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1811.06817</idno>
+		<title level="m">Evaluating uncertainty quantification in end-to-end autonomous driving control</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Self-supervised learning for generalizable out-ofdistribution detection</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Mohseni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Pitale</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Yadawa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">AAAI</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Predicting model failure using saliency maps in autonomous driving systems</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Mohseni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Jagadeesh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICML Workshop on Uncertainty &amp; Robustness in Deep Learning</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<monogr>
+		<title level="m" type="main">Building safe artificial intelligence: specification, robustness, and assurance</title>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">A</forename><surname>Ortega</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Maini</surname></persName>
+		</author>
+		<ptr target="https://medium.com/deepmindsafetyresearch/building-safe-artificial-intelligence-52" />
+		<imprint>
+			<date type="published" when="2018">2018. 5f75058f1</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Distillation as a defense to adversarial perturbations against deep neural networks</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Papernot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Mcdaniel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Jha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Swami</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2016 IEEE Symposium on Security and Privacy (SP)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="582" to="597" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<monogr>
+		<title level="m" type="main">An analysis of iso 26262: Using machine learning safely in automotive software</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Salay</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Queiroz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Czarnecki</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1709.02435</idno>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">Formal specification for deep neural networks</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">A</forename><surname>Seshia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Desai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Dreossi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">J</forename><surname>Fremont</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ghosh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Shivakumar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Vazquez-Chanlatte</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Yue</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1606.08514</idno>
+	</analytic>
+	<monogr>
+		<title level="m">International Symposium on Automated Technology for Verification and Analysis</title>
+		<imprint>
+			<publisher>Springer. Seshia, S. A.; Sadigh, D.; and Sastry</publisher>
+			<date type="published" when="2016">2018. 2016</date>
+			<biblScope unit="page" from="20" to="34" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+	<note>Towards verified artificial intelligence</note>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<monogr>
+		<title level="m" type="main">Understanding measures of uncertainty for adversarial example detection</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Smith</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Gal</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1803.08533</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">Pamtri: Poseaware multi-task learning for vehicle re-identification using highly randomized synthetic data</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Tang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Naphade</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Birchfield</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Tremblay</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Hodge</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Kumar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Yang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICCV</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<analytic>
+		<title level="a" type="main">Engineering safety in machine learning</title>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">R</forename><surname>Varshney</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Information Theory and Applications Workshop (ITA)</title>
+		<imprint>
+			<biblScope unit="page" from="1" to="5" />
+			<date type="published" when="2016">2016. 2016</date>
+			<publisher>IEEE</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title level="a" type="main">Out-of-distribution detection using an ensemble of self supervised leave-out classifiers</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Vyas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Jammalamadaka</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Das</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Kaul</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">L</forename><surname>Willke</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ECCV</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="550" to="564" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b42">
+	<analytic>
+		<title level="a" type="main">Efficient formal safety analysis of neural networks</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Pei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Whitehouse</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Jana</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">NIPS</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="6367" to="6377" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b43">
+	<analytic>
+		<title level="a" type="main">A-fast-rcnn: Hard positive generation via adversary for object detection</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Shrivastava</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gupta</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">CVPR</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b44">
+	<analytic>
+		<title level="a" type="main">Delving into robust object detection from unmanned aerial vehicles: A deep nuisance disentanglement approach</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Suresh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Narayanan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Kwon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICCV</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b45">
+	<analytic>
+		<title level="a" type="main">Visualizing and understanding convolutional networks</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">D</forename><surname>Zeiler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Fergus</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ECCV</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="818" to="833" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b46">
+	<analytic>
+		<title level="a" type="main">Universum prescription: Regularization using unlabeled data</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lecun</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">AAAI</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b47">
+	<monogr>
+		<title level="m" type="main">Dada: Deep adversarial data augmentation for extremely low data regime classification</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Ling</surname></persName>
+		</author>
+		<idno>ICASSP. IEEE</idno>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b48">
+	<monogr>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Zhong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Zheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Kang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Yang</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1708.04896</idno>
+		<title level="m">Random erasing data augmentation</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b49">
+	<analytic>
+		<title level="a" type="main">Voxelnet: End-to-end learning for point cloud based 3d object detection</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Tuzel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">CVPR</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Machine Learning using Stata/Python</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2021-03-03">3 Mar 2021</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Giovanni</forename><surname>Cerulli</surname></persName>
+							<email>giovanni.cerulli@ircres.cnr.it</email>
+							<affiliation key="aff0">
+								<orgName type="institution">IRCrES-CNR Rome</orgName>
+								<address>
+									<country key="IT">Italy</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Machine Learning using Stata/Python</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2021-03-03">3 Mar 2021</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">84D9ACB774BDFDF6E919AA4B7DEB753E</idno>
+					<idno type="arXiv">arXiv:2103.03122v1[stat.CO]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>Machine Learning</term>
+					<term>Stata</term>
+					<term>Python</term>
+					<term>Optimal tuning</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>We present two related Stata modules, r ml stata and c ml stata, for fitting popular Machine Learning (ML) methods both in a regression and a classification setting. Using the recent Stata/Python integration platform (sfi) of Stata 16, these commands provide hyper-parameters' optimal tuning via K-fold cross-validation using greed search. More specifically, they make use of the Python Scikit-learn API to carry out both cross-validation and outcome/label prediction.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Machine learning (ML) has emerged as a leading data science approach in many fields of human activities, including business, engineering, medicine, advertisement, and scientific research. Placing itself in the intersection between statistics, computer science, and artificial intelligence, ML's main objective is turning information into valuable knowledge by "letting the data speak", limiting the model's prior assumptions, and promoting a model-free philosophy. Relying on algorithms and computational techniques, more than on analytic solutions, ML targets Big Data and complexity reduction, although sometimes at the expense of results' interpretability <ref type="bibr" target="#b4">(Hastie, Tibshirani, and Friedman, 2001;</ref><ref type="bibr" target="#b11">Varian, 2014)</ref>.</p><p>Unlike other software such as R, Python, Matlab, and SAS, Stata has not dedicated built-in packages for fitting ML algorithms, if one excludes the Lasso package of Stata 16 <ref type="bibr" target="#b8">(StataCorp, 2019)</ref>. Recently, however, the Stata community has developed some popular ML routines that Stata users can suitably exploit. Among them, we mention <ref type="bibr" target="#b6">Schonlau (2005)</ref> implementing a Boosting Stata plugin; <ref type="bibr" target="#b3">Guenther and Schonlau (2016)</ref> providing a command fitting Support Vector Machines (SVM); <ref type="bibr" target="#b0">Ahrens, Hansen, and Schaffer (2020)</ref> setting out the lassopack, a set of commands for model selection and prediction with regularized regression; and <ref type="bibr" target="#b7">Schonlau and Zou (2020)</ref> recently providing a module for the random forest algorithm. All these are valuable packages to carry out popular ML algorithms within Stata, but they lack uniformity and comparability as they show up as stand-alone routines poorly integrated one another.</p><p>To pursuit generality, uniformity and comparability one should rely on a software platform able to suitably integrate most of the mainstream ML methods. Python, for example, has powerful platforms to carry out both ML and deep-learning algorithms <ref type="bibr" target="#b5">(Raschka and Mirjalili, 2019)</ref>. Among them, the most popular are Scikit-learn for fitting a large number of ML methods, and Tensorflow and Keras for fitting neural network and deep-learning techniques more in general. These make of Python, that is also a freeware software, probably the most effective and complete software for ML and deep-learning available within the community.</p><p>The Stata 16 release has introduced a useful Stata/Python interface API, the Stata Function Interface (SFI) module, that allows users to interact Python's capabilities with core features of Stata. The module can be used interactively or in do-files and ado-files.</p><p>Using the Stata/Python integration interface, this paper presents two related Stata modules, r ml stata and c ml stata wrapping Python functions for fitting popular Machine Learning (ML) methods both in a regression and a classification setting. Both commands provide hyper-parameters' optimal tuning via K-fold cross-validation by implementing greed search. More specifically, they make use of the Python Scikit-learn API to carry out both cross-validation and outcome/label prediction.</p><p>Why the Stata community would need these commands? I see three related answers to this question. First, Stata users who are willing to apply ML methods would benefit from these commands as they can allow them to perform ML without time-consuming investment in learning other software. Second, these commands provide users with standard Stata returns and variables' generation that can be further used in subsequent Stata coding within the same do-file. This makes the user's workflow smoother, less error-prone, and faster. Third, these commands represent a sort of a case-study showing the potential of integrating Stata and Python. To my experience, indeed, Stata is unbeatable compared to Python when it comes to performing intensive data management and manipulation, descriptive statistics, and immediate graphing, while Python is more suitable for its large set of implemented ML algorithms, for an all-encompassing availability of libraries, for computing speed and sophisticated graphing (not only 3D, but also deep contour plots, and images' reproduction).</p><p>The structure of the paper is as follows. Section 2 presents a brief introduction to machine learning, where subsection 2.1 sets out the basics, subsection 2.2 the optimal tuning procedure via cross-validation, and subsection 2.3 the learning methods and architecture. Section 3.1 and 3.2 present the syntax of r ml stata and c ml stata. For users to familiarize with these commands, section 4 illustrates a simple step-bystep application for fitting a regression tree, while sections 5 and 6 show how to apply the previous commands to a real dataset for either classification and regression purposes. Section 7 concludes the paper.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">A brief introduction to machine learning 2.1 The basics of machine learning</head><p>Machine learning is the branch of artificial intelligence mainly focused on statistical prediction <ref type="bibr" target="#b1">(Boden, 2018)</ref>. The literature distinguishes between supervised and unsupervised learning, referring to a setting where the outcome variable is known (supervised) or unknown (unsupervised). In statistical terms, supervised learning coincides with a regression or classification setup, where regression represents the case in which the outcome variable is numerical, and classification the case in which it is categorical. In contrast, unsupervised learning deals with unlabeled data, and its main concern is that of generating a categorical variable via proper clustering algorithms. Unsupervised learning can thus be encompassed within statistical cluster analysis.</p><p>In this article, we focus on supervised machine learning 1 . We are thus interested in predicting either numerical variables (regression) or label classes (classification) as a function of p predictors (or features) that may be both quantitative or qualitative. From a statistical point of view, we want to fit the conditional expectation of Y , the outcome, on a set of p predictors, X, starting from the following population equation:</p><formula xml:id="formula_0">Y = f (X 1 , . . . , X p ) + (1)</formula><p>where is an error term with mean equal to zero and finite variance. By taking the expectation over X, and assuming that E( |X) = 0, we have:</p><formula xml:id="formula_1">Y = E(Y |X) + = f (X 1 , . . . , X p ) + (2) that is: E(Y |X) = f (X 1 , . . . , X p )<label>(3)</label></formula><p>The conditional expectation f (•) represents a function mapping predictors and expected outcomes. The main purpose of supervised machine learning is that of fitting Eq. ( <ref type="formula" target="#formula_1">3</ref>) with the aim of reducing as much as possible the prediction error coming up when one wants to predict actual outcome variables. The prediction error can be generally defined as e = Y -f (X), with f (•) indicating a specific ML method. Generally, ML scholars focus on minimizing the mean square error (MSE), defined as</p><formula xml:id="formula_2">M SE = E[Y -f (X)] 2 .</formula><p>However, while the in-sample MSE (the so-called "training-MSE") is generally affected by overfitting (thus going to zero as the model's degrees of freedom -or complexityraises up), the out-of-sample MSE (also known as "test-MSE") has the property to be a convex function of model complexity, and thus characterized by an optimal level of complexity.</p><p>It can be proved that the test-MSE, when evaluated at one out-of-sample observation (also called "new instance" in the ML jargon), can be decomposed into three components -variance, bias squared, and irreducible error -as follows:</p><formula xml:id="formula_3">E[(Y -f (X 0 )] 2 = V ar( f (X 0 ) + [Bias( f (X 0 )] 2 + V ar( ) (4)</formula><p>where X 0 is a new instance, that is, an observation that did not participate in producing the ML fit f (•). Figure <ref type="figure">1</ref> shows a graphical representation of the pattern of the previous quantities as functions of model complexity. It is immediate to see that, as long as model complexity increases, the bias decreases while the variance increases monotonically.</p><p>Because of this, the test-MSE sets out a parabola-shaped pattern which allows us for minimizing it at a specific level of model complexity. This is the optimal model tuning whenever complexity is measured by a specific hyper-parameter λ. In the figure, the irreducible error variance represents a constant lower bound of the test-MSE. It is not possible to overcome this minimum test-MSE, as it depends on the nature of the data generating process (intrinsic unpredictability of the phenomenon under analysis).</p><p>Figure <ref type="figure">1</ref>: Trade-off between bias and variance as functions of model complexity.</p><p>In the classification setting, the MSE is meaningless as in this case we have class labels and not numerical values. For classification purposes, the correct objective function to minimize is the (test) mean classification error (MCE) defined as:</p><formula xml:id="formula_4">M CE = E[I(y = C(X))]<label>(5)</label></formula><p>where I(•) is an index function, and C(X) the fitted classifier. As in the case of the MSE, it can be proved that the training-MCE overfits the data when model complexity increases, while the test-MCE allows us to find the optimal model's complexity. Therefore, the graph of figure 1 can be likewise extended also to the case of the test-MCE.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">Optimal tuning via cross-validation</head><p>Finding the optimal model complexity, parameterized by a generic hyper-parameter λ, is a computational task. There are basically three ways to tune an ML model:</p><formula xml:id="formula_5">• Information criteria • K-fold cross-validation • Bootstrap</formula><p>Information criteria are based on goodness-of-fit formulas that adjust the training error by penalizing too complex models (i.e., models characterized by large degrees of freedom). Traditional information criteria comprise the Akaike criterion (AIC) and the Bayesian information criterion (BIC), and can be applied to both linear and non-linear models <ref type="bibr">(probit, logit, poisson, etc.)</ref>. Unfortunately, the information criteria are valid only for linear or generalized linear models, i.e. for parametric regression. They cannot be computed for nonparametric methods like -for example -tree-based or nearest neighbor regressions.</p><p>For nonparametric models, the test-error can be estimated via computational techniques, more specifically, by resampling methods. Boostrap -resampling with replacement from the original sample -could in theory be a practical solution, provided that the original dataset is used as validation dataset and the bootstrapped ones as training datasets. Unfortunately, the bootstrap has the limitation of generating observation overlaps between the test and the training datasets, as about two-thirds of the original observations appear in each bootstrap sample. This occurrence undermines its use to validate out-of-sample an ML procedure.</p><p>Cross-validation is the workhorse of the test-error estimation in machine learning. The idea is to randomly divide the initial dataset into K equal-sized portions called folds. This procedure suggests to leave out fold k and fit the model to the other (K-1) folds (wholly combined) to then obtain predictions for the left-out k-th fold. This is done in turn for each fold k = 1, 2, . . . , K, and then the results are combined by averaging the (K-1) estimates of the error. The cross-validation procedure can be carried out as follows:</p><p>• Split randomly the initial dataset into K folds denoted as G 1 , G 2 , . . . , G K , where G k refers to part k. Assume that there are</p><formula xml:id="formula_6">n k observations in fold k. If N is a multiple of K, then n k = n/K.</formula><p>• For each fold k = 1, 2, . . . , K, compute:</p><formula xml:id="formula_7">M SE k = i∈C k (y i -y i ) 2 /n k</formula><p>where y i is the fit for observation i, obtained from the dataset with fold k removed.</p><p>• Compute:</p><formula xml:id="formula_8">CV K = K i=1 n k n M SE k</formula><p>that is the average of all the out-of-sample M SE obtained fold-by-fold. Observe that, by setting K = n, we obtain the n-fold or leave-one out cross-validation (LOOCV). Also, as CV K is an estimation the true test-error, estimating its standard error can be useful to provide a confidence interval and thus a measure of test-accuracy's uncertainty.</p><p>For ML classification purposes, finally, the cross-validation procedure follows the same line, except for considering the MCE in place of the MSE.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3">Learning methods and architecture</head><p>A learner L j is a mapping from the set [X, θ, λ j , f j (•)] to an outcome y, where X is the matrix of features, θ a vector of estimation parameters, λ j a vector of tuning parameters, and f j (•) an algorithm taking as inputs X, θ, and λ j . Differently from the members of the Generalized Linear Models (GLM) family (linear, probit or multinomial regressions are classical examples), that are highly parametric and are not characterized by tuning parameters, machine learning models -such as local-kernel, nearest-neighbor, or treebased regressions -may be highly nonparametric and characterized by one or more hyper-parameters λ j which may be optimally chosen to minimize the test prediction error, i.e. the out-of-sample predicting accuracy of the learner, as stressed in the previous section.</p><p>A detailed description of all the available machine learning methods is beyond the scope of this paper. Table <ref type="table" target="#tab_0">1</ref>, however, sets out the most popular machine learning algorithms proposed in the literature along with the associated tuning hyper-parameters.</p><p>A combined use of these methods can produce a computational architecture (i.e., a virtual learning machine) enabling to increase statistical prediction and its estimated precision (Van der Laan, <ref type="bibr" target="#b9">Polley and Hubbard, 2007)</ref>. Figure <ref type="figure" target="#fig_0">2</ref> presents the learning architecture proposed by <ref type="bibr" target="#b2">Cerulli (2020)</ref>. This framework is made of three linked learning processes: (i) the learning over the tuning parameter λ, (ii) the learning over the algorithm f (•), and (iii) the learning over new additional information. The departure is in point 1, from where we set off assuming the availability of a dataset [X, y].</p><p>The first learning process aims at selecting the optimal tuning parameter(s) for a given algorithm f j (•). As seen above, ML scholars typically do it using K-fold crossvalidation to draw test-accuracy (or, equivalently, test-error) measures and related standard deviations. At the optimal λ j , one can recover the largest possible prediction accuracy for the learner f j (•). Further prediction improvements can be achieved only by learning from other learners, namely, by exploring other f j (•), with j = 1, . . . , M (where M is the number of learners at hand).</p><p>Figure <ref type="figure">1</ref> shows the training estimation procedure that corresponds to the light blue sequence of boxes leading to the M SE T RAIN which is, de facto, a dead-end node, being the training error plagued by overfitting.</p><p>Conversely, the yellow sequence leads to the M SE T EST , which is informative to take correct decisions about the predicting quality of the current learner. At this node, the analyst can compare the current M SE T EST with a benchmark one (possibly, prefixed), and conclude whether to predict using the current learner, or explore alternative learners in the hope of increasing predictive performance. If the level of the current prediction error is too high, the architecture would suggest to explore other learners.</p><p>In the ML literature, learning over learners is called meta learning, and entails an exploration of the out-of-sample performance of alternative algorithms f j (•) with the goal of identifying one behaving better than the those already explored (Van der Laan and Rose, 2011). For each new f j (•), our architecture finds an optimal tuning parameter and a new estimated accuracy (along with its standard deviation). The analyst can either explore the entire bundle of alternatives and finally pick-up the best one, or decide to select the first learner whose accuracy is larger than the benchmark. Either cases are automatically run by this virtual machine.</p><p>The third final learning process concerns the availability of new information, via additional data collection. This induces a reiteration of the initial process whose final outcome can lead to choose a different algorithm and tuning parameter(s), depending on the nature of the incoming information.</p><p>As final step, one may combine predictions of single optimal learners into one single super-prediction (ensemble learning). What is the advantage of this procedure? As an average, this method cannot provide the largest accuracy possible. However, as sums of i.i.d. random variables have smaller variance than the single addends, the benefit consists of a smaller predictive uncertainty <ref type="bibr" target="#b12">(Zhou, 2012)</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Syntax</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Syntax for r ml stata</head><p>The command r ml stata fits machine learning regression algorithms. It considers as the main inputs a continuous response variable y (i.e. the depvar ), a series of predictors (or features) in varlist explaining the y, plus a series of options. r ml stata depvar varlist , mlmodel(modeltype) out sample(filename) in prediction(name) out prediction(name) cross validation(name) seed(integer ) , save graph cv(name) depvar is a numerical variable. Missing values are not allowed.</p><p>varlist is a list of numerical variables representing the features. When a feature is categorical, please generate the categorical dummies related to this feature. As the command does not do it by default, it is user's responsibility to generate the appropriate dummies. Missing values are not allowed.</p><p>Options mlmodel(modeltype) specifies the machine learning algorithm to be estimated. modeltype takes the following options: elasticnet (Elastic-net), tree (Regression tree), randomforest (Bagging and Random forests), boost (Boosting), nearestneighbor (Nearest Neighbor), neuralnet (Neural network), svm (Support vector machine).</p><p>out sample(filename) requests to provide a new dataset in filename containing the new instances over which estimating predictions. This dataset contains only features.</p><p>in prediction(name) requires to specify a name for the file that will contain in-sample predictions.</p><p>out prediction(name) requires to specify a name for the file that will contain outsample predictions, those obtained from the option out sample(filename).</p><p>cross validation(name) requires to specify a name for the dataset that will contain cross-validation results. The command uses K-fold cross-validation, with K=10 by default.</p><p>seed(integer ) requests to specify a integer seed to assure replication of same results.</p><p>save graph cv(name) allows to obtain the cross-validation optimal tuning graph drawing the pattern of both train and test accuracy.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Returns</head><p>r ml stata returns into e-return scalars (if numeric) or macros (if string) the "optimal hyper-parameters", the "optimal train accuracy", the "optimal test accuracy", and the "standard error of the optimal test accuracy" obtained via cross-validation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Remarks</head><p>Missing values in both the outcome and the list of features are not allowed. Before running this command, please check whether your dataset presents missing values and delete them.</p><p>To run this program you need to have both Stata 16 and Python (from version 2.7 onwards) installed. Also, the Python packages Scikit-learn, Pandas, Numpy, and Scipy must be installed before running the command.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Syntax for c ml stata</head><p>The command c ml stata fits machine learning classification algorithms. It considers as the main inputs a categorical response variable y (i.e. the depvar ), a series of predictors (or features) in varlist explaining the y, plus a series of options.</p><formula xml:id="formula_9">c</formula><p>ml stata depvar varlist , mlmodel(modeltype) out sample(filename) in prediction(name) out prediction(name) cross validation(name) seed(integer ) , save graph cv(name) depvar is a numerical discrete dependent variable representing the different classes. It is recommended to re-code this variable so to take values [1, 2, ..., M ] in a M -class setting. For example, if the outcome is binary taking values [0, 1], remember to record it so to take values [1, 2]. Missing values are not allowed. varlist is a list of numerical variables representing the features. When a feature is categorical, please generate the categorical dummies related to this feature. As the command does not do it by default, it is user's responsibility to generate the appropriate dummies. Missing values are not allowed. Options mlmodel(modeltype) specifies the machine learning algorithm to be estimated. modeltype takes the following options: tree (Tree-based classification), randomforest (Bagging and Random forests), boost (Boosting), regularizedmultinomial (Regularized multinomial), nearestneighbor (Nearest neighbor), neuralnet (Neural network), naivebayes (Naïve Bayes), svm (Support vector machine). out sample(filename) requests to provide a new dataset in filename containing the new instances over which estimating predictions. This dataset contains only features.</p><p>in prediction(name) requires to specify a name for the file that will contain in-sample predictions.</p><p>out prediction(name) requires to specify a name for the file that will contain outsample predictions, those obtained from the option out sample(filename).</p><p>cross validation(name) requires to specify a name for the dataset that will contain cross-validation results. The command uses K-fold cross-validation, with K=10 by default.</p><p>seed(integer ) requests to specify a integer seed to assure replication of same results.</p><p>save graph cv(name) allows to obtain the cross-validation optimal tuning graph drawing the pattern of both train and test accuracy.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Returns</head><p>c ml stata returns into e-return scalars (if numeric) or macros (if string) the "optimal hyper-parameters", the "optimal train accuracy", the "optimal test accuracy", and the "standard error of the optimal test accuracy" obtained via cross-validation.</p><p>c ml stata provides model predictions both as predicted labels and as predicted probabilities.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Remarks</head><p>Missing values in both outcome and varlist are not allowed. Before running this command, please check whether your dataset presents missing values and delete them.</p><p>To run this program you need to have both Stata 16 and Python (from version 2.7 onwards) installed. Also, the Python packages Scikit-learn, Pandas, Numpy, and Scipy must be installed before running the command.</p><p>4 Application 1: fitting a regression tree</p><p>This section presents an illustrative application of the use of both r ml stata within a cross-section data structure. It is thought to allow users to become familiar with the use of this module (the use of c ml stata follows a similar procedure). To begin with, I show how to implement step-by-step a regression tree.</p><p>• Step 1. Before starting, install Python (from version 2.7 onwards), and the Python packages Scikit--learn, Numpy, Pandas, and Scipy. If you need a help on how to install Python and its packages look at the Python webpage<ref type="foot" target="#foot_0">foot_0</ref> . • Step 2. Once you have Python installed in your machine, you need to install the Stata ML command:</p><p>. ssc install r_ml_stata and look at the documentation file of the command to explore its syntax:</p><p>. help r_ml_stata</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>•</head><p>Step 3. The command requires to provide a dataset with no missing values. It is user's responsibility to assure this. We can thus load the training dataset prepared for this example:</p><p>. use "r_ml_stata_data_example"</p><p>This dataset contains one target variable (y) and 13 features (x 1 , x 2 , ..., x 13 ). All variables are numerical and thus suitable for running our regression tree.</p><p>Before running the command, however, a testing dataset must be provided. This is a dataset made of the same features of the training one, but with new instances. Observe that this dataset must neither contain missing values, nor include the target variable (y). In this example, we prepared a testing dataset called r ml stata data new example. This dataset must be in the same directory of the training dataset.</p><p>• Step 4. There are now all the ingredients to run our regression tree. We simply run these lines of code in Stata:</p><p>. r_ml_stata y x1-x13 , mlmodel(tree) in_prediction("in_pred") /// cross_validation("CV") out_sample("r_ml_stata_data_new_example") /// out_prediction("out_pred") seed( <ref type="formula">10</ref>) save_graph_cv("graph_cv")</p><p>where the syntax has this meaning:</p><p>-The argument tree tells Stata to run a tree-regression. Other options are available (see the help-file).</p><p>-The argument in pred tells Stata to generate a dataset in pred.dta containing the in-sample predictions of the estimated model. They are the predictions for only the training dataset.</p><p>-The argument out pred tells Stata to generate a dataset out pred.dta containing the out-of-sample predictions of the estimated model. They are predictions only for the testing dataset.</p><p>-The argument r ml stata data new example tells Stata to use this one as testing dataset.</p><p>-The seed is necessary to replicate the same results and must be an integer.</p><p>-The argument graph cv tells Stata to save the cross-validation results graph in your current directory.</p><p>•</p><p>Step 5. In order to access the main results of the command thus run, you can look at the command's ereturn list by typing:</p><formula xml:id="formula_10">. ereturn list --------------------------------------</formula><p>scalars: e(OPT_LEAVES) = 4 e(TEST_ACCURACY) = .2027650052251946 e(TRAIN_ACCURACY) = .8911061692860425 e(BEST_INDEX) = 3 e(SE_TEST_ACCURACY) = .742518604039193 - <ref type="figure">--------------------------------------</ref>We can observe that the cross-validated (CV) optimal number of leaves (namely, the tree optimal final nodes) is 4, the CV optimal train accuracy is 0.89, while the CV optimal test accuracy is much smaller, i.e. 0.20. The accuracy measure is the share of the total outcome variance explained by the model (it is closely similar to an adjusted R-squared). Finally, the standard error of the test accuracy is equal to 0.74.</p><p>• Step 6. Interestingly, the command provides also a graphical representation of the 10-fold cross-validation results carried out. The graph in figure <ref type="figure">3</ref>, in fact, shows that the optimal grid search index is 3. At this index, corresponding to 4 leaves, the test accuracy is the maximum over the grid. It is also useful to observe the overfitting pattern of the train accuracy going to one (maximum accuracy) as long as the model complexity increases. This phenomenon justifies ML focus on just the test accuracy which shows, in this graph, a clear variance-bias trade-off.</p><p>• Step 7. We can go even deeper into the understanding of the cross-validation results, by opening the CV results' dataset CV.dta and list its content:</p><p>carry out this analysis, we proceed in three steps: the first bunch of code cleans and prepares the datasets (training and test) to use for fitting c ml stata in a correct way; the second bunch of code fits all the learners available to the data; a third and final part of the code yields a forest plot for visualizing and comparing learners' test accuracy and standard deviation.</p><p>We start by setting out the code for data cleaning and preparation: The outputs of this first part of the code are two datasets obtained through a random split of the initial auto dataset, data train used for in-sample fit, and data test used for out-of-sample classification. It is important to bear in mind that the data test must contain only the (standardized) features, while both need to be without labels and missing values.</p><p>In the second part of the code, we fit the learners to the training dataset. We perform this task by looping over the global LEARNERS that contains the name of the classifiers allowed by c ml stata. The main outputs of this part are in the dataset RES containing, for every learner, the optimal greed index, the training and test accuracy, and the graph cv graph all displaying the cross-validation maximum of the classification test accuracy (i.e., the minimum of the classification error) over a greed of learners' tuning parameters. This graph is visible in figure <ref type="figure" target="#fig_4">4</ref>.  The first part of this code extracts from the cross-validation results (contained, for every learner, in the dataset CV ) the standard error of the test accuracy. The resulting dataset is then merged with the RES dataset, thus allowing for plotting mean and standard deviation of each learner's test accuracy within a forest plot. This graph is visible in figure <ref type="figure" target="#fig_6">5</ref>. The results clearly show that in this dataset the neural network performs particularly well, with a cross-validation test accuracy of 0.97 and the smallest confidence interval. One contrary, classification tree perform poorly, with a test accuracy of 0.85 and a large confidence interval. The other classifiers perform within this range and generally set out rather large confidence intervals. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">Application 3: ML regression</head><p>In this application, we present the results from running a regression predictive analysis using r ml stata. For the sake of brevity, we do not report the code as it is identical to the one of the classification exercise, except for choosing as target the continuous variable price instead of the binary foreign (now included in the model as feature).</p><p>The cross-validation results are visible in figure <ref type="figure" target="#fig_7">6</ref> showing the greed index maximizing the test prediction accuracy. For regression, the selected accuracy measure is the prediction "explained variance" that takes a maximum value of one in the case of perfect prediction.  </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7">Conclusion</head><p>In the last two decades, advances in statistical learning and computation have radically improved the prediction performance of targeted outcomes in pretty all scientific domains, including engineering, robotics, and artificial intelligence. ML has emerged as a new scientific paradigm to model outcomes and design pragmatic architectures for reasoned decision-making in uncertain environments. Thanks to the recent Stata/Python integration platform introduced within Stata 16, producing Stata routines able to fit ML regression and classification has become a relatively straightforward task. By exploiting this opportunity, this paper has presented two related Stata modules, r ml stata and c ml stata, for fitting popular ML models both in a regression and a classification setting. These commands provide hyper-parameters' optimal tuning via K-fold crossvalidation using greed search, by wrapping the Python Scikit-learn API to perform cross-validation and outcome/label prediction.</p><p>Compared to other popular statistical software, Stata has the advantage to be highly user-friendly and powerful for complex data management. Unfortunately, Stata has not yet embedded a built-in Machine Learning package, except for the Lasso (including also the Elastic-net).</p><p>The two commands herein presented thus go in the direction to partly fill this gap by providing the Stata users with two simple but powerful commands for fitting various ML methods. Further development of this work may include to provide also deep-learning Stata routines by wrapping into Stata the Python platforms Keras and Tensorflow.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: The meta-learning machine architecture.</figDesc><graphic coords="7,117.00,234.50,396.85,223.29" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>*</head><figDesc>******************************************************************************* * DATA CLEANING AND PREPARATION ******************************************************************************** * Clean the detaset eliminating all labels and missing values clear all cd "/Users/giocer/Dropbox/Stata_Python/Paper_c_r_ml_stata" sysuse auto , clear label drop _all drop make qui reg _all keep if e(sample) * Standardize the features global X "price mpg rep78 headroom trunk weight length turn displacement gear_ratio" global initial dataset into a "training" and a "test" dataset splitsample, generate(svar, replace) split(0.15 0.85) rseed(1) show * Save the the training dataset as "data_train.dta*****************************************************************************</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>*</head><figDesc>******************************************************************************* * FITTING ML CLASSIFIERS ******************************************************************************** * Define global macros Y, X, and LEARNERS for the fitting global Y "foreign" global X $XX global LEARNERS tree randomforest boost /// regularizedmultinomial nearestneighbor /// neuralnet naivebayes svm" * Define a matrix M that will contain the main results local i=1 global m: word count $LEARNERS mat M=J($m,3,.) * Fit all the ML methods by a loop over "LEARNERS" and save the main fitting * results into the matrix M foreach L of global LEARNERS{ * Load the training dataset use data_train , clear * Fit the single learner c_ml_stata $Y $X , mlmodel('L') in_prediction("in_pred_'i'") cross_validation("CV_'i'") /// out_sample("data_test") out_prediction("out_pred_'i'") seed(10) save_graph_cv("graph_cv_'i'") * Save results into M mat M['i',1]=e(TRAIN_ACCURACY) mat M['i',2]=e(TEST_ACCURACY) mat M['i',3]=e(BEST_INDEX) mat colnames M = TRAIN_ACCURACY TEST_ACCURACY index mat rownames M = 'L' local i='i'+1 } * Turn the information contained in M into a dataset called "RES.dta" clear svmat M , n(col) gen Learner="" local i=1 foreach L of global LEARNERS{ replace Learner="'L'" in 'i' local i='i'+1 } replace index=int(index) save RES , replace * Put all the cross-validation graphs into a global macro called "TOT" global TOT "" forvalues i=1/8{ global TOT $TOT graph_cv_'i'.gph } * Combine the graphs export the final graph graph combine $TOT , scale(*0.5) plotregion(style(none)) scheme(s1mono) graph export cv_graph_all.png , as(png) replace ********************************************************************************</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Figure 4 :</head><label>4</label><figDesc>Figure 4: Cross-validation maximum of the classification test accuracy over a greed of learners' tuning parameters. Accuracy measure: "error rate" (taking values between zero and one).</figDesc><graphic coords="17,117.00,213.94,396.86,288.66" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><figDesc>******************************************************************************** * FOREST PLOT FOR LEARNERS' ACCURACY ******************************************************************************** * Build a Forest Plot of the accuracy by Learner: mean &amp; standard deviation clear global LEARNERS tree randomforest boost /***************************************************************************** clear append using $CV tab Learner , mis ******************************************************************************** merge 1:1 index Learner using RES keep if _merge==3 sort Learner ******************************************************************************** sum mean_test_score global MEAN=r(mean) ******************************************************************************** replace Learner="Boosting" in 1 replace Learner="Naive Bayes" in 2 replace Learner="Nearest neighbor" in 3 replace Learner="Neural network" in 4 replace Learner="Random forest" in 5 replace Learner="Regularized multinomial" in 6 replace Learner="Support vector machine" in 7 replace Learner="Tree" in 8 ******************************************************************************** cap drop C gen C='"""' cap drop A gen A=_n tostring A,replace cap drop _L gen _L= A + " " + C + Learner + C ******************************************************************************** levelsof _L , local(XX) clean global XX 'XX' ******************************************************************************** cap drop _id gen _id=_n cap drop lo gen lo=mean_test_score-1.96*std_test_score cap drop hi gen hi=mean_test_score+1.96*std_test_score ******************************************************************************** format mean_test_score %12.2g ******************************************************************************** twoway (rcap lo hi _id , horizontal ) (scatter _id mean_test_score , /// msymbol(S) msize(small) mcolor(black) mlabel(mean_test_score) /// mlabposition(12) mlabc(red) mlabs(medlarge)) , ylabel($XX , angle(0)) ytitle("") /// plotregion(style(none)) scheme(s1mono) xtitle("") legend(off) /// xline($MEAN , lc(orange) lpattern(dash) lw(medthick) ) xtitle(Test accuracy) graph export forestplot.png , as(png) replace ********************************************************************************</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><head>Figure 5 :</head><label>5</label><figDesc>Figure 5: Forest plot for comparing mean and standard deviation of different learners. Classification setting.</figDesc><graphic coords="19,117.00,196.28,396.86,288.66" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head>Figure 6 :</head><label>6</label><figDesc>Figure 6: Cross-validation maximum of the regression test accuracy over a greed of learners' tuning parameters. Accuracy measure: "explained variance" (taking one as maximum value).</figDesc><graphic coords="20,117.00,148.18,396.86,288.66" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_8"><head>Figure 7</head><label>7</label><figDesc>Figure7sets out the comparison among the different learners computed by r ml stata in terms of the mean accuracy and standard deviation. Similarly to the classification case, we can observe that the learners behave differently, with boosting showing the best mean test accuracy (0.49) and tighter confidence interval. The worst performing learner is the nearest neighbor, both in term of mean accuracy and standard deviation.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_9"><head>Figure 7 :</head><label>7</label><figDesc>Figure 7: Forest plot for comparing mean and standard deviation of different learners. Regression setting.</figDesc><graphic coords="21,117.00,120.78,396.86,288.66" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="4,164.27,192.95,283.46,251.46" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="13,117.00,120.78,396.86,288.66" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 1 :</head><label>1</label><figDesc>Main machine learning methods and associated tuning hyper-parameters.</figDesc><table><row><cell>ML method</cell><cell>Parameter 1</cell><cell>Parameter 2</cell><cell>Parameter 3</cell></row><row><cell>Linear Models and GLS</cell><cell>N. of covariates</cell><cell></cell><cell></cell></row><row><cell>Lasso</cell><cell>Penalization coefficient</cell><cell></cell><cell></cell></row><row><cell>Elastic-Net</cell><cell>Penalization coefficient</cell><cell>Elastic parameter</cell><cell></cell></row><row><cell>Nearest-Neighbor</cell><cell>N. of neighbors</cell><cell></cell><cell></cell></row><row><cell>Neural Network</cell><cell>N. of hidden layers</cell><cell>N. of neurons</cell><cell></cell></row><row><cell>Trees</cell><cell>N. of leaves</cell><cell></cell><cell></cell></row><row><cell>Boosting</cell><cell>Learning parameter</cell><cell>N. of bootstraps</cell><cell>N. of leaves</cell></row><row><cell>Random Forest</cell><cell cols="2">N. of features for splitting N. of bootstraps</cell><cell>N. of leaves</cell></row><row><cell>Bagging</cell><cell>Tree-depth</cell><cell>N. of bootstraps</cell><cell></cell></row><row><cell cols="2">Support Vector Machine C</cell><cell>Γ</cell><cell></cell></row><row><cell>Kernel regression</cell><cell>Bandwidth</cell><cell>Kernel function</cell><cell></cell></row><row><cell>Piecewise regression</cell><cell>N. of knots</cell><cell></cell><cell></cell></row><row><cell>Series regression</cell><cell>N. of series terms</cell><cell></cell><cell></cell></row></table></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_0"><p>Specifically, look at the Python installation page: https://realpython.com/installing-python.</p></note>
+		</body>
+		<back>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"> <ref type="figure">-------------------------------------------+</ref> <p>| index mean_tr~e mean_tes~e std_tes~e | |- <ref type="figure">-------------------------------------------</ref>  <ref type="figure">-------------------------------------------</ref>  <ref type="figure">-------------------------------------------</ref>  <ref type="figure">-------------------------------------------+</ref> Results show, by every grid index, the train accuracy, the test accuracy, and the standard error of the test accuracy estimated over the 10-fold runs. The standard error is important, as it measures the precision we obtain when estimating the test accuracy. In this example, at the optimal index (i.e., 3), the test accuracy's standard error is 0.74, which should be compared with those obtained from other ML algorithms. This means that the choice of the ML model to employ for prediction purposes should ponder not only the level of the achieved test accuracy, but also its standard error.</p><p>• Step 8. Finally, we can have a look at the out-of-sample predictions. This can be done by opening and listing the out pred dataset:</p><p>. use out_pred , clear</p><p>. list  <ref type="figure">------------------</ref>  <ref type="figure">------------------</ref>  <ref type="figure">------------------+</ref> We observe that the predictions are made of only three values <ref type="bibr">[21.62, 16.23, 27.42]</ref> corresponding to three out of the four optimal terminal tree leaves. Graphically it represents a step-function (omitted for the sake of brevity).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Application 2: ML classification</head><p>In this section, we show an illustrative application of c ml stata using the popular auto dataset. We intend to guess whether a "new" car is a "foreign" or "domestic" one based on a series of characteristics, including price, number of repairs, weight, etc. Our goal is to provide a comparison of the accuracy performed by the classifiers available through c ml stata. This is in tune with the learning architecture outlined in section 2.3, as it can provide guidance over the choice of the proper learner to use. In order to</p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">lassopack: Model selection and prediction with regularized regression in Stata</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Ahrens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">B</forename><surname>Hansen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Mark</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">E</forename><surname>Schaffer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Stata Journal</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="176" to="235" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Artificial Intelligence: A Very Short Introduction</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A</forename><surname>Boden</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<publisher>Oxford University Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Improving econometric prediction by machine learning</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Cerulli</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Applied Economics Letters</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Support Vector Machines</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Guenther</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Schonlau</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Stata Journal</title>
+		<imprint>
+			<biblScope unit="volume">16</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="917" to="937" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<title level="m" type="main">The elements of Statistical Learning -Data Mining, Inference, and Prediction</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Hastie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Tibshirani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Friedman</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2001">2001</date>
+			<publisher>Springer-Verlag</publisher>
+			<pubPlace>Berlin</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<author>
+			<persName><forename type="first">S</forename><surname>Raschka</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Mirjalili</surname></persName>
+		</author>
+		<title level="m">Python Machine Learning</title>
+		<imprint>
+			<publisher>Packt Publishing</publisher>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note>3rd Edition</note>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Boosted Regression (Boosting): An Introductory Tutorial and a Stata Plugin</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Schonlau</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Stata Journal</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="330" to="354" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">The random forest algorithm for statistical learning</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Schonlau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">Y</forename><surname>Zou</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Stata Journal</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="3" to="29" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<title level="m" type="main">Stata 16 Lasso Reference Manual</title>
+		<author>
+			<persName><surname>Statacorp</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<publisher>Stata Press</publisher>
+			<pubPlace>College Station, TX</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<author>
+			<persName><forename type="first">M</forename><surname>Van Der Laan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">C</forename><surname>Polley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">E</forename><surname>Hubbard</surname></persName>
+		</author>
+		<title level="m">Super Learner, Statistical Applications in Genetics and Molecular Biology</title>
+		<imprint>
+			<date type="published" when="2007">2007</date>
+			<biblScope unit="volume">6</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">Targeted learning: causal inference for observational and experimental data</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">J</forename><surname>Van Der Laan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Rose</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+			<publisher>Springer</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Big Data: New Tricks for</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">R</forename><surname>Varian</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Econometrics. Journal of Economic Perspectives</title>
+		<imprint>
+			<biblScope unit="volume">28</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="3" to="28" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<author>
+			<persName><forename type="first">Z</forename><forename type="middle">H</forename><surname>Zhou</surname></persName>
+		</author>
+		<title level="m">Ensemble Methods: Foundations and Algorithms</title>
+		<imprint>
+			<publisher>CRC Press</publisher>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

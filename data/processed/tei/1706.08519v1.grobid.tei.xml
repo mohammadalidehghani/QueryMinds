@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">On conditional parity as a notion of non-discrimination in machine learning</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2017-06-26">26 Jun 2017</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Ya</forename><forename type="middle">'</forename><surname>Acov Ritov</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Michigan</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Yuekai</forename><surname>Sun</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Michigan</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Ruofei</forename><surname>Zhao</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Michigan</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main">On conditional parity as a notion of non-discrimination in machine learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2017-06-26">26 Jun 2017</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">676AB78B56A6397C851E30227C41E103</idno>
+					<idno type="arXiv">arXiv:1706.08519v1[stat.ML]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>We identify conditional parity as a general notion of nondiscrimination in machine learning. In fact, several recently proposed notions of non-discrimination, including a few counterfactual notions, are instances of conditional parity. We show that conditional parity is amenable to statistical analysis by studying randomization as a general mechanism for achieving conditional parity and a kernel-based test of conditional parity.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>As automated decision systems permeate our world, the problem of implicit biases in these systems have become more serious. Machine learning algorithms are routinely used to make decisions in credit, criminal justice, and education, all of which are domains protected by anti-discrimination law. Although automated decision systems seem to eliminate the biases of a human decision maker, they may perpetuate or even exacerbate biases in the data.</p><p>For example, consider an advertising platform which uses demographic information of visitors to a website to decide which credit card offers to show first-time visitors. If the system is trained on historical data where minority visitors were given less advantageous offers, the system may steer similar visitors to less advantageous offers, which is illegal <ref type="bibr" target="#b16">(Steel and Angwin, 2010)</ref>.</p><p>In response, the scientific community has proposed several formal definitions of non-discrimination and various approaches to ensure algorithms are non-discriminatory. Unfortunately, the myriad of definitions and approaches hinders the adoption of this work by practitioners: they must choose from the growing list of definitions and approaches, and there is often no clear choice.</p><p>In light of this plethora of definitions, we identify a general notion of nondiscrimination in Section 2 that not only includes many recently proposed definitions but also suggests new definitions. In Sections 3 and 4, we study randomization as a general mechanism for achieving conditional parity and a kernel-based test of conditional parity. Finally, in Section 5, we apply this test to determine whether insurance companies charge higher premiums to insure cars in minority neighborhoods.</p><p>Table <ref type="table">1</ref> A graphical representation of the groups implicit in the gender discrimination example.</p><p>a = female a = male z = analyst z = associate . . . z = VP</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.">CONDITIONAL PARITY: A NOTION OF NON-DISCRIMINATION</head><p>Intuitively, any claim of discrimination or non-discrimination depends on a comparison: a comparison between the outcome of two groups that differ only by a sensitive attribute. For instance, a claim of gender discrimination by a female employee of a consulting firm implies she was treated differently from male employees of the company in her position. Here the two groups are female and male employees that share her position. By only comparing herself to male employees in her position, she is implicitly permitting the firm to treat male employees in other positions differently. In other words, the firm is allowed to discriminate on an employee's position (eg. paying senior employees higher salaries). We see that in order to fully specify the two groups, we must not only specify the protected attribute (eg. gender) but also specify the discriminatory attribute (eg. position).</p><p>Definition 2.1 (conditional parity (CP)). A random variable x satisfies parity with respect to a conditioned on z = z if the distribution of x | a, {z = z} is constant in a:</p><p>L(x | a = a, z = z) = L(x | a = a , z = z) for any a, a ∈ A.</p><p>Similarly, x satisfies parity with respect to a conditioned on z (without specifying a value of z) if it satisfies parity with respect to a conditioned on z = z for any z ∈ Z.</p><p>In terms of independence, conditional parity is x ⊥ a | {z = z}. Table <ref type="table">1</ref> is a graphical representation of the groups in the running gender discrimination example. As we shall see, many existing notions of non-discrimination such as demographic parity, equalized odds, equalized opportunity, and counterfactual fairness are all instances of CP. We remark that the definition of CP is invariant under post-processing: if x satisfies CP with respect to a conditioned on z = z, then so does f (x) for an arbitrary function f . This is especially desirable because it leads to a simple way of eliminating bias in machine learning algorithms.</p><p>The intuition of identical conditional distributions that Definition 2.1 formalizes extends easily to yield approximate notions of non-discrimination. To keep things simple, we assume a is discrete.</p><p>Definition 2.2 ( -conditional parity). Let d be a metric on distributions.<ref type="foot" target="#foot_0">foot_0</ref> A random variable x satisfies -conditional parity with respect to a ∈ A conditioned on</p><formula xml:id="formula_0">z = z if max a,a ∈A d(L(x | a = a, z = z), L(x | a = a , z = z)) ≤ for any a, a ∈ A.</formula><p>To wrap up, we compare CP to two other notions of non-discrimination: functional blindness and individual fairness.</p><p>Definition 2.3 (functional blindness). A decision rule δ : A × Z → X satisfies functional blindness with respect to a iff δ(a, z) = δ(a , z) for any a, a ∈ A and z ∈ Z.</p><p>In other words, the decision rule has no functional dependence on the protected attribute.</p><p>Functional blindness, also known as fairness through unawareness, is a rudimentary but widely used notion of non-discrimination. Although intuitive, it is a weak notion that is easily circumvented because it does not rule out implicit dependence of the decision on the protected attribute.</p><p>For decades, insurance companies have charged drivers in predominantly minority neighborhoods higher premiums than drivers in majority white neighborhoods. Although insurers have justified their pricing by citing a higher risk of accidents in minority neighborhoods, consumer advocates suspect the practice is merely a way around laws that ban discriminatory rate-setting: a driver's zip code is a good proxy for his or her race in segregated areas.</p><p>We remark that functional blindness implies parity conditioned on z. However, if z includes attributes that are proxies for the protected attribute (eg. zip code is a proxy for race in the preceding example), enforcing CP is vacuous. After all, by including an attribute in z, we are allowing the decision rule to discriminate based on it.</p><p>Definition 2.4 (individual fairness <ref type="bibr" target="#b3">(Dwork et al., 2012)</ref>). Let d be a metric on distributions and D be a metric on the space of individuals X . A (possibly randomized) decision rule δ satisfies -individual fairness iff it is -Lipschitz in</p><formula xml:id="formula_1">x: d(L(δ(x 1 )), L(x 2 )) ≤ D(x 1 , x 2 ) for any x 1 , x 2 ∈ X .</formula><p>Individual fairness is based on the principle that two similar individuals should be treated similarly by the decision rule. The precise definition of individual fairness depends crucially on the choice of the metrics d and D. <ref type="bibr" target="#b3">Dwork et al. (2012)</ref> suggest the metrics be chosen by a regulatory body or proposed by civil rights organizations and left open to discussion and continual refinement.</p><p>Both CP and individual fairness formalize the intuition that similar individuals should be treated similarly. In CP, similar individuals are those that share discriminatory attributes. In individual fairness, similar individuals are determined by the choice of the the metric on individuals. Although <ref type="bibr" target="#b3">Dwork et al. (2012)</ref> does not distinguish between disriminatory and protected attributes, it is possible to encode the distinction into the choice of metric on X .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">Demographic parity and equalized odds</head><p>In this subsection, we describe several factual (as opposed to counterfactual) notions of non-discrimination and show that they are instances of CP.</p><p>Definition 2.5 (demographic parity (DP)). The outcome x satisfies demographic parity if</p><formula xml:id="formula_2">L(x | a = a) = L(x | a = a ) for any a, a ∈ A.</formula><p>As we can see, there is no discriminatory attribute in DP, and it is required that individuals from the group {a = a} has to be treated equally as individuals from the group {a = a }. Although in general, DP seems too coarse a notion of non-discrimination, there are some scenarios where it is suitable. For example, in the allocation of public resources, DP is a fitting notion of non-discrimination. A concrete example is public secondary school admission. Due to the public service nature of public secondary education, parents should be allowed to send their children to any school in their neighborhood, regardless of their background. In reality, such goal is often attained by lottery, meaning that random selections in the pool of applicants are made.</p><p>Example 2.6 (War on Drugs). According to the American Civil Liberties Union (ACLU), "an African American adult is 2.8 times as likely to have a misdemeanor cannabis charge filed against him or her than does an Anglo American adult" in Washington State <ref type="bibr" target="#b10">(Jensen and Roussell, 2016)</ref>. By comparing the likelihood of being charged without stratifying the population (eg. by prevalence of cannabis consumption), the ACLU is claiming the War on Drugs violates DP. This is an example where DP is not a suitable notion of non-discrimination: the disparity between the likelihood of being charged may be due to disparities between prevalence of cannabis consumption. Thus it is incorrect to conclude the targeting of African Americans by law enforcement from violation of DP.</p><p>To avoid the problems of DP, we first segment the population by certain discriminatory attributes (eg. prevalence of cannibis consumption in the War on Drugs example) and then apply DP to each segment of the population. This led us to the notion of CP. In supervised learning, a natural instantiation of CP is equalized odds, which appeared in <ref type="bibr" target="#b8">Hardt et al. (2016)</ref> and <ref type="bibr" target="#b20">Zafar et al. (2017)</ref>. In terms of CP, EO is equivalent to the prediction y satisfying parity with respect to the protected attributed a conditioned on the outcome y. In other words, EO requires the individuals with the same y but differing a to be treated equally. If both y and y are binary, then in standard terminology, EO means that the probabilities of false alarms and the detection probabilities are the same under all possible values of a. Note that typically the optimal ROC curve depends on the value of a, and oftentimes, we sacrifice some efficiency to achieve EO through randomization <ref type="bibr" target="#b8">Hardt et al. (2016)</ref>.</p><p>Example 2.8 (Example 2.6 continued). In the War on Drugs example, y is whether an individual is charged, a is an individual's race, and y may be whether an individual consumes cannabis. If there is a discrepancy between the prevalence of cannibis consumption among African and Anglo Americans, then EO is more suitable notion of non-discrimination in law enforcement. Since y depends on a, even perfect prediction y = y violates DP, but it is hardly discriminatory for law enforcement to charge anyone who consumes cannabis with a misdemeanor. On the other hand, it is easy to check that the perfect predictor satisfies EO.</p><p>In some applications, one of the outcomes y ∈ Y is considered "advantaged". For example, consider the use of historical repayment data to predict default. If the historical data contains biases against minority groups, the prediction system may echo the bias in its predictions. A possible relaxation of EO is to require people who will not default to have equal chance of getting a loan, regardless of their race.</p><p>Definition 2.9 (equal opportunity <ref type="bibr" target="#b8">Hardt et al. (2016)</ref>). Let y = 1 be the "advantaged" outcome. A prediction y satisfies equalized opportunity with respect to protected attribute a and outcome y if</p><formula xml:id="formula_3">L( y | a = a, y = 1) = L( y | a = a , y = 1) for any a, a ∈ A.</formula><p>It is easy to see how equalized odds leads to the more general notion of CP.</p><p>The key idea of comparing segments of the population that share discriminatory attributes but differ in the protected attribute is clear. In classification, there is a natural discriminatory attribute: the outcome y. However, it is worth considering other ways of segmenting the population, even in supervised learning.</p><p>Example 2.10 (gender bias in UC Berkeley admissions <ref type="bibr" target="#b1">Bickel, Hammel and O'Connell (1977)</ref>). In the autumn of 1973, the graduate division of UC Berkeley admitted 44% of male applicants but only 35% of female applicants, prompting allegations of gender bias in the admissions process. However, adjusting the admissions outcome by department reveals a "small but statistically significant bias in favor of women". <ref type="bibr" target="#b1">Bickel, Hammel and O'Connell (1977)</ref> concluded that women tended to apply to highly competitive departments, which admit a smaller percentage of applicants, while men tended to apply to less competitive departments. In this example, including department as a discriminatory attribute leads to a qualitatively different conclusion.</p><p>As an aside, this example also shows that CP generally does not imply DP. Even if the admission rates of male and female applicants are identical in all departments, the admission rates to the graduate division may still differ if male and female applicants apply to departments at different rates. Conversely, even if the admission rates of male and female applicants to the graduate division are identical, the admission rates to each department may differ. This reveals another problem of DP: it permits disparate treatment within segments of the population as long as the disparities "cancel out" on average. Although this is rare in practice, we point it out to emphasize CP and DP are generally incomparable.</p><p>Finally, to highlight the generality of CP, we describe an application of CP in representation learning. In machine learning, feature or representation learning is the task of learning a transformation of raw data to a feature vector that is amenable to machine learning algorithms. By letting x ∈ R d be the learned feature vector, CP readily leads to a notion of non-discrimination in representation learning:</p><formula xml:id="formula_4">L(x | a = a, z = z) = L(x | a = a , z = z) for any a, a ∈ A and z ∈ Z.</formula><p>As we shall see, this notion of non-discrimination has been implicitly used in natural language processing (NLP).</p><p>To wrap up, we describe a post-processing method that returns a new feature vector that satisfies CP. To keep things simple, we assume x ∈ R d , a ∈ R k 1 , and z ∈ R k 2 are jointly Gaussian. Without loss of generality, let</p><formula xml:id="formula_5">T = x T -z T B -a T Γ, where B ∈ R k 2 ×d and Γ ∈ R k 1 ×d are chosen so that E | z, a = 0. Rearranging, we have x T = a T B + z T Γ + T . A new feature vector x that satisfies x ⊥ a | z is x = (I d -P B )x, P B = B T (B T ) † .</formula><p>One way to estimate R(B T ) is to select a subset of feature vectors that are similar in z and compute their principal components. This is essentially the approach proposed by <ref type="bibr" target="#b2">Bolukbasi et al. (2016)</ref> to remove gender bias in word embeddings.</p><p>Example 2.11 (debiasing word embeddings <ref type="bibr" target="#b2">(Bolukbasi et al., 2016)</ref>). A word embedding is a representation of words by vectors in R d . Word embeddings enable machine learning algorithms to reason semantically by performing arithmetic operations on the word embeddings; eg.</p><p>grandfatherman + woman = grandmother.</p><p>They are learned from text corpus and inherit implicit biases in the texts. For example, according to the the popular word2vec embedding, which is trained on a corpus of Google News articles, we have engineerman + woman = homemaker.</p><p>To remove gender bias in word embeddings, <ref type="bibr" target="#b2">Bolukbasi et al. (2016)</ref> propose a method that identifies a gender subspace and projects the embedding onto the orthocomplement of the gender subspace to obtain a debiased word embedding. To identify the gender subspace, the method takes pairs of words whose meanings differ only in gender (eg. (actor, actress), (father, mother)) and estimates the principal compoments of the pairwise differences.</p><p>By the invariance of CP under post-processing, the output of a machine learning algorithm based on features that satisfy CP inherits the property. This suggests using non-discriminatory features as a simple approach to eliminating bias in machine learning algorithms.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">Counterfactual notions of non-discrimination</head><p>In order to work with counterfactuals, we must impose some modeling assumptions on the data generating process. In the rest of this subsection, we assume the data is generated by a structural equations model (SEM). A SEM consists of (i) a set of random variables, (ii) a set of (deterministic) equations that assign values to some random variables, (iii) a probability distribution that assigns values to the rest of the variables. The variables whose values are assigned by the probability distribution are called exogenous.</p><p>SEM's are conveniently represented as directed acyclic graphs (DAG). The nodes represent random variables, and the edges represent direct causal relationships between variables: there is an edge from node i to node j if the equation that assigns value to variable j takes variable i as input. The nodes that have no parents represent the exogenous variables.</p><p>To sample from an SEM, we start by assigning values to the root nodes by sampling from the probability distribution and recursively assign values to the other nodes by the equations. Thus the nodes whose values are assigned by equations are random variables on the probability space "generated by" the exogenous variables. In this setting, counterfactuals are defined as random variables whose values are assigned by a modified SEM, where the equations and/or the probability distribution are modified according to the premise of the counterfactual. We wrap up our brief overview of counterfactuals with an example and refer to <ref type="bibr" target="#b15">Pearl, Glymour and Jewell (2016)</ref>, Chapter 4 for further details.</p><p>Example 2.12. Consider the intervention a ← a and the counterfactual y a←a in the SEM depicted in Figure <ref type="figure">1a</ref>. The counterfactual is the counterpart of y in the modified SEM depicted on the right of Figure <ref type="figure">1b</ref>, in which the equation that assigns the value of a is replaced by the equation a = a. We see that the value of y a←a ultimately depends on the values of the exogeneous variables in the SEM, making it a random variable on the same probability space as y. Thus it is possible to evaluate "cross-SEM" probabilities such as L(y a←a | y = y). We remark that this SEM formalism allows us to study the effects of more sophisticated interventions such as a ∼ P a (cf. Figure <ref type="figure">1c</ref>).</p><p>In the rest of this subsection, we describe two counterfactual notions of nondiscrimination. The first was proposed recently by <ref type="bibr" target="#b12">Kusner et al. (2017)</ref>, while the second is suggested by CP. To keep things simple, we specialize to supervised learning and focus on prediction. u a z y (a) u a z a←a y a←a (b) u a a∼Pa z a∼Pa y a∼Pa (c)</p><p>In Definition 2.13, e is the evidence we observe in the real world. Although it plays the part of z in CP, we call it evidence and denote it by e to emphasize it is observed. To see that CF is an instance of CP, let y a , a a be the counterparts of y, a in a modified SEM, where the step that assigns value to a is replaced by a ∼ unif(A), and note that (2.1) is equivalent to We remark that the law of the intervention is unimportant because we condition on the value of a. We pick a ∼ unif(A) to keep things concrete.</p><p>The notion of CF is best illustrated by the following case on employment discrimination. <ref type="bibr" target="#b19">In (1996)</ref>, the judges wrote "the central question in any employmentdiscrimination case is whether the employer would have taken the same action had the employee been of a different race (age, sex, religion, national origin, etc.) and everything else had been the same". In other words, to ascertain whether discrimination occurred, the judges compared the employee with his counterpart in a counterfactual world, rather than a similar employee in the real world.</p><p>We remark that it may not be possible to follow the judges directive literally and keep all other attributes the same: the intervention a ← a may propagate in the modified SEM and lead to discrepancies with the evidence. For example, consider a female employee who is homosexual. In a counterfactual world where she is male, it is not possible to keep both her sexual orientation and the gender she is attracted the same as hers in the real world.</p><p>As we saw, CF is an instance of CP where we segment the population by observable evidence. A related notion of non-discrimination is equalized counterfactual odds (ECO): it is an instance of CP that segments the population by counterfactual attributes. It is motivated by Example 2.14.</p><p>Example 2.14. Consider a system that predicts a driver's accident risk from his or her driving record. The prediction y depends directly on a driver's driving record z, which in turn depends on the driver's driving ability u. Driving ability also directly affects a driver's accident risk y and whether he or she is disabled a (poor drivers tend to get into accidents, which cause disabilities). Figure <ref type="figure" target="#fig_5">2</ref> is a DAG that depicts the functional dependencies among the variables. This example does not satisfy EO: the path a ← u → z → y between a and y is not blocked. However, y is intuitively non-discriminatory: there is only dependence between a and y because driving ability is a parent of disability and driving record. the prediction y has no causal dependence on a does not penalize good drivers that happen to be disabled. We see that EO is too stringent a condition in this scenario. It not only prohibits the prediction from treating disabled drivers differently because of their disability, but also prohibits the prediction from happening to put disabled drivers in an disadvantaged position due to the presence of a confounder. In this scenario, disabled people happen to have worse driving records because driving ability affects one's driving record and causes disability.</p><p>Example 2.14 shows that EO is too stringent because it prohibits probabilistic dependence between y and a, which may arise due to confounding. The notion of equalized counterfactual odds is an amendment of EO that only prohibits causal relationships between y and a. If (2.3) holds for all y ∈ Y, we say y satisfies equalized counterfactual odds with respect to a.</p><p>In a nutshell, ECO is EO on a modified SEM, in which the step that assigns value to a is replaced by a ∼ P a . The graph of the modified SEM is identical to that of the original SEM, except all the edges that point to a are removed. This removes all back door paths between y and a, which typically represent the effects of confounders. Thus ECO only prohibits probabilistic dependence between y and a in the original SEM through front door paths. This leads to a simple way of verifying ECO.</p><p>Lemma 2.16. A prediction y of y satisfies ECO with respect to protected attribute a if any front door paths from a to y are blocked by y.</p><p>ECO is also closely related to CF: both compare the law of the counterfactual prediction y a on segments of the population. ECO segments the population by the counterfactual target y a , while CF segments the population by (observable) evidence e. In practice, CF is a fairly stringent notion of non-discrimination. As Kusner et al. (2017) point out, there are instances in which perfect prediction does not satisfy CF. On the other hand, perfect prediction always satisfies ECO.</p><p>To wrap up, we present another example that highlights the difference between the two notions.</p><p>Example 2.17. Consider an SEM of a church's priest hiring process. The church's hiring decision y = 1{z ≥ 1.8} depends on an applicants score z = au, where u ∼ unif(0, 2) is the applicant's propensity for priest work and a ∈ {0, 1} is whether the applicant is Christian. Figure <ref type="figure" target="#fig_7">3</ref> depicts an SEM of the priest hiring process.</p><p>Consider an atheist applicant whose talents are well-suited to priest work (eg. charismatic, persuasive, u = 1.9). He applied for the position, but was rejected. Since he would have been hired if he was a Christian, the hiring process is not counterfactually fair with respect to a in light of evidence z. Graphically, conditioning on z in the unmodified SEM does not block the path between a a and y a in the graph of the modified SEM. On the other hand, the hiring process clearly satisfies ECO: z blocks the only front door path between a and y in the graph of the (unmodified) SEM.</p><p>Before moving on, we mention a few recently proposed counterfactual notions of non-discrimination. <ref type="bibr" target="#b22">Zhang, Wu and Wu (2016)</ref> and <ref type="bibr" target="#b13">Nabi and Shpitser (2017)</ref> formalize discrimination as the presence of path specific effects (cf. <ref type="bibr" target="#b14">Pearl (2009)</ref>, §4.5.3). Although path-specific notions of non-discrimination are also instances of CP, we skip the details here. <ref type="bibr" target="#b11">Kilbertus et al. (2017)</ref> addresses the difficulty of modeling and determining the effect of intervening on protected attributes by considering non-discrimination with respect to proxies of protected attributes.</p><p>To wrap up, we cite a few related works on non-discrimination in machine learning. DP as a notion of non-discrimination was studied in <ref type="bibr" target="#b21">Zemel et al. (2013)</ref>. Friedler, Scheidegger and Venkatasubramanian (2016) extends the notion of individual fairness to distinguish between constructs, which are unobservable attributes (eg. intelligence), and observations (eg. score on IQ test), which are proxies of constructs that enter into the algorithm. <ref type="bibr" target="#b0">Berk et al. (2017)</ref> reviews various notions of non-discrimination in the criminal justice system.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">CONDITIONAL PARITY BY RANDOMIZATION</head><p>In supervised learning, we observe realizations of (a, s, y), where a ∈ {0, 1} is the protected attribute, s ∈ R d is a score, y is the outcome. In general, s is dependent on a. If we wish to obtain a prediction that does not depend on the protected attribute we have to sacrifice some efficiency and use a randomized procedure. In this section we consider the construction of a (randomized) decision rule y = y(s, a) such that L( y | a = a, y = y) does not depend on a.</p><p>Assume for simplicity that s is discrete. In that case let f ya be the probability vector corresponding to L(s | a = a, y = y). A non-discriminatory randomization is a pair of Markov kernels, K 0 , K 1 ∈ R k×k 1 satisfying</p><formula xml:id="formula_6">f y1 K 1 = f y0 K 0 , y ∈ {0, 1} K 0 (i, j), K 1 (i, j) ≥ 0, i = 1, . . . , k, j = 1, . . . , k 1 k 1 j=1 K m (i, j) = 1, i = 1, . . . , k, m = 0, 1. (3.1)</formula><p>The minor difficulty is due to the fact that the conditional density given y should be checked, while the randomization cannot depend on y which is unobserved at the time of the randomization.</p><p>Lemma 3.1. In general, we need to randomize the score of both categories to achieve EO.</p><p>Proof. The lemma follows from the fact that a Markov kernel is a contraction in two measures, and in general they are unrelated. Consider two sets of densities such that f 10 -f 00 1 f 11 -f 01 1 , but on a small interval, small enough such that it has a little contribution to the L 1 distance, f 10 (x)/f 00 (x)</p><formula xml:id="formula_7">f 11 (x)/f 01 (x). If it was that f y0 K = f y1 f 11 -f 01 1 = j i f 10 (i) -f 00 (i) K 1 (i, j) ≤ i f 11 (i) -f 01 (i) j K(i, j) = f 11 -f 01 1 .</formula><p>which contradict the assumption. On the other hand, if it was that</p><formula xml:id="formula_8">f y1 K = f y0 max j f 10 (j) f 00 (j) = max j i f 11 (i)K 1 (i, j) i f 01 (i)K 1 (i, j) = max j i f 11 (i) f 01 (i) f 01 (i)K 1 (i, j) i f 01 (i)K 1 (i, j) ≤ max i f 11 (i) f 01 (i) ,</formula><p>which contradict the other assumption. Hence neither it is that</p><formula xml:id="formula_9">f y0 K = f y1 nor that f y0 K = f y1 .</formula><p>The set (3.1) has 2(k + k 1 -1) equality constraints with 2kk 1 undefined parameters. It always has the trivial solution. Adding a linear cost function, eg.</p><p>(3.2) for example j(i) = ik 1 /k , turns the feasibility problem into a linear program.</p><formula xml:id="formula_10">m i j c i |j -j(i)| α K m (i, j),</formula><p>To avoid sparse solutions, we add another set of constraints</p><formula xml:id="formula_11">(3.3) j jK m (i, j) is monotone non-decreasing in i for m = 1, 2.</formula><p>That is, the rows of K m are increasing in the mean.</p><p>Example 3.2. Consider the following model in which there is a never observed latent variable z a ∈ {0, 1}</p><formula xml:id="formula_12">z | a = a ∼ N (µ z a, τ 2 z ) s | a = a, z = z ∼ N (z + µ s a, σ 2 s ) y ∈ {0, 1} P (y = 1 | a, s, z) = p z (z).</formula><p>In words z is the ability of the random subject, the two groups are of different ability. Let assume that µ z , µ s ≥ 0 We have a noisy observations s which is biased in favor of the stronger group. Since</p><formula xml:id="formula_13">z | a = a, s = s ∼ N ( σ 2 s σ 2 s + τ 2 z aµ z + τ 2 z σ 2 s + τ 2 z (s -aµ s ), σ 2 s τ 2 z σ 2 s + τ 2 z ),</formula><p>if we have µ s = (σ 2 s /τ 2 z )µ z then the Bayes estimator of z given a, s is the same for the two groups. In reality, biasing the score of the stronger group is not done explicitly. However, in order to improve the Bayes estimator, a culturally dependent criteria may be introduced, which in effect biases the score. This situation may seem fair. The score (e.g., the SAT) is used in the same way independently of the attribute and it is the optimal way to use the score as it is Bayes. Removal of the bias would result in an inferior selection procedure.</p><p>However, this is a discriminatory policy by other criteria. In Figure <ref type="figure">4</ref> we present the situation. The score distributions of the two groups are different, but worse, between two subjects with the same latent "ability", z, the subject from the stronger group gets, on the average, a higher score s. Table 2 The (minimal) impact of the type of decision on the Breir score Decision a = 0 a = 1 Bayes decision 0.1898 0.1820 Bayes decision based on 2 categories 0.2064 0.1990 The non-discrimantory decision 0.2092 0.2001</p><p>The minimizer of (3.2) subject to the (3.1) and (3.3) constraints is presented in Figure <ref type="figure" target="#fig_9">5</ref>. The Breir score is presented in Table <ref type="table">2</ref>.</p><p>Finally, in Figure <ref type="figure" target="#fig_10">6</ref> we present the output distribution of the Markov kernel when k 1 = 500.</p><p>The situation is more complicated when the outcome is more than binary valued, or continuous. However, it is simple enough if the outcome and raw prediction are jointly normal conditioned on the protected attribute. Consider, for example, the situation of Example 3.2. The concluding model is that s | y, a ∼ N (µ a + A a y, Σ a ).</p><p>Lemma 3.3. Suppose s ∈ R ns , y ∈ R ny and A a ∈ R ns×ny , a ∈ {0, 1}, are full rank. Then, without loss of generality, we can assume µ a = 0, a = {0, 1}, and A 0 = A 1 . A minimal randomized procedure that equates the conditional distribution of s is given by y|a, s = N (s, T a ), where T a = (a/2-1)λ i &lt;0 λ i ξ i ξ i , and (λ 1 , ξ 1 ), . . . , (λ ns , ξ ns ) is an orthonormal eigen-system of Σ 1 -Σ 0 .</p><p>Proof. We can always transform s when a = 0 by the transformation</p><formula xml:id="formula_14">s → A 1 A † 0 (s -µ 0 ), if a = 0 s -µ 1 if a = 1, which equate the conditional mean of s under a ∈ {0, 1}. Now, since T 0 -T 1 = Σ 1 -Σ 0 , L( y | y, a = a) does not depend on a. Finally, since A 1 has a full rank, E K 1 (s, •) -K 0 (s, •) | y) = 0, iff K 1 -K 0 = 0 (</formula><p>the shift is a complete sufficient statistics in the multivariate normal distribution. This is achieved by the randomization given above.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.">TESTING CONDITIONAL PARITY</head><p>In this section, we describe a kernel-based approach to testing CP developed by <ref type="bibr" target="#b23">Zhang et al. (2012)</ref>. We begin by characterizing the conditional independence condition x ⊥ a | z in terms of cross-covariance operators. Let k x , k a , and k z be positive definite kernels on X , A, and Z respectively and H x , H a , and H z be the respective reproducing kernel Hilbert spaces (RKHS). Throughout this section, we assume the kernels satisfy</p><formula xml:id="formula_15">E k x (x, x) &lt; ∞, E k a (a, a) &lt; ∞, E k z (z, z) &lt; ∞.</formula><p>For any probability distribution on X , its RKHS embedding is the unique µ x ∈ H x such that µ x , f x = E f (x) for any f ∈ H x for any f ∈ H x . It is well-defined because the assumptions on k x imply f → E f (x) is a bounded linear functional. By the reproducing property, we see that µ x has the explicit form</p><formula xml:id="formula_16">µ x (x) = k x (x, •), µ x x = E k x (x, x) .</formula><p>The cross-covariance operator of (x, a) is an operator from H a to H x such that</p><formula xml:id="formula_17">f, Σ x,a g x = cov f (x), g(a) for any f ∈ H x and g ∈ H a .</formula><p>It is the functional analogue of the covariance matrix a pair of random vectors.</p><p>In terms of the kernel and the RKHS embeddings of the marginal distributions of x and a, it has the form</p><formula xml:id="formula_18">f, Σ x,a g x = E f, k x (x, •) -µ x x k a (a, •) -µ a , g a . Letting f = k(x, •), we see that Σ x,a g is (Σ x,a g)(x) = k(x, •), Σ x,a g x = E (k x (x, x) -µ x (x)) g(a) -E g(a)</formula><p>.</p><p>The cross-covariance operator of (x, x) is a positive self-adjoint operator and is called the covariance operator of x. The conditional cross-covariance operator of (x, a) given z is Σ x,a|z = Σ x,a -Σ x,z Σ -1 z,z Σ z,a . Under some technical conditions, <ref type="bibr" target="#b7">Fukumizu et al. (2008)</ref> show that it is an operator from H a to H x such that f, Σ x,a|z g x = E cov f (x), g(a) | z .</p><p>Before we state the functional characterization of conditional independence, we define some additional notation. The tensor product H x ⊗ H a is an RKHS equipped with the inner product f ⊗ g, x ⊗ y = f, x x g, y a .</p><p>We extend this inner product to all of H x ⊗ H a by bilinearity. We see that the representer of evaluation in H x ⊗ H a is the outer product of the representers of evaluation in H x and H a :</p><formula xml:id="formula_19">k(x, •) ⊗ k(y, •), f ⊗ g = f (x)g(y),</formula><p>and the kernel is the pointwise product of k x and k y :</p><formula xml:id="formula_20">(k x • k y )((x 1 , y 1 ), (x 2 , y 2 )) = k(x 1 , •) ⊗ k(y 1 , •), k(x 2 , •) ⊗ k(y 2 , •) = k x (x 1 , x 2 )k y (y 1 , y 2 ).</formula><p>We are ready to state the functional characterization of conditional independence by <ref type="bibr" target="#b7">Fukumizu et al. (2008)</ref>.</p><p>Theorem 4.1 <ref type="bibr" target="#b6">(Fukumizu, Bach and Jordan (2004)</ref>; <ref type="bibr" target="#b7">Fukumizu et al. (2008)</ref>). Let k x,z := k x • k z be a kernel on X × Z and H x ⊗ H z be its RKHS. As long as k x,z • k a is a characteristic kernel<ref type="foot" target="#foot_2">foot_2</ref> on X × Z × A and H z ⊕ R is dense in L 2 (P z ), where ⊕ denotes direct sum and R is the space of constant functions, we have</p><formula xml:id="formula_21">Σ (x,z),a|z = 0 ⇐⇒ x ⊥ a | z.</formula><p>The non-trivial implication in Theorem 4.1 is the "only if" implication. If Σ (x,z),a|z = 0, we have</p><formula xml:id="formula_22">0 = E cov f (x)h(z), g(a) | z = E cov f (x), g(a) | z h(z)</formula><p>for any h ∈ H z , which implies cov f (x), g(a) | z = 0 as long as H z is rich enough.</p><p>The assumption H z + R is dense in L 2 (P z ) ensures H z is rich enough.</p><p>In light of Theorem 4.1, a natural test statistic is the Hilbert-Schmidt (HS) norm of a plug in estimator of the conditional cross-covariance operator. Let the empirical cross-covariance operator of (x, a) be</p><formula xml:id="formula_23">Σ x,a := 1 n n i=1 k x (x i , •) ⊗ k a (a i , •) -µ x ⊗ µ a ,</formula><p>where</p><formula xml:id="formula_24">µ x := 1 n n i=1 k x (x i , •) (resp. µ a )</formula><p>. The empirical conditional cross-covariance operator is</p><formula xml:id="formula_25">Σ (x,z),a|z := Σ (x,z),a -Σ (x,z),z ( Σ z,z + λI z ) -1 Σ z,a ,</formula><p>where λ &gt; 0 is a regularization parameter. It is possible to express its HS norm in terms of the kernel matrices G x , G a , G z , where G x i,j = k x (x i , x j ) (resp. G a , G z ).</p><p>Lemma 4.2. We have</p><formula xml:id="formula_26">Σ (x,z),a|z 2 HS = 1 n 2 tr(K x,z K a ) - 2 n 2 tr(K x,z K z (K z + λM n ) † K y ) + 1 n 2 tr((K z + λM n ) † K z K x,z K z (K z + λM n ) † K y ),</formula><p>where <ref type="bibr" target="#b23">Zhang et al. (2012)</ref> show that the test statistic is asymptotically a mixture of independent χ 2 1 random variables</p><formula xml:id="formula_27">K x,z = K x • K z .</formula><formula xml:id="formula_28">n Σ (x,z),a|z 2 HS d → ∞ i=1 λ i z 2 i , , z i i.i.d.</formula><p>∼ N (0, 1), and proposed two ways to approximate the asymptotic distribution. We refer to their paper for the details.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.">DO MINORITY NEIGHBORHOODS PAY HIGHER INSURANCE PREMIUMS?</head><p>It has been observed that drivers from predominantly minority zip codes are often charged higher insurance premiums than drivers from non-minority zip codes <ref type="bibr" target="#b4">(Feltner and Heller, 2015)</ref>. The insurance industry has justified the higher premiums by arguing that drivers from minority neighborhoods have higher risk of accidents. In this section, we examine the claim of the insurance industry using the proposed framework and the data obtained by Jeff <ref type="bibr" target="#b9">Larson (2017)</ref>.</p><p>Before presenting the results, we briefly describe the data, which was obtained by Jeff <ref type="bibr" target="#b9">Larson (2017)</ref> from Quadrant Information Services and S&amp;P Global Inc. It consists of 98,441 insurance quotes for drivers fitting a single profile: A 30year-old female teacher with a bachelor's degree, excellent credit, no accidents or moving violations, and who is purchasing a policy for $100,000 of property damage coverage and $100,000 to cover medical bills per person up to $300,000 per accident for the first time. She drives a 2016 Toyota Camry, has a 15 mile daily commute, and drives 13,000 miles a year. The quotes are associated with the zip code of the driver, and by fixing the profile and letting zip code change, we control for factors outside of geography.</p><p>The risk of drivers in a zip code is measured by the ratio of dollars paid out for liability claims to the number of insured cars. In California, this ratio is called average loss and is a measure of the cost to the insurer of insuring a car in a zip code. Ideally, we would have data on the claims from drivers that fit aforementioned profile, but, unfortunately, we do not have such fine-grained data. We refer to Jeff <ref type="bibr" target="#b9">Larson (2017)</ref> for further details regarding the data. We tested two hypotheses in California: the quotes were independent of the percent minority population given the risk in the associated zip codes (H 1 ); the quotes were independent of whether the associated zip code is underserved given the risk (H 2 ). The California Department of Insurance defines "underserved" zip codes as zip codes where (i) the fraction of uninsured drivers exceeds the statewide average by at least 10%, (ii) the per capita income is below the statewide median, (iii) minorities are at least two-thirds of the population. Among the 1,648 Californian zip codes recorded in the data, there are 145 such underserved zip codes. The results are reported in Table <ref type="table" target="#tab_0">3</ref>.</p><p>We examine the data on Progressive Group more closely because there is a discrepancy between the results of the test of H 1 (its quotes are independent of the percent minority population given the risk) and that of H 2 (its quotes are independent of whether the associated zip code is underserved given the risk). To comprehend this discrepancy, we redefine underserved zip codes as zip codes where the percent minorities population is at least q for various values of q and test H 2 again. The results are reported in Table <ref type="table" target="#tab_1">4</ref>. We see that although the percentage of minority population, as a continuous variable, does not pass the conditional independence test at 0.05 level, the minority indicator derived from it sometimes does.</p><p>Mathematically, the discrepancy between the tests is unsurprising: x ⊥ a does not generally imply f (x) ⊥ y. However, its practical implication is noteworthy because it exposes one problem of thresholding a continuous protected attribute. Thresholding tolerates discrimination within subgroups (discrimination within the minority/non-minority subgroup), as long as there is no discrimination across different subgroups. We also note that the p-value when q = 0.6 in 4 is quite different from that for H 1 in 3. This is because only 33% of the zip codes where minority percentage exceeds 60% are truly underserved.</p><p>In Illinois and Texas, we tested the hypothesis that the quotes were independent of the percent minority population given the risk in the associated zip codes. In Illinois, we excluded the zip codes in Chicago because Chicago has a law that require insurers to charge the same price for bodily injury insurance. The results are reported in Table <ref type="table" target="#tab_2">5</ref>.</p><p>Finally, we apply the randomization procedure described in Section 3 to adjust the premium. We concentrate on one insurer (Garrison Property and Casualty Insurance Company) and only on the property damage policy premium. There are two protected group. The white-non-Hispanics and the rest. However, this   attribute is not given (to the insurer and in the data) and is derived from the proportions of the the two groups within any zip-code area. Let x be the premium in the zip code, z the state defined risk and q the proportion of whites (non-Hispanic) within the zip code area. Linear regression of x on z, q, and q • z finds all coefficients to be significant at the 0.001 level. To proceed we make the (clearly unrealistic) assumption that all zip code areas have the same number of car insured by the discussed insurer. Under this assumption the distribution of the excess premiums paid by the two group (after controling for the risk) is plotted in Figure <ref type="figure" target="#fig_11">7</ref>(a). In this semi-artificial setup, a white customer pays, on the average 1.54 USD less than predicted, while a minority group members pays 1.65 USD more with standard deviations equal to 25.7 and 29.2 USD respectively.</p><p>Since the group membership is concealed from the insurer, this cannot be corrected directly. We suggest that in such a situation a cross-subsidization between zip code areas, where the premium would have a component which is proportional to the deviation of q from its mean and a randomized component proportional to q. Practically, randomization can be achieved by making the premium depend slightly on hardly relevant information about the customer or the location. In Figure <ref type="figure" target="#fig_11">7</ref>(b) we present the result of this process. Both the white and non-white groups have the same mean and standard deviation (0.0 and 29.8 USD respectively).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.">SUMMARY AND DISCUSSION</head><p>We identified conditional parity as a general notion of non-discrimination in machine learning. It formalizes the implicit comparison in claims of discrimination and is applicable beyond supervised learning. It also includes many recently proposed notions of non-discrimination, including counterfactual ones.</p><p>The main takeaway for practitioners is the necessity of specifying not only protected attribute but also discriminatory ones in any rigorous notion of nondiscrimination. Ignoring the discriminatory attributes may lead to ambiguous definitions. Consider the recent debate on whether no sex-based discrimination implies no discrimination based on sexual orientation <ref type="bibr" target="#b17">(Thayer, 2017)</ref>. In Hively v. Ivy Tech, the majority opinion expressed "common-sense reality [is] that it is actually impossible to discriminate on the basis of sexual orientation without discriminating on the basis of sex". However, by letting the gender to which one</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><figDesc>Definition 2.7 (equalized odds (EO) Hardt et al. (2016)). A prediction y of y ∈ Y satisfies equalized odds with respect to protected attribute a and outcome y if L( y | a = a, y = y) = L( y | a = a , y = y) for any a, a ∈ A and y ∈ Y.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><figDesc>Definition 2.13 (counterfactual fairness (CF) Kusner et al. (2017)). A prediction y is counterfactually fair with respect to sensitive attribute a in light of evidence {e = e} iff (2.1) L( y a←a | e = e) = L( y a←a | e = e) for any a, a ∈ A.If (2.1) holds for all e ∈ E, y is counterfactually fair with respect to sensitive attribute a in light of evidence e.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><figDesc>(2.2) L( y a | e = e, a a = a) = L( y a | e = e, a a = a ) for any a, a ∈ A,</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Fig 2 :</head><label>2</label><figDesc>Fig 2: SEM of accident risk prediction (Example 2.14)</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><figDesc>Definition 2.15 (equalized counterfactual odds (ECO)). A prediction y of y ∈ Y satisfies equalized counterfactual odds with respect to protected attribute a conditioned on y a = y iff (2.3) L( y a | y a = y, a a = a) = L( y a | y a = y, a a = a ) for all a, a ∈ A.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head>Fig 3 :</head><label>3</label><figDesc>Fig 3: SEM of priest hiring process (Example 2.17)</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_8"><figDesc>Fig 4: (a) The conditional densities given y and a. (b) P (ŷ = 1|z) vs. z. Among two candidates with the same latent ability, the one who comes from the weaker group gets on the average a smaller Bayes decision.</figDesc><graphic coords="12,116.89,61.05,183.58,89.78" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_9"><head>Fig 5 :</head><label>5</label><figDesc>Fig 5: The Bayes estimator and the solution of the linear program nondiscrimantory algorithm.</figDesc><graphic coords="13,161.66,61.05,286.87,152.00" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_10"><head>Fig 6 :</head><label>6</label><figDesc>Fig 6: The output of the linear program. (a) The conditional density given y; (b) The expected value of the output given s conditional on a and the Bayes estimator, which is independent of a.</figDesc><graphic coords="13,116.89,540.76,183.58,97.27" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_11"><head>Fig 7 :</head><label>7</label><figDesc>Fig 7: Car insurance premium distribution before and after correction. The red broken line is for the white-non-Hispanic group. The blue full line are the rest.</figDesc><graphic coords="19,116.89,61.03,183.64,98.22" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 3</head><label>3</label><figDesc>Table of p-values for 9 major insurance companies in California</figDesc><table><row><cell>Company</cell><cell cols="2">H1 p-value H2 p-value</cell></row><row><cell>Allstate</cell><cell>&lt; 0.001</cell><cell>&lt; 0.001</cell></row><row><cell>Berkshire Hathaway</cell><cell>0.488</cell><cell>0.456</cell></row><row><cell>Farmers</cell><cell>&lt; 0.001</cell><cell>&lt; 0.001</cell></row><row><cell>Liberty Mutual</cell><cell>&lt; 0.001</cell><cell>&lt; 0.001</cell></row><row><cell>Mercury</cell><cell>0.925</cell><cell>0.648</cell></row><row><cell>Nationwide</cell><cell>&lt; 0.001</cell><cell>&lt; 0.001</cell></row><row><cell>Progressive</cell><cell>&lt; 0.001</cell><cell>0.365</cell></row><row><cell>State Farm</cell><cell>&lt; 0.001</cell><cell>&lt; 0.001</cell></row><row><cell>USAA</cell><cell>&lt; 0.001</cell><cell>&lt; 0.001</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>Table 4</head><label>4</label><figDesc>Table of p-values for Progressive Group</figDesc><table><row><cell>Threshold (q)</cell><cell>p-value</cell></row><row><cell>0.1</cell><cell>0.297</cell></row><row><cell>0.2</cell><cell>0.778</cell></row><row><cell>0.3</cell><cell>0.698</cell></row><row><cell>0.4</cell><cell>0.002</cell></row><row><cell>0.5</cell><cell>&lt; 0.001</cell></row><row><cell>0.6</cell><cell>0.010</cell></row><row><cell>0.7</cell><cell>0.110</cell></row><row><cell>0.8</cell><cell>0.061</cell></row><row><cell>0.9</cell><cell>0.009</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_2"><head>Table 5</head><label>5</label><figDesc>Table of p-values for 9 major insurance companies in Illinois and Texas</figDesc><table><row><cell>Insurance group</cell><cell>Illinois</cell><cell>Texas</cell></row><row><cell>Allstate</cell><cell cols="2">&lt; 0.001 &lt; 0.001</cell></row><row><cell>American Family</cell><cell>&lt; 0.001</cell><cell></cell></row><row><cell>Auto Owners</cell><cell>&lt; 0.001</cell><cell></cell></row><row><cell cols="3">Berkshire Hathaway &lt; 0.001 &lt; 0.001</cell></row><row><cell>Country Financial</cell><cell>&lt; 0.001</cell><cell></cell></row><row><cell>Erie</cell><cell>&lt; 0.001</cell><cell></cell></row><row><cell>Farmers</cell><cell cols="2">&lt; 0.001 &lt; 0.001</cell></row><row><cell>Hartford Fire</cell><cell>&lt; 0.001</cell><cell></cell></row><row><cell>Liberty Mutual</cell><cell cols="2">&lt; 0.001 &lt; 0.001</cell></row><row><cell>Metropolitan</cell><cell>&lt; 0.001</cell><cell></cell></row><row><cell>Nationwide</cell><cell></cell><cell>&lt; 0.001</cell></row><row><cell>Pekin</cell><cell>&lt; 0.001</cell><cell></cell></row><row><cell>Progressive</cell><cell cols="2">&lt; 0.001 &lt; 0.001</cell></row><row><cell>State Farm</cell><cell cols="2">&lt; 0.001 &lt; 0.001</cell></row><row><cell>Traverlers</cell><cell>&lt; 0.001</cell><cell></cell></row><row><cell>USAA</cell><cell cols="2">&lt; 0.001 &lt; 0.001</cell></row></table></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0"><p>Formally, the metric must satisfy d(P, Q) = d(Q, P) and d(P, Q) ≥ 0 for any pair of distributions P and Q as well as d(P, P) = 0 for any distribution P.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_1"><p>RITOV, SUN, ZHAO</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_2"><p>We call kernel is characteristic if the RKHS embedding P → E P k(x, •) is injective. In other words, E P f (x) = E Q f (x) for all f ∈ H implies P = Q.</p></note>
+		</body>
+		<back>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Table <ref type="table">6</ref> a = female a = male z = female homosexual female heterosexual male z = male heterosexual female homosexual male is attracted to be the discriminatory attribute, we see that it is indeed possible to discriminate on sexual orientation but not on gender. The ambiguity in the prohibition of sex-based discrimination is in the non-specification of discriminatory attributes.</p><p>Example 6.1. Let a be gender and z be the gender to which one is attracted to. Intuitively, no discrimination based on the gender requires the segments of the population on the same row of Table <ref type="table">6</ref> be treated equally, while no discrimination based on sexual orientation requires the segments on the same column be treated equally.</p><p>Finally, we mention that CP is amenable to statistical analysis. We studied randomization as a general approach to achieving CP, as well as a kernel-based approach to check whether the output of a black-box machine learning algorithm satisfies CP. Most prior work on non-discrimination in machine learning has focused on designing non-discriminatory machine learning algorithms. However, to enforce non-discrimination, methods to detect violations are crucial, and we look forward to developments in future work.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>APPENDIX A: PROOF OF AUXILIARY LEMMAS</head><p>Proof of Lemma 4.2. To keep things simple, we evaluate Σ x,a|z 2 HS instead of Σ (x,z),a|z 2 HS . To obtain an expression of Σ (x,z),a|z 2 HS , simply replace K x by K x,z = K x • K z . We also abuse notation and denote linear combinations of the form n i=1 α i k x (x i , •) by Xα, where</p><p>is an "infinite matrix". In this notation, we have</p><p>where</p><p>For now, we focus on evaluating the first term. Since Σ x,a is a mapping from a subspace S a of H a to an subspace S x of H x , we may restrict to the subspaces. Let {u i } n i=1 be an orthonormal basis of S a . We have</p><p>where α i = α i,1 . . . α i,n T , and</p><p>AM n e j , AM n α i a (XM n e j ).</p><p>By the reproducing property, we have</p><p>where G a is the Gram matrix whose entries are G i,j = k(a i , a j ), for any α, β ∈ R n . Thus</p><p>where K a := M n G a M n is the centered Gram matrix. The first term in (A.1) is</p><p>where the third step is a consequence of the reproducing property and the fourth step is a consequence of R(K a ) ⊂ R(M n ). Recall {u i } n i=1 is an orthonormal basis of S a :</p><p>By similar calculations, it is possible to show that the second and third terms are Σ x,a , Σ x,z ( Σ z,z + λI z ) -1 Σ z,a HS = 1 n 2 tr(K x K z (K z + λM n ) † K y ), Σ x,z ( Σ z,z + λI z ) -1 Σ z,y , Σ x,z ( Σ z,z + λI z ) -1 Σ z,a HS = 1 n 2 tr((</p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<author>
+			<persName><forename type="first">R</forename><surname>Berk</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Heidari</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Jabbari</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kearns</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Roth</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1703.09207</idno>
+		<title level="m">Fairness in Criminal Justice Risk Assessments: The State of the Art</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">J</forename><surname>Bickel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">A</forename><surname>Hammel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">W</forename><surname>O'connell</surname></persName>
+		</author>
+		<title level="m">Sex bias in graduate admissions: Data from Berkeley. Statistics and public policy</title>
+		<imprint>
+			<date type="published" when="1977">1977</date>
+			<biblScope unit="page" from="113" to="130" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Man is to computer programmer as woman is to homemaker? debiasing word embeddings</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Bolukbasi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K.-W</forename><surname>Chang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">Y</forename><surname>Zou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Saligrama</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">T</forename><surname>Kalai</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="4349" to="4357" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Fairness through awareness</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Dwork</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Hardt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Pitassi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Reingold</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Zemel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 3rd Innovations in Theoretical Computer Science Conference</title>
+		<meeting>the 3rd Innovations in Theoretical Computer Science Conference</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="214" to="226" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<author>
+			<persName><forename type="first">T</forename><surname>Feltner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Heller</surname></persName>
+		</author>
+		<title level="m">High price of mandatory auto insurance in predominantly African American communities Technical Report, Consumer Federation of America</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<title level="m" type="main">On the (im) possibility of fairness</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">A</forename><surname>Friedler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Scheidegger</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Venkatasubramanian</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1609.07236</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Dimensionality reduction for supervised learning with reproducing kernel Hilbert spaces</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Fukumizu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">R</forename><surname>Bach</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">I</forename><surname>Jordan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="page" from="73" to="99" />
+			<date type="published" when="2004">2004</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Kernel measures of conditional dependence</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Fukumizu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gretton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Schölkopf</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in neural information processing systems</title>
+		<imprint>
+			<date type="published" when="2008">2008</date>
+			<biblScope unit="page" from="489" to="496" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Equality of opportunity in supervised learning</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Hardt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Price</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Srebro</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="3315" to="3323" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<title level="m" type="main">How We Examined Racial Discrimination in Auto Insurance Prices</title>
+		<author>
+			<persName><forename type="first">Jeff</forename><surname>Larson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">K S M D H M S K N</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">-S</forename><forename type="middle">A C M R</forename><surname>Julia Angwin</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<publisher>ProPublica</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Field observations of the developing legal recreational cannabis economy in Washington State</title>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">L</forename><surname>Jensen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Roussell</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">International Journal of Drug Policy</title>
+		<imprint>
+			<biblScope unit="volume">33</biblScope>
+			<biblScope unit="page" from="96" to="101" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<monogr>
+		<author>
+			<persName><forename type="first">N</forename><surname>Kilbertus</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Rojas-Carulla</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Parascandolo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Hardt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Janzing</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Schölkopf</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1706.02744</idno>
+		<title level="m">Avoiding Discrimination through Causal Reasoning</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">J</forename><surname>Kusner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">R</forename><surname>Loftus</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Russell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Silva</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1703.06856</idno>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">Counterfactual Fairness. arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">R</forename><surname>Nabi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Shpitser</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1705.10378</idno>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">Fair Inference On Outcomes. arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title level="m" type="main">Causality</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Pearl</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+			<publisher>Cambridge university press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<title level="m" type="main">Causal inference in statistics: a primer</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Pearl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Glymour</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">P</forename><surname>Jewell</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>John Wiley &amp; Sons</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">On the webs cutting edge, anonymity in name only</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Steel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Angwin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Wall Street Journal</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<author>
+			<persName><forename type="first">D</forename><surname>Thayer</surname></persName>
+		</author>
+		<title level="m">United States Circuit Court of Appeals for the Seventh Circuit</title>
+		<meeting><address><addrLine>Posner, Flaum, Easterbrook, Ripple, Rovner, Williams, Hamilton JJ</addrLine></address></meeting>
+		<imprint>
+			<publisher>Wood CJ</publisher>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="volume">15</biblScope>
+		</imprint>
+	</monogr>
+	<note>Hively v Ivy Tech Community College of Indiana majority</note>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title/>
+	</analytic>
+	<monogr>
+		<title level="j">Posner J (concurring</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title/>
+	</analytic>
+	<monogr>
+		<title level="j">Flaum J joined by Ripple J (concurring); Sykes J joined by Bauer and Kanne JJ</title>
+		<imprint>
+			<date type="published" when="1996">4 April 2017. 1996</date>
+			<publisher>Carson v. Bethlehem Steel Corp</publisher>
+		</imprint>
+	</monogr>
+	<note>Oxford Journal of Law and Religion</note>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Fairness Constraints: Mechanisms for Fair Classification</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">B</forename><surname>Zafar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Valera</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">G</forename><surname>Rogriguez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">P</forename><surname>Gummadi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">In Artificial Intelligence and Statistics</title>
+		<imprint>
+			<biblScope unit="page" from="962" to="970" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Learning fair representations</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Zemel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Swersky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Pitassi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Dwork</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 30th International Conference on Machine Learning (ICML-13</title>
+		<meeting>the 30th International Conference on Machine Learning (ICML-13</meeting>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="page" from="325" to="333" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<monogr>
+		<title level="m" type="main">A causal framework for discovering and removing direct and indirect discrimination</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Wu</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1611.07509</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<monogr>
+		<title level="m" type="main">Kernel-based conditional independence test and application in causal discovery</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Peters</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Janzing</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Schölkopf</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1202.3775</idno>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

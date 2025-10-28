@@ -1,0 +1,832 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Energy-Harvesting Distributed Machine Learning</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Başak</forename><surname>Güler</surname></persName>
+							<email>bguler@ece.ucr.edu</email>
+							<affiliation key="aff0">
+								<orgName type="institution">University of California, Riverside Riverside</orgName>
+								<address>
+									<country>California</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Aylin</forename><surname>Yener</surname></persName>
+							<email>yener@ece.osu.edu</email>
+							<affiliation key="aff1">
+								<orgName type="institution">The Ohio State University</orgName>
+								<address>
+									<settlement>Columbus</settlement>
+									<region>Ohio</region>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Energy-Harvesting Distributed Machine Learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">41BB27259AF19382A29DA8D5F56C74C7</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>This paper provides a first study of utilizing energy harvesting for sustainable machine learning in distributed networks. We consider a distributed learning setup in which a machine learning model is trained over a large number of devices that can harvest energy from the ambient environment, and develop a practical learning framework with theoretical convergence guarantees. We demonstrate through numerical experiments that the proposed framework can significantly outperform energy-agnostic benchmarks. Our framework is scalable, requires only local estimation of the energy statistics, and can be applied to a wide range of distributed training settings, including machine learning in wireless networks, edge computing, and mobile internet of things.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>I. INTRODUCTION</head><p>The environmental impact of large-scale machine learning is a major challenge against the sustainability of future smart ecosystems. For instance, the carbon emission of training a single machine learning model can get as large as the lifetime of five cars <ref type="bibr" target="#b0">[1]</ref>. The environmental impact will be even greater with the emergence of machine learning in distributed environments, where millions of devices are expected to participate in training on a regular basis. This, combined with the fact that state-of-the-art machine learning models are trained over billions of parameters <ref type="bibr" target="#b1">[2]</ref>, calls for a novel design paradigm for large-scale machine learning.</p><p>In this paper, we propose energy harvesting <ref type="bibr" target="#b2">[3]</ref> for the design of sustainable distributed machine learning systems. We consider a distributed training scenario with N clients (users), who wish to collaborate to train a machine learning model. Each user holds a local dataset D i , and the goal is to train a machine learning model over the joint dataset D 1 , . . . , D N . Training is performed through distributed stochastic gradient descent (SGD) coordinated through a central server, who maintains a global model. At each iteration of training, the server sends the current estimate of the model parameters to the users. Users then locally update the global model by computing a local gradient on their local dataset, and send their local updates to the server. The server then aggregates the local updates from the users, updates the global model, and sends the updated model back to the users. Unlike the conventional distributed SGD setting, in this work, users receive energy through an energy harvesting process <ref type="bibr" target="#b2">[3]</ref>- <ref type="bibr" target="#b14">[15]</ref>, and can only participate in training if they have energy available to do so.</p><p>Energy and resource efficiency in machine learning has been studied in various notable works <ref type="bibr" target="#b15">[16]</ref>, <ref type="bibr" target="#b16">[17]</ref>. Broadly, these settings can be categorized into two. The first line of work focuses on minimizing the energy consumption of the compute or communication framework <ref type="bibr" target="#b15">[16]</ref>. The second line of work, on the other hand, is focused on minimizing the training loss within a given energy budget, where all of the energy is available at the beginning of training <ref type="bibr" target="#b16">[17]</ref>. In contrast, our work focuses on training with devices that can harvest small amounts of energy from the ambient environment, where energy arrivals are intermittent and non-homogeneous across different devices.</p><p>Prior to this work, user sampling for distributed machine learning has been primarily investigated in the context of improving communication efficiency or convergence rate <ref type="bibr" target="#b17">[18]</ref>- <ref type="bibr" target="#b23">[24]</ref>. In these works, the primary goal is to either select a small set of users to participate at a given training iteration in order to reduce the overall communication overhead or due to bandwidth limitations, or to select a few informative users to maximize the convergence rate of training, with the assumption that all users are available to participate in training if selected. In contrast, in our setting, users can only participate in training if they have available energy. Moreover, the energy availability of different users can be different. Several notable works have considered distributed learning when users have a chance to drop out, unlike the current setup, in these settings, user dropouts occur uniformly at random <ref type="bibr" target="#b24">[25]</ref>- <ref type="bibr" target="#b26">[27]</ref>.</p><p>We demonstrate that energy-harvesting can be a good candidate for machine learning in distributed networks, through a practical distributed training framework with theoretical convergence guarantees. Our experiments show that the proposed framework significantly outperforms the alternative distributed SGD benchmarks that are agnostic to the energy arrival process. We hope our work to open up new research directions in leveraging energy-harvesting for sustainable machine learning in large-scale mobile and edge networks.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>II. SYSTEM MODEL</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Training Setup</head><p>We consider a distributed training setup in a network with N devices (users). The users are connected through a central server who coordinates the training. User i has a local dataset D i , consisting of D i data points. We define the total number of data points in the network as D = i∈[N ] D i . The goal is to train a model w that minimizes a global loss function</p><formula xml:id="formula_0">F (w) = 1 D N i=1 Di j=1 l(w, x ij )<label>(1)</label></formula><p>where l(w, x ij ) denotes the loss of data point x ij from the local dataset of user i. Note that the loss function in (1) is arXiv:2102.05639v1 [cs.LG] 10 Feb 2021 evaluated with respect to the entire set of data points that belong to the N users. As such, equation (1) can also be written as</p><formula xml:id="formula_1">F (w) = N i=1 p i F i (w)<label>(2)</label></formula><p>where p i = Di D such that n i=1 p i = 1, and</p><formula xml:id="formula_2">F i (w) = 1 D i Di j=1 l(w, x ij )<label>(3)</label></formula><p>represents the local loss function of user i.</p><p>Training is performed through distributed SGD, in which the model parameters are updated iteratively in the negative direction of the gradient. Each iteration is represented by a discrete time instant t ∈ {0, 1, 2, . . .}. The current estimation of the model parameters at iteration t is represented by a d-dimensional vector w (t) ∈ R d , where d is the model size.</p><p>We now review the conventional distributed SGD protocol. In this setting, at the beginning of each iteration, the server sends w (t) to the users. Then, user i ∈ {1, . . . , N } computes a local stochastic gradient,</p><formula xml:id="formula_3">g i (w (t) , ξ (t) i ) ∇F i (w (t) , ξ (t) i )<label>(4)</label></formula><p>by using a (uniformly) random sample ξ (t) i from the local dataset D i . Hence, the stochastic gradient is an unbiased estimator of the true gradient of user i,</p><formula xml:id="formula_4">E ξ (t) i [∇F i (w (t) , ξ (t) i )] = ∇F i (w (t) ),<label>(5)</label></formula><p>where ∇F i (w (t) ) is the gradient of the local loss function in <ref type="bibr" target="#b2">(3)</ref>. The gradient of the global loss function in (1) is given by,</p><formula xml:id="formula_5">∇F (w (t) ) N i=1 p i ∇F i (w (t) ).<label>(6)</label></formula><p>After the local computations, users send their local gradients from (4) to the server. The server then updates the model,</p><formula xml:id="formula_6">w (t+1) = w (t) -η N i=1 p i g i (w (t) , ξ<label>(t)</label></formula><p>i )</p><p>where η is the learning rate (step size), and sends the updated model back to the users for the next iteration.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Energy Harvesting Profile of the Users</head><p>This work considers devices that are powered by the energy harvested from the ambient environment, such as RF, solar, or kinetic energy <ref type="bibr" target="#b2">[3]</ref>, <ref type="bibr" target="#b3">[4]</ref>. We assume that one step of the SGD protocol costs a unit amount of energy at each user, which includes computing the local gradient from (4) and sending it to the server. It is also assumed that each user has a unit battery that can store enough energy for one step SGD.</p><p>We let E t i denote the energy arrival process at user i, in particular E t i = 1 if user i receives energy at time t and E t i = 0 otherwise. The specific distribution of the energy arrivals depends on the harvesting process. Our focus is on the following energy harvesting scenarios.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>1) Deterministic Energy Arrivals:</head><p>We first consider a deterministic energy harvesting scenario in which energy arrivals are known by each user in advance. We assume that energy may arrive at arbitrary non-overlapping time instances, and let I i = {t : E t i = 1} denote the set of time instances at which user i receives energy. We also define I t i = max t :t ≤t, t ∈Ii t for the time of the most recent energy arrival up to t, and Īt i = min t :t &gt;t, t ∈Ii t for the time of the next energy arrival after time t. Finally, for a given t, we define the duration between I t i and Īt i as,</p><formula xml:id="formula_8">T t i = Īt i -I t i (8)</formula><p>2) Stochastic Energy Arrivals: We next consider the stochastic energy harvesting scenario where energy arrivals are modeled through a stochastic process. Unlike the deterministic setting, users do not know the exact time instant at which energy will be received, but only the probabilistic model governing the underlying harvesting process. Our focus is on the following stochastic arrival scenarios.</p><p>(Binary Arrivals) In the binary energy arrival setup, at each time instant, user i receives a unit amount energy with probability β i . More specifically, we let E t i ∼ Bern(β i ):</p><formula xml:id="formula_9">E t i = 1 with probability β i 0 with probability 1 -β i<label>(9)</label></formula><p>where β i ∈ (0, 1], to represent whether or not user i receives energy at time t. Parameter β i quantifies how frequent user i receives energy, and may vary from one user to another.</p><p>(Uniform Arrivals) We next consider a uniform energy arrival scenario in which device i receives a unit amount of energy at a uniformly random time instant every T i time instants. Formally, for any t such that t mod T i = 0, user i receives a unit amount of energy at a uniformly random time instant within {t, . . . , t + T i -1}. Note that this is not an immediate generalization of the first setting, as in the former setup there is a non-zero probability that user i will never receive energy in T i time instants. In contrast, in the second setting, user i receives a unit amount energy with probability 1 at every T i time instants, but the exact time instant at which energy is received is unknown.</p><p>As we demonstrate in our experiments, the conventional distributed SGD strategy from Section II might bias the model towards users that have more frequent energy arrivals, causing a performance loss in training. As such, the training strategy should take into account the energy arrival patterns of the users.</p><p>Main Problem. Given the above training and energy harvesting settings, the main problem we study in our work is, "How to design a distributed stochastic gradient descent framework for energy harvesting devices, where energy arrivals are intermittent and heterogeneous, while ensuring theoretical convergence guarantees?".</p><p>In the sequel, we provide a simple energy harvesting distributed learning strategy with provable convergence guarantees. The proposed strategy takes into account the intermittent energy availability due to the energy harvesting process of the individual users while ensuring that the model does not </p><formula xml:id="formula_10">if E t i = 1 then 5:</formula><p>Sample an integer J uniformly random from {0, . . . , T t i -1}.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>6:</head><p>Update U t+J i = 1.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>7:</head><p>if</p><formula xml:id="formula_11">U t i = 1 then 8:</formula><p>Compute the local gradient gi(w (t) , ξ</p><p>i ).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>9:</head><p>Send T t i gi(w (t) , ξ</p><p>i ) to the server. Server:</p><formula xml:id="formula_14">10:</formula><p>Update the model according to <ref type="bibr" target="#b10">(11)</ref>.</p><p>11:</p><p>Send the model parameters w (t+1) to the users. bias towards any particular user.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>III. ENERGY HARVESTING DISTRIBUTED SGD A. Distributed SGD with Deterministic Energy Arrivals</head><p>We first study the deterministic energy harvesting scenario and provide a simple distributed training framework with theoretical convergence guarantees. The individual steps of our framework is provided in Algorithm 1. Our framework consists of three main components, user scheduling, local gradient computations, and server-side model update.</p><p>1) User scheduling: The first component of our framework is user scheduling for training. Conventional user selection algorithms for distributed SGD are designed under the assumption that all users are inherently available to participate in the training process if selected, and employ a user sampling strategy to reduce the communication load or aim at selecting the users that will maximize the convergence rate for training <ref type="bibr" target="#b17">[18]</ref>- <ref type="bibr" target="#b20">[21]</ref>. In contrast, in our setup, not all users can participate in the training process at all rounds. This is due to the intermittent energy arrivals, if a user has no energy at a given time instant, they will not be able to participate in training.</p><p>A naive approach would be to utilize the conventional distributed SGD algorithm from <ref type="bibr" target="#b6">(7)</ref>. However, doing so may bias the trained model towards users who have more frequent energy availability. Another approach is to wait until all users become available, and then use the conventional distributed SGD algorithm from <ref type="bibr" target="#b6">(7)</ref>. However, waiting for all users to have enough energy can significantly increase the total training time needed to achieve a target performance level.</p><p>Instead, we propose a practical scheduling strategy that can be performed locally by the users, while ensuring that the model does not bias towards any user. In this setting, whenever a user receives energy, i.e., E t i = 1 for some t, the user samples an integer J uniformly at random from the set {0, . . . , T t i -1}, and participates at iteration t + J.</p><p>2) Local gradient computation: At the beginning of each training iteration, the server sends the current estimate of the model parameters w (t) to the users. If a user decides to number of iterations T , initial model parameters w (0) . output Model parameters (weights) w (T ) .</p><p>1: for iteration t = 0, . . . , T -1 do Users i = 1, . . . , N :</p><formula xml:id="formula_15">2: if E t i = 1 then 3:</formula><p>Compute the local gradient gi(w (t) , ξ</p><p>i ).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>4:</head><p>Send γ t i gi(w (t) , ξ</p><p>i ) to the server. Server:</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>5:</head><p>Update the model according to <ref type="bibr" target="#b11">(12)</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>6:</head><p>Send the model parameters w (t+1) to the users. participate in the current training iteration t, according to the scheduling strategy from Section III-A1, it computes the local gradient from (4). Then, the user sends to the server a scaled version of their local gradient,</p><formula xml:id="formula_18">T t i g i (w (t) , ξ (t) i ) = T t i ∇F i (w (t) , ξ (t) i )<label>(10)</label></formula><p>3) Server-side model update: After receiving the local computations from (10) from the participating users, the server updates the model as:</p><formula xml:id="formula_19">w (t+1) = w (t) -η i∈St p i T t i g i (w (t) , ξ<label>(t)</label></formula><p>i )</p><p>where S t denotes the set of users who have participated at round t. Note that due to the stochastic nature of the user scheduling process, S t is random.</p><p>As we demonstrate in Section IV, this process provides theoretical convergence guarantees for the model. Moreover, the user scheduling process does not require a central coordinator and can be performed locally by the users, solely based on local energy estimations, hence is scalable to large networks.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Distributed SGD with Stochastic Energy Arrivals</head><p>We next consider distributed training under the stochastic energy harvesting setting. The training strategy again consists of three main components, user scheduling, local gradient computation, and server-side model update. We employ a besteffort user scheduling strategy, where each user participates in training as soon as they receive energy, by computing the local gradient from (4), and sending to the server a scaled gradient</p><formula xml:id="formula_21">γ t i g i (w (t) , ξ<label>(t)</label></formula><p>i ), where γ t i = 1 βi and γ t i = T i for the binary and uniform energy arrival settings, respectively.</p><p>After receiving the local computations from the participating users, the server updates the model as,</p><formula xml:id="formula_22">w (t+1) = w (t) -η i∈St p i γ t i g i (w (t) , ξ (t) i )<label>(12)</label></formula><p>The individual steps of this process are provided in Algorithm 2.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>IV. CONVERGENCE ANALYSIS</head><p>We now state the convergence guarantees of our framework, by first reviewing a few common technical assumptions <ref type="bibr" target="#b18">[19]</ref>, <ref type="bibr" target="#b27">[28]</ref> that will be needed for our convergence analysis. Assumption 1. (Bounded variance) The variance of the stochastic gradients from (4) are bounded:</p><formula xml:id="formula_23">E ξ (t) i [||g i (w (t) , ξ (t) i )-∇F i (w (t) )|| 2 ] ≤ σ 2 for i ∈ [N ] (13) Assumption 2.</formula><p>(Second moment bound) The expected squared norm of the stochastic gradients from (4) are bounded:</p><formula xml:id="formula_24">E ξ (t) i [||g i (w (t) , ξ (t) i )|| 2 ] ≤ G 2 for i ∈ [N ]<label>(14)</label></formula><p>We also assume that the local loss functions F i (w) for i ∈ [N ] (and thus the global loss function F (w)) are µ-strongly convex and L-smooth, as in <ref type="bibr">[19,</ref> Assumptions 1 and 2]. Next, we provide a key technical lemma. Lemma 1. (Unbiasedness) For distributed SGD with deterministic energy arrivals, E St i∈St</p><formula xml:id="formula_25">p i T t i g i (w (t) , ξ (t) i ) = N i=1 p i g i (w (t) , ξ (t) i ),<label>(15)</label></formula><p>hence the user scheduling scheme is unbiased. Moreover, for distributed SGD with stochastic energy arrivals, the unbiasedness condition from (15) holds by replacing T t i with 1 βi and T i for binary and uniform arrivals, respectively. Proof. We first define a Bernoulli random variable α t i to represent whether or not user i participates at iteration t:</p><formula xml:id="formula_26">α t i = 1 if user i participates at time t 0 otherwise<label>(16)</label></formula><p>Then, for any given t,</p><formula xml:id="formula_27">P [α t i = 1] = P [J = t -I t i ] = 1 T t i<label>(17)</label></formula><p>By letting α t (α t 1 , . . . , α t N ), we find that,</p><formula xml:id="formula_28">E St i∈St p i T t i g i (w (t) , ξ<label>(t)</label></formula><formula xml:id="formula_29">i ) = E αt N i=1 α t i p i T t i g i (w (t) , ξ<label>(t) i ) (18)</label></formula><formula xml:id="formula_30">= N i=1 p i T t i 1 T t i g i (w (t) , ξ<label>(t) i ) (19)</label></formula><p>where <ref type="bibr" target="#b17">(18)</ref> follows from S t = N i=1 α t i , and ( <ref type="formula" target="#formula_30">19</ref>) is from <ref type="bibr" target="#b16">(17)</ref>. The proof for stochastic arrivals follows the same lines along with the observation that, for the best-effort user scheduling strategy</p><formula xml:id="formula_31">P [α t i = 1] = P [E t i = 1]</formula><p>. We now state our convergence guarantees. Theorem 1. For training a machine learning model from (1), using the distributed SGD algorithm with deterministic energy arrivals and a constant learning rate η ≤ min 1 2µ , 1 L .</p><formula xml:id="formula_32">E[F (w (T ) )] -F (w * ) ≤ L µ (1 -ηµ) T (F (w (0) ) -F (w * ) - ηC 2 ) + ηLC 2µ<label>(20)</label></formula><p>in T iterations, where w * denotes the optimal model parameters that minimize the global loss function in (1), and</p><formula xml:id="formula_33">C N i=1 T i,max -1 p 2 i + N i=1 N j=1 p i p j G 2 , (<label>21</label></formula><formula xml:id="formula_34">)</formula><p>where T i,max max{T 1 i , . . . , T T i } for i = 1 . . . , N . Remark 1. The first term in the right hand side of (20) vanishes as T → ∞, whereas the second term ηLC 2µ represents a non-vanishing error term due to the constant learning rate. By using a decreasing learning rate as in <ref type="bibr" target="#b18">[19]</ref>, <ref type="bibr" target="#b20">[21]</ref>, this term can also be made vanishing as T → ∞.</p><p>Proof. (Sketch) The proof follows standard steps for the convergence analysis of distributed SGD algorithms <ref type="bibr" target="#b17">[18]</ref>, <ref type="bibr" target="#b18">[19]</ref>, <ref type="bibr" target="#b27">[28]</ref>, hence we provide a proof sketch in the sequel. By letting g t i g i (w (t) , ξ t ), w * arg min w F (w), and ξ t (ξ</p><formula xml:id="formula_35">(t) 1 , . . . , ξ<label>(t)</label></formula><p>N ), from <ref type="bibr" target="#b10">(11)</ref> we find that,</p><formula xml:id="formula_36">E St,ξt [ w (t+1) -w * 2 ] = E St,ξt [ w (t) -w * 2 ] -2ηE St,ξt [ w (t) -w * , i∈St p i T t i g t i ]+η 2 E St,ξt [ i∈St p i T t i g t i 2 ]</formula><p>(22) From Lemma 1, (5), and µ-strong convexity, we observe that,</p><formula xml:id="formula_37">E St,ξt [ w (t) -w * , i∈St p i T t i g t i ] = E St,ξt [ w (t) -w * , i∈St p i T t i g t i - N i=1 p i ∇F i (w (t) ) ] + E St,ξt [ w (t) -w * , N i=1 p i ∇F i (w (t) ) ]<label>(23)</label></formula><p>= w (t) -w * , ∇F (w (t) )</p><p>≥ F (w</p><formula xml:id="formula_39">(t) ) -F (w * ) + µ 2 w * -w (t) 2<label>(25)</label></formula><p>We also have from Lemma 1 that,</p><formula xml:id="formula_40">E St,ξt [ i∈St p i T t i g t i 2 ] = E St,ξt [ i∈St p i T t i g t i - N i=1 p i g t i 2 ] + E St,ξt [ N i=1 p i g t i 2 ]<label>(26)</label></formula><p>By combining <ref type="bibr" target="#b21">(22)</ref>, <ref type="bibr" target="#b24">(25)</ref>, and <ref type="bibr" target="#b25">(26)</ref>, we find that,</p><formula xml:id="formula_41">E St,ξt [ w (t+1) -w * 2 ] ≤ (1-ηµ)E St,ξt [ w (t) -w * 2 ] -2η(F (w (t) ) -F (w * )) +η 2 E St,ξt [ i∈St p i T t i g t i - N i=1 p i g t i 2 ]+η 2 E St,ξt [ N i=1 p i g t i 2 ]</formula><p>(27) By defining α t i as in ( <ref type="formula" target="#formula_26">16</ref>) and α t = (α t 1 , . . . , α t N ),</p><formula xml:id="formula_42">E St,ξt [ i∈St p i T t i g t i - N i=1 p i g t i 2 ] = E αt,ξt [ N i=1 p i (α t i T t i g t i -g t i ) 2 ] (28) = N i=1 p 2 i E αt,ξt [ α t i T t i g t i -g t i 2 ] + N i=1 N j=1 j =i E αt,ξt [ p i (α t i T t i g t i -g t i ), p j (α t j T t j g t j -g t j ) ] (29) = N i=1 p 2 i E αt,ξt [ α t i T t i g t i -g t i 2 ] (30) = N i=1 p 2 i (T t i ) 2 E ξt [E αt|ξt [(α t i - 1 T t i ) 2 g t i 2 |ξ t ]]<label>(31)</label></formula><formula xml:id="formula_43">≤ N i=1 p 2 i (T i,max -1)G 2 (32)</formula><p>where (30) holds from <ref type="bibr" target="#b16">(17)</ref> and that (α t i , g t i ) is independent from (α t j , g t j ) for all i = j; (32) is from ( <ref type="formula" target="#formula_27">17</ref>) and ( <ref type="formula" target="#formula_24">14</ref>). Finally,</p><formula xml:id="formula_44">η 2 E St,ξt [ N i=1 p i g t i 2 ] ≤ N i=1 p 2 i E ξt [ g t i 2 ] + N i=1 N j=1 j =i p i p j E ξt [ g t i g t j ]<label>(33)</label></formula><formula xml:id="formula_45">≤ N i=1 p 2 i E ξt [ g t i 2 ] + N i=1 N j=1 j =i p i p j 2 E ξt [ g t i 2 + g t j 2 ] (34) ≤ N i=1 N j=1 p i p j G 2<label>(35)</label></formula><p>where ( <ref type="formula" target="#formula_44">33</ref>) is from the Cauchy-Schwarz inequality; (34) is from the AM-GM inequality; (35) is from <ref type="bibr" target="#b13">(14)</ref>. By combining ( <ref type="formula">27</ref>) and ( <ref type="formula">32</ref>) with ( <ref type="formula" target="#formula_45">35</ref>) and noting that -2η(F (w (t) )-F (w * )) ≤ 0,</p><formula xml:id="formula_46">E St,ξt [ w (t+1) -w * 2 ] ≤ (1-ηµ)E St,ξt [ w (t) -w * 2 ] +η 2 N i=1 (T i,max -1) p 2 i + N i=1 N j=1 p i p j G 2 (36)</formula><p>The remainder of the proof follows from standard induction arguments as in <ref type="bibr" target="#b18">[19]</ref>, <ref type="bibr" target="#b20">[21]</ref>, hence is omitted.</p><p>Corollary 1. For distributed SGD with stochastic energy arrivals, Theorem 1 holds by replacing T i,max with 1 βi for binary arrivals and with T i for uniform arrivals, respectively. The convergence analysis follows the same steps.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>V. EXPERIMENTS</head><p>In our experiments, we consider a conventional image classification task with 10 classes on the CIFAR-10 dataset <ref type="bibr" target="#b28">[29]</ref>, distributed over 40 users uniformly at random. Training is performed via distributed SGD using the convolutional neural network architecture from <ref type="bibr" target="#b24">[25]</ref> (about 10 6 model parameters). To demonstrate the impact of non-homogeneous energy-arrivals, users are partitioned into 4 equal-sized groups A 0 , . . . , A 3 such that A k = {i : i mod 4 = k}, and the energy profiles of users in group A k are set as:</p><formula xml:id="formula_47">E t i = 1 ∀t such that t mod τ k = 0 0 otherwise (<label>37</label></formula><formula xml:id="formula_48">)</formula><p>for i ∈ A k , where (τ 0 , τ 1 , τ 2 , τ 3 ) = <ref type="bibr" target="#b0">(1,</ref><ref type="bibr" target="#b4">5,</ref><ref type="bibr" target="#b9">10,</ref><ref type="bibr" target="#b19">20)</ref>. Therefore, users in group A 0 receive energy at every time-instant t, whereas users in groups A 1 , A 2 , and A 3 receive energy at every 5, 10, and 20 time-instants, respectively. We compare our framework with the following distributed SGD benchmarks: Benchmark 1. We first implement the distributed SGD framework from Section II when users participate in training as soon as they have energy available, by computing the gradient from ( <ref type="formula" target="#formula_3">4</ref>) and sending it to the server, and then wait for the next energy arrival. Note that in this setting users do not scale the gradients with respect to the energy arrivals. Benchmark 2. We then consider the distributed SGD framework from Section II when the global model is updated only if all users have enough energy to participate in training. That is, the server waits until all users have energy, then sends the current model parameters to the users, users compute the stochastic gradient from (4) and send it back to the server, and then the server updates the model as in <ref type="bibr" target="#b6">(7)</ref>. Hence, in this case, the model is updated once every t = 20 iterations. Finally, we also implement the conventional distributed SGD framework from Section II when all users are available at every iteration, which represents our target (desired) accuracy level. We demonstrate our results in terms of the test accuracy with respect to time t in Figure <ref type="figure" target="#fig_0">1</ref>. Our results show that Algorithm 1 achieves the same accuracy level (about 80%) as conventional distributed SGD, whereas the two benchmarks achieve an accuracy of 64% and 52%, respectively, within t = 1000 iterations. This is due to the fact that the first benchmark favors users with more frequent energy arrivals, hence the model is biased. The second benchmark waits for all users to have enough energy before making a single SGD update, hence, even though the training algorithm is unbiased, its convergence rate is very slow. In contrast, Algorithm 1 converges fast while achieving good accuracy.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>VI. CONCLUSION</head><p>We have studied distributed machine learning when users have intermittent energy availability, and demonstrated a simple distributed learning strategy with provable convergence guarantees. Future directions include exploring optimal scheduling and training strategies with energy accumulation. We hope our study to open up further research on energy harvesting for sustainable learning in distributed and mobile networks.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Algorithm 1</head><label>1</label><figDesc>Distributed SGD with Deterministic Energy Arrivalsinput Number of devices N , local dataset Di of device i ∈ [N ],number of iterations T , initial model parameters w (0) . output Model parameters (weights) w (T ) .1: for user i = 1, . . . , N do 2: Initialize U t i = 0 for t ∈ [T ]. 3: for iteration t = 0, . . . , T -1 do Users i = 1, . . . , N : 4:</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Algorithm 2</head><label>2</label><figDesc>Distributed SGD with Stochastic Energy Arrivals input Number of devices N , local dataset Di of device i ∈ [N ],</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Fig. 1 .</head><label>1</label><figDesc>Fig. 1. Test accuracy of Algorithm 1 compared to the benchmark distributed SGD algorithms for N = 40 users on the CIFAR-10 dataset.</figDesc><graphic coords="5,316.51,76.05,238.51,163.58" type="bitmap" /></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title level="m" type="main">Energy and policy considerations for deep learning in NLP</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Strubell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Ganesh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mccallum</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019-07">Jul 2019</date>
+			<biblScope unit="page" from="265" to="284" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Language models are few-shot learners</title>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">B</forename><surname>Brown</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Mann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Ryder</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Subbiah</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Kaplan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Dhariwal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Neelakantan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Shyam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Sastry</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Askell</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2005.14165</idno>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Energy harvesting wireless communications: A review of recent advances</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ulukus</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Yener</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Erkip</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Simeone</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Zorzi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Grover</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Huang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Journal on Selected Areas in Communications</title>
+		<imprint>
+			<biblScope unit="volume">33</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="360" to="381" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Energy harvesting: an integrated view of materials, devices and applications</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">B</forename><surname>Radousky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Liang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nanotechnology</title>
+		<imprint>
+			<biblScope unit="volume">23</biblScope>
+			<biblScope unit="issue">50</biblScope>
+			<biblScope unit="page">502001</biblScope>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">The binary energy harvesting channel with a unit-sized battery</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Tutuncuoglu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Ozel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Yener</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ulukus</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Information Theory</title>
+		<imprint>
+			<biblScope unit="volume">63</biblScope>
+			<biblScope unit="issue">7</biblScope>
+			<biblScope unit="page" from="4240" to="4256" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Fundamental limits of energy harvesting communications</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Ozel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Tutuncuoglu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ulukus</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Yener</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Communications Magazine</title>
+		<imprint>
+			<biblScope unit="volume">53</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="126" to="132" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Optimum transmission policies for battery limited energy harvesting nodes</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Tutuncuoglu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Yener</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Wireless Communications</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="1180" to="1189" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Transmission with energy harvesting nodes in fading wireless channels: Optimal policies</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Ozel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Tutuncuoglu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ulukus</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Yener</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Journal on Selected Areas in Communications</title>
+		<imprint>
+			<biblScope unit="volume">29</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="1732" to="1743" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Delay constrained energy harvesting networks with limited energy and data storage</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Varan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Yener</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Journal on selected Areas in Communications</title>
+		<imprint>
+			<biblScope unit="volume">34</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="1550" to="1564" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Throughput maximization for two-way relay channels with energy harvesting nodes: The impact of relaying strategies</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Tutuncuoglu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Varan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Yener</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Communications</title>
+		<imprint>
+			<biblScope unit="volume">63</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="2081" to="2093" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Energy harvesting networks with energy cooperation: Procrastinating policies</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Tutuncuoglu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Yener</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Communications</title>
+		<imprint>
+			<biblScope unit="volume">63</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<biblScope unit="page" from="4525" to="4538" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Sum-rate optimal power policies for energy harvesting transmitters in an interference channel</title>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Communications and Networks</title>
+		<imprint>
+			<biblScope unit="volume">14</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="151" to="161" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Energy cooperation in energy harvesting communications</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Gurakan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Ozel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ulukus</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Communications</title>
+		<imprint>
+			<biblScope unit="volume">61</biblScope>
+			<biblScope unit="issue">12</biblScope>
+			<biblScope unit="page" from="4884" to="4898" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Optimal packet scheduling in an energy harvesting communication system</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ulukus</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Communications</title>
+		<imprint>
+			<biblScope unit="volume">60</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="220" to="230" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Achieving AWGN capacity under stochastic energy harvesting</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Ozel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ulukus</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Information Theory</title>
+		<imprint>
+			<biblScope unit="volume">58</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page" from="6471" to="6483" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Energy-efficient radio resource allocation for federated edge learning</title>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Zeng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Du</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">K</forename><surname>Leung</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2020 IEEE International Conference on Communications Workshops (ICC Workshops)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page" from="1" to="6" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Adaptive federated learning in resource constrained edge computing systems</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Tuor</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Salonidis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">K</forename><surname>Leung</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Makaya</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Chan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Journal on Selected Areas in Communications</title>
+		<imprint>
+			<biblScope unit="volume">37</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="1205" to="1221" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">cpSGD: Communication-efficient and differentially-private distributed SGD</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Agarwal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">T</forename><surname>Suresh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">X</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Kumar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Mcmahan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems (Neurips 2018)</title>
+		<meeting><address><addrLine>Montréal, Canada</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="7575" to="7586" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">On the convergence of FedAvg on Non-IID data</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">8th International Conference on Learning Representations</title>
+		<meeting><address><addrLine>Addis Ababa, Ethiopia</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2020">April 26-30, 2020, 2020</date>
+			<biblScope unit="volume">2020</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<monogr>
+		<title level="m" type="main">Optimal client sampling for federated learning</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Horvath</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Richtarik</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2010.13723</idno>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<title level="m" type="main">Client selection in federated learning: Convergence analysis and power-of-choice selection strategies</title>
+		<author>
+			<persName><forename type="first">Y</forename><forename type="middle">J</forename><surname>Cho</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Joshi</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2010.01243</idno>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Scheduling for cellular federated edge learning with importance and channel awareness</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Ren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Guo</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Wireless Communications</title>
+		<imprint>
+			<biblScope unit="volume">19</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<biblScope unit="page" from="7690" to="7703" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Energy-aware analog aggregation for federated learning with redundant data</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Gündüz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICC 2020-2020 IEEE International Conference on Communications (ICC)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page" from="1" to="7" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Update aware device scheduling for federated learning at the wireless edge</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">M</forename><surname>Amiri</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Gündüz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">R</forename><surname>Kulkarni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">V</forename><surname>Poor</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2020 IEEE International Symposium on Information Theory (ISIT)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page" from="2598" to="2603" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Communication-efficient learning of deep networks from decentralized data</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Mcmahan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Moore</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Ramage</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Hampson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">A</forename><surname>Arcas</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Artificial Intelligence and Statistics. PMLR</title>
+		<imprint>
+			<biblScope unit="page" from="1273" to="1282" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Practical secure aggregation for privacy-preserving machine learning</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Bonawitz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Ivanov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Kreuter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Marcedone</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">B</forename><surname>Mcmahan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Patel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Ramage</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Segal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Seth</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2017 ACM SIGSAC Conference on Computer and Communications Security</title>
+		<meeting>the 2017 ACM SIGSAC Conference on Computer and Communications Security</meeting>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="1175" to="1191" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Turbo-aggregate: Breaking the quadratic aggregation barrier in secure federated learning</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>So</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Guler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">S</forename><surname>Avestimehr</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Journal on Selected Areas in Information Theory: Privacy and Security of Information Systems</title>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<monogr>
+		<title level="m" type="main">Local sgd converges fast and communicates little</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">U</forename><surname>Stich</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1805.09767</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Learning multiple layers of features from tiny images</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Krizhevsky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Citeseer, Tech. Rep</title>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

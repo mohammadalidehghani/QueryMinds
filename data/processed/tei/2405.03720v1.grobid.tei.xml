@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main"></title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2024-05-05">5 May 2024</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2024-05-05">5 May 2024</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">1DD04A21A18C62DA191A69E6E729C1CE</idno>
+					<idno type="arXiv">arXiv:2405.03720v1[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:07+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract/>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Spatial data is ubiquitous, encompassing a wide range of applications from environmental observations and biological measurements to more recent fields like computer vision. A critical challenge in the analysis of spatial data is spatial prediction, which involves estimating unobserved values based on nearby observations under the assumption of certain correlations. Among parametric algorithms, Kriging is particularly notable <ref type="bibr" target="#b7">((Matheron (1963)</ref>)).</p><p>Described as the best linear unbiased estimator (BLUE), Kriging employs a weighted average of nearby observations, with weights determined by a covariance function typically presumed to be stationary. However, this assumption does not hold in many real-world scenarios, such as data from satellites, monitoring stations, and urban streets, which tend to exhibit nonstationarity <ref type="bibr" target="#b2">(Katzfuss (2013)</ref>). Moreover, Kriging faces computational challenges with large datasets, requiring the inversion of the covariance matrix, an operation with a computational complexity of O(N 3 ) <ref type="bibr" target="#b0">(Chen et al. (2020)</ref>).</p><p>A variety of algorithms have been proposed to address the issues highlighted above. <ref type="bibr" target="#b6">Mao et al. (2022)</ref> introduced a model-free method for handling non-stationary spatial data, presenting a significant advancement in the field. Another popular alternative to Kriging is the Vecchia approximation, which simplifies the full Gaussian distribution by conditioning on neighboring values <ref type="bibr" target="#b9">(Vecchia (1988)</ref>). Drawing on the concept of neighbor-based approximation, <ref type="bibr" target="#b10">Wang et al. (2019)</ref> developed a nearest neighbor neural network specifically for spatial prediction. Building on these ideas, <ref type="bibr" target="#b0">Chen et al. (2020)</ref> introduced the innovative Deep Kriging framework, which combines spatial basis functions with deep neural networks to model any spatial processes effectively.</p><p>While deep learning approaches have demonstrated significant promise in approximating spatial surfaces, they typically require a substantial amount of training data. Transfer learning emerges as an effective solution to this challenge. For instance, <ref type="bibr" target="#b1">He et al. (2019)</ref> employed transfer learning to leverage a neural network pre-trained on the ImageNet dataset for Hyperspectral Image Classification (HSI). Similarly, <ref type="bibr" target="#b12">Zhang and Liu (2012)</ref> utilized transfer learning to adapt to a common latent representation for writer adaptation. Both the HSI and writer adaptation scenarios, which are limited by small target sample sizes, benefit from the integration of external information from larger datasets. Spatial applications often grapple with the challenge of small sample sizes. For instance, in estimating PM 2.5 concentrations, only about 70 high-quality monitoring stations are available throughout North Carolina, and approximately 200 in California <ref type="bibr" target="#b11">(Yang et al. (2023)</ref>).</p><p>Despite this, a large volume of relatively low-quality data exists in these states. Since the spatial distribution of PM 2.5 tends to be stable, integrating data from these abundant but lower-quality stations could significantly enhance estimation accuracy. Drawing inspiration from the works of <ref type="bibr" target="#b1">He et al. (2019)</ref> and <ref type="bibr" target="#b0">Chen et al. (2020)</ref>, this paper proposes a neural network-based transfer learning method that utilizes external information to improve spatial predictions in datasets with limited target data.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Method and Theoretical Properties</head><p>Let Y i be the observation at spatial location s i = (s i1 , s i2 ) for i ∈ {1, ..., n}. This paper assumes</p><formula xml:id="formula_0">Y i = f (s i ; θ) + ε i ,<label>(1)</label></formula><p>where f is a spatial process that depends on parameters θ and ε i iid</p><formula xml:id="formula_1">∼ Normal(0, τ 2 ) is error.</formula><p>The spatial process is modelled using a feed-forward neural network (FFNN) with input s i . The FFNN has two stages: in the first stage we deform the spatial coordinates using Radial Basis Function (RBF), and in the second stage the weights are applied to capture the underlying spatial strcture. Below, we describe the model with a single hidden layer in the first stage, and with seven hidden layers of 100 neurons in the second stage.</p><p>Following <ref type="bibr" target="#b0">Chen et al. (2020)</ref>, we first use an embedding layer expanding the spatial location into p known basis functions K 1 (s), ..., K p (s). In particular, we use the Wendland basis function</p><formula xml:id="formula_2">ϕ(d) =        (1 -d) 6 (35d 2 + 18d + 3)/3, d ∈ [0, 1] 0, otherwise.</formula><p>where d is the Euclidean distance between observations and knots. Adopting the idea in <ref type="bibr" target="#b8">Nychka et al. (2015)</ref>, we use a multi-resolution with the knots arranged on a rectangular grid. In particular, we used four level of resolutions, and at each level, let u i , i = 1, 2, 3, 4 be a rectangular grid of points. The basis function is defined as</p><formula xml:id="formula_3">ϕ * (s) = ϕ(d) = ϕ(||s -u i ||).</formula><p>After the first stage, we have a basis function representation of x ∈ R 139 .</p><p>The second stage of the neural network is defined as follows:</p><formula xml:id="formula_4">h 1 = ReLU(W 1 x + b 1 )</formula><p>. . .</p><formula xml:id="formula_5">h 7 = ReLU(W 7 h 6 + b 7 ) y = W 8 h 3 + b 8</formula><p>where:</p><p>• W 1 ∈ R 100×139 , b 1 ∈ R 100 are the weights and biases of the first hidden layer.</p><p>• W 2 . . . W 7 ∈ R 100×100 , b 2 . . . b 7 ∈ R 100 are the weights and biases of the second and third hidden layers.</p><p>• W 8 ∈ R 1×100 , b 8 ∈ R are the weights and bias of the output layer.</p><p>• ReLU(•) is the Rectified Linear Unit activation function.</p><p>• y ∈ R is the output of the network.</p><p>A visual illustration of the architecture of the two-stage neural network are provided in the supplementary materials.</p><p>The neural network above is first trained on a large external data, and all parameters are transferred to the target data set, since we assume the distribution of the covariates X are the same.</p><p>Many recent advancement of transfer learning in NLP and Computer Vision area shows that the method proposed could improve the estimation performance. For example, Segment</p><p>Anything Model <ref type="bibr" target="#b3">(Kirillov et al. (2023)</ref>) learns from a millions of images and is the stateof-the-art in segmentation task. The basic idea behind both Segment Anything Model and the proposed approach is that the neural network is learning latent representation of the training feature, and can decode the learned feature and adapt to new tasks quickly.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Simulation</head><p>To evaluate the performance of the proposed method above, a simulation study is carried out using both stationary and non-stationary data on a unit square [0, 1] 2 .</p><p>The stationary data is a Matern spatial process as defined by <ref type="bibr" target="#b5">Lindgren et al. (2011)</ref>,</p><p>where the correlation between two spatial location s i , s j is</p><formula xml:id="formula_6">C(s i , s j ) = σ 2 2 ν-1 Γ(ν) (κ||s i -s j ||) ν K ν (κ||s i -s j ||)</formula><p>where K ν is the modified Bessel function of the second kind with smoothness factor ν = 1, and κ = √ 8</p><p>ρ where ρ = 0.2 is the spatial range, and σ 2 = 1 is the spatial range. The nugget error ϵ i = 0.01 is the i.i.d noise.</p><p>The non-stationary process is defined in <ref type="bibr" target="#b0">Chen et al. (2020)</ref> with Y i = sin{30( si -0.9) 4 }cos{2( si -0.9)}+( si -0.9)/2, where s i = (s i1 , s i2 ) and si = s i1 +s i2 2 . To distinguish these two processes, in this paper we define the stationary process as Y iS and the non-stationary process as Y iN . An independent nugget variance of ν 2 = 1e -6 is added to the non-stationary process. Figure <ref type="figure" target="#fig_0">1</ref> shows the spatial surface of sample realizations. For each process, the source data set each consists of N = 4900 observations. We evaluate the performance on the target data set of N = 25, 64, 100, 225 observations. Figure 2 displays the MSE comparison of 1). source data pre-trained MSE on target data 2). target data set only, and 3). Kriging result on stationary data. Figure 3 compares the results on nonstationary data. During the pre-training stage on external data, a total of 1500 epochs are used with a learning rate of 0.001. A trace plot with validation set is monitored to make sure the neural network has converged. During the tuning stage on target data, all parameters from the pre-training stage are updated. A total of 1000 epochs with a learning rate of 0.001 is used. Figure 3: Non-stationary process MSE</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Conclusion</head><p>As we can see from the figures above, for stationary data, the proposed approach outperforms both target only setting and the traditional Kriging approach. As target set gets larger, the proposed method and target only neural network converges.</p><p>For the non-stationary scenario, the proposed method significantly outperforms target only approach when the target sample size is less than 100, and similar to the stationary case, these two neural network converges when the sample size gets larger.</p><p>The proposed transfer learning approach is a first step towards spatial transfer learning.</p><p>Following <ref type="bibr" target="#b1">He et al. (2019)</ref>, we tune all parameters in the model. One possible future extension is to add additional layers to the neural network, fix the first seven layers in the network, and only tune additional layers. Also, the fully connected neural network may not capture the spatial dependence well. It is possible to combine the 4N network proposed by <ref type="bibr" target="#b10">Wang et al. (2019)</ref> or the graph neural network <ref type="bibr" target="#b4">Klemmer et al. (2023)</ref>.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Simulation data</figDesc><graphic coords="6,93.65,74.00,207.20,177.20" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: Stationary process MSE</figDesc><graphic coords="6,201.00,515.02,210.00,130.00" type="bitmap" /></figure>
+		</body>
+		<back>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0" />			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title level="m" type="main">Deepkriging: Spatially dependent deep neural networks for spatial prediction</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">J</forename><surname>Reich</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Sun</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2007.11972</idno>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Heterogeneous transfer learning for hyperspectral image classification based on convolutional neural network</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Ghamisi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Geoscience and Remote Sensing</title>
+		<imprint>
+			<biblScope unit="volume">58</biblScope>
+			<biblScope unit="page" from="3246" to="3263" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Bayesian nonstationary spatial modeling for very large datasets</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Katzfuss</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Environmetrics</title>
+		<imprint>
+			<biblScope unit="volume">24</biblScope>
+			<biblScope unit="page" from="189" to="200" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Segment anything</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kirillov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Mintun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Ravi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Mao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Rolland</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Gustafson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Xiao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Whitehead</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">C</forename><surname>Berg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W.-Y</forename><surname>Lo</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the IEEE/CVF International Conference on Computer Vision</title>
+		<meeting>the IEEE/CVF International Conference on Computer Vision</meeting>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+			<biblScope unit="page" from="4015" to="4026" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Positional encoder graph neural networks for geographic data</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Klemmer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">S</forename><surname>Safir</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">B</forename><surname>Neill</surname></persName>
+		</author>
+		<idno>PMLR</idno>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Artificial Intelligence and Statistics</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+			<biblScope unit="page" from="1379" to="1389" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">An explicit link between gaussian fields and gaussian markov random fields: the stochastic partial differential equation approach</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Lindgren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Rue</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Lindström</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the Royal Statistical Society Series B: Statistical Methodology</title>
+		<imprint>
+			<biblScope unit="volume">73</biblScope>
+			<biblScope unit="page" from="423" to="498" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Valid model-free spatial prediction</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Mao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Martin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">J</forename><surname>Reich</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the American Statistical Association</title>
+		<imprint>
+			<biblScope unit="page" from="1" to="11" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Principles of geostatistics</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Matheron</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Economic geology</title>
+		<imprint>
+			<biblScope unit="volume">58</biblScope>
+			<biblScope unit="page" from="1246" to="1266" />
+			<date type="published" when="1963">1963</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">A multiresolution gaussian process model for the analysis of large spatial datasets</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Nychka</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Bandyopadhyay</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Hammerling</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Lindgren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Sain</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Computational and Graphical Statistics</title>
+		<imprint>
+			<biblScope unit="volume">24</biblScope>
+			<biblScope unit="page" from="579" to="599" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Estimation and model identification for continuous spatial processes</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">V</forename><surname>Vecchia</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the Royal Statistical Society Series B: Statistical Methodology</title>
+		<imprint>
+			<biblScope unit="volume">50</biblScope>
+			<biblScope unit="page" from="297" to="312" />
+			<date type="published" when="1988">1988</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Nearest-neighbor neural networks for geostatistics</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Guan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Reich</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2019 international conference on data mining workshops (ICDMW)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="196" to="205" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">A data-fusion approach to assessing the contribution of wildland fire smoke to fine particulate matter in california</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ruiz-Suarez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">J</forename><surname>Reich</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Guan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">G</forename><surname>Rappold</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Remote Sensing</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="page">4246</biblScope>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Writer adaptation with style transfer mapping</title>
+		<author>
+			<persName><forename type="first">X.-Y</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C.-L</forename><surname>Liu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE transactions on pattern analysis and machine intelligence</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="volume">35</biblScope>
+			<biblScope unit="page" from="1773" to="1787" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

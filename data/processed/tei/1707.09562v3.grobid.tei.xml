@@ -1,0 +1,501 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">MLBench: How Good Are Machine Learning Clouds for Binary Classification Tasks on Structured Data? [Experiments and Analysis]</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Yu</forename><surname>Liu</surname></persName>
+							<email>yu.liu@inf.ethz.ch</email>
+						</author>
+						<author>
+							<persName><forename type="first">Hantian</forename><surname>Zhang</surname></persName>
+							<email>hantian.zhang@inf.ethz.ch</email>
+						</author>
+						<author>
+							<persName><forename type="first">Luyuan</forename><surname>Zeng</surname></persName>
+							<email>zengl@student.ethz.ch</email>
+						</author>
+						<author>
+							<persName><forename type="first">Wentao</forename><surname>Wu</surname></persName>
+							<email>wentao.wu@microsoft.com</email>
+						</author>
+						<author>
+							<persName><forename type="first">Ce</forename><surname>Zhang</surname></persName>
+							<email>ce.zhang@inf.ethz.ch</email>
+						</author>
+						<author>
+							<affiliation key="aff0">
+								<orgName type="department" key="dep1">Department of Computer Science</orgName>
+								<orgName type="department" key="dep2">Department of Computer Science</orgName>
+								<orgName type="department" key="dep3">Department of Computer Science</orgName>
+								<orgName type="institution" key="instit1">ETH Zurich</orgName>
+								<orgName type="institution" key="instit2">ETH Zurich</orgName>
+								<orgName type="institution" key="instit3">ETH Zurich</orgName>
+								<orgName type="institution" key="instit4">Microsoft Research</orgName>
+								<address>
+									<settlement>Redmond</settlement>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<affiliation key="aff1">
+								<orgName type="department">Department of Computer Science</orgName>
+								<orgName type="institution">ETH Zurich</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main">MLBench: How Good Are Machine Learning Clouds for Binary Classification Tasks on Structured Data? [Experiments and Analysis]</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">48111DD89FA8367E5FEA7D88161F0A1B</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>We conduct an empirical study of machine learning functionalities provided by major cloud service providers, which we call machine learning clouds. Machine learning clouds hold the promise of hiding all the sophistication of running large-scale machine learning: Instead of specifying how to run a machine learning task, users only specify what machine learning task to run and the cloud figures out the rest. Raising the level of abstraction, however, rarely comes free -a performance penalty is possible. How good, then, are current machine learning clouds on real-world machine learning workloads?</p><p>We study this question with a focus on binary classification problems. We present mlbench, a novel benchmark constructed by harvesting datasets from Kaggle competitions. We then compare the performance of the top winning code available from Kaggle with that of running machine learning clouds from both Azure and Amazon on mlbench. Our comparative study reveals the strength and weakness of existing machine learning clouds and points out potential future directions for improvement.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">INTRODUCTION</head><p>In spite of the recent advancement of machine learning research, modern machine learning systems are still far from easy to use, at least from the perspective of business users or even scientists without a computer science background <ref type="bibr" target="#b18">[30]</ref>. Recently, there is a trend toward pushing machine learning onto the cloud as a "service," a.k.a. machine learning clouds. By putting a set of machine learning primitives on the cloud, these services significantly raise the level of abstraction for machine learning. For example, with Amazon Machine Learning, users only need to upload the dataset and specify the type of task (classification or regression). The cloud will then automatically train machine learning models without any user intervention.</p><p>From a data management perspective, the emergence of machine learning clouds represents an attempt toward declarative machine learning. Instead of relying on users to specify how a machine learning task should be configured, tuned, and executed, machine learning clouds manage all these physical decisions and allow users to focus on the logical side: what tasks they want to perform with machine learning.</p><p>Raising the level of abstractions and building a system to automatically manage all physical decisions, however, rarely comes free. In the context of a data management system, a sophisticated query optimizer is responsible for generating good physical execution plans. Despite the intensive and extensive research and engineering effort that has been put into building capable query optimizers in the past four decades, query optimizers still often make mistakes that lead to disastrous performance.</p><p>In the context of declarative machine learning, things become even more subtle. A bad choice of "physical plan" may result in not only suboptimal performance but also suboptimal quality (e.g., accuracy). In this paper, we investigate the usability of state-of-the-art machine learning clouds. Specifically, we ask the following question:</p><p>To what extent can existing declarative machine learning clouds support real-world machine learning tasks?</p><p>More concretely, what would users lose by resorting to declarative machine learning clouds instead of using a best-effort, nondeclarative machine learning system? To answer this question, we conduct an empirical study with mlbench, a novel benchmark consisting of real-world datasets and best-effort solutions harvested from Kaggle competitions. We use a novel methodology that allows us to separate measuring the performance of the machine learning clouds themselves from other external factors that may have significant impact on quality, such as feature selection and hyper-parameter tuning. Moreover, we use a novel performance metric that measures the strength and weakness of current machine learning clouds by comparing their relative performance with top-ranked solutions in Kaggle competitions. Premier of Kaggle Competitions. Kaggle is a popular platform hosting a range of machine learning competitions. Companies or scientists can host their real-world applications on Kaggle; Each user has access to the training and testing datasets, submits their solutions to Kaggle, and gets a quality score on the test set. Kaggle motivates users with prizes for top winning entries. This "crowdsourcing" nature of Kaggle makes it a representative sample of real-world machine learning workloads. Summary of Technical Contributions. C1. We present the mlbench benchmark. One prominent feature of mlbench is that each of its datasets comes with a best-effort baseline of both feature engineering and selection of machine learning models. C2. We propose a novel performance metric based on the notion of "quality tolerance" that measures the performance gap between a given machine learning cloud and top-ranked Kaggle competition performers. C3. We evaluate the two most popular machine learning clouds, Azure Machine Learning Studio and Amazon Machine Learning, using mlbench. Our experimental result reveals interesting arXiv:1707.09562v3 [cs.DC] 16 Oct 2017 strengths and limitations of both clouds. Detailed analysis of the results further points out promising future directions to improve both machine learning clouds. Overview. The rest of the paper is organized as follows. We present our methodology in Section 2 and the mlbench benchmark in Section 3. We then present experimental settings and evaluation results in Section 4-6. We summarize related work in Section 7 and conclude in Section 8.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">METHODOLOGY</head><p>Benchmarking systems fairly is not an easy task. Three key aspects came to mind when designing a benchmark for machine learning clouds:</p><p>(1) We need to measure not only the performance (speed) but also the quality (precision). The two are coupled, and their relative importance changes with respect to the user's budget and tolerance for suboptimal quality.</p><p>(2) The quality of an application depends on both feature engineering and the machine learning model. If these two factors are not decoupled, our result will be unfair to most machine learning clouds, as they usually do not provide an efficient mechanism for automatic feature engineering.</p><p>(3) To compare declarative machine learning clouds with the best effort of using non-declarative machine learning systems, we need to construct a strong baseline for the latter. If this baseline is not strong enough, our result may be overly optimistic regarding machine learning clouds.</p><p>Starting from these principles, we made a few basic decisions that we shall present next.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">Scope of Study</head><p>We restrict ourselves to binary classification, one of the most popular machine learning tasks. As we will see, even with this constrained scope, there is no simple, single answer to the main question we aim to answer.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">Methodology</head><p>We collect top winning code for all binary classification competitions on Kaggle. We then filter them to select a subset to include in mlbench with the following protocol. For the code that we are able to install and finish running within 24 hours, we further collect features extracted by the winning code. The features are then used for training and testing models provided by both the machine learning cloud and the Kaggle winning solution. We also include datasets constructed using raw features (see Section 3.2).</p><p>Discussion. At first glance, our methodology is quite trivial. Indeed, there is little novelty in the procedure itself, though the engineering effort involved is substantial. (It took us more than nine months to finish the experimental evaluation presented in Section 5.) On second thought, one may wonder what the point is of spending so much effort.</p><p>To see the subtlety here, consider an alternative approach that is much easier to implement: take one well-known dataset (or several datasets) such as those from the UCI Machine Learning Repository, run a standard feature selection algorithm, and compare the performance of machine learning clouds with that of standard machine learning libraries (e.g., Weka <ref type="bibr" target="#b9">[21]</ref>) on this dataset. There are, however, a couple of caveats in this approach. First, it is unclear how challenging the learning problem (associated with the dataset) is. There may be subjective justification but no objective metric of the difficulty. Second, it is questionable whether the models covered by standard libraries represent the state of the art. Depending on the popularity and maturity of the libraries, coverage may vary dramatically. Third, feature engineering and model selection are more of an art mastered only by human experts. If we ignore both, our result might be overly optimistic or overly pessimistic for machine learning clouds.</p><p>The intuition behind our methodology is simple: the top winning code of Kaggle competitions represents the arguably best effort among existing machine-learning solutions. Of course, it is biased by the competitions published on Kaggle and the solutions provided by the participants. Nonetheless, given the high impact of Kaggle competitions, we believe that using the winning code as a performance baseline significantly raises the bar compared with using standard libraries and therefore reduces the risk that we might be overly optimistic about the machine learning clouds. Moreover, given the "crowdsourcing" nature of Kaggle, the baseline will keep up with the advancement of machine learning research and practice, perhaps at a much faster pace than standard libraries can.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3">Quality Metric</head><p>Our methodology of adopting Kaggle winning code as a baseline raises the question of designing a reasonable quality metric. To measure the quality of a model deployed on machine learning clouds, we introduce the notion of "quality tolerance" (of a user).</p><p>Definition 2.1. The quality tolerance of a user is τ if s/he can be satisfied only by being ranked among the top τ %, assuming that s/he uses a model M provided by the cloud to participate in a Kaggle competition.</p><p>Of course, the "user" in Definition 2.1 is just hypothetical. Essentially, quality tolerance measures the performance gap between the machine learning cloud and the top-ranked code of a Kaggle competition. A lower quality tolerance suggests a more stringent user requirement and therefore a more capable machine learning cloud if it can meet that quality tolerance.</p><p>Based on the notion of quality tolerance, we are mainly interested in two performance metrics of a model M:</p><p>• Capacity, the minimum quality tolerance τ min that M can meet for a given Kaggle competition T ; • Universality, the number of Kaggle competitions that M can achieve a quality tolerance of τ .</p><p>Intuitively, capacity measures how high M can be ranked in a Kaggle competition, whereas universality measures in how many Kaggle competitions M can be ranked that high. We use c(M,T ) and u(M, τ ) to denote the capacity and τuniversality of M. Moreover, we use K(M, τ ) to denote the set of Kaggle competitions whose quality tolerance τ have been reached by u(M, τ ):</p><formula xml:id="formula_0">u(M, τ ) = |K(M, τ )|.</formula><p>Similarly, if a machine learning cloud M provides n models {M 1 , ..., M n } (n ≥ 1), we can define the capacity of M with respect to a Kaggle competition T as</p><formula xml:id="formula_1">c(M,T ) = min M i ∈M c(M i ,T ), 1 ≤ i ≤ n,</formula><p>and define the τ -universality of M as</p><formula xml:id="formula_2">u(M, τ ) = | n i=1 K(M i , τ )|.</formula><p>Clearly, the capacity of M over T is the capacity of the best model that M provides for T , whereas the τ -university of M is the number of Kaggle competitions in which M can meet quality tolerance τ (with the best model it can provide). Finally, if there are m Kaggle competitions T = {T 1 , ...,T m }, we define the capacity of M over T as c(M, T ) = max</p><formula xml:id="formula_3">T j ∈ T c(M,T j ), 1 ≤ j ≤ m.</formula><p>It measures the uniformly best quality tolerance that M can meet for any of the competitions in T .</p><p>In the rest of this paper, we will use the notation c(M), u(M), c(M), and u(M) whenever the corresponding quality tolerance and Kaggle competition(s) are clear from the context.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.4">Limitations and Discussion</head><p>Our motivation of using ranking as performance metric is to provide a normalized score across all datasets. However, ranking itself does not tell the full story. One caveat is that ranking measures the relative performance and may be sensitive to the change in the underlying, absolute metric, such as the "area under curve" (AUC) score that is commonly used by Kaggle competitions. To illustrate this, Figure <ref type="figure" target="#fig_0">1</ref> presents the histograms (i.e., distributions) of the AUC scores in two Kaggle competitions (see Section 3.3 for the details of the competitions). The red, green, and blue lines correspond to the teams ranked at the top 95%, 50%, and 5%. The distance between the scores of top 50% (green) and top 5% (blue) shows the sensitivity -for D-PHY, ranking is quite sensitive to small changes in AUC as most of the teams have similar scores. Therefore, when benchmarking machine learning clouds, it is important to look at both ranking and absolute quality. In this paper, our analysis will always base on both.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">THE MLBENCH BENCHMARK</head><p>In this section, we present more details of the mlbench benchmark we constructed by harvesting and running winning code of Kaggle competitions.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Kaggle Competitions</head><p>Kaggle hosts various types of competitions for data scientists. There are seven different competition categories, and we are particularly interested in the category "Featured" that aims to solve commercial, real-world machine learning problems. For each competition, Kaggle provides a necessary description of its background, training and testing datasets, evaluation metric, and so on. These competitions are online only for a while, and Kaggle allows participants to submit multiple times during that period. Kaggle evaluates and provides a score for each submission (shown as a public leader board). Participants can specify their final submissions before a competition ends, and a final, private leader board is available after the competition ends. The winners are determined based on their rankings on the private leader board. In this paper, we treat the top ten on the private leader</p><p>Statistics of Kaggle Competitions Number Total Competitions 267 Competitions with Winning Code 41 Competitions without Winning Code 226 Figure 2: Statistics of Kaggle Competitions Tasks of Kaggle Competitions Number Binary Classification 13 Multi-class Classification 14 Regression 9 Others 5 </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Overview</head><p>mlbench is curated from Kaggle competitions with or without winning code. We describe the protocol of curating as follows.</p><p>Datasets from Winning Code. As shown in Figure <ref type="figure">2</ref>, we collected 267 Kaggle competitions in total and found winning code for 41 of these competitions. We are unable to find winning code for the remaining 226 competitions. Fortunately, the 41 competitions with available winning code already exhibit sufficient diversity to evaluate various aspects of machine learning clouds. Figure <ref type="figure" target="#fig_1">3</ref> further summarizes the types of machine learning tasks covered by these 41 competitions with winning code. Given the scope of study we stated in Section 2.1, the 13 competitions that are binary classification tasks are the focus of our evaluation.</p><p>We then ran the winning code of the 13 competitions on Microsoft Azure for the purpose of extracting the features used by the winning code (recall Section 2.2). We failed to run the winning code for "Avito Context Ad Clicks". For "Santander Customer Satisfaction" and "Higgs Boson Machine Learning Challenge", the code cannot be finished on an Azure machine with a 16-core CPU and 112GB memory. Therefore, there were 10 competitions for which we finished running the winning code successfully. We further removed datasets whose outputs are either threedimensional features that cannot be supported by the machine learning clouds we studied or features that cannot be extracted and saved successfully. Moreover, the winning code of "KDD Cup 2014" generated two sets of features -it uses the ensemble method with two models. This results in 7 datasets with features extracted by the winning code. Beyond Winning Code. We also constructed datasets using the raw features from Kaggle (details in Section 3.3), which results in 11 additional datasets. Specifically, we include all binary competitions ended by July 2017 that (1) use AUC as evaluation metric, (2) can be joined by new users, (3) have datasets available for download, (4) still allow for submission and scoring, (6) do not contain images, videos, and HTML files, and (5) whose total size does not exceed Azure's limitation. <ref type="foot" target="#foot_0">1</ref>In total, mlbench contains 18 datasets with 7 datasets having both features produced by winning code and the raw features provided by the competition. We summarize the statistics of the datasets in Figure <ref type="figure">4</ref>. We can see a reasonable diversity across the datasets in terms of the size of the training set, the size of the testing set, and the number of features. Moreover, the ratio between the sizes of the training set and testing set varies as well. For example, D-VP has a testing set 10 times larger than the training set, which is quite different from the vanilla setting, where the training set is much larger.</p><p>Dataset Training Set Test Set # Features Training Size Test Size D-SCH-r 86 119,748 410 0.3MB 488MB D-PIS-r 5,500 5,952 22 1.2MB 1.29MB D-EG-r 7,395 3,171 124 21MB 9MB D-VPr-r 10,506 116,293 53 2MB 19MB D-AEA-r 32,769 58,921 9 1.94MB 3.71MB D-SCS-r 76,020 75,818 369 56.6MB 56.3MB D-SMR-r 145,231 145,232 1,933 921MB 921MB D-GMC-r 150,000 101,503 10 7.21MB 4.75MB D-HQC-r 260,753 173,836 297 198MB 131MB D-KDD-r 619,326 44,772 139 571MB 40.7MB D-PBV-r 2,197,291 498,687 52 181MB 76MB D-SCH 86 119,748 410 0.3MB 488MB D-EG 7,395 3,171 29 2.59MB 1.35MB D-VP 10,506 116,293 17 0.8MB 9.1MB D-AEA 32,769 58,921 135 54MB 97MB D-PHY 38,012 855,819 74 28.9MB 859MB D-KDD2 131,329 44,772 100 105MB 36MB D-KDD1 391,088 44,772 190 282MB 32MB Figure 4: Statistics of datasets. The "-r" in the names of datasets indicates raw feature (see Section 3.3 for details).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Dataset Details</head><p>We present more details about the datasets listed in Figure <ref type="figure">4</ref>.</p><p>For each dataset, we first introduce the background of the corresponding Kaggle competition. We then describe the features used by the winning code we found, which characterize the datasets themselves, as well as the models and algorithms it adopts.</p><p>• MLSP2014-Schizophrenia Classification Challenge (D-SCH and D-SCH-r): In this competition, multimodal features derived from brain magnetic resonance imaging (MRI) scans and labels of the training data are provided. The goal of this competition is to build machine learning models that can predict whether a person is a "healthy control" or "schizophrenic patient" in the testing data. <ref type="foot" target="#foot_1">2</ref>We use the winning code from Karolis Koncevicius [1]. Interestingly, the winning code uses the same features as the raw data provided by Kaggle. The algorithm it uses is distance weighted discrimination <ref type="bibr" target="#b15">[27]</ref>. We abbreviate the constructed dataset as D-SCH. Another dataset is constructed using the raw data provided by Kaggle and is referred to as D-SCH-r, although D-SCH and D-SCH-r contain the same features in this particular case. • Influencers in Social Networks (D-PIS-r): In this competition, each data point describes the features extracted based on the Twitter activities of two individuals. In the training dataset, the data points are labelled to indicate which one of the two individuals is more influential on a social network. The goal of this competition is to predict the more influential individual from the given features of 2 individuals. <ref type="foot" target="#foot_2">3</ref> No winning code is available for this competition. We take the raw data provided by Kaggle and construct the dataset D-PIS-r.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>• StumbleUpon Evergreen Classification Challenge (D-EG and D-EG-r):</head><p>In this competition, URLs and their corresponding raw contents are given. The goal of this competition is to build a classifier that can label a URL as either "evergreen" or "ephemeral." <ref type="foot" target="#foot_3">4</ref> We use the winning code from Marco Lui <ref type="bibr">[2]</ref>. It extracts features from raw HTML documents and uses only text-based features.</p><p>The most important step is a stacking-based approach that combines the generated features <ref type="bibr" target="#b13">[25]</ref>. The algorithm the winning code uses is logistic regression. Features used by this winning code are stored by extracting the input to the logistic regression classifier. We abbreviate this constructed dataset as D-EG. Similarly, we construct another dataset D-EG-r using the raw features. • West-Nile Virus Prediction (D-VP and D-VP-r): In this competition, the participants are given weather, location, testing, and spraying data to predict whether or not West Nile Virus is present. <ref type="foot" target="#foot_4">5</ref> We use the winning code from [3]. For feature engineering, three new features are added to the dataset. In addition, another feature, "NumMosquitos" (indicating the number of mosquitos caught in a trap), exists in the training data but does not exist in the testing data. The author estimates this value for the testing data twice, and we take the average. The predictions are initialized according to a normal distribution. Each prediction is then multiplied by various coefficients in several steps. These coefficients are obtained from other information related to the target (e.g., geographical information).</p><p>The predictions are then normalized. We abbreviate this dataset as D-VP. The corresponding dataset using raw features is denoted as D-VP-r. • Amazon.com-Employee Access Challenge (D-AEA and D-AEA-r): The historical data that employees are allowed or denied to access resources over time is given. The goal of this competition is to create an algorithm that can predict approval/denial for an unseen employee. <ref type="foot" target="#foot_5">6</ref> We use the winning code from Owen <ref type="bibr">Zhang [4]</ref>. It first converts the original categorical features to numerical features. It then builds six models from subsets of the features as well as features obtained via post-processing (e.g., aggregation). The final prediction is generated by an ensemble of predictions from individual models. The algorithms it uses are GBM (generalized boosted regression modeling) [5], random forest [6], extremely randomized trees [7], and glmnet (lasso and elastic-net regularized generalized linear models) <ref type="bibr">[8]</ref>. Features used by this winning code are stored by merging all features used by the models. We abbreviate this constructed dataset as D-AEA. Correspondingly, the dataset containing only the raw data from Kaggle is denoted as D-AEA-r. • Santander Customer Satisfaction (D-SCS-r): In this competition 7 , the objective is to identify if a customer is unsatisfied with their experience in dealing with the Santander bank. A list of numeric features as well as a label are provided to the participants. There is no winning code available for this competition. We use the raw data provided by Kaggle to construct the dataset D-SCS-r. • Springleaf Marketing Response (D-SMR-r): In this competition 8 , a large set of anonymized features describing a customer are provided in each entry of the training dataset. The goal of this competition is to use the features of the customer to predict whether s/he will respond to a direct mail offer. No winning code is available for this competition. We therefore construct the dataset D-SMR-r using the raw data from Kaggle. • Give me some credit (D-GMC-r): In this competition 9 , the participants are asked to help a bank to predict the probability that a client will experience financial distress in the next two years. No winning code is available for this dataset. We take the raw data from Kaggle and denote the dataset as D-GMC-r. • Homesite Quote Conversion (D-HQC-r): In this competition 10 , the participants are asked to predict whether or not a customer will purchase the quoted product from an insurance company. The training data includes anonymized features covering information about the product, the client, the property going to be assured, and the location. We use the raw data to create the dataset D-HQC-r. • KDD Cup 2014-Predicting Excitement (D-KDD1, D-KDD2 and D-KDD-r): In this competition, the participants are asked to help DonorsChoose.org identify projects that are exceptionally exciting to the business, given all the related data about projects, donations, and so on. 11  We use the winning code from <ref type="bibr">[9]</ref>. It builds two diverse feature sets based on raw features and generated features. These two diverse feature sets are then used to train two different models: gradient boosting regressor and gradient boosting machine. The final result is based on the ensemble of the two. We abbreviate these two constructed datasets as D-KDD1 and D-KDD2. As before, we also create a dataset that only contains the raw data, denoted as D-KDD-r.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>• Predicting Red Hat Business Value (D-PBV-r):</head><p>The goal of this competition 12 is to identify customers with potential business value. To achieve this goal, records of customer activities are provided to the participants. In addition, each customer is associated with a set of features. There is no winning code for this competition. We construct the dataset D-PBV-r by joining the tables containing raw data describing the activities and the features of the customers. • Flavours of Physics: Finding τ → µµµ (D-PHY): In this competition, the participants are given a list of collision events and their properties to predict whether τ → 3µ decay happens in a collision or not. 13 We use the winning code from Alexander V. Gramolin <ref type="bibr">[10]</ref>. It designs new features based on original features. One original feature is not used because it prevents passing of the agreement test. 14  In addition, the winning code does not use all the training data. Regarding the algorithm, it uses only XGBoost <ref type="bibr" target="#b2">[14]</ref>. It trains two different XGBoost models on different sets of features. The final result is an ensemble of results obtained by the two models. The combination of two independent classifiers enables it to pass the correlation test. 15 Features used by this winning code are stored by extracting the input to the models. Then the features taken into different models are merged and duplicated features are dropped.</p><p>We abbreviate this constructed dataset as D-PHY.</p><p>There are missing values in the datasets D-PHY and D-KDD2. We replace the missing values in these two datasets with the average values of corresponding features and "N/A", respectively, for our experiments on Azure and Amazon. 10 <ref type="url" target="https://www.kaggle.com/c/homesite-quote-conversion">https://www.kaggle.com/c/homesite-quote-conversion</ref> 11 <ref type="url" target="https://www.kaggle.com/c/kdd-cup-2014-predicting-excitement-at-donors-choose">https://www.kaggle.com/c/kdd-cup-2014-predicting-excitement-at-donors-choose</ref> 12 <ref type="url" target="https://www.kaggle.com/c/predicting-red-hat-business-value">https://www.kaggle.com/c/predicting-red-hat-business-value</ref> 13 <ref type="url" target="https://www.kaggle.com/c/flavours-of-physics">https://www.kaggle.com/c/flavours-of-physics</ref> 14 <ref type="url" target="https://www.kaggle.com/c/flavours-of-physics/details/agreement-test">https://www.kaggle.com/c/flavours-of-physics/details/agreement-test</ref>  15 <ref type="url" target="https://www.kaggle.com/c/flavours-of-physics/details/correlation-test">https://www.kaggle.com/c/flavours-of-physics/details/correlation-test</ref> Platform Model # Combinations Tuned Parameters Azure C-AP 6 Learning Rate={0.1, 0.5, 1.0} Maximum # iterations={1, 10} C-BPM 1 # iterations={30} C-BDT 180 Maximum # leaves per tree={2, 8, 20, 32, 128} Minimum # samples per leaf={1, 10, 50} learning rate ={0.025, 0.05, 0.1, 0.2, 0.4} # trees={ 20, 100, 500} C-DF 81 # trees={1, 8, 32} Maximum depth={1, 16, 32, 64} # Random splits per note={1, 128, 1024} Minimum # samples per leaf={1, 4, 16} C-DJ 81 # Decision DAGs={1, 8, 32} Max depth of decision DAGs={1, 32, 16, 64} Max width of decision DAGs={1, 128, 1024} # optimizations per layer={1024, 2048, 4096, 16384} C-NN 12 Learning Rate={0.01, 0.02, 0.04} # iterations={20, 40, 80, 100, 160} C-SVM 15 # iterations={1, 10, 100} λ = {1 * 10 -5, -4, -3, -2, -1 } C-LR 72 Optimization tolerance={1 * 10 -7, -4 } L1 regularization weight={0, 0.01, 0.1, 1.0} L2 regularization weight={0.01, 0.1, 1.0} Memory size for L-BFGS={5, 20, 50} Amazon C-LR N/A Amazon automatically tunes the learning rate Figure 5: Hyper-parameters tuned for each model. The default parameters are in bold font. Data Set C-AP C-BPM C-BDT C-DF C-DJ C-LR C-NN C-SVM D-SCH-r 6 9 280 12 130 15 11 11 D-PIS-r 6 5 639 178 551 16 30 16 D-EG-r 28 15 10,165 260 530 145 3,548 271 D-VP-r 32 8 3,105 821 3,342 135 824 304 D-AEA-r 33 22 25,240 2,028 3,968 230 690 229 D-SCS-r 126 286 6,198 2,816 7,119 791 1,583 1,433 D-SMR-r 18,315 3,116 NA 15,853 19,332 NA NA NA D-GMC-r 27 17 4,146 4,425 10,635 206 501 208 D-HQC-r 2,697 454 47,502 22,023 NA 12,404 29,617 27,341 D-KDD-r 4,290 906 NA 40,816 63,185 37,328 NA 39,716 D-PBV-r 11,450 877 NA NA NA 84,290 NA NA D-SCH 6 9 280 12 130 15 11 11 D-EG 6 13 837 227 690 17 39 22 D-VP 13 14 1,546 422 2,383 55 216 100 D-AEA 25 241 3,495 780 3,413 210 323 193 D-PHY 21 114 2,901 644 3,167 132 262 144 D-KDD2 550 1,450 365,256 6,675 9,339 7,228 NA 6,191 D-KDD1 310 3,814 40,364 24,796 88,044 4,455 4,465 3,074 </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">EXPERIMENTAL SETTINGS</head><p>We evaluate the declarative machine learning services provided by two major cloud vendors: Microsoft Azure Machine Learning Studio and Amazon Machine Learning. We will use Azure and Amazon as shorthand.</p><p>We first introduce the current APIs of Azure and Amazon and then all machine learning models they provide.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Existing Cloud API</head><p>Both Azure and Amazon start by asking users to upload their data, which can be in the form of CSV files. Users then specify the machine learning tasks they want to run on the cloud. However, Azure and Amazon offer different APIs, as illustrated below.</p><p>• Azure provides an API using which users specify the types of machine learning models, such as (1) logistic regression, (2) support vector machine, (3) decision tree, etc.</p><p>For each type of model, Azure provides a set of default hyper-parameters for users to use in an out-of-the-box manner. Azure also supports different ways of automatic hyper-parameter tuning and provides a default range of values to be searched for.</p><p>• Amazon provides an API by which users specify the types of machine learning tasks, namely (1) binary classification, (2) multiclass classification, and (3) regression. For each type, Amazon automatically chooses the type of machine learning models. For now, Amazon always runs a logistic regression for binary classification <ref type="bibr">[11]</ref>. Amazon further provides a set of default hyper-parameters for logistic regression, but users can also change these default values.</p><p>Dataset C-AP C-BPM C-BDT C-DF C-DJ C-LR C-NN C-SVM D-SCH-r 4 6 5 3 3 3 4 4 D-PIS-r 3 5 6 7 4 4 6 4 D-EG-r 7 15 9 6 4 4 247 4 D-VP-r 6 8 7 7 7 5 69 5 D-AEA-r 5 22 12 6 9 5 58 5 D-SCS-r 10 286 10 18 11 6 109 6 D-SMR-r 1,048 3,116 1,148 45 50 693 NA 328 D-GMC-r 5 17 10 59 14 4 42 4 D-HQC-r 189 454 58 113 143 57 2,254 54 D-KDD-r 222 906 905 48 99 122 NA 88 D-PBV-r 513 877 439 160 788 229 NA 112 D-SCH 4 4 5 3 3 4 4 4 D-EG 4 5 5 7 4 4 6 4 D-VP 5 5 5 7 6 4 17 4 D-AEA 6 54 9 10 8 5 24 5 D-PHY 5 23 8 9 8 5 22 5 D-KDD2 50 339 146 14 22 27 NA 20 D-KDD1 183 412 161 41 117 73 46,830 55 </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Machine Learning Models</head><p>In the following, we give a brief description of the machine learning models provided by Azure and Amazon.</p><p>• Two-Class Averaged Perceptron (C-AP): It is a linear classifier and can be thought of as a simplified neural network: there is only one layer between input and output. 16  • Two-Class Bayes Point Machine (C-BPM): This is a Bayesian classification model, which is not prone to overfitting. The Bayes point is the average classifier that efficiently approximates the theoretically optimal Bayesian average of several linear classifiers (in terms of generalization performance) <ref type="bibr" target="#b11">[23]</ref>. • Two-Class Boosted Decision Tree (C-BDT): Boosting is a well-known ensemble algorithm that combines weak learners to form a stronger learner (e.g., AdaBoost <ref type="bibr" target="#b8">[20]</ref>).</p><p>The boosted decision tree is an ensemble method that constructs a series of decision trees <ref type="bibr" target="#b16">[28]</ref>. Except for the first tree, each of the remaining trees is constructed by correcting the prediction error of the previous one. The final model is an ensemble of all constructed trees. • Two-Class Decision Forests (C-DF): This classifier is based on random decision forests <ref type="bibr" target="#b12">[24]</ref>. Specifically, it constructs multiple decision trees that vote on the most popular output class. 17 • Two-class Decision Jungle (C-DJ): This is an ensemble of rooted decision directed acyclic graphs (DAGs). In conventional decision trees, only one path is allowed from the root to a leaf. In contrast, a DAG in a decision jungle allows multiple paths from the root to a leaf <ref type="bibr" target="#b17">[29]</ref>. • Two-Class Logistic Regression (C-LR): This is a classic classifier that predicts the probability of an instance by fitting a logistic function. 18 It is also the only classifier that Amazon supports. • Two-Class Neural Network (C-NN): Neural networks are bio-inspired algorithms that are loosely analogous to the observed behavior of a biological brain's axons <ref type="bibr" target="#b10">[22]</ref>. Specifically, the input layer (representing input data) and the output layer (representing answers) are connected by layers of weighted edges and nodes, which encode the so-called activation functions. 19  • Two-Class Support Vector Machine (C-SVM): SVM is another well-known classifier <ref type="bibr" target="#b4">[16]</ref>. It works by separating the data with the "maximum-margin" hyperplane.</p><p>20 16 <ref type="url" target="https://msdn.microsoft.com/en-us/library/azure/dn906036.aspx">https://msdn.microsoft.com/en-us/library/azure/dn906036.aspx</ref> 17 <ref type="url" target="https://msdn.microsoft.com/en-us/library/azure/dn906008.aspx">https://msdn.microsoft.com/en-us/library/azure/dn906008.aspx</ref> 18 <ref type="url" target="https://msdn.microsoft.com/en-us/library/azure/dn905994.aspx">https://msdn.microsoft.com/en-us/library/azure/dn905994.aspx</ref> 19 <ref type="url" target="https://msdn.microsoft.com/en-us/library/azure/dn905947.aspx">https://msdn.microsoft.com/en-us/library/azure/dn905947.aspx</ref> 20 <ref type="url" target="https://msdn.microsoft.com/en-us/library/azure/dn905835.aspx">https://msdn.microsoft.com/en-us/library/azure/dn905835.aspx</ref> </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.3">Hyper-parameter Tuning</head><p>Each machine learning algorithm consists of a set of hyperparameters to tune. The methodology we use in this paper is to rely on the default tuning procedure provided by the machine learning cloud. Figure <ref type="figure">5</ref> summarizes the hyper-parameters provided by the machine learning clouds. For each machine learning model, we conduct an exhaustive grid search on all possible parameter combinations.</p><p>Because Amazon only has the option of logistic regression and automatically tunes the learning rate, we only tuned hyperparameters for models provided by Azure. We performed hyperparameter tuning in an exhaustive manner: for each combination of hyper-parameter values in the whole search space, we ran the model based on that setting. The best hyper-parameter is then selected based on the AUC score obtained with five-fold cross validation. AUC is the evaluation metric used by all Kaggle competitions we included in mlbench. The third column in Figure <ref type="figure">5</ref> presents the number of hyper-parameter combinations in the search space for each model. For example, C-AP employs two hyper-parameter knobs, "learning rate" and "maximum number of iterations, " with three and two alternative values. As a result, there are six combinations in total.</p><p>Just for completeness, we report the time spent on tuning hyper-parameters for Azure models. Figure <ref type="figure" target="#fig_2">6</ref> presents the total time of trying all hyper-parameter combinations for each model and dataset. Figure <ref type="figure" target="#fig_3">7</ref> further reports the average time for one hyper-parameter combination.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">RESULTS ON WINNING FEATURES</head><p>We first evaluated the performance of Azure and Amazon assuming users have already conducted feature engineering and only use the machine learning cloud as a declarative execution engine of machine learning models. Our analysis in this section will mainly focus on the seven datasets where winning code is available (i.e., the datasets in Figure <ref type="figure">4</ref> without the '-r' suffix). We will discuss the cases when raw features are used in Section 6. For each dataset and model, we run Azure and Amazon for at most 24 hours.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1">Capability and Universality</head><p>We first report the performance of Azure and Amazon, based on the capacity and universality metrics defined in Section 2.3. Figure <ref type="figure" target="#fig_4">8</ref> presents the result.</p><p>In Figure <ref type="figure" target="#fig_4">8</ref>(a), the x-axis represents the quality tolerance, whereas the y-axis represents the number of models required if a machine learning cloud can achieve a certain tolerance level τ for all seven datasets (i.e., a τ -university of seven). The minimum τ shown in Figure <ref type="figure" target="#fig_4">8</ref>(a) then implies the capacity of a machine learning cloud. We observe that the capacity of Azure is around 31 (i.e., c(Azure) = 31), whereas the capacity of Amazon is around 83 (i.e., c(Amazon) = 83). Under this measurement, state-of-the-art machine learning clouds are far from competitive than deliberate machine learning models designed manually: With the goal of meeting a τ -university of seven, τ can only be as small as 31 for Azure (and 83 for Amazon). In other words, in at least one Kaggle competition (among the seven), Azure is ranked outside the top 30%, whereas Amazon is ranked outside the top 80% on the leader board.</p><p>However, we note that this might be a distorted picture given the existence of "outliers." In Figure <ref type="figure" target="#fig_4">8</ref> Dataset Leaderboard#1 WinningCode C-AP C-BPM C-BDT C-DF C-DJ C-LR C-NN C-SVM Amazon D-SCH-r 0.93 (1) 0.91 (3) 0.88 (37) 0.92 (3) 0.69 (279) 0.68 (281) 0.82 (165) 0.89 (22) 0.88 (30) 0.90 (8) 0.74 (264) D-PIS-r 0.88 (1) 0.76 (127) 0.78 (118) 0.87 (27) 0.86 (62) 0.87 (48) 0.78 (118) 0.80 (114) 0.77 (120) 0.86 (66) D-EG-r 0.89 (1) 0.89 (4) 0.86 (388) 0.86 (381) 0.86 (374) 0.86 (382) 0.86 (388) 0.86 (388) 0.86 (388) 0.85 (400) NA (NA) D-VP-r 0.86 (1) 0.86 (1) 0.63 (1105) 0.64 (1083) 0.69 (840) 0.63 (1100) 0.60 (1137) 0.67 (928) 0.66 (1023) 0.57 (1157) 0.66 (989) D-AEA-r 0.92 (1) 0.92 (2) 0.87 (834) 0.84 (932) 0.87 (802) 0.86 (889) 0.79 (1049) 0.88 (737) 0.87 (798) 0.86 (869) 0.85 (901) D-SCS-r 0.83 (1) 0.83 (3) 0.75 (4128) 0.77 (4038) 0.82 (3084) 0.82 (3432) 0.82 (3240) 0.78 (4019) 0.79 (3916) 0.71 (4302) 0.81 (3691) D-SMR-r 0.80 (1) 0.74 (1826) 0.70 (1898) NA (NA) 0.73 (1842) 0.71 (1888) NA (NA) NA (NA) NA (NA) NA (NA) D-GMC-r 0.87 (1) 0.74 (810) 0.70 (820) 0.87 (137) 0.86 (505) 0.87 (139) 0.70 (837) 0.83 (713) 0.81 (750) 0.86 (544) D-HQC-r 0.97 (1) 0.94 (1431) 0.93 (1476) 0.97 (977) 0.96 (1206) NA (NA) 0.94 (1429) 0.95 (1335) 0.94 (1463) 0.96 (1294) D-KDD-r 0.68 (1) 0.67 (2) 0.59 (130) 0.55 (314) NA (NA) 0.56 (297) 0.54 (373) 0.60 (77) NA (NA) 0.54 (363) 0.58 (152) D-PBV-r 1.00 (1) 0.95 (1651) 0.98 (1498) NA (NA) NA (NA) NA (NA) 0.97 (1529) NA (NA) NA (NA) 0.96 (1612) D-SCH 0.93 (1) 0.91 (3) 0.88 (37) 0.92 (3) 0.69 (279) 0.68 (281) 0.82 (165) 0.89 (22) 0.88 (30) 0.90 (8) 0.74 (264) D-EG 0.89 (1) 0.89 (4) 0.89 (2) 0.89 (3) 0.88 (54) 0.88 (278) 0.88 (291) 0.89 (2) 0.89 (4) 0.89 (2) 0.88 (326) D-VP 0.86 (1) 0.86 (1) 0.65 (1046) 0.70 (734) 0.76 (408) 0.74 (473) 0.72 (568) 0.71 (648) 0.74 (496) 0.72 (613) 0.68 (923) D-AEA 0.92 (1) 0.92 (2) 0.91 (75) 0.91 (94) 0.92 (29) 0.90 (147) 0.91 (63) 0.91 (72) 0.91 (72) 0.90 (401) 0.90 (361) D-PHY 1.00 (1) 1.00 (2) NA (NA) NA (NA) NA (NA) NA (NA) NA (NA) NA (NA) NA (NA) NA (NA) NA (NA) D-KDD2 0.68 (1) 0.67 (2) 0.58 (192) 0.51 (399) 0.62 (33) 0.61 (53) 0.60 (72) 0.58 (198) NA (NA) 0.57 (206) 0.60 (65) D-KDD1 0.68 (1) 0.67 (2) 0.65 (12) 0.64 (25) 0.64 (26) 0.62 (40) 0.64 (25) 0.65 (12) 0.60 (68) 0.64 (20) 0.63 (29) Figure 9: Area under curve (AUC) and rankings on the private leader board of Kaggle for various datasets and models. The results for public leader board are similar. The winning code of KDD is an ensemble of the classifiers trained from both D-KDD1 and D-KDD2. Dataset Azure (Model) Amazon Winning D-SCH (313) 0.96 (C-BPM) 84.34 0.96 D-EG (625) 0.32 (C-AP) 52.16 0.64 D-VP (1306) 31.24 (C-BDT) 70.67 0.08 D-AEA (1687) 1.72 (C-BDT) 21.40 0.12 D-KDD2 (472) 6.99 (C-BDT) 13.77 0.42 D-KDD1 (472) 2.54 (C-LR) 6.14 0.42 of Azure improves dramatically: c(Azure) drops to 7 by excluding D-VP and further drops to 5 by excluding D-KDD2, which suggests that Azure can be ranked within the top 10% or even the top 5% in most of the Kaggle competitions considered.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1.1">Breakdown and Analysis.</head><p>We next take a closer look at how the machine learning clouds perform in individual competitions. Figure <ref type="figure">9</ref> reports the details of the AUC of different models on different datasets. The number in parentheses next to the AUC is the rank (of this AUC) on the leader board. We note that not every winning code we found is top-ranked. Often, the top-ranked code is not available, and in this case, we seek the next available winning code (among the top 10) on the leader board. We have several interesting observations. Diversity of models is beneficial. An obvious difference between Azure and Amazon is that Azure provides more alternative models than Amazon. While the reason for Amazon to provide only logistic regression as the available model is unclear, the results presented in Figure <ref type="figure">9</ref> suggest that the additional models provided by Azure do help. In more detail, Figure <ref type="figure" target="#fig_5">10</ref> compares the capacity of Azure and Amazon on different datasets. We observe that Azure always wins over Amazon in terms of capacity, often by a large margin. The capacity of Azure over all the datasets is 31.24 (6.99 if excluding D-VP and 2.54 if further excluding D-KDD2) versus 84.34 of Amazon, as shown in Figure <ref type="figure" target="#fig_4">8</ref>.</p><p>Dataset Azure (C-LR) Amazon Winning D-SCH (313) 7.03 84.34 0.96 D-EG (625) 0.32 52.16 0.64 D-VP (1306) 49.62 70.67 0.08 D-AEA (1687) 4.27 21.40 0.12 D-KDD2 (472) 41.95 13.77 0.42 D-KDD1 (472) 2.54 6.14 0.42 Model selection is necessary. For a given dataset, the variation in terms of prediction quality is quite large across different models. For example, by using the models provided by Azure on the dataset "D-SCH, " the rank varies from 3 (as good as the winning code we found) to 281 (ranked at the bottom 10% of 313 Kaggle competition participants). This makes model selection a difficult job for Azure users. (Amazon users do not have this problem, as logistic regression is their only option.)</p><p>Hyperparameter tuning makes a difference for a single model. Both Azure and Amazon provide logistic regression. The difference is that Azure provides more knobs for hyper-parameter tuning (recall Figure <ref type="figure">5</ref>). Figure <ref type="figure" target="#fig_6">11</ref> compares the capacity of the logistic regression model ("C-LR") provided by Azure and Amazon. Azure wins on most of the datasets, perhaps due to more systematic hyper-parameter tuning. (We do not know how Amazon tunes the learning rate for logistic regression.) However, there is no free lunch: Hyper-parameter tuning is time-consuming (recall Figures <ref type="figure" target="#fig_2">6</ref> and <ref type="figure" target="#fig_3">7</ref>). We will analyze the impact on hyperparameter tuning across all models and datasets in Section 6 with Figure <ref type="figure" target="#fig_18">22</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2">Model Selection</head><p>The previous section gives an overview of the performance of Azure and Amazon in terms of their capacity and universality. However, although we observe that the additional models provided by Azure significantly improve performance, model selection and hyper-parameter tuning become new challenges. From the user's perspective, there is then a natural question: Given a machine-learning task, which model should a user choose (for good performance)? The answer depends on (1) the capacity of the models, (2) the time the user is willing to spend on parameter tuning and training, and (3) the user's quality tolerance level.</p><p>In the following, we study the trade-off between these factors. Our goal is not to give a definitive conclusion, which is in general impossible given the variety of machine-learning tasks and models. Rather, by presenting the results observed in our study, we hope we can give some insights into what is going on in reality to help users come up with their own recipes.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2.1">Linear vs. Nonlinear Models.</head><p>In Figure <ref type="figure" target="#fig_4">8</ref>, we have incrementally noted the models we need to include to improve the capacity of Azure (with respect to a given universality). Clearly, we find that nonlinear classifiers (e.g., C-BDT, C-NN, etc.) are the driving force that propels the improvement. It is then an interesting question to investigate where the improvement indeed comes from. We further compare the AUC of the models over different datasets in Figure <ref type="figure" target="#fig_7">12</ref>, based on the raw data in Figure <ref type="figure">9</ref>.</p><p>We observe that nonlinear models (e.g., C-BDT) dominate linear models (e.g., C-SVM) as the dataset size increases. This is intuitive: Nonlinear models are more complicated than linear models in terms of the size of hypothesis space. However, nonlinear models are more likely to suffer from overfitting on small datasets (e.g., the smallest dataset D-SCH in Figure <ref type="figure" target="#fig_7">12</ref>).</p><p>Figure <ref type="figure" target="#fig_8">13</ref> further presents a zoomed-in comparison between C-BDT, the dominant nonlinear classifier, and the linear models C-AP, C-BPM, C-SVM, and C-LR. The y-axis represents the difference in terms of AUC between a model and the best linear model. For example, the best linear model on the dataset D-SCH is C-BPM with an AUC of 0.92, whereas the best linear model on the dataset D-EG is C-SVM with an AUC of 0.89 (see Figure <ref type="figure">9</ref>). Linear models often perform similarly regardless of dataset size: There is apparently a hit-or-miss pattern for linear models; namely, either the actual hypothesis falls into the linear space or it does not. As a result, there is often no big difference in terms of prediction quality between linear models: If users believe that linear models are sufficient for a learning task, they can focus on reducing the training time rather than picking which model to use.</p><p>Based on these observations, our first empirical rule for model selection on machine-learning clouds is as follows:</p><p>Observation 1. To maximize quality on Kaggle, use a nonlinear model whenever it can scale and the dataset is not too small. therefore need more time for training. Given that nonlinear models in general outperform linear models on large datasets, it is worth further investigating the trade-off between their training time and prediction quality.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2.2">Training</head><p>We summarize the comparison result in Figures <ref type="figure" target="#fig_0">14</ref> and <ref type="figure" target="#fig_0">15</ref>. Figure <ref type="figure" target="#fig_0">14</ref> presents the trade-off between the prediction quality and the total training time on hyper-parameter tuning, whereas Figure <ref type="figure" target="#fig_0">15</ref> presents the trade-off in the average sense (i.e., with respect to the average time spent on training a model under a specific hyper-parameter setting). For ease of exposition, we order the models by their training time along the x-axis. We also include linear models in our comparison for completeness.</p><p>In each plot of Figures <ref type="figure" target="#fig_0">14</ref> and <ref type="figure" target="#fig_0">15</ref>, the blue horizontal line represents the AUC of the winning code and the red horizontal line represents the AUC of (the logistic regression model provided by) Amazon, whereas the scattered points present the AUC of Azure models. We have noted that the choice of linear versus nonlinear models can make a difference. However, one interesting phenomenon we observe is that the choice within each category seems not so important; i.e., the prediction quality of different nonlinear models is similar. Although this is understandable for linear models, it is a bit surprising for nonlinear models. One reason for this is that most of the nonlinear models provided by Azure are based on decision trees (C-BDT, C-DJ, and C-DF). Moreover, more training time does not always lead to better prediction quality. For example, in Figure <ref type="figure" target="#fig_0">15</ref>, the average training time of C-DJ is significantly longer than the others over the dataset D-KDD1. (Note that the x-axis is at the logarithmic scale.) However, it is outperformed by even linear models such as C-AP, and its prediction quality is very close to that of C-BDT.</p><p>Based on these observations, our second empirical rule for model selection on machine-learning clouds is: Observation 2. To maximize efficiency, within each category (linear or nonlinear), pick the one with the shortest training time.</p><p>Considering the average training time presented in Figure <ref type="figure" target="#fig_0">15</ref>, C-AP is the choice among linear models, whereas C-BDT is the choice among nonlinear models.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2.3">Quality Tolerance Regime.</head><p>We emphasize that the rules we presented in Observations 1 and 2 are purely empirical. So far, we have looked at the model selection problem from only two of the three respects, i.e., the capacity of the models and the training time they require. We now investigate the third respect: the user's quality tolerance. This is a more fundamental and subtle point: A certain quality tolerance may not even be achievable for a machine learning task given the current capacity of machine learning clouds. (For example, we have seen that neither Azure nor Amazon can achieve even a quality tolerance of 30 on D-VP.) 0.2 0.4 0.6 0.8 1 0.1 1 10 100 1000 10000 C-AP C-BPM C-BDT C-DF C-DJ C-NN C-SVM C-LR Winning Amazon 0 0.2 0.4 0.6 0.8 1 0.1 1 10 100 1000 10000 C-AP C-BPM C-BDT C-DF C-DJ C-NN C-SVM C-LR Winning Amazon AUC Training Time per parameter combination (s) (a) D-SCH Training Time per parameter combination (s) (b) D-EG 0 0.2 0.4 0.6 0.8 1 0.1 1 10 100 1000 10000 C-AP C-BPM C-BDT C-DF C-DJ C-NN C-SVM C-LR Winning Amazon Training Time per parameter combination (s) (c) D-VP 0 0.2 0.4 0.6 0.8 1 0.1 1 10 100 1000 10000 C-AP C-BPM C-BDT C-DF C-DJ C-NN C-SVM C-LR Winning Amazon 0 0.2 0.4 0.6 0.8 1 0.1 1 10 100 1000 10000 C-AP C-BPM C-BDT C-DF C-DJ C-NN C-SVM C-LR Winning Amazon AUC (d) D-AEA (e) D-KDD1 0 0.2 0.4 0.6 0.8 1 0.1 1 10 100 1000 10000 C-AP C-BPM C-BDT C-DF C-DJ C-NN C-SVM C-LR Winning Amazon (f) D-KDD2 Training Time per parameter combination (s) Training Time per parameter combination (s) Training Time per parameter combination (s) Figure 15: Tradeoff between prediction quality (AUC) and average training time per parameter. The blue line represents the AUC of the winning code and the red line represents the AUC of logistic regression (C-LR) on Amazon.</p><p>Dataset Winning AUC 10% AUC D-SCH 0.91 0.88 D-EG 0.89 0.88 D-VP 0.86 0.79 D-AEA 0.92 0.90 D-KDD2 0.67 0.62 D-KDD1 To avoid oversimplifying the problem, we define the concept of quality tolerance regime based on the capacity of the machine learning clouds we currently observe:</p><p>• Low tolerance regime. Corresponds to the case when the quality tolerance is below 1. 21   21 That is, when users can only be satisfied by winning the Kaggle competition or being ranked</p><p>• Middle tolerance regime. Corresponds to the case when the quality tolerance is between 1 and 5. • High tolerance regime. Corresponds to the case when the quality tolerance is between 5 and 10. To give some sense of how well a model must perform to meet the tolerance regimes, in Figure <ref type="figure" target="#fig_10">16</ref>, we present the AUC that a model has to achieve to meet the high tolerance regime, the loosest criterion in our definition, in different Kaggle competitions. This is a way to measure the intensity of a competition: The smaller the gap is between the winning AUC and the top 10% AUC, the more intense the competition is. Some competitions are highly competitive: the gap is merely 0.01 on D-EG.  The dark green regions correspond to the low tolerance regime, the light green regions correspond to the middle tolerance regime, and the yellow regions correspond to the high tolerance regime. The other regions are outside the tolerance regimes we defined. We find that Azure actually only meets the low tolerance regime on small datasets, where linear models work well. Azure can meet the middle and high tolerance regimes on large datasets, thanks to the inclusion of nonlinear models. This is also a summary that covers many observations that we have so far. In view of the Kaggle competitions (by reading the heat map vertically), some are more challenging than the others. For example, none of the models can meet even the high tolerance regime on the dataset D-VP, and only C-BDT can meet the high tolerance regime on the dataset D-KDD2. In view of the models (by reading the heat map horizontally), apparently, there is not a one-size-fits-all solution: No one can dominate the others across the datasets. Moreover, there is apparently a separation between the "comfortable zones" of the models, which we have already stated in Observation 1: Linear models are more capable on small datasets, whereas nonlinear models are more capable on large datasets.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.3">Summary and Discussion</head><p>Given the previous analysis, there is an obvious trade-off between the efficiency and effectiveness of machine learning clouds from a user's perspective. The more alternative models a machine learning cloud provides, the more likely it is that a better model can be found for a particular machine learning task. However, model selection becomes more challenging and users may spend more time (and money) on finding the most effective model.</p><p>Meanwhile, we also find that there is a gap between the best available model on machine learning clouds and the winning code available on Kaggle for certain machine learning tasks. It is then natural to ask the question of how to narrow the gap to further</p><p>Dataset Best Azure Winning Quality Gap Ranking Gap (%) D-EG C-AP LR -0.01 -0.3 (No. 4 → 2) D-SCH C-BPM DWD -0.01 0 D-KDD1 C-LR Ensemble 0.02 2.12 D-AEA C-BDT Ensemble 0.01 1.6 D-KDD2 C-BDT Ensemble 0.05 6.57 D-VP C-BDT NA 0.11 31.16 improve machine learning clouds. Of course, there is no reason to disbelieve that there is a possibility. For example, one can simply provide more models to increase the chance of finding a better model, though this may make model selection even harder. It is also not so clear which models should be included, given the trade-off between the capacity of a model and the training time required to tune the model. We investigated this question from a different viewpoint by looking into the gap itself. Instead of asking how to make the gap narrower, we ask why there is a gap.</p><p>Figure <ref type="figure" target="#fig_14">18</ref> compares the best performing Azure model with the winning code from Kaggle. Again, we separate small datasets (D-EG and D-SCH), where linear models outperform nonlinear models, from large datasets, where nonlinear models are better. The "Quality Gap" column presents the difference in AUC between the winning code and the Azure model, and the "Ranking Gap" column shows the corresponding movement in rankings on the Kaggle leader board. For example, on D-EG, the winning code is actually slightly worse than C-AP from Azure, with a quality gap of -0.01 and a ranking gap of -0.32%: The winning code is ranked fourth (i.e., top 0.64%), whereas C-AP could be ranked second (i.e., top 0.32%). The larger the quality gap and ranking gap are, the more potential improvement there is. One prominent observation from Figure <ref type="figure" target="#fig_14">18</ref> is that the winning code on the large datasets leverages ensemble methods (details in Section 3.3), whereas the best nonlinear models from Azure (C-BDT, C-DJ, C-DF) more or less leverage ensemble methods as well. Therefore, it seems that Azure is moving in the right direction by supporting more ensemble methods, though it needs to further improve their performance. Amazon may need more work to incorporate ensemble methods (as well as nonlinear models).</p><p>Performance. One angle we intentionally left out of the picture in this paper is the performance (speed) of the two learning clouds. Figure <ref type="figure" target="#fig_2">6</ref>  Moreover, Azure currently only allows datasets that are smaller than 10GB. For one Kaggle competition, the winning code produces a dataset larger than this limitation, and thus we are not able to benchmark it. By today's standards, 10GB is a pretty small dataset. Again, without knowing the implementation details of Azure cloud, we will leave out concrete comments about this result. However, we believe it does indicate that machine learning clouds could also be improved on this front.</p><p>Dataset C-AP C-BPM C-BDT C-DF C-DJ C-LR C-NN C-SVM BestVsBest D-SCH 0.00 (0.00%) 0.00 (0.00%) 0.00 (0.00%) 0.00 (0.00%) 0.00 (0.00%) 0.00 (0.00%) 0.00 (0.00%) 0.00 (0.00%) 0.00 (0.00%) D-EG 0.03 (3.81%) 0.03 (3.36%) 0.02 (2.04%) 0.02 (2.33%) 0.02 (2.63%) 0.03 (3.82%) 0.03 (3.83%) 0.04 (4.48%) 0.03 (3.20%) D-VP 0.02 (3.89%) 0.06 (9.75%) 0.07 (10.71%) 0.11 (17.64%) 0.12 (20.66%) 0.04 (5.41%) 0.08 (12.25%) 0.15 (27.24%) 0.07 (10.71%) D-AEA 0.04 (5.14%) 0.07 (8.42%) 0.05 (5.73%) 0.04 (5.26%) 0.12 (15.31%) 0.03 (3.88%) 0.04 (4.46%) 0.04 (4.74%) 0.04 (5.03%) D-KDD2 -0.01 (-1.31%) -0.04 (-8.08%) NA (NA) 0.05 (9.07%) 0.06 (11.80%) -0.02 (-3.06%) NA (NA) 0.03 (4.76%) 0.02 (3.63%) D-KDD1 0.06 (10.60%) 0.09 (15.35%) NA (NA) 0.06 (10.86%) 0.10 (19.25%) 0.05 (8.64%) NA (NA) 0.10 (17.63%) 0.05 (8.64%) Figure 19: Improvement on private AUC score attributed to feature engineering. Green indicates quality increase after feature engineering; Red otherwise. All numbers are with hyperparameter tuning. Dataset C-AP C-BPM C-BDT C-DF C-DJ C-LR C-NN C-SVM BestVsBest D-SCH 0 (0.00%) 0 (0.00%) 0 (0.00%) 0 (0.00%) 0 (0.00%) 0 (0.00%) 0 (0.00%) 0 (0.00%) 0 (0.00%) D-EG 386 (61.76%) 378 (60.48%) 320 (51.20%) 104 (16.64%) 97 (15.52%) 386 (61.76%) 384 (61.44%) 398 (63.68%) 372 (59.52%) D-VP 59 (4.52%) 349 (26.72%) 432 (33.08%) 627 (48.01%) 569 (43.57%) 280 (21.44%) 527 (40.35%) 544 (41.65%) 432 (33.08%) D-AEA 759 (44.99%) 838 (49.67%) 773 (45.82%) 742 (43.98%) 986 (58.45%) 665 (39.42%) 726 (43.03%) 468 (27.74%) 708 (41.97%) D-KDD2 -62 (-13.14%) -85 (-18.01%) NA (NA) 244 (51.69%) 301 (63.77%) -121 (-25.64%) NA (NA) 157 (33.26%) 44 (9.32%) D-KDD1 118 (25.00%) 289 (61.23%) NA (NA) 257 (54.45%) 348 (73.73%) 65 (13.77%) NA (NA) 343 (72.67%) 65 (13.77%) Pricing Model. Both machine learning clouds provide a pricing model based solely on time -in our experience, even if we are willing to pay more money per hour to run our experiments faster with a beefier machine (or have more machines to run hyper-parameter tuning in parallel), it seems that both clouds do not provide an option. With the diversity of machine learning tasks and user requirements, we believe it can also be beneficial to have more flexible pricing models in machine learning clouds.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">RESULTS ON ALL DATASETS</head><p>So far, our study has been focused on Kaggle competitions whose winning code is available. We now discuss the insights we got by analyzing all 18 datasets in mlbench.</p><p>The Importance of Feature Engineering. As most of the winning code spends significant effort on feature engineering, there is a clear gap from the typical way that people use machine learning clouds in practice, where feature engineering may not be at the level achieved by the winning code. Consequently, our previous results for the machine learning clouds may be over-optimistic. In practice, neither Azure or Amazon provides feature engineering functionality. We assess the impact of feature engineering and make the case for a potentially promising research direction of "declarative feature engineering on the cloud. "</p><p>We consider an extreme case where we do not perform feature engineering, and ask the question: If we use raw features instead of features constructed by the winning code, how will it impact the performance of machine learning clouds? In Figure <ref type="figure" target="#fig_0">19</ref> and 20, we present the improvement in terms of the AUC score and the ranking on the private leader board by using the features from the winning code versus using the raw features (without feature engineering). Hyperparameter tuning was turned on for each run. A negative value here indicates a drop in performance. Not surprisingly, in most cases using well engineered features helps boost performance significantly, though it is not always the case. For instance, for C-LR on D-KDD2, using features from the winning code decreases the AUC score by 0.03, and the corresponding ranking on the private leader board drops by 129. The last columns in Figure <ref type="figure" target="#fig_0">19</ref> and 20 further show the improvement by the best model using engineered features versus the best model using raw features. Even under this best-versus-best comparison, the benefit of feature engineering is significant.</p><p>We also should not be overly pessimistic by the results, though. After all, in practice it is rare for people to completely give up feature engineering, given the intensive and extensive research on feature selection in the literature. Consequently, our comparison on using only raw features should be understood as a worst-case study for the performance of machine learning clouds. Meanwhile, it is interesting to further explore the "gray areas" between the two extremes that we have studied in terms of feature engineering: Instead of using either fine-tuned features or just raw features, how will machine learning clouds perform when combined with an automatic feature learning procedure? There is apparently a broad spectrum regarding the abundance of feature learning algorithms. One challenge here is to decide appropriate feature learning procedures for a given learning problem. Since this is orthogonal (but complementary) to the current work, we leave it as one of the future directions for exploration. Ideally, this should be integrated into machine learning clouds as part of the declarative service, therefore it might be a promising aspect for machine learning cloud service providers to consider as well.</p><p>The Importance of Hyper-parameter Tuning. We assess the importance of hyperparamter tuning in a similar way and the result for all 18 dataset is in Figure <ref type="figure" target="#fig_18">22</ref>. We see that hyperparameter tuning has significant impact on each individual algorithm, and most of the time, it improves the quality. One interesting observation is that, under the best-versus-best comparison (last column), the impact of hyperparameter tuning drops significantly. This shows an interesting tradeoff between model selection and hyperparameter tuning -disabling model selection hurts the quality more significantly than disabling hyperparameter tuning. This opens another interesting future research question: Given limited computation budget, how should one balance between model selection and hyperparameter tuning to maximize the final quality? Similar to the previous challenge on feature engineering, there are lots of tradeoffs. A naive approach is to perform hyper-parameter tuning for all models and then pick the model with the best performance, exactly as what we have done in our experimental evaluation. This brute-force approach is perhaps unacceptable in a situation with restrictive resource access. As another extreme approach, one</p><p>Dataset C-AP C-BPM C-BDT C-DF C-DJ C-LR C-NN C-SVM BestVsBest D-SCH-r -0.03 (-3.60%) NA (NA) 0.04 (6.79%) 0.02 (2.39%) 0.11 (15.87%) 0.03 (3.92%) -0.01 (-0.81%) 0.04 (4.47%) 0.00 (0.22%) D-PIS-r 0.00 (0.00%) NA (NA) 0.01 (1.53%) 0.03 (3.93%) 0.01 (0.89%) 0.05 (6.49%) 0.01 (0.77%) 0.06 (8.17%) 0.01 (1.32%) D-EG-r 0.00 (0.16%) NA (NA) 0.01 (1.12%) 0.01 (0.81%) 0.03 (3.25%) -0.00 (-0.04%) 0.00 (0.16%) 0.02 (2.65%) 0.00 (0.16%) D-VP-r 0.00 (0.00%) NA (NA) 0.02 (3.66%) 0.02 (2.84%) -0.00 (-0.32%) -0.02 (-3.40%) 0.02 (3.07%) -0.02 (-2.94%) -0.01 (-1.56%) D-AEA-r -0.00 (-0.08%) NA (NA) 0.04 (4.20%) 0.10 (13.74%) 0.06 (8.68%) 0.03 (3.22%) 0.01 (1.34%) 0.06 (8.09%) 0.01 (1.12%) D-SCS-r 0.00 (0.18%) NA (NA) 0.01 (1.00%) 0.08 (10.65%) 0.01 (1.57%) 0.01 (0.80%) 0.01 (1.45%) -0.01 (-1.56%) 0.01 (1.00%) D-SMR-r 0.00 (0.66%) NA (NA) NA (NA) 0.05 (7.99%) 0.07 (10.89%) NA (NA) NA (NA) NA (NA) -0.04 (-5.03%) D-GMC-r 0.04 (5.77%) NA (NA) 0.00 (0.15%) 0.09 (11.39%) 0.00 (0.30%) 0.02 (2.56%) 0.00 (0.08%) -0.00 (-0.09%) 0.00 (0.15%) D-HQC-r 0.00 (0.00%) NA (NA) 0.00 (0.18%) 0.03 (3.37%) NA (NA) 0.00 (0.00%) 0.01 (1.05%) 0.01 (0.61%) 0.00 (0.18%) D-KDD-r 0.00 (0.43%) NA (NA) NA (NA) 0.05 (10.68%) 0.03 (6.83%) 0.01 (1.26%) NA (NA) -0.01 (-0.95%) 0.00 (0.83%) D-PBV-r 0.00 (0.00%) NA (NA) NA (NA) NA (NA) NA (NA) 0.00 (0.13%) NA (NA) NA (NA) 0.00 (0.00%) D-SCH -0.03 (-3.60%) NA (NA) 0.04 (6.79%) 0.02 (2.39%) 0.11 (15.87%) 0.03 (3.92%) -0.01 (-0.81%) 0.04 (4.47%) 0.00 (0.22%) D-EG 0.00 (0.42%) NA (NA) 0.01 (0.82%) 0.03 (3.37%) 0.00 (0.53%) 0.00 (0.22%) 0.01 (0.88%) 0.00 (0.41%) 0.00 (0.22%) D-VP -0.05 (-6.70%) NA (NA) 0.04 (6.18%) 0.09 (14.48%) 0.05 (7.88%) 0.00 (0.63%) 0.05 (7.56%) 0.01 (2.10%) 0.04 (6.18%) D-AEA 0.00 (0.03%) NA (NA) 0.01 (1.06%) 0.07 (8.76%) 0.01 (1.28%) -0.00 (-0.15%) 0.04 (4.43%) 0.00 (0.40%) 0.01 (0.94%) D-PHY NA (NA) NA (NA) NA (NA) NA (NA) NA (NA) NA (NA) NA (NA) NA (NA) NA (NA) D-KDD2 0.00 (0.66%) NA (NA) 0.00 (0.15%) 0.07 (13.96%) 0.09 (17.19%) -0.00 (-0.26%) NA (NA) -0.00 (-0.75%) 0.00 (0.15%) D-KDD1 0.03 (5.44%) NA (NA) -0.02 (-3.07%) 0.04 (6.27%) 0.06 (10.96%) 0.02 (3.87%) 0.00 (0.34%) 0.03 (4.84%) -0.01 (-1.56%) can first find a model using model selection without any hyperparameter tuning, and then focus on hyper-parameter tuning for this particular model. However, there might be little guarantee on the performance of the model selected. Clearly, there are numerous hybrid strategies in between, where one can first decide on a set of candidate models and then perform hyper-parameter tuning for each candidate. A declarative machine learning service should hide these details from the user altogether. We can also compare the impact of hyperparameter tuning and feature engineering by plotting the histograms for the performance improvement for all individual algorithms. In Figure <ref type="figure" target="#fig_17">21</ref>, the red, green, and blue vertical dashed lines in each figure indicate the 5th, 50th, and 90th percentiles, respectively. We see that the majority of the improvements falls between 0 and 10% in terms of AUC score. Comparing all these three lines "shifted to the right direction" for the feature engineering plot (i.e., the right histogram), indicating a more significant impact attributed to feature engineering than hyperparameter tuning.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7">RELATED WORK</head><p>There has been research on benchmarking different machine learning algorithms and comparing their relative quality on various datasets <ref type="bibr" target="#b0">[12,</ref><ref type="bibr" target="#b1">13,</ref><ref type="bibr" target="#b7">19]</ref>. Most of these efforts focus on benchmarking machine learning algorithms on "raw datasets" without much feature engineering, a key process for high-quality machine learning applications <ref type="bibr" target="#b6">[18]</ref>. mlbench is different in the sense that it consists of best-effort baselines for feature engineering and model selection. Another difference between our study and previous work is that, instead of benchmarking all existing machine learning models, we focus on those provided by existing machine learning clouds and try to understand whether the current abstraction is enough to support users of these clouds.</p><p>Benchmarking cloud services and more traditional relational databases have been an active research topic for decades. Famous benchmarks include the Wisconsin benchmark <ref type="bibr" target="#b5">[17]</ref> and TPC benchmarks. 22 There are also benchmarks targeting clouds for different purposes, especially for data processing and management <ref type="bibr" target="#b3">[15,</ref><ref type="bibr" target="#b14">26]</ref>. Our work is motivated by the success and impact of these benchmarks, and we hope to establish the first benchmark for declarative machine learning on the cloud.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="8">CONCLUSION</head><p>In this paper, we presented an empirical study on the performance of state-of-the-art declarative machine learning clouds. We conducted our experiments based on mlbench, a dataset we 22 <ref type="url" target="http://www.tpc.org/information/benchmarks.asp">http://www.tpc.org/information/benchmarks.asp</ref> constructed by collecting winning code from Kaggle competitions. We compared the performance of machine learning clouds with the Kaggle winning code we harvested. Our results show that there is an obvious gap between top-performing models on the cloud and Kaggle winning code in terms of low quality tolerance regimes they can meet, though machine learning clouds do perform reasonably well when increasing the level of quality tolerance regimes. Detailed investigation further reveals that lack of adopting ensemble methods is perhaps one reason for the performance gap. A promising direction for improving the performance of machine learning clouds is therefore to incorporate more well-tuned models that leverage ensemble methods.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Histograms of the AUC scores on private leader board for two example datasets D-PHY and D-SMR-r.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 3 :</head><label>3</label><figDesc>Figure 3: Kaggle Competitions with Winning Code board as "winning code," and we look for the one ranked the highest among the top ten.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 6 :</head><label>6</label><figDesc>Figure 6: Total training time (seconds) on Azure with hyper-parameter tuning (HPT).</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 7 :</head><label>7</label><figDesc>Figure 7: Average HPT training time (seconds) on Azure.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Figure 8 :</head><label>8</label><figDesc>Figure 8: Capacity and universality of machine learning clouds as quality tolerance various.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Figure 10 :</head><label>10</label><figDesc>Figure 10: Capacity of Azure and Amazon on different datasets (i.e., Kaggle competitions).</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><head>Figure 11 :</head><label>11</label><figDesc>Figure 11: Capacity of the logistic regression model (C-LR) from Azure and Amazon on different datasets.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head>Figure 12 :</head><label>12</label><figDesc>Figure 12: Quality of different models.</figDesc><graphic coords="8,80.96,116.06,195.26,56.52" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_8"><head>Figure 13 :</head><label>13</label><figDesc>Figure 13: BDT Linear Classifiers.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_9"><head>Figure 14 :Figure 15 :</head><label>1415</label><figDesc>Figure 14: Tradeoff between prediction quality (AUC) and total training time. The blue line represents the AUC of the winning code, and the red line represents the AUC of logistic regression (C-LR) on Amazon.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_10"><head>Figure 16 :</head><label>16</label><figDesc>Figure 16: AUC corresponding to the high tolerance regime of different Kaggle competitions.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_11"><figDesc>among the top 1%.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_12"><head>Figure 17 :</head><label>17</label><figDesc>Figure 17: A heat map that represents the capacity of different models on different datasets. Dark green represents low tolerance, light green represents middle tolerance, yellow represents high tolerance and red regions are out of the tolerance regimes we defined. Of course, one can change the thresholds in the above definition and therefore shift the regimes to different regions of the tolerance range (0, 100]. Based on our definition and Figure 10, Azure can meet the low tolerance regime for the datasets D-SCH and D-EG, the middle tolerance regime for the datasets D-AEA and D-KDD1, and the high tolerance regime for the dataset D-KDD2. In contrast, Amazon only meets the high tolerance regime on the dataset D-KDD1 but fails on the others. To better understand the performance of Azure with respect to different quality tolerance regimes, we further present in Figure 17 a "heat map" that indicates the quality tolerance levels met by different Azure models on different datasets (or, in terms of the capacity of models, the heat map represents model capacity across different Kaggle competitions).The dark green regions correspond to the low tolerance regime, the light green regions correspond to the middle tolerance regime, and the yellow regions correspond to the high tolerance regime. The other regions are outside the tolerance regimes we defined. We find that Azure actually only meets the low tolerance regime on small datasets, where linear models work well. Azure can meet the middle and high tolerance regimes on large datasets, thanks to the inclusion of nonlinear models. This is also a summary that covers many observations that we have so far. In view of the Kaggle competitions (by reading the heat map vertically), some are more challenging than the others. For example, none of the models can meet even the high tolerance regime on the dataset D-VP, and only C-BDT can meet the high tolerance regime on the dataset D-KDD2. In view of the models (by reading the heat map horizontally), apparently, there is not a one-size-fits-all solution: No one can dominate the others across the datasets. Moreover, there is apparently a separation between the "comfortable zones" of the models, which we have already stated in Observation 1: Linear models are more capable on small datasets, whereas nonlinear models are more capable on large datasets.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_14"><head>Figure 18 :</head><label>18</label><figDesc>Figure 18: Gaps between Azure and Kaggle winning code on different datasets (DWD is shorthand for "distance weighted discrimination").</figDesc><graphic coords="10,100.17,93.43,139.13,88.02" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_15"><figDesc>and Figure7contain the training time that Azure needs for training each model. By modern standards, these numbers are rather slow -for the KDD1 dataset, which contains only 300K training examples and 190 features, training a linear SVM model takes 205 seconds on average. To fully explore the hyperparameter space, it is not uncommon for our experiments to run for hours on a single, arguably small, dataset. Without knowing the implementation details of each of these clouds, we intentionally avoid any discussion and comparison in this paper. However, these numbers do indicate the possibility of potential future improvements.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_16"><head>Figure 20 :</head><label>20</label><figDesc>Figure 20: Improvement on private ranking attributed to feature engineering. Green indicates quality increase after feature engineering; Red otherwise. All numbers are with hyperparameter tuning.</figDesc><graphic coords="11,426.66,257.84,104.35,79.27" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_17"><head>Figure 21 :</head><label>21</label><figDesc>Figure 21: AUC improvement attributed to (left) hyperparameter tuning and (right) feature engineering.</figDesc><graphic coords="11,320.07,257.84,104.35,79.27" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_18"><head>Figure 22 :</head><label>22</label><figDesc>Figure 22: Improvement on private AUC score attributed to hyper-parameter tuning. Green indicates quality increase after feature engineering; red otherwise.</figDesc></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0"><p>https://docs.microsoft.com/en-us/azure/machine-learning/studio/faq</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_1"><p>https://www.kaggle.com/c/mlsp-2014-mri</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="3" xml:id="foot_2"><p>https://www.kaggle.com/c/predict-who-is-more-influential-in-a-social-network.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="4" xml:id="foot_3"><p>https://www.kaggle.com/c/stumbleupon</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="5" xml:id="foot_4"><p>https://www.kaggle.com/c/predict-west-nile-virus</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="6" xml:id="foot_5"><p>https://www.kaggle.com/c/amazon-employee-access-challenge</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="7" xml:id="foot_6"><p>https://www.kaggle.com/c/santander-customer-satisfaction</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="8" xml:id="foot_7"><p>https://www.kaggle.com/c/springleaf-marketing-response</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="9" xml:id="foot_8"><p>https://www.kaggle.com/c/GiveMeSomeCredit</p></note>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">An empirical comparison of voting classification algorithms: Bagging, boosting, and variants</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Bauer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Kohavi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Machine learning</title>
+		<imprint>
+			<date type="published" when="1998">1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">An empirical comparison of supervised learning algorithms</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Caruana</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICML</title>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">XGBoost: A scalable tree boosting system</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Chen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">KDD</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Benchmarking cloud serving systems with YCSB</title>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">F</forename><surname>Cooper</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Silberstein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Tam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Ramakrishnan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Sears</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">SoCC</title>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Support-vector networks</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Cortes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Vapnik</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning</title>
+		<imprint>
+			<date type="published" when="1995">1995</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">The Wisconsin benchmark: Past, present, and future</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">J</forename><surname>Dewitt</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">The Benchmark Handbook for Database and Transaction Systems</title>
+		<imprint>
+			<date type="published" when="1993">1993</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">A few useful things to know about machine learning</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Domingos</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<publisher>CACM</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Do we need hundreds of classifiers to solve real world classification problems</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Fernández-Delgado</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Cernadas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Barro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Amorim</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">JMLR</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">A decision-theoretic generalization of on-line learning and an application to boosting</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Freund</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">E</forename><surname>Schapire</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">JCSS</title>
+		<imprint>
+			<date type="published" when="1997">1997</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">The WEKA data mining software: an update</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Hall</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Frank</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Holmes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Pfahringer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Reutemann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">H</forename><surname>Witten</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">KDD</title>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">Neural Networks: A Comprehensive Foundation</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Haykin</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1998">1998</date>
+			<publisher>Prentice Hall PTR</publisher>
+		</imprint>
+	</monogr>
+	<note>2nd edition</note>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<author>
+			<persName><forename type="first">R</forename><surname>Herbrich</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Graepel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Campbell</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Bayes point machines</title>
+		<imprint>
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Random decision forests</title>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">K</forename><surname>Ho</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICDAR</title>
+		<imprint>
+			<date type="published" when="1995">1995</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Feature stacking for sentence classification in evidence-based medicine</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lui</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ALTA</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Cloudrank-d: benchmarking and ranking cloud computing systems for data processing applications</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Luo</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Frontiers of Computer Science</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Distance-weighted discrimination</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">S</forename><surname>Marron</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">JASA</title>
+		<imprint>
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Induction of decision trees</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">R</forename><surname>Quinlan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning</title>
+		<imprint>
+			<date type="published" when="1986">1986</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Decision jungles: Compact and rich models for classification</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Shotton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Sharp</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Kohli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Nowozin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">M</forename><surname>Winn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Criminisi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">NIPS</title>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title level="m" type="main">An overreaction to the broken machine learning abstraction: The ease.ml vision</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Li</surname></persName>
+		</author>
+		<editor>HILDA</editor>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

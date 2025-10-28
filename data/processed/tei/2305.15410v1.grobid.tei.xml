@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Published at the ICLR 2023 Workshop on Machine Learning for Materials MACHINE LEARNING-ASSISTED CLOSE-SET X-RAY DIFFRACTION PHASE IDENTIFICATION OF TRANSITION METALS</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2023-04-28">28 Apr 2023</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Maksim</forename><surname>Zhdanov</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">Tomsk Polytechnic University</orgName>
+							</affiliation>
+						</author>
+						<author role="corresp">
+							<persName><forename type="first">Andrey</forename><surname>Zhdanov</surname></persName>
+							<email>zhdanov.andrei24@gmail.com</email>
+							<affiliation key="aff0">
+								<orgName type="institution">Tomsk Polytechnic University</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Published at the ICLR 2023 Workshop on Machine Learning for Materials MACHINE LEARNING-ASSISTED CLOSE-SET X-RAY DIFFRACTION PHASE IDENTIFICATION OF TRANSITION METALS</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2023-04-28">28 Apr 2023</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">2B41F3A32DD300FE6118912765C00DD2</idno>
+					<idno type="arXiv">arXiv:2305.15410v1[cond-mat.mtrl-sci]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Machine learning has been applied to the problem of X-ray diffraction phase prediction with promising results. In this paper, we describe a method for using machine learning to predict crystal structure phases from X-ray diffraction data of transition metals and their oxides. We evaluate the performance of our method and compare the variety of its settings. Our results demonstrate that the proposed machine learning framework achieves competitive performance. This demonstrates the potential for machine learning to significantly impact the field of X-ray diffraction and crystal structure determination. Open-source implementation: <ref type="url" target="https://github.com/maxnygma/NeuralXRD">https://github.com/maxnygma/NeuralXRD</ref>.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">INTRODUCTION</head><p>The determination of crystal structure phases from X-ray diffraction data is an important task in materials science, with applications ranging from drug design <ref type="bibr" target="#b3">(Datta &amp; Grant, 2004)</ref> to the study of complex materials for hydrogen absorption <ref type="bibr" target="#b0">(Akiba et al., 2006)</ref>. It's crucial to address the task of unnecessary phases of elements which can occur in the process of X-ray diffraction. Notably, oxides can occur in the process of synthesis. Traditionally, this problem has been approached through the use of techniques such as direct methods <ref type="bibr" target="#b4">(Duax et al., 1972)</ref> and density functional theory (van de <ref type="bibr" target="#b13">Streek &amp; Neumann, 2014)</ref>. However, these methods can be computationally difficult to operate with <ref type="bibr" target="#b1">(Burke, 2012)</ref> and may not always yield accurate results <ref type="bibr" target="#b1">(Burke, 2012)</ref>. In recent years, there has been a growing interest in using machine learning methods to tackle this problem.</p><p>Machine learning algorithms have the ability to learn patterns and relationships in data, making them well-suited for the analysis of large and complex datasets. They have been applied to a wide range of problems in materials science, including the prediction of material properties <ref type="bibr" target="#b2">(Chibani &amp; Coudert, 2020)</ref> and the analysis of imaging data <ref type="bibr" target="#b14">(Wei et al., 2019)</ref>. In the context of X-ray diffraction, machine learning has been used to analyze crystal structure and to classify diffraction patterns <ref type="bibr" target="#b12">(Suzuki et al., 2020)</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">RELATED WORK</head><p>There has been a significant amount of research in the field of using machine learning for X-ray diffraction (XRD) phase identification. Previous studies <ref type="bibr" target="#b10">(Park et al., 2022;</ref><ref type="bibr" target="#b9">Oviedo et al., 2018;</ref><ref type="bibr" target="#b6">Greasley &amp; Hosein, 2022)</ref> have applied various machine learning techniques, such as support vector machines (SVMs), artificial neural networks (ANNs), and k-nearest neighbors (k-NN), to analyze XRD patterns and identify different phases in materials. These methods have been applied to a wide range of materials, including minerals <ref type="bibr" target="#b6">(Greasley &amp; Hosein, 2022)</ref> and ceramics <ref type="bibr" target="#b7">(Kaufmann et al., 2020)</ref>. However, many of these studies have not focused on transition metal oxides which take an important part in many applications of material science, and there is still a need for more robust and accurate methods for XRD phase identification of these elements.</p><p>Below, the method for transition metals phases identification based on machine learning and X-ray diffraction patterns is introduced. Firstly, we formulate the general setup of the approach. Then the proposed method is explained as a machine learning problem with regard to implementation details.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">SYNTHETIC PATTERN GENERATION</head><p>Initially, the method needs a set of X-ray diffraction patterns X = {x 1 , . . . , x N i } where N is the number of materials. There are 15 materials in the presented setup consisting of transtion metals and variations of their oxides. All of the samples are obtained from he Crystallography Open Database <ref type="bibr" target="#b5">(Gražulis et al., 2009)</ref> in the format of cif files. Full list of materials is shown in Table <ref type="table">1</ref>. XRD simulations from molecular structures were obtained using Mercury software <ref type="bibr" target="#b8">(Macrae et al., 2020)</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Basic materials Oxides</head><formula xml:id="formula_0">T i, V , Zn, N i, M n, F e, Cr, Co Al 2 O 3 , BaO 2 , CaO, Cu 2 O, Li 2 O, M gO, N aO 3 Table 1: Elements presented in the collected set.</formula><p>Patterns iteratively combined with each other 5 rounds to create a set of synthetic data samples S. Single-material instances are removed from S. Random shift by -1 ≤ 2θ ≤ 1 and intensity scaling with multiplier factor t, 0.5 ≤ t ≤ 1.5 is applied preserving order of phases.</p><p>Synthetic samples are used to conduct experiments on a more generalized sets of materials as the real-world diffraction patterns may be different in terms of 2θ precision. After combining samples each pattern in X is normalized in the range from 0 to 1.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">PEAK MATCHING</head><p>To identify elements presented in a sample of multi-phase diffraction patterns we propose the following peak matching algorithm. Complete overview of the approach can be seen in Figure <ref type="figure">1</ref>. 1. Single sample s i ∈ S and reference sample x i ∈ X are selected.</p><p>2. Sets of peak locations L x , L s are computed for x i and s i by estimating local maxima m i and m s for every sample.</p><p>3. Local minimas between each pair of peaks are calculated, then x i and s i are split on lists P x = {p 1 , . . . , p i }, i = |L x | and P s = {p 1 , . . . , p j }, j = |L s | of parts respectively.</p><p>4. Values of P x and P s are clipped below the threshold of 0.1.</p><p>5. Areas of P x and P s are calculated using composite trapezoidal rule. For</p><formula xml:id="formula_1">p i ∈ P x the area is obtained from b a p i dx ≈ 1 2 n j=1 (x j -x j-1 )[f (x j-1 ) + f (x j )].</formula><p>Identical operation is applied for p j ∈ P s . Areas additionally rounded to the 4th figure after the floating point, for other approximation options see Section 4.</p><p>6. Acquired areas are measured to find matching values.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">CALIBRATION MODEL</head><p>Described framework provides efficient and accurate solution to the problem. However, attempts when the algorithm fails to detect material properly because of overlapping or difficult peaks are not addressed. For this reason, we create an additional support model which uses meta-features obtained from peak matching algorithm to predict materials more precisely.</p><p>Figure <ref type="figure">1</ref>: Peak matching algorithm overview.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3.1">MODELS</head><p>Performance analysis is conducted for particular supervised learning and ensemble models: Logistic Regression, Support Vector Machine (SVM), k-Nearest Neighbours (kNN), Decision Tree (DT), Random Forest (RF). All of the models were implemented in Scikit-Learn <ref type="bibr" target="#b11">(Pedregosa et al., 2011)</ref>.</p><p>To evaluate performance precisely, 5-fold stratified cross-validation strategy was used based on equal distribution of samples with positive and negative matches. Features were additionally normalized by removing the mean and scaling to unit variance. Complete list of features used for training is shown below.</p><p>• The number of peaks calculated by the matching algorithm.</p><p>• The first index on which the condition s i &gt; 0 is true.</p><p>• The last index on which the condition s i &gt; 0 is true.</p><p>• The first index on which the condition x i &gt; 0 is true.</p><p>• The last index on which the condition x i &gt; 0 is true.</p><p>• The sum of areas of peaks for multi-phase material.</p><p>• Target value: is x i presented in s i or not. Table 2: Experiments showcase and their corresponding scores.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">EXPERIMENTS</head><p>It's noted that some of the models did not beat the baseline without any additional supervised learning algorithm. Theoretically, this might be due to the fact that peaks positions are hard to learn since they can overlap for different pairs of materials. After careful consideration of hyperparameters, random forest with number of trees -50, increased the maximum depth of the tree to 14 and log loss as the criterion achieves the highest F1 score among other models. Moreover, we have to consider the importance of the rounding value as matching of areas under peaks have significant dependence on it as shown in Table <ref type="table" target="#tab_0">3</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">FUTURE WORK</head><p>Described method has its own limitations. Close-set phase identification is still might not be accurately performing on real-world scenarios, where pattern and crystal structure may vary due to the number of reasons including but not limited to the state of diffractometer, previous conducted experiments and the flow of the current experiment. For instance, noise reduction and baseline correction techniques might have to be incorporated to handle more complex cases.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">CONCLUSION</head><p>In conclusion, machine learning has shown to be a powerful tool for X-ray diffraction (XRD) phase identification. A variety of machine learning algorithms, such as support vector machines, random forests, and k-nearest neighbors, have been applied to analyze XRD patterns and identify different phases in materials by comparing them to a close-set database of XRD patterns. One of the key features used for this analysis is the peak area calculation, which is used to quantify the intensity of the diffraction peaks. This is an important aspect as it allows for more accurate identification of different phases in the XRD patterns. The close-set database of XRD patterns enables the identification to be performed in a more specific and targeted manner, limiting the possibility of misidentification. Presented methods have been effective in identifying phases in small datasets and a limited number of phases, but there is still a need for more robust and accurate methods for XRD phase identification on large datasets. This research highlights the potential of machine learning in XRD phase identification, especially for close-set setups, and suggests directions for future research in this field.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="3,108.00,81.86,396.01,189.58" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 3 :</head><label>3</label><figDesc>Comparison of performance with different rounding points.</figDesc><table><row><cell>Rounding point</cell><cell>F1 Score</cell></row><row><cell>5</cell><cell>0.875</cell></row><row><cell>4</cell><cell>0.888</cell></row><row><cell>3</cell><cell>0.614</cell></row><row><cell>2</cell><cell>0.349</cell></row></table><note><p>Selected algorithms were trained on data acquired from peak matching. Standard parameters for each model are selected and compared using defined evaluation metrics. Namely, precision, recall and F1-score are used. F 1 = 2 * P recision * Recall P recision + Recall , is essentially the harmonic mean of precision and recall. Since the distribution of classes is highly imbalanced, F1 score addresses this problem as balances between precision and recall. Comparison of mentioned methods can be seen in Table2</p><p>.</p></note></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Crystal structures of novel la-mg-ni hydrogen absorbing alloys</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Akiba</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Hayakawa</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Kohno</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of alloys and compounds</title>
+		<imprint>
+			<biblScope unit="volume">408</biblScope>
+			<biblScope unit="page" from="280" to="283" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Perspective on density functional theory</title>
+		<author>
+			<persName><forename type="first">Kieron</forename><surname>Burke</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Journal of chemical physics</title>
+		<imprint>
+			<biblScope unit="volume">136</biblScope>
+			<biblScope unit="issue">15</biblScope>
+			<biblScope unit="page">150901</biblScope>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Machine learning approaches for the prediction of materials properties</title>
+		<author>
+			<persName><forename type="first">Siwar</forename><surname>Chibani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Franc ¸ois-Xavier</forename><surname>Coudert</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Apl Materials</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page">80701</biblScope>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Crystal structures of drugs: advances in determination, prediction and engineering</title>
+		<author>
+			<persName><forename type="first">Sharmistha</forename><surname>Datta</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David Jw</forename><surname>Grant</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature Reviews Drug Discovery</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="42" to="57" />
+			<date type="published" when="2004">2004</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Valinomycin crystal structure determination by direct methods</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Wl Duax</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Hauptman</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Weeks</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Norton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Science</title>
+		<imprint>
+			<biblScope unit="volume">176</biblScope>
+			<biblScope unit="issue">4037</biblScope>
+			<biblScope unit="page" from="911" to="914" />
+			<date type="published" when="1972">1972</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Crystallography Open Database -an open-access collection of crystal structures</title>
+		<author>
+			<persName><forename type="first">Saulius</forename><surname>Gražulis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Daniel</forename><surname>Chateigner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Robert</forename><forename type="middle">T</forename><surname>Downs</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">F T</forename><surname>Yokochi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Miguel</forename><surname>Quirós</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Luca</forename><surname>Lutterotti</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Elena</forename><surname>Manakova</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Justas</forename><surname>Butkus</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Peter</forename><surname>Moeck</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Armel</forename><forename type="middle">Le</forename><surname>Bail</surname></persName>
+		</author>
+		<idno type="DOI">10.1107/S0021889809016690</idno>
+		<ptr target="http://dx.doi.org/10.1107/S0021889809016690" />
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Applied Crystallography</title>
+		<imprint>
+			<biblScope unit="volume">42</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="726" to="729" />
+			<date type="published" when="2009-08">Aug 2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">Exploring supervised machine learning for multi-phase identification and quantification from powder x-ray diffraction spectra</title>
+		<author>
+			<persName><forename type="first">Jaimie</forename><surname>Greasley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Patrick</forename><surname>Hosein</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/2211.08591" />
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">Discovery of high-entropy ceramics via machine learning</title>
+		<author>
+			<persName><forename type="first">Kevin</forename><surname>Kaufmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Daniel</forename><surname>Maryanovsky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">William</forename><forename type="middle">M</forename><surname>Mellor</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chaoyi</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexander</forename><forename type="middle">S</forename><surname>Rosengarten</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tyler</forename><forename type="middle">J</forename><surname>Harrington</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Corey</forename><surname>Oses</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cormac</forename><surname>Toher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stefano</forename><surname>Curtarolo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kenneth</forename><forename type="middle">S</forename><surname>Vecchio</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/s41524-020-0317-6</idno>
+		<ptr target="http://dx.doi.org/10.1038/s41524-020-0317-6" />
+		<imprint>
+			<date type="published" when="2020-05">May 2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Mercury 4.0: from visualization to analysis, design and prediction</title>
+		<author>
+			<persName><forename type="first">Clare</forename><forename type="middle">F</forename><surname>Macrae</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ioana</forename><surname>Sovago</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Simon</forename><forename type="middle">J</forename><surname>Cottrell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">A</forename><surname>Peter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Patrick</forename><surname>Galek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Elna</forename><surname>Mccabe</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><surname>Pidcock</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Greg</forename><forename type="middle">P</forename><surname>Platings</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joanna</forename><forename type="middle">S</forename><surname>Shields</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Matthew</forename><surname>Stevens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Peter</forename><forename type="middle">A</forename><surname>Towler</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Wood</surname></persName>
+		</author>
+		<idno type="DOI">10.1107/S1600576719014092</idno>
+		<ptr target="https://doi.org/10.1107/S1600576719014092" />
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Applied Crystallography</title>
+		<imprint>
+			<biblScope unit="volume">53</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="226" to="235" />
+			<date type="published" when="2020-02">Feb 2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<title level="m" type="main">Fast and interpretable classification of small x-ray diffraction datasets using data augmentation and deep neural networks</title>
+		<author>
+			<persName><forename type="first">Felipe</forename><surname>Oviedo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zekun</forename><surname>Ren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shijing</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Charlie</forename><surname>Settens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhe</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Noor</forename><surname>Titan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Putri</forename><surname>Hartono</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ramasamy</forename><surname>Savitha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Brian</forename><forename type="middle">L</forename><surname>Decost</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">P</forename><surname>Siyu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Giuseppe</forename><surname>Tian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aaron</forename><surname>Romano</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tonio</forename><surname>Gilad Kusne</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Buonassisi</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/1811.08425" />
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Application of machine learning to quantification of mineral composition on gas hydrate-bearing sediments, ulleung basin, korea</title>
+		<author>
+			<persName><forename type="first">Young</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Byeong-Kook</forename><surname>Park</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jiyoung</forename><surname>Son</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hongkeun</forename><surname>Choi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kyungbook</forename><surname>Jin</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Lee</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.petrol.2021.109840</idno>
+		<ptr target="https://www.sciencedirect.com/science/article/pii/S0920410521014595" />
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Petroleum Science and Engineering</title>
+		<idno type="ISSN">0920-4105</idno>
+		<imprint>
+			<biblScope unit="volume">209</biblScope>
+			<biblScope unit="page">109840</biblScope>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Scikit-learn: Machine learning in Python</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Pedregosa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Varoquaux</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gramfort</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Michel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Thirion</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Grisel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Blondel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Prettenhofer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Weiss</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Dubourg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Vanderplas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Passos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Cournapeau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Brucher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Perrot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Duchesnay</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page" from="2825" to="2830" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Symmetry prediction and knowledge discovery from x-ray diffraction patterns using an interpretable machine learning approach</title>
+		<author>
+			<persName><forename type="first">Yuta</forename><surname>Suzuki</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hideitsu</forename><surname>Hino</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Takafumi</forename><surname>Hawai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kotaro</forename><surname>Saito</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Masato</forename><surname>Kotsugi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kanta</forename><surname>Ono</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Scientific reports</title>
+		<imprint>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="11" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Validation of molecular crystal structures from powder diffraction data with dispersion-corrected density functional theory (dft-d)</title>
+		<author>
+			<persName><forename type="first">Jacco</forename><surname>Van De Streek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Marcus</forename><forename type="middle">A</forename><surname>Neumann</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Acta Crystallographica Section B: Structural Science, Crystal Engineering and Materials</title>
+		<imprint>
+			<biblScope unit="volume">70</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="1020" to="1032" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">Jing</forename><surname>Wei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xuan</forename><surname>Chu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xiang-Yu</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kun</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hui-Xiong</forename><surname>Deng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jigen</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhongming</forename><surname>Wei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ming</forename><surname>Lei</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Machine learning in materials science. InfoMat</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="338" to="358" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

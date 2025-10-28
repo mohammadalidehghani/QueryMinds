@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Adversarial Machine Learning Attacks on Condition-Based Maintenance Capabilities</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Hamidreza</forename><surname>Habibollahi</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Center for Advanced Life Cycle Engineering (CALCE)</orgName>
+								<orgName type="institution">University of Maryland College Park</orgName>
+								<address>
+									<postCode>20742</postCode>
+									<region>MD</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Najaf</forename><surname>Abadi</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Center for Advanced Life Cycle Engineering (CALCE)</orgName>
+								<orgName type="institution">University of Maryland College Park</orgName>
+								<address>
+									<postCode>20742</postCode>
+									<region>MD</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Adversarial Machine Learning Attacks on Condition-Based Maintenance Capabilities</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">30E9B5DD96008DF0EA80B3346BFE0D6F</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>Network layer Decision layer Gateway Data collection Data pre-processing Feature calculation Data analytics</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Condition-based maintenance (CBM) strategies exploit machine learning models to assess the health status of systems based on the collected data from the physical environment, while machine learning models are vulnerable to adversarial attacks. A malicious adversary can manipulate the collected data to deceive the machine learning model and affect the CBM system's performance. Adversarial machine learning techniques introduced in the computer vision domain can be used to make stealthy attacks on CBM systems by adding perturbation to data to confuse trained models. The stealthy nature causes difficulty and delay in detection of the attacks. In this paper, adversarial machine learning in the domain of CBM is introduced. A case study shows how adversarial machine learning can be used to attack CBM capabilities. Adversarial samples are crafted using the Fast Gradient Sign method, and the performance of a CBM system under attack is investigated. The obtained results reveal that CBM systems are vulnerable to adversarial machine learning attacks and defense strategies need to be considered.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.">Introduction</head><p>Maintenance strategies can be classified into corrective maintenance and preventive maintenance. Corrective maintenance is a strategy that is used to repair (or replace) the component after it fails, while preventive maintenance is carried out before break downs. Condition-based maintenance (CBM), a type of preventive maintenance, recommends maintenance decisions based on the information collected through condition monitoring process <ref type="bibr" target="#b0">[1]</ref>. Condition monitoring equipment includes sensor nodes that measure different parameters, such as pressure, temperature, speed, vibration, etc. These measurements are processed in the decision layer of the CBM system after passing through a network in order to assess the health status of a system (Figure <ref type="figure" target="#fig_0">1</ref>). Machine learning (ML) techniques are widely used to perform CBM strategies <ref type="bibr" target="#b1">[2]</ref>. For example, the diagnostic capability of a CBM system that takes advantage of ML techniques is a pattern recognition algorithm that maps the information in the measurement space or features in the feature space to machine faults in the fault space and is supposed to identify the health status of a machine <ref type="bibr" target="#b1">[2]</ref>. Although exploiting ML in CBM systems has brought efficiency in automated detection of machines' health status, the ML models are vulnerable to adversarial attacks, and industries have not considered the strategies to protect their ML systems <ref type="bibr" target="#b2">[3]</ref>. Misleading CBM systems could lead to delay in detecting imminent failures that may result in financial loss, and even loss of life, as CBM systems are being used in many critical industries.</p><p>The act of deploying attacks towards ML-based systems is known as Adversarial Machine Learning (AML) <ref type="bibr" target="#b3">[4]</ref>. Such adversarial attacks have been investigated in the field of computer vision, where adding slight perturbationsinsignificant to human eyeto an image can cause a classifier model to misclassify it (Figure <ref type="figure">2</ref>) <ref type="bibr" target="#b4">[5]</ref>. The idea behind the AML is that the imperfections in the training phase of ML models make them powerless to adversarial samples. "panda" perturbation "gibbon" Figure <ref type="figure">2</ref>. Crafting adversarial examples in the computer vision domain <ref type="bibr" target="#b5">[6]</ref>.</p><p>In the case of CBM systems, AML can be used to manipulate the data obtained from sensors by adding perturbations in order to cause data related to faulty conditions to be identified as healthy and vice versa. AML intends to exploit the fact that the trained ML models have "blind spots" among the data points that they have seen before in the training phase. So, adding perturbations to the unseen data points can cause the models to cross a decision boundary and classify the data as incorrect classes <ref type="bibr" target="#b3">[4]</ref>. Usually, the perturbations to deceive an ML model are designed to be small in magnitude so that a human being may not be able to understand that anything has changed <ref type="bibr" target="#b6">[7]</ref>. The manipulated data can be injectedfault injection attack -at each of the CBM layers (Figure <ref type="figure" target="#fig_0">1</ref>). Deceiving the ML algorithm affects the integrity of the model and a high rate of errors can cause the model to become unusable.</p><p>Considering the application of CBM capabilities in critical systems, they have become an attractive target to attackers. Also, as ML-based CBM systems become more widely deployed, the adversary motivation for defeating them increases. Therefore, CBM systems need to be evaluated against AML attacks. This paper investigates generating stealthy attacks that evade classification algorithms used for diagnostic purposes in a CBM system. This study shows how AML can be used to attack CBM capabilities. Section 2 of this paper defines the specifications of AML attacks. The experimental results showing the impact of AML attacks on a CBM system are presented in Section 3. Section 4 concludes the paper.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.">Adversarial Machine Learning Attacks</head><p>Two main types of AML attacks are evasion attacks and poisoning attacks. Evasion attacks can be known as attacks on the decisions made by trained models by making changes to the collected data from the environment. An evasion attack introduces perturbation to input to cause its misclassification <ref type="bibr" target="#b7">[8]</ref>. Unlike the evasion attacks, which target the trained models during the testing phase, poisoning attacks occur during the learning phase by modifying a part of the data used for training to cause the learning algorithm to make poor choices <ref type="bibr" target="#b8">[9]</ref>.</p><p>This paper focuses on evasion attacks to CBM systems. Given a trained ML model f, adversaries add a perturbation 𝜀 to sample 𝑥 to generate adversarial sample 𝑥 * such that 𝐶 𝑥+𝜀 ≠ 𝐶 𝑥 , where C is the class predicted by the victim model (Equation <ref type="formula" target="#formula_0">1</ref>). To cause delay in detecting the attacks, the perturbation should be slight. The difference between crafted adversarial sample and the original sample can be evaluated by a distance metric ‖𝑥 * -𝑥‖. Frequently, this distance metric is the 𝐿 ∞ norm, which measures the maximum allowable perturbation on any feature; the 𝐿 0 norm, which determines the maximum number of features that can be changed; or finally the 𝐿 2 norm, which is the Euclidian distance between 𝑥 and 𝑥 * <ref type="bibr" target="#b7">[8]</ref>.</p><formula xml:id="formula_0">min 𝑥 ′ ‖𝑥 * -𝑥‖ s.t. 𝑓(𝑥 * ) = 𝐶 𝑥+𝜀 𝑓(𝑥) = 𝐶 𝑥 𝐶 𝑥+𝜀 ≠ 𝐶 𝑥<label>(1)</label></formula><p>An AML attack can be a targeted attack. It means that the goal of the attack is to change the collected data in a way that they will be classified as a specific target class. The targeted attacks happen on supervised learning, which attackers aspire to induce classification according to a target class function <ref type="bibr" target="#b8">[9]</ref>. On the other hand, an untargeted attack does not target a specific target class; however, it attempts to maximize errors to affect the model's reliability.</p><p>Based on the knowledge an adversary may have, attacks can be categorized as white-box, black-box, and grey-box attacks <ref type="bibr" target="#b3">[4]</ref>. In white-box attacks, the adversary has access to the training dataset and has complete knowledge about the ML model, including the architecture, model parameters, and features. However, the assumption that the attacker has complete information about the system is inaccurate in the real world <ref type="bibr" target="#b8">[9]</ref>. In contrast, black-box attacks assume the adversary has no information about the ML model. In black-box attacks, the adversary does not have access to the same training data as the ML model. Still, it is usually assumed that they can intercept the system communication and collect a dataset similar to the training dataset or set an identical environment to generate a similar dataset <ref type="bibr" target="#b9">[10]</ref>.</p><p>Black-box attacks rely on the transferability of adversarial samples, which means that adversarial examples that affect one model often affect another model, even if the two models are different or were trained on separate but similar training datasets <ref type="bibr" target="#b10">[11]</ref>. In other words, the adversarial samples generated by a local learning model could confuse other models <ref type="bibr" target="#b9">[10]</ref>. Therefore, an attacker can train its substitute model using a similar dataset, craft adversarial samples against the substitute model, and transfer them to a victim model in order to impact its performance, without knowing anything about the victim model.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">Condition-Based Maintenance System Case Study: Motor Bearings</head><p>In this study, a bearing was considered as the component being maintained by a CBM system. The bearing dataset is provided by the Case Western Reserve University <ref type="bibr" target="#b11">[12]</ref>. The experimental setup schematic for collecting the data is shown in Figure <ref type="figure" target="#fig_1">3</ref>. There are a two hp induction motor (left), a torque transducer (middle), and a dynamometer (right). Single point faults were made in the bearings' inner raceway, rolling elements, and outer raceway. The faults have diameters of 7 mils, 14 mils, 21 mils, 28 mils, and 40 mils. Vibration data were collected for motor loads from 0 to 3 hp and motor speed around 1,750 rpm using two accelerometers at the drive end and fan end of the motor. Also, two sampling frequencies of 12 kHz and 48 kHz were used. The vibration data collected by the drive end accelerometer with 12 kHz was used in this analysis. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1.">Methodology</head><p>Twelve features, including Clearance factor, Crest factor, Impulse factor, Kurtosis, mean, peak, Root Mean Square (RMS), Shape factor, Skewness, and standard deviation from time-domain plus peak amplitude and peak frequency from frequency-domain, were extracted for 0. According to the "no free lunch" theorem there is no best learning algorithm for all possible problems <ref type="bibr" target="#b12">[13]</ref> and an appropriate algorithm for a specific task should be selected based on its performance on that problem. Therefore, nine different classification algorithms in the Scikit-learn ML library, including random forest, multilayer perceptron, decision tree, k-nearest neighbors, non-linear support vector machine, linear support vector machine, quadratic discriminant analysis, naïve Bayes, and AdaBoost, were evaluated without adversarial attacks. Then, adversarial attacks were applied to investigate the impact on the models with f1 scores higher than 0.95. Grey-box evasion attacks were considered in the analysis, assuming the attacker has knowledge about the used features by the CBM model and has a training dataset similar to the training dataset that was used to train the CBM model but does not know about the used algorithm in the CBM system. The attacker trains its substitute model using the available dataset and craft adversarial samples relying on ML algorithms' transferability. The crafted sample was then injected into the system at the decision layer (Figure <ref type="figure" target="#fig_0">1</ref>) to deceive the system and affect its performance. In this paper, the substitute algorithm/model means the algorithm/model used by a hypothetical adversary to craft adversarial samples, and the victim algorithm/model is related to the CBM system under an evasion attack.</p><p>Using 40% of the dataset, a deep neural network with three hidden layers with the ReLU activation function consist of 64, 64, and 32 neurons and an output layer with the Softmax activation function was trained as the substitute model. The adversarial samples were then crafted by adding a range of perturbations (from 0.01 to 0.05) to the 20% of the data. The remaining 40% of the dataset was used to evaluate (k-fold cross-validation) and train the CBM victim models. The f1 score for the different victim models in classification of the adversarial samples was measured to investigate CBM systems' vulnerability to AML attacks.</p><p>There are different methods to generate adversarial samples. Such approaches vary in complexity and their performance, such as the Fast Gradient Sign Method (FGSM), Jacobian-Based Saliency Map Attack, Basic Iterative Method, and Carlini Wagner. In this study, FGSM in the Adversarial Robustness Toolbox <ref type="bibr" target="#b13">[14]</ref> was used for crafting adversarial samples. FGSM was proposed by Goodfellow et al. <ref type="bibr" target="#b5">[6]</ref> to craft adversarial samples of images to deceive the GoogLeNet model, a convolutional neural network. The FGSM modifies the data by adding a specific amount of perturbation noise obtained using the gradient of the cost function (Equation <ref type="formula">2</ref>). The FGSM is a one-shot method as the adversarial samples are generated through a single step of the computation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>𝑥 * = 𝑥 + 𝜀 𝑠𝑖𝑔𝑛 (∇ 𝑥 𝐽(𝜃, 𝑥, 𝑦))</head><p>(2</p><formula xml:id="formula_1">)</formula><p>Where 𝜃 is the model parameters, 𝑥 indicates the input data, 𝑦 denotes the labels, 𝜀 is the hyper-parameter that determines the extent of the perturbation, and 𝐽 is the cost function.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2.">Result</head><p>Using the k-fold cross-validation (k=5), different algorithms' performance in identifying the bearing health status was calculated (Table <ref type="table" target="#tab_1">2</ref>). F1 score for all the algorithms, except AdaBoost, was higher than 0.9. Random forest, multilayer perceptron (consisting of 1 hidden layer with 32 neutrons), decision tree, k-nearest neighbors, and kernel support vector machine algorithms showed a F1 score of more than 0.99. Quadratic discriminant analysis obtained an score of 0.96, and the linear support vector machine got an score of 0.95. It is assumed the adversary does not have any information about the CBM algorithm and the used ML model but knows about the features and has access to a set of training data similar to the data used to train the CBM algorithm. A deep neural network was used as the substitute model to craft adversarial samples by using FGSM to investigate the top 7 models (models with F1 scores higher than 0.95) under evasion attacks. Using a substitute algorithm different from the victim algorithms allows the evaluation of adversarial attacks' transferability by applying the adversarial samples created with a model on the other models.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2.1.">Fast Gradient Sign Method</head><p>FGSM is a method to generate adversarial samples for evasion attacks on trained models. In FGSM, the goal is to create samples that maximize the loss value. To do that, the gradient of loss function is taken for each input data point to find the contribution level of each feature in the loss value and add a perturbation accordingly. For a successful attack, an appropriate amount of perturbation needs to be selected. The lower extent of perturbations will lead to stealthier adversarial attacks that are more difficult to detect. Table <ref type="table">3</ref> shows an example of the perturbed features for an adversarial sample. Table <ref type="table">3</ref>. An example of how features are perturbed by using FGSM (𝜀: extent of the perturbation).</p><p>Feature Original data point (Class: Inner Race) Perturbed point (ε=0.03) (Predicted class by Random Forest: Outer Race) Clearance factor 0.18 0.21 Crest factor 0.43 0.40 Impulse factor 0.23 0.26 Kurtosis -0.08 -0.05 Mean -0.10 -0.13 Peak -0.59 -0.62 RMS -0.65 -0.68 Shape factor 0.17 0.20 Skewness 1.46 1.43 Standard deviation -0.65 -0.68 Peak frequency amplitude -0.63 -0.60 Peak frequency 1.01 0.98</p><p>Except the k-nearest neighbors model, all the models experienced a performance drop in the classification of the crafted adversarial samples, although the drops' amount was different (Figure <ref type="figure" target="#fig_2">4</ref>). The quadratic discriminant analysis showed the most significant performance drop among all models, which shows this model's weakness against adversarial attacks. The random forest that previously showed a high F1 score (1) in identifying the system's health status obtained a F1 score of 0.83 after adding a slight perturbation with the extent of 0.05. In the same situation, multilayer perceptron reached a F1 score of 0.95, and the decision tree got a F1 score of 0.91, while for the original dataset, they obtained a F1 score equal to 1. The k-nearest neighbors model was the most robust algorithm. Also, the kernel support vector machine showed robustness relatively with just 0.01 drop in the score. Not all the algorithms misclassified the same adversarial data points. For example, the random forest algorithm misclassified a high number of adversarial samples related to the normal class as ball class (Figure <ref type="figure">5a</ref>). In contrast, multilayer perceptron and decision tree algorithms were able to identify all adversarial samples associated with the normal class correctly (Figure <ref type="figure">5a</ref> and <ref type="figure">b</ref>). On the other hand, the decision tree and the multilayer perceptron models identified ball class data points more accurately than the decision tree model.</p><p>Predicted Class Ball Inner Race Outer Race Normal Actual Class Ball 1634 2 0 3 99.69% Inner Race 3 1463 178 0 88.99% Outer Race 5 16 389 0 94.88% Normal 498 0 0 160 24.32% 76.35% 98.78% 68.61% 98.16% (a) Predicted Class Ball Inner Race Outer Race Normal Actual Class Ball 1633 2 0 4 99.63% Inner Race 2 1626 16 0 98.90% Outer Race 5 30 375 0 91.46% Normal 0 0 0 658 100% 99.57% 98.07% 95.91% 99.39% (b) Predicted Class Ball Inner Race Outer Race Normal Actual Class Ball 1603 20 15 1 97.80% Inner Race 18 1439 179 0 87.95% Outer Race 4 3 397 0 98.27% Normal 0 0 0 672 100% 98.65% 98.43% 67.17% 99.85%</p><p>(c) Figure <ref type="figure">5</ref>. Confusion matrix for a) random forest, b) multilayer perceptron, and c) decision tree classification models on adversarial samples crafted using FGSM (𝜀: 0.03).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3.">Discussion</head><p>The FGSM was able to craft adversarial samples to mislead the CBM system. The misclassification of adversarial data points by the trained models can be observed by visualizing the data using t-distributed stochastic neighbor embedding (t-SNE) dimension reduction. In Figure <ref type="figure" target="#fig_3">6a</ref>, data points related to the normal class, a portion of the ball data points, and a portion of the inner race data points have made clusters with distinct boundaries. While parts of the ball data points and inner race data points as well as the data points related to the outer race class have overlapped. Although the high F1 score obtained in the classification of the original data points <ref type="bibr" target="#b0">(1)</ref> represents that there are no real overlaps of different classes in the feature space and the observed overlaps in 2D visualization are resulted from the data points that were located close to the boundary decisions.</p><p>The idea behind crafting adversarial samples is to perturb the data points close to decision boundaries to make them cross the boundaries and cause misclassifications without creating considerable changes in the data. This matter can be seen in 2D visualization of the adversarial data points crafted using FGSM (Figure <ref type="figure" target="#fig_3">6b</ref>) where the overlap areas consist of misclassified data points, while other clusters are classified correctly. The trained models showed different performances on adversarial samples. For example, the quadratic discriminant analysis model showed an F1 score of 0.52 for ε=0.05, while the k-nearest neighbors obtained a score of 0.99 for the same amount of perturbation. The ensemble model's F1 scores under the different extent of perturbation suggest that using an ensemble of different models in CBM systems can prevent a dramatic decrease in the systems' performance under attack compared with the CBM systems that use just one model. Two groups of defense strategies against adversarial machine learning have been suggested in the literature. The first group relies on modifying training algorithms, known as adversarial training, and the second group is based on the defensive mechanism to detect adversarial samples. By perturbing 20% of the training dataset using FGSM with ε=0.03, the models' performance improved in all ranges of perturbation (Figure <ref type="figure" target="#fig_4">7</ref>). Therefore, in the training phase of the CBM systems taking into account adversarial samples will robust the model. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.">Conclusions</head><p>This paper investigated how adversarial machine learning techniques can be used to target condition-based maintenance (CBM) systems by deceiving machine learning models. Adversarial machine learning was previously investigated in the computer vision domain, while their application can be extended beyond that to generate adversarial attacks on CBM systems. In this study, the fast gradient sign method, which was introduced for crafting adversarial images, was used to generate adversarial input data for multiple trained supervised models that were supposed to assess the health status of a bearing.</p><p>The considered models, including random forest, multilayer perceptron, decision tree, k-nearest neighbors, non-linear support vector machine, linear support vector machine, and quadratic discriminant analysis, were able to identify the health status of the bearing with F1 scores higher than 0.95. However, all the models except k-nearest neighbors experienced a drop in their performances on the adversarial samples. The F1 score for the models under attack decreased down to 0.52 (for the quadratic discriminant analysis model) with adding perturbation with the amount of 0.05 to the original data. The observed decline in the models' performance shows their vulnerability to assess the system's health when the collected data are perturbed using adversarial machine learning.</p><p>Modifying the training procedure by perturbing 20% of the training dataset improved the models' performance on the adversarial samples by increasing the minimum F1 score to 0.9. For example, the random forest model which experienced 0.17 decline in its F1 score on the crafted adversarial samples, could make it up to a 0.1 drop after the modification. This defense strategy was considered previously in the computer vision domain. However, a comprehensive investigation on developing defense strategies for CBM systems can be a consideration for future studies.</p><p>The objectives of adversarial machine learning attacks to CBM systems are to cause unnecessary or delayed maintenance by confusing the used machine learning models. Unnecessary maintenance results in extra costs and delayed maintenance can lead to catastrophic failures. The obtained results in this paper reveal that understanding the applicability of adversarial machine learning attacks in CBM systems is necessary in order to develop more robust machine learning-based CBM systems.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 .</head><label>1</label><figDesc>Figure 1. Condition-based maintenance architecture and threat model.</figDesc><graphic coords="1,146.00,459.01,78.00,74.00" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 3 .</head><label>3</label><figDesc>Figure 3. Experimental setup for collecting the bearing dataset [12].</figDesc><graphic coords="3,223.32,434.64,165.34,97.65" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 4 .</head><label>4</label><figDesc>Figure 4. F1 score for different machine learning algorithms on adversarial samples crafted using FGSM (ε: extent of the perturbation).</figDesc><graphic coords="5,183.60,513.31,244.77,163.70" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 6 .</head><label>6</label><figDesc>Figure 6. 2D t-SNE representation of actual classes and predicted classes by the decision tree model for a) original data points and b) crafted adversarial samples using FGSM with 𝜀=0.03.</figDesc><graphic coords="7,174.92,424.45,261.61,56.20" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Figure 7 .</head><label>7</label><figDesc>Figure 7. F1 score for different machine learning algorithms, which were trained on a dataset with 20% perturbed data points, on adversarial samples crafted using FGSM (ε: extent of the perturbation).</figDesc><graphic coords="8,183.60,72.00,244.74,164.70" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 1 .</head><label>1</label><figDesc>The size of the dataset.</figDesc><table><row><cell>Label</cell><cell>Sample Size</cell></row><row><cell>Ball</cell><cell>8162</cell></row><row><cell>Inner race</cell><cell>8162</cell></row><row><cell>Outer race</cell><cell>2056</cell></row><row><cell>Normal</cell><cell></cell></row></table><note><p>1-s time windows from the bearing data set to generate training and test datasets. Descriptions of the features can be found in the literature[22]</p><p>. Details about the size of the data are summarized in Table1</p><p>.</p></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>Table 2 .</head><label>2</label><figDesc>Classification F1 score for different algorithms using 5-fold cross-validation</figDesc><table><row><cell>Algorithm</cell><cell>F1 score</cell></row><row><cell>Random Forest</cell><cell>1</cell></row><row><cell>Multilayer Perceptron (3 Layers)</cell><cell>1</cell></row><row><cell>Decision Tree</cell><cell>1</cell></row><row><cell>K-Nearest Neighbors</cell><cell>0.99</cell></row><row><cell>Support Vector Machine (Kernel: RBF)</cell><cell>0.99</cell></row><row><cell>Quadratic Discriminant Analysis</cell><cell>0.96</cell></row><row><cell>Support Vector Machine (Linear)</cell><cell>0.95</cell></row><row><cell>Naïve Bayes</cell><cell>0.91</cell></row><row><cell>AdaBoost</cell><cell>0.57</cell></row></table></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">An overview of time-based and condition-based maintenance in industrial application</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Ahmad</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Kamaruddin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computers &amp; Industrial Engineering</title>
+		<imprint>
+			<biblScope unit="volume">63</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="135" to="149" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">A review on machinery diagnostics and prognostics implementing condition-based maintenance</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">K</forename><surname>Jardine</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Banjevic</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Mechanical systems and signal processing</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">7</biblScope>
+			<biblScope unit="page" from="1483" to="1510" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Adversarial machine learning-industry perspectives</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">S S</forename><surname>Kumar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Nyström</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Lambert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Marshall</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Goertzel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Comissoneru</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Swann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Xia</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE Security and Privacy Workshops (SPW)</title>
+		<meeting><address><addrLine>San Francisco, CA, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">Adversarial attacks on machine learning cybersecurity defences in industrial control systems</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Anthi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Williams</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Rhode</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Burnap</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Wedgbury</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note>arXiv preprint arXiv, p. 2004.05005</note>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Threat of adversarial attacks on deep learning in computer vision: A survey</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Akhtar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mian</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Access</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="page" from="14410" to="14430" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<title level="m" type="main">Explaining and harnessing adversarial examples</title>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">J</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Shlens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Szegedy</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="volume">6572</biblScope>
+			<biblScope unit="page">1412</biblScope>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint arXiv</note>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">on the cleverhans v2. 1.0 adversarial examples library</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Papernot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Faghri</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Carlini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Feinman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kurakin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Xie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Sharma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Brown</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Roy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Matyasko</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Behzadan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Hambardzumyan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y.-L</forename><surname>Juang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Sheatsle</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">Technical report</note>
+	<note>arXiv preprint arXiv, p. 1610.00768</note>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Adversarial machine learning beyond the image domain</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Zizzo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Hankin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Maffeis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Jones</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">56th ACM/IEEE Design Automation Conference (DAC)</title>
+		<meeting><address><addrLine>Las Vegas, NV, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<title level="m" type="main">Adversarial machine learning</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Vorobeychik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kantarcioglu</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<publisher>Morgan &amp; Claypool</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Generating adversarial examples against machine learning based intrusion detector in industrial control systems</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Gao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Deng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Fang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Cheng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Dependable and Secure Computing</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">Transferability in machine learning: from phenomena to blackbox attacks using adversarial samples</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Papernot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Mcdaniel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="1605" to="07277" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint arXiv</note>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<monogr>
+		<title level="m" type="main">Bearing data center: Seeded fault test data</title>
+		<ptr target="https://csegroups.case.edu/bearingdatacenter/pages/welcome-case-western-reserve-university-bearing-data-center-website" />
+		<imprint>
+			<date type="published" when="2021">1 2021</date>
+		</imprint>
+		<respStmt>
+			<orgName>Case Western Reserve University Bearing Data Center</orgName>
+		</respStmt>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">The supervised learning no-free-lunch theorems</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">H</forename><surname>Wolpert</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Soft computing and industry</title>
+		<meeting><address><addrLine>London</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2002">2002</date>
+			<biblScope unit="page" from="25" to="42" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<author>
+			<persName><forename type="first">M.-I</forename><surname>Nicolae</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Sinn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">N</forename><surname>Tran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Buesser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Rawat</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Wistuba</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Zantedeschi</surname></persName>
+		</author>
+		<title level="m">Adversarial Robustness Toolbox v1. 0.0,&quot; arXiv preprint arXiv</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="1807" to="01069" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

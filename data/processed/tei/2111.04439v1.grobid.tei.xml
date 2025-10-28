@@ -1,0 +1,1190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Addressing Privacy Threats from Machine Learning</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Mary</forename><forename type="middle">Anne</forename><surname>Smart</surname></persName>
+							<email>msmart@ucsd.edu</email>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Computer Science &amp; Engineering</orgName>
+								<orgName type="institution">University of California San Diego</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Addressing Privacy Threats from Machine Learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">268867B040EAA4D0FBDADAEF7AD6C5D5</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Every year at NeurIPS, machine learning researchers gather and discuss exciting applications of machine learning in areas such as public health, disaster response, climate change, education, and more 1 . However, many of these same researchers are expressing growing concern about applications of machine learning for surveillance <ref type="bibr" target="#b30">(Nanayakkara et al., 2021)</ref>. This paper presents a brief overview of strategies for resisting these surveillance technologies and calls for greater collaboration between machine learning and human-computer interaction researchers to address the threats that these technologies pose.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>A rapidly growing research area in computer science is that of privacy in machine learning <ref type="bibr" target="#b33">(Papernot et al., 2018;</ref><ref type="bibr" target="#b27">Mirshghallah et al., 2020;</ref><ref type="bibr" target="#b21">Liu et al., 2021)</ref>. Differentially-private machine learning algorithms and other privacy-preserving methods offer the opportunity to learn from sensitive datasets while limiting what can be revealed about any particular individual. However, some machine learning systems violate privacy-not as some unintended side-effect, but by design. The tools from privacypreserving machine learning are little use against machine learning models that are designed for biometric or behavioral profiling <ref type="bibr" target="#b16">(Katrina Ligett, 2020)</ref>; different approaches are needed.</p><p>Although a variety of definitions, frameworks, and taxonomies have been proposed, there is no single, universally agreed-upon definition of privacy <ref type="bibr" target="#b43">(Solove, 2008;</ref><ref type="bibr" target="#b31">Nissenbaum, 2009;</ref><ref type="bibr" target="#b1">Arora, 2019;</ref><ref type="bibr" target="#b26">McDonald and Forte, 2020)</ref>. This paper focuses on the specific set of privacy-related harms that are perpetrated or exacerbated by machine learning systems. In an age where powerful algorithms can process large datasets at high speeds, it becomes harder to find privacy by hiding in a crowd. Facial recognition algorithms can identify people in public spaces <ref type="bibr" target="#b11">(Garvie et al., 2016;</ref><ref type="bibr" target="#b44">Stark, 2019)</ref>; targeted advertising algorithms can exploit detailed user profiles to shape behavior at scale <ref type="bibr" target="#b53">(Zuboff, 2018)</ref>; and predictive policing algorithms can single out individuals for targeted surveillance <ref type="bibr" target="#b46">(Stroud, 2021)</ref>. These are the kinds of novel threats to privacy that machine learning systems enable.</p><p>A number of strategies have emerged for resisting machine learning systems that threaten privacy. This work provides an overview of such strategies and argues that addressing these privacy challenges effectively will require greater collaboration between the NeurIPS community and experts in the field of human-computer interaction (HCI). This paper discusses two overarching approaches for addressing threats to privacy posed by machine learning (although in some cases the line between the two may be blurred). The first approach involves challenging the data that feeds the malicious machine learning model, either through some form of obfuscation or through withholding information.</p><p>The second approach involves challenging the malicious model directly, perhaps by applying pressure to force the retirement of the model or by banning the harmful technology altogether. With either approach, there is a role for computer scientists to play. Machine learning systems run on data. First, data is required to train a machine learning model. Next, after the model has been deployed, new data is fed into the model to produce predictions. In practice, these stages of training and deployment may take place iteratively; for example, the deployed model may periodically be retired and replaced by a new model retrained on the latest data. One way to resist a machine learning system is to interfere with the data that feeds it. There are two main strategies that fall under this umbrella: obfuscation and withholding.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">Obfuscation</head><p>One way to evade machine learning surveillance systems is by strategically altering either 1) the data used to make predictions or 2) the data used to train the system. As an example of the first strategy, <ref type="bibr" target="#b40">Sharif et al. (2016)</ref> designed glasses that could fool facial recognition systems. The researchers exploited the fact that machine learning models tend to be vulnerable to adversarial examples. An adversarial example is a datapoint that has been modified slightly-such that a human would not perceive any difference but that a machine learning model misclassifies it. In recent years, researchers have developed a number of strategies for evading facial recognition using adversarial examples <ref type="bibr" target="#b12">(Harvey, 2017;</ref><ref type="bibr" target="#b48">Thys et al., 2019;</ref><ref type="bibr" target="#b8">Cherepanova et al., 2021;</ref><ref type="bibr" target="#b20">Li and Choi, 2021;</ref><ref type="bibr" target="#b6">Chandrasekaran et al., 2021)</ref>. These approaches aim to help individuals avoid surveillance but typically lack strong guarantees <ref type="bibr" target="#b36">(Rajabi et al., 2021;</ref><ref type="bibr" target="#b22">Lujo Bauer, 2021;</ref><ref type="bibr" target="#b7">Chen et al., 2021;</ref><ref type="bibr" target="#b35">Radiya-Dixit and Tramèr, 2021)</ref>.</p><p>An alternative to altering data at the time of prediction is to alter the data used to train the underlying machine learning model. This style of attack is known as a data poisoning attack. For example, TensorClog produces altered images that are designed to reduced the accuracy of deep learning models <ref type="bibr" target="#b41">(Shen et al., 2019)</ref>. Another example of data poisoning for anti-surveillance purposes can be found at Adversarial Fashion<ref type="foot" target="#foot_0">foot_0</ref> , a shop that sells clothing designed to trigger automated license plate readers and "[inject] junk data" <ref type="bibr" target="#b39">(Rose, 2021)</ref>.</p><p>Although the above examples focus on image classification tasks, similar obfuscation tactics have been used for resisting web tracking, loyalty card-based tracking, and more <ref type="bibr" target="#b2">(Brunton and Nissenbaum, 2015;</ref><ref type="bibr" target="#b18">Kulynych et al., 2020)</ref>. While obfuscation can be of practical utility, it can also have an expressive function <ref type="bibr" target="#b32">(Nissenbaum and Daniel, 2009;</ref><ref type="bibr" target="#b14">Howe, 2015)</ref>. For example, members of the "Dazzle Club" paint their faces with unusual makeup and conduct walks through the streets of London <ref type="bibr" target="#b47">(Tapper, 2020)</ref>. Although their makeup is designed to trick facial recognition systems, the group's real purpose is to protest police use of facial recognition.</p><p>Adversarial examples and data poisoning attacks are ongoing topics of study within the machine learning community. If these technologies are to be adopted as anti-surveillance tools, many practical and ethical challenges remain <ref type="bibr">(Brunton and</ref><ref type="bibr">Nissenbaum, 2015, 2017;</ref><ref type="bibr" target="#b9">Das, 2020;</ref><ref type="bibr" target="#b0">Albert et al., 2020)</ref>. How can such tools be made more accessible? How should such tools be evaluated? How should the risks of using obfuscation be communicated? Addressing these questions will require collaborations among machine learning experts, HCI researchers, activists, and other stakeholders.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">Withholding Data</head><p>An alternative to altering the data used by machine learning surveillance systems is to withhold the data. One simple example of this strategy is the use of privacy-enhancing technologies that block web tracking <ref type="bibr" target="#b25">(Mayer and Mitchell, 2012)</ref>. Withholding data by using tracker-blocking browser extensions may provide some privacy protection for individuals. However, data can also be withheld at the collective level <ref type="bibr" target="#b50">(Vincent et al., 2021)</ref>. For example, a data strike is a kind of digital boycott that can be used to apply public pressure to technology companies <ref type="bibr" target="#b49">(Vincent et al., 2019)</ref>. A related way of withholding data is through protest non-use; many people have simply stopped using certain platforms due to privacy and surveillance-related concerns <ref type="bibr" target="#b19">(Li et al., 2019)</ref>. Dazzle club walks, data strikes, and protest non-use all go one step beyond strategies that obfuscate or withhold data solely as a way of evading surveillance; rather, they use these data-focused strategies as starting points to launch broader critiques and campaigns against the surveillance systems themselves.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Challenging Models</head><p>Although the data-oriented approaches described so far offer some help in resisting machine learning surveillance systems, in many cases, policy approaches offer a more satisfactory solution. For example, while a variety of strategies exist for evading or fooling facial recognition, banning particular uses of facial recognition would make these strategies unnecessary. There exist a wide range of forms that regulation can take and a wide range of roles that computer scientists may play in the process.</p><p>One technique that can apply pressure to companies that develop and sell surveillance technologies is auditing. In the case of facial recognition, audits by researchers have helped call attention to the harm that this technology can cause. It is now well-established that many facial recognition systems perform poorly on darker-skinned subjects <ref type="bibr" target="#b4">(Buolamwini and Gebru, 2018;</ref><ref type="bibr" target="#b5">Buolamwini and Raji, 2019)</ref>; these accuracy issues have led to multiple wrongful arrests of Black men in the United States <ref type="bibr" target="#b13">(Hill, 2020)</ref>. The audits that uncovered racial bias in facial recognition systems placed pressure on companies that sell facial recognition technology to police. In fact, in June 2020, several major companies stopped selling facial recognition technology due to mounting pressure from researchers, protestors, and their own employees <ref type="bibr" target="#b15">(Johnson, 2020)</ref>. Nevertheless, audits have limitations; for example, audits may inadvertently "normalize tasks that are inherently harmful to certain communities" <ref type="bibr" target="#b37">(Raji et al., 2020)</ref>. Some proprietary technologies cannot be easily audited because access to the technology is restricted. Nevertheless, it is sometimes possible to reverse engineer a system and show that it can produce societal harm. For example, <ref type="bibr" target="#b23">Lum and Isaac (2016)</ref> simulate the effects of predictive policing systems and show how predictive policing can magnify existing biases and lead to the over-policing of low-income communities and communities of color. Many of the same risks involved with traditional audits are at play here as well. For example, a narrow focus on particular metrics could simply result in shifting goal posts -what <ref type="bibr" target="#b34">Polack (2020)</ref> refers to as algorithmic reformism. Therefore, when conducting algorithmic audits or when reverse engineering particular algorithms, it is important to consider the scope of the critique one hopes to make.</p><p>In some cases, researchers have partnered with community organizations in order to push back against surveillance technologies. Sometimes mathematical or technical language is used to insulate surveillance technologies from public criticism <ref type="bibr">(Stop LAPD Spying Coalition, 2018)</ref>. For example, an LAPD spokesperson infamously said of predictive policing: "It is math, not magic, and it is not racist" <ref type="bibr" target="#b28">(Moravec, 2019)</ref>. Technologists can debunk the myth that critics of surveillance technologies simply don't understand the math; they can also help parse technical language and demystify machine learning algorithms. However, it is important that researchers approach partnerships with humility; community organizers will bring their own areas of expertise to the table <ref type="bibr" target="#b51">(Whitney et al., 2021)</ref>.</p><p>Finally, it is important to acknowledge the academic community's complicity in building and upholding the very forms of surveillance discussed in this paper (Stop LAPD Spying Coalition, 2018). <ref type="bibr" target="#b17">Ko et al. (2020)</ref> argue that computer science educators have a responsibility to make the role of computing in injustice visible. At some universities, students have taken it upon themselves to educate each other about the harmful role of computing within US Immigration and Customs Enforcement<ref type="foot" target="#foot_1">foot_1</ref>  <ref type="bibr" target="#b52">(Zong, 2020)</ref>. These kinds of efforts will help the next generation of computer scientists think critically about the consequences of the technologies they create.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Conclusion</head><p>This paper has outlined a range of strategies for resisting surveillance technologies powered by machine learning. It concludes by echoing <ref type="bibr" target="#b9">Das (2020)</ref> in calling for participatory methods when designing anti-surveillance technologies such as those discussed in this paper. While participatory methods are relatively common in HCI research <ref type="bibr" target="#b29">(Muller and Druin, 2012)</ref>, they have received less attention from the machine learning community<ref type="foot" target="#foot_2">foot_2</ref> . The impact of data-driven surveillance technologies is not borne equally by all; rather, the brunt of these technologies is disproportionately borne by already marginalized people <ref type="bibr" target="#b24">(Marwick and boyd, 2018;</ref><ref type="bibr" target="#b10">Eubanks, 2018;</ref><ref type="bibr" target="#b38">Roberts, 2019)</ref>. Although not a panacea <ref type="bibr" target="#b42">(Sloan et al., 2020)</ref>, participatory approaches can help ensure that the design of anti-surveillance technologies is led by those who are disproportionately targeted by surveillance.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>1</head><figDesc>These topics are all the subjects of NeurIPS 2021 workshops. Human Centered AI Workshop @ NeurIPS 2021 arXiv:2111.04439v1 [cs.CY] 25 Oct 2021 2 Challenging Data</figDesc></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_0"><p>https://adversarialfashion.com/</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="3" xml:id="foot_1"><p>https://notechforice.com</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="4" xml:id="foot_2"><p>Some exceptions include the Participatory Approaches to Machine Learning ICML 2020 Workshop and the Resistance AI NeurIPS 2020 Workshop.</p></note>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Politics of adversarial machine learning</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Albert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Penney</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Schneier</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">S</forename><surname>Siva Kumar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Towards Trustworthy ML: Rethinking Security and Privacy for ML Workshop, Eighth International Conference on Learning Representations (ICLR)</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Decolonizing privacy studies</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Arora</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Television &amp; New Media</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="366" to="378" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<title level="m" type="main">Obfuscation: A user&apos;s guide for privacy and protest</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Brunton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Nissenbaum</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+			<publisher>MIT Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Obfuscation going forward: A research agenda</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Brunton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Nissenbaum</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Obfuscation Workshop</title>
+		<imprint>
+			<date type="published" when="2017">2017. 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Gender shades: Intersectional accuracy disparities in commercial gender classification</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Buolamwini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Gebru</surname></persName>
+		</author>
+		<idno>PMLR</idno>
+	</analytic>
+	<monogr>
+		<title level="m">Conference on fairness, accountability and transparency</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="77" to="91" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Actionable auditing: Investigating the impact of publicly naming biased performance results of commercial AI products</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Buolamwini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">D</forename><surname>Raji</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Conference on Artificial Intelligence, Ethics, and Society</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Face-off: Adversarial face obfuscation</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Chandrasekaran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Gao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Tang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Fawaz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Jha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Banerjee</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Proc. Priv. Enhancing Technol</title>
+		<imprint>
+			<biblScope unit="volume">2021</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="369" to="390" />
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<author>
+			<persName><forename type="first">L</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">Z H</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Xue</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Qian</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2102.11502</idno>
+		<title level="m">Thwarting privacy against trustworthy deep learning models</title>
+		<meeting><address><addrLine>Oriole</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Lowkey: Leveraging adversarial attacks to protect social media users from facial recognition</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Cherepanova</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Goldblum</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Foley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Duan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">P</forename><surname>Dickerson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Taylor</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Goldstein</surname></persName>
+		</author>
+		<ptr target="https://openreview.net/forum?id=hJmtwocEqzc" />
+	</analytic>
+	<monogr>
+		<title level="m">9th International Conference on Learning Representations, ICLR 2021, Virtual Event</title>
+		<meeting><address><addrLine>Austria</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2021">May 3-7, 2021</date>
+		</imprint>
+	</monogr>
+	<note>OpenReview.net, 2021</note>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Subversive AI: Resisting automated algorithmic surveillance with human-centered adversarial machine learning</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Das</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Resistance AI Workshop at NeurIPS 2020</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page">4</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">Automating inequality: How high-tech tools profile, police, and punish the poor</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Eubanks</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<publisher>St. Martin&apos;s Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<monogr>
+		<title level="m" type="main">The perpetual line-up: Unregulated police face recognition in America</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Garvie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Bedoya</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Frankle</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>Georgetown Law, Center on Privacy &amp; Technology</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">A</forename><surname>Harvey</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Hyperface</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Adam</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Harvey</surname></persName>
+		</author>
+		<ptr target="ahprojects.com/hyperface" />
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Another arrest, and jail time, due to a bad facial recognition match</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Hill</surname></persName>
+		</author>
+		<ptr target="https://www.nytimes.com/2020/12/29/technology/facial-recognition-misidentify-jail.html" />
+	</analytic>
+	<monogr>
+		<title level="j">The New York Times</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Surveillance countermeasures: Expressive privacy via obfuscation</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">C</forename><surname>Howe</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Datafied Research</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="88" to="98" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<author>
+			<persName><forename type="first">K</forename><surname>Johnson</surname></persName>
+		</author>
+		<ptr target="https://venturebeat.com/2020/06/10/ibm-walked-away-from-facial-recognition-what-about-amazon-and-microsoft/" />
+		<title level="m">IBM walked away from facial recognition. What about Amazon and Microsoft? VentureBeat</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<monogr>
+		<title level="m" type="main">The Elephant in the Room: The Problems that Privacy-Preserving ML Can&apos;t Solve</title>
+		<author>
+			<persName><forename type="first">Katrina</forename><surname>Ligett</surname></persName>
+		</author>
+		<ptr target="https://slideslive.com/38938421/the-elephant-in-the-room-the-problems-that-privacypreserving-ml-can-t-solve" />
+		<imprint>
+			<date type="published" when="2020-12">Dec. 2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">It is time for more critical CS education</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">J</forename><surname>Ko</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Oleson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Ryan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Register</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Xie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Tari</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Davidson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Druga</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Loksa</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Communications of the ACM</title>
+		<imprint>
+			<biblScope unit="volume">63</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<biblScope unit="page" from="31" to="33" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Pots: protective optimization technologies</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Kulynych</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Overdorf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Troncoso</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Gürses</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2020 Conference on Fairness, Accountability, and Transparency</title>
+		<meeting>the 2020 Conference on Fairness, Accountability, and Transparency</meeting>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page" from="177" to="188" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">How do people change their technology use in protest? understanding</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Vincent</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Tsai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Kaye</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Hecht</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the ACM on Human-Computer Interaction</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="page" from="1" to="22" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<title level="m" type="main">Deepblur: A simple and effective method for natural image obfuscation</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">S</forename><surname>Choi</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2104.02655</idno>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">When machine learning meets privacy: A survey and outlook</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Ding</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Shaham</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Rahayu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Farokhi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Lin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM Computing Surveys (CSUR)</title>
+		<imprint>
+			<biblScope unit="volume">54</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="1" to="36" />
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<monogr>
+		<author>
+			<persName><forename type="first">Lujo</forename><surname>Bauer</surname></persName>
+		</author>
+		<ptr target="https://3rd.obfuscationworkshop.org/exhibition/lujo-bauer" />
+		<title level="m">From Gibbons to Fooling ML-based Face Recognition</title>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<monogr>
+		<title level="m" type="main">To predict and serve? Significance</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lum</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Isaac</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="page" from="14" to="19" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Understanding privacy at the margins</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">E</forename><surname>Marwick</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Boyd</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">International Journal of Communication</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page">9</biblScope>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Third-party web tracking: Policy and technology</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">R</forename><surname>Mayer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">C</forename><surname>Mitchell</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2012 IEEE Symposium on Security and Privacy</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="413" to="427" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">The politics of privacy theories: Moving from norms to vulnerabilities</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Mcdonald</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Forte</surname></persName>
+		</author>
+		<idno type="DOI">10.1145/3313831.3376167</idno>
+		<ptr target="https://doi.org/10.1145/3313831.3376167" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2020 CHI Conference on Human Factors in Computing Systems, CHI &apos;20</title>
+		<meeting>the 2020 CHI Conference on Human Factors in Computing Systems, CHI &apos;20<address><addrLine>New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>Association for Computing Machinery</publisher>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page" from="1" to="14" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<monogr>
+		<author>
+			<persName><forename type="first">F</forename><surname>Mirshghallah</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Taram</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Vepakomma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Singh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Raskar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Esmaeilzadeh</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2004.12254</idno>
+		<title level="m">Privacy in deep learning: A survey</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<monogr>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">R</forename><surname>Moravec</surname></persName>
+		</author>
+		<ptr target="https://www.theatlantic.com/politics/archive/2019/09/do-algorithms-have-place-policing/596851/" />
+		<title level="m">Do algorithms have a place in policing? The Atlantic</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<monogr>
+		<title level="m" type="main">Participatory design: the third space in human-computer interaction. The Human-Computer Interaction Handbook</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">J</forename><surname>Muller</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Druin</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="1125" to="1153" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Unpacking the expressed consequences of AI research in broader impact statements</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Nanayakkara</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Hullman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Diakopoulos</surname></persName>
+		</author>
+		<idno type="DOI">10.1145/3461702.3462608</idno>
+		<ptr target="https://doi.org/10.1145/3461702.3462608" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2021 AAAI/ACM Conference on AI, Ethics, and Society, AIES &apos;21</title>
+		<meeting>the 2021 AAAI/ACM Conference on AI, Ethics, and Society, AIES &apos;21<address><addrLine>New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>Association for Computing Machinery</publisher>
+			<date type="published" when="2021">2021</date>
+			<biblScope unit="page" from="795" to="806" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<monogr>
+		<author>
+			<persName><forename type="first">H</forename><surname>Nissenbaum</surname></persName>
+		</author>
+		<title level="m">Privacy in Context: Technology, Policy, and the Integrity of Social Life</title>
+		<meeting><address><addrLine>USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>Stanford University Press</publisher>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<monogr>
+		<title level="m" type="main">Trackmenot: Resisting surveillance in web search</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Nissenbaum</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Daniel</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Sok: Security and privacy in machine learning</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Papernot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Mcdaniel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Sinha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">P</forename><surname>Wellman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2018 IEEE European Symposium on Security and Privacy (EuroS&amp;P)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="399" to="414" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">Beyond algorithmic reformism: Forward engineering the designs of algorithmic systems</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Polack</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Big Data &amp; Society</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page">2053951720913064</biblScope>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<monogr>
+		<title level="m" type="main">Data poisoning won&apos;t save you from facial recognition</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Radiya-Dixit</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Tramèr</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2106.14851</idno>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<analytic>
+		<title level="a" type="main">On the (im) practicality of adversarial perturbation for image privacy</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Rajabi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">B</forename><surname>Bobba</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Rosulek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Wright</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W.-C</forename><surname>Feng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings on Privacy Enhancing Technologies</title>
+		<meeting>on Privacy Enhancing Technologies</meeting>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">Saving face: Investigating the ethical concerns of facial recognition auditing</title>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">D</forename><surname>Raji</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Gebru</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Mitchell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Buolamwini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Denton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the AAAI/ACM Conference on AI, Ethics, and Society</title>
+		<meeting>the AAAI/ACM Conference on AI, Ethics, and Society</meeting>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page" from="145" to="151" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<monogr>
+		<title level="m" type="main">Digitizing the carceral state</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">E</forename><surname>Roberts</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<monogr>
+		<title level="m" type="main">Paint Box vs Black Box: Using Art to Bring Accountability to AI and Surveillance</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Rose</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2021-03">Mar. 2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<analytic>
+		<title level="a" type="main">Accessorize to a crime: Real and stealthy attacks on state-of-the-art face recognition</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Sharif</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Bhagavatula</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Bauer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">K</forename><surname>Reiter</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2016 ACM SIGSAC Conference on Computer and Communications Security</title>
+		<meeting>the 2016 ACM SIGSAC Conference on Computer and Communications Security</meeting>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="1528" to="1540" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title level="a" type="main">Tensorclog: An imperceptible poisoning attack on deep neural network applications</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Shen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Ma</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Access</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="page" from="41498" to="41506" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b42">
+	<analytic>
+		<title level="a" type="main">Participation is not a design fix for machine learning</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Sloan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Moss</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Awomolo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Forlano</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the International Conference on Machine Learning</title>
+		<meeting>the International Conference on Machine Learning<address><addrLine>Vienna, Austria</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page" from="1" to="7" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b43">
+	<monogr>
+		<title level="m" type="main">Understanding privacy</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">J</forename><surname>Solove</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b44">
+	<analytic>
+		<title level="a" type="main">Facial recognition is the plutonium of AI. XRDS: Crossroads</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Stark</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The ACM Magazine for Students</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="50" to="55" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b45">
+	<monogr>
+		<title level="m">Stop LAPD Spying Coalition. Before the bullet hits the body: Dismantling predictive policing in Los Angeles</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b46">
+	<monogr>
+		<title level="m" type="main">Heat listed. The Verge</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Stroud</surname></persName>
+		</author>
+		<ptr target="https://www.theverge.com/22444020/heat-listed-csk-entry" />
+		<imprint>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b47">
+	<monogr>
+		<title level="m" type="main">Hiding in plain sight: activists don camouflage to beat met surveillance. The Guardian</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Tapper</surname></persName>
+		</author>
+		<ptr target="https://www.theguardian.com/world/2020/feb/01/privacy-campaigners-dazzle-camouflage-met-police-surveillance" />
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b48">
+	<analytic>
+		<title level="a" type="main">Fooling automated surveillance cameras: Adversarial patches to attack person detection</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Thys</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Van Ranst</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Goedeme</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) Workshops</title>
+		<meeting>the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) Workshops</meeting>
+		<imprint>
+			<date type="published" when="2019-06">June 2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b49">
+	<analytic>
+		<title level="a" type="main">Data Strikes&quot;: Evaluating the effectiveness of a new form of collective action against technology companies</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Vincent</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Hecht</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Sen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">The World Wide Web Conference</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="1931" to="1943" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b50">
+	<analytic>
+		<title level="a" type="main">Data leverage: A framework for empowering the public in its relationship with technology companies</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Vincent</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Tilly</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Chancellor</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Hecht</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2021 ACM Conference on Fairness, Accountability, and Transparency</title>
+		<meeting>the 2021 ACM Conference on Fairness, Accountability, and Transparency</meeting>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+			<biblScope unit="page" from="215" to="227" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b51">
+	<analytic>
+		<title level="a" type="main">HCI tactics for politics from below: Meeting the challenges of smart cities</title>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">D</forename><surname>Whitney</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Naval</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Quepons</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Singh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">R</forename><surname>Rick</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Irani</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2021 CHI Conference on Human Factors in Computing Systems</title>
+		<meeting>the 2021 CHI Conference on Human Factors in Computing Systems</meeting>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+			<biblScope unit="page" from="1" to="15" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b52">
+	<analytic>
+		<title level="a" type="main">From individual consent to collective refusal: Changing attitudes toward (mis)use of personal data</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Zong</surname></persName>
+		</author>
+		<idno type="DOI">10.1145/3433140</idno>
+		<ptr target="https://doi.org/10.1145/3433140" />
+	</analytic>
+	<monogr>
+		<title level="j">XRDS</title>
+		<idno type="ISSN">1528-4972</idno>
+		<imprint>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="26" to="29" />
+			<date type="published" when="2020-12">Dec. 2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b53">
+	<monogr>
+		<title level="m" type="main">The Age of Surveillance Capitalism: The Fight for a Human Future at the New Frontier of Power</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Zuboff</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note>1st edition</note>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

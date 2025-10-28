@@ -1,0 +1,903 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Dex: Incremental Learning for Complex Environments in Deep Reinforcement Learning</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2017-06-19">19 Jun 2017</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Nick</forename><surname>Erickson</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Science and Engineering</orgName>
+								<orgName type="institution">University of Minnesota</orgName>
+								<address>
+									<postCode>55455</postCode>
+									<settlement>Twin Cities Minneapolis</settlement>
+									<region>MN</region>
+								</address>
+							</affiliation>
+						</author>
+						<author role="corresp">
+							<persName><forename type="first">Qi</forename><surname>Zhao</surname></persName>
+							<email>qzhao@cs.umn.edu</email>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Science and Engineering</orgName>
+								<orgName type="institution">University of Minnesota</orgName>
+								<address>
+									<postCode>55455</postCode>
+									<settlement>Twin Cities Minneapolis</settlement>
+									<region>MN</region>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Dex: Incremental Learning for Complex Environments in Deep Reinforcement Learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2017-06-19">19 Jun 2017</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">321352897A9EF584D1BB6FD15618DFAA</idno>
+					<idno type="arXiv">arXiv:1706.05749v1[stat.ML]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>This paper introduces Dex, a reinforcement learning environment toolkit specialized for training and evaluation of continual learning methods as well as general reinforcement learning problems. We also present the novel continual learning method of incremental learning, where a challenging environment is solved using optimal weight initialization learned from first solving a similar easier environment. We show that incremental learning can produce vastly superior results than standard methods by providing a strong baseline method across ten Dex environments. We finally develop a saliency method for qualitative analysis of reinforcement learning, which shows the impact incremental learning has on network attention.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Complex environments such as Go, Starcraft, and many modern video-games present profound challenges in deep reinforcement learning that have yet to be solved. They often require long, precise sequences of actions and domain knowledge in order to obtain reward, and have yet to be learned from random weight initialization. Solutions to these problems would mark a significant breakthrough on the path to artificial general intelligence.</p><p>Recent works in reinforcement learning have shown that environments such as Atari games <ref type="bibr" target="#b1">[2]</ref> can be learned from pixel input to superhuman expertise <ref type="bibr" target="#b8">[9]</ref>. The agents start with randomly initialized weights, and learn largely from trial and error, relying on a reward signal to indicate performance. Despite these successes, complex games, including those where rewards are sparse such as Montezuma's Revenge, have been notoriously difficult to learn. While methods such as intrinsic motivation <ref type="bibr" target="#b2">[3]</ref> have been used to partially overcome these challenges, we suspect this becomes intractable as complexity increases. Additionally, as environments become more complex, they will become more expensive to simulate. This poses a significant problem, since many Atari games already require upwards of 100 million steps using state-of-the-art algorithms, representing days of training on a single machine.</p><p>Thus, it appears likely that complex environments will become too costly to learn from randomly initialized weights, due both to the increased simulation cost as well as the inherent difficulty of the task. Therefore, some form of prior information must be given to the agent. This can be seen with AlphaGo <ref type="bibr" target="#b17">[18]</ref>, where the agent never learned to play the game without first using supervised learning on human games. While supervised learning certainly has been shown to aid reinforcement learning, it is very costly to obtain sufficient samples and requires the environment to be a task humans can play with reasonable skill, and is therefore impractical for a wide variety of important reinforcement learning problems.</p><p>In this paper we introduce Dex, the first continual reinforcement learning toolkit for training and evaluating continual learning methods. We present and demonstrate a novel continual learning method we call incremental learning to solve complex environments. In incremental learning, environments are framed as a task to be learned by an agent. This task can be split into a series of subtasks that are solved simultaneously.</p><p>Similar to how natural language processing and object detection are subtasks of neural image caption generation <ref type="bibr" target="#b22">[23]</ref>, reinforcement learning environments also have subtasks relevant to a given environment. These subtasks often include player detection, player control, obstacle detection, enemy detection, and player-object interaction, to name a few. These subtasks are common to many environments, but they are often sufficiently different in function and representation that reinforcement learning algorithms fail to generalize them across environments, such as in Atari. These critical subtasks are what expert humans utilize to quickly learn in new environments that share subtasks with previously learned environments, and are a reason for humans superior data efficiency in learning complex tasks.</p><p>In the case of deliberately similar environments, we can construct the subtasks such that they are similar in function and representation that an agent trained on the first environment can accelerate learning on the second environment due to its preconstructed subtask representations, thus partially avoiding the more complex environment's increased simulation cost and inherent learning difficulty.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Related work</head><p>Transfer learning <ref type="bibr" target="#b12">[13]</ref> is the method of utilizing data from one domain to enhance learning of another domain. While sharing significant similarities to continual learning, transfer learning is applicable across all machine learning domains, rather than being confined to reinforcement learning. For example, it has had significant use with using networks trained on ImageNet <ref type="bibr" target="#b4">[5]</ref> to accelerate or enhance learning and classification accuracy by finetuning in a variety of vision tasks <ref type="bibr" target="#b11">[12]</ref>.</p><p>While the concept of continual learning, where an agent learns from a variety of experiences to enhance future learning, has been defined for some time <ref type="bibr" target="#b14">[15]</ref>, it has remained largely untapped by recent powerful algorithms that are best fit to benefit from its effects. Recent work has been done with Progressive Neural Networks <ref type="bibr" target="#b16">[17]</ref>, where transfer learning was used to apply positive transfer in a variety of reinforcement learning domains. However, our method differs in that it does not add additional parameters for each environment or use lateral connections to features that result in increased memory space and training time.</p><p>Recent work related to subtask utilization comes from Kirkpatrick et al. <ref type="bibr" target="#b6">[7]</ref>, which shows that expertise can be maintained on multiple environments that have not been experienced for a long time through elastic weight consolidation (EWC). Viable weights were found that simultaneously achieve expertise in a variety of Atari games. Incremental learning similarly trains on multiple environments, but with the goal of achieving enhanced expertise in a single environment, rather than expertise in all environments. We leave it to future work to overcome this limitation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Dex</head><p>Dex is a novel deep reinforcement learning toolkit for training and evaluating agents on continual learning methods. Dex acts as a wrapper to the game Open Hexagon <ref type="bibr" target="#b15">[16]</ref>, sending screen pixel information, reward information and performing actions via an OpenAI Gym like API <ref type="bibr" target="#b3">[4]</ref>. Dex contains hundreds of levels, each acting as their own environment. These environments are collected into groups of similar environments for the task of continual learning. Dex environments vary greatly in difficulty, ranging from very simple levels where agents achieve superhuman performance in less that 4 minutes, to levels we consider far more complex than any previously learned environments.</p><p>Refer to videos available at github.com/innixma/dex of the Dex environments shown in Figure <ref type="figure" target="#fig_0">1</ref>, as screenshots do not capture the environment complexity.</p><p>Open Hexagon is a game involving navigating a triangle around a center figure to avoid incoming randomly generated walls. Screenshots of various environments from the game are shown in Figure <ref type="figure" target="#fig_0">1</ref>. The game progresses regardless of player action, and thus the player must react to the environment in real-time. If the player contacts a wall the game is over. At each point in the game, a player has only three choices for actions: move left, right, or stay put. It is a game of survival, with the score and thus total reward being the survival time in seconds. Open Hexagon contains hundreds of levels drastically ranging in difficulty, yet they each contain many similar core subtasks. This makes Open Hexagon an ideal platform for testing continual learning methods. The small triangle is the player that must be rotated around the center to avoid incoming walls. Many of these environments incorporate various distortion effects that are not evident in screenshots. Reversal periodically flips game controls, and some environments even add additional actions, such as in Arithmetic, which requires the agent to correctly solve various math equations during the level through the numpad.</p><p>The Dex toolkit along with its source code is available at github.com/innixma/dex.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Incremental learning</head><p>The novel continual learning method of incremental learning is defined as follows.</p><p>In the formal case, an agent must learn from a series of n environments E, each with identical legal game actions A = {1, ..., K}. Note that any series of environments can be made to have the same action space by considering A to be the superset of all possible actions in each game, with new actions performing identically to no action, assuming no action is within the action space.</p><p>Each environment E i has a corresponding cost per step c i &gt; 0 and a step count s i ≥ 0, indicating the number of steps taken in that environment. Typically, more complex environments will have a higher cost per step. A resource maximum M is given, which indicates the total amount of data that can be gathered, shown in the following inequality:</p><formula xml:id="formula_0">M ≥ n i=1 c i s i</formula><p>The problem is to maximize the mean total reward R of the agent in the goal environment, E n , while maintaining the above inequality. Steps can be taken in any order from the n environments, and there is no assumed correlation between the environments beyond their data and action dimensions. While it may appear an optimal solution to only examine and gather data from E n , as has been done for virtually all reinforcement learning algorithms in the past, this is not always the case. For example, if E n-1 and E n are highly correlated, and c n-1 &lt;&lt; c n , then training with E n-1 may be superior due to its lesser cost. Additionally, an environment E n-1 may contain important aspects of E n , while avoiding state spaces and rewards that are not useful for training, potentially allowing training on E n-1 to be optimal, even if c n-1 &gt; c n .</p><p>By taking environments E to represent all real environments with their respective costs, the solution to this problem corresponds to the globally optimal sequence of training steps to achieve maximum performance with a finite amount of computational resources for a given algorithm. It therefore necessarily contains the solution of achieving artificial general intelligence with minimal resources.</p><p>Unfortunately, this has several drawbacks. Most importantly, the selection of the optimal environments is not obvious, and their order even less so.</p><p>While this formal definition is useful to define incremental learning, the following simplified version will be what this paper focuses on. In the simplified case, all variables are the same, except that steps must be taken in environments sequentially, without going back to previous environments. Thus, once a step has been taken in E i , no steps may be taken in future environments E j where j &lt; i. Furthermore, it is assumed that the environments are correlated, where environment E i-1 contains a subset of subtasks in environment E i , with environment E i being typically harder than environment E i-1 .</p><p>The intuition behind this simplified case is that simple environments are both cheap to simulate and easy to learn, and that the features and strategies learned from the simple environment could transfer to a more difficult correlated environment. This process can be done repeatedly, producing a compounding acceleration of learning as additional useful incremental environments are added. Thus, the general process of incremental environment selection is to use easier subsets of the goal environment. Furthermore, this means that every environment E i in a simplified incremental learning problem can be seen as the goal environment in an easier problem containing E 1:i .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Baseline learning algorithm and model architecture</head><p>To analyse the effectiveness of incremental learning, our agents learned environments from Dex. For training agents, we use Asynchronous Advantage Actor-Critic (A3C) framework introduced in <ref type="bibr" target="#b9">[10]</ref>, coupled with the network architecture described below.</p><p>ConvNet implementation details. All Dex experiments were learned by a network with the following architecture. The network takes as input a series of 2 consecutive 42 × 42 grayscale images of a game state. It is then processed through a series of 3 convolutional layers, of stride 1 × 1 and size 5 × 5, 4 × 4, and 3 × 3 with filter counts of 32, 64, and 64 respectively. Between each pair of convolutional layers is a 2 dimensional maxpooling layer, of size 2 × 2. The intermediate output is then flattened and processed by a dense layer of 512 nodes. The output layers are identical to those specified for A3C. All convolutional layers and maxpooling layers are zero-padded. This results in an network with approximately 4,000,000 parameters. All intermediate layers are followed by rectified linear units (ReLU) <ref type="bibr" target="#b10">[11]</ref>, and Adam is used for the optimizer, with a learning rate of 10 -3 . Learning rate is not changed over the course of training as opposed to Mnih et al. <ref type="bibr" target="#b9">[10]</ref>, but instead stays constant. A gamma of 0.99 is used, along with n-step reward <ref type="bibr" target="#b13">[14]</ref> with n = 4 , which is used to speed up value propagation in the network, at a cost of minor instability in the learning. Training is done with batches of 128 samples. The architecture was created using TensorFlow 1.1.0 <ref type="bibr" target="#b0">[1]</ref>, and Keras 2.0.3.</p><p>Since Dex runs in real time, a slightly altered method of learning was utilized to avoid inconsistent time between steps. Our implemented A3C was modified to work in an offline manner, with experience replay as done in Deep-Q Networks <ref type="bibr" target="#b7">[8]</ref>. This is a naive approximation to the more complex ACER algorithm <ref type="bibr" target="#b21">[22]</ref>. While this does destabilize the algorithm, which bases its computations on data being representative of the network in its current state, the agents are still able to learn the environments and significantly outperform Double Deep-Q Networks <ref type="bibr" target="#b19">[20]</ref>, thus serving as a reasonable baseline.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">Experiments</head><p>So far, we have performed experiments on ten different environments in Dex for incremental learning. These ten environments are split into two incremental learning sets of three and seven environments.</p><p>The first set will be referred to as a, and deals with increasingly complex patterns. The second set will be referred to as b, and deals with increasingly complex task representation. The results show that incremental learning can have a significant positive impact on learning speed and task performance, but can also lead to bad initializations when trained on overly simplistic environments.</p><p>Code to reproduce the experiments in this paper will be released at a future date.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.1">Setup</head><p>In the following experiments, we naively assume that achieving near optimal performance in E i with minimal resources requires as a prerequisite learning E i-1 with minimal resources. This proceeds downward to the base case of E 1 , which can be considered a trivially solvable environment from random weight initialization. This assumption is used to simplify training. Furthermore, due to the exploratory nature of the baseline experiments, the costs per step are ignored, as we seek only to show that positive feature transfer is occurring, rather than optimizing the feature transfer itself, which we leave for future work.</p><p>All environments are learned with identical architecture, algorithm and hyperparameters. We act and gather data on the environments 50 times per second. We use an -greedy policy with = 0.05, and a replay memory size of 40,000. Replay memory is initialized by a random agent. For all experiments, agents are trained with 75 batches after each episode. Total reward is equal to the number of seconds survived in the environment each episode. Mean reward is calculated from an hour of testing weights without training. Each episode scales in difficulty indefinitely the longer the agent survives.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.2">Models</head><p>We evaluate four different types of models in this experiment. The first is a random agent for comparison. The second is the baseline, which is the standard reinforcement learning training method.</p><p>To establish the baseline, each environment E i is trained on from random initialization for one hour, equivalent to roughly 150,000 training steps. The weights which achieve the maximum total reward in a single episode are selected as the output weights from the training, called w i .</p><p>A third model, which we shall call initial, is the initial weights to the incremental learning method before continued training. Thus, for environment E i this model uses weights w i-1 . This is used to measure the correlation between the two environments. We would expect uncorrelated environments to result in near random agent reward for initial.</p><p>To establish the incremental learning agents, for each environment E i we take the weights w i-1 outputted by the baseline, using them as the initial weights to training on E i for an additional hour.</p><p>The weights outputted by this method we call w i .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.3">Results and Observations</head><p>The results can be found in Table <ref type="table" target="#tab_0">1</ref> and Table <ref type="table" target="#tab_1">2</ref>.</p><p>As can be seen in Table <ref type="table" target="#tab_0">1</ref>, incremental learning provided superior or roughly equivalent results on every environment in set b, with some environments such as b 3 and b 4 experiencing substantial increases in maximum reward, with the incrementally learned b 4 achieving nearly triple the baseline in both maximum and mean reward. However, on the harder environments, there was not significant improvement seen. This is likely because the earlier environments were not sufficiently learned along with the fact that the tasks were generally too difficult to learn in one hour of training, indicated by the near random performance of b 6 and b 7 on both the baseline and incremental methods.</p><p>The other set, results shown in Table <ref type="table" target="#tab_1">2</ref> for set a, show that incremental learning was harmful in the case of a 2 . This is likely due to the difference in the wall patterns of a 1 and a 2 . In a 1 , a single wall is on the screen at a time, requiring a simple avoidance. In a 2 , up to four separate walls occupy the screen at once, requiring a more complex method involving future planning and understanding of which walls are more important in a given state. We suspect that learning a 1 leads the agent to This table shows the max and mean reward for an agent on the given environment E with a given training method, as described in the experimental setup. Here we observe that incremental learning provided superior results to the baseline in nearly all environments, particularly b 3 and b 4 . This table shows the max and mean reward for an agent on the given environment E with a given training method, as described in the experimental setup. Here we observe that incremental learning provided inferior results to the baseline in the a 2 environment, likely due to overfitting.</p><p>overtrain on a variety of weights, hindering future learning. This indicates that certain environments may be too simple to include in incremental learning, as a 1 can be learned to a reward of over 700 in less than four minutes.</p><p>Additionally, the initial model shows that the environments are correlated, with generally far superior performance than random, despite never training on the environment explicitly. In the case of b 4 , it is nearly equal to the baseline in the maximum metric, indicating significant correlation. This is likely a reason for the greatly enhanced performance of incremental learning over the baseline in b 4 .</p><p>Note that these experimental results are strictly a simple baseline for both Dex and incremental learning, and suffer from instability due to the short timeline of training and lack of repeated experiments. This means that agents do not necessarily consistently improve throughout training, but rather may quickly improve to maximum performance followed by decreased performance for the remainder of training. We leave more comprehensive experiments to future work.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7">Visualization</head><p>To qualitatively analyze the effects of incremental learning on a networks weights, we develop a saliency visualization method based on Simonyan et al. <ref type="bibr" target="#b18">[19]</ref> for reinforcement learning. Heatmaps are generated with a given networks weights and an input image. The method for gathering the heatmaps is identical to Simonyan et al. <ref type="bibr" target="#b18">[19]</ref>, and thus equations and derivations shall not be repeated in this paper. The most likely action the network will take at a given frame is used for the action to minimize through the gradient. This is a difference from the supervised learning case, where the ground truth is used. In reinforcement learning, the ground truth is not known, and thus must be inferred, as done in Wang et al. <ref type="bibr" target="#b20">[21]</ref>. Results of the visualization on the trained weights of environment sets a and b can be seen in Figure <ref type="figure" target="#fig_1">2</ref> and Figure <ref type="figure" target="#fig_2">3</ref>.  As can be expected, saliency of a well performing trained agent will focus on the player location, being very sensitive to changes in a small region surrounding the player. This intuition is confirmed in the first row of Figure <ref type="figure" target="#fig_2">3</ref>. The agents trained on the easier environments, such as b 1 , b 2 , and b 3 , focus attention on the player and nearby threats. Interestingly, as the trained environment becomes more complex, the agent appears less developed, and increasingly focuses on irrelevant locations in the state, most prominent in the agent trained on b 7 , which explicitly avoids attention on the player and nearby threats, such as the walls. This indicates that the agent did not learn its environment sufficiently in the time it was given, due to the complexity of its training environment. This is further confirmed through the experimental results of b 6 and b 7 , which were near random.</p><p>Additionally, the saliency mappings show the correlation between the environments, as indicated by the similarity in saliency in w 1 and w 2 to w 3 in both Figure <ref type="figure" target="#fig_1">2</ref> and Figure <ref type="figure" target="#fig_2">3</ref>, despite never explicitly being trained on the environment that the state in the visualization is from.</p><p>Interestingly, the saliency mappings of the incrementally learned agents more closely resemble the mappings of the weights it was initialized to than the weights its environment learned without incremental learning. This suggests that a significant amount of the initialized weights are retained after incrementally learning.</p><p>Further visualizations are included as a video of realtime saliency of an agent episode at github.com/innixma/dex.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="8">Future work</head><p>We hope to expand the analysis done in this paper by investigating incremental learning chains involving more than two environments. This will more effectively explore the effects of incremental learning in complex problems. We also wish to extend the training time of experiments to allow for more complex environments such as those shown in Figure <ref type="figure" target="#fig_0">1</ref> to be learned, as well as to compare our method to Progressive Neural Networks <ref type="bibr" target="#b16">[17]</ref>. Incremental learning could be expanded to function as a feature extractor in reinforcement learning. This would allow a more contained action space for incremental learning tasks of varying domains, and is similar to the work done in Rusu et al. <ref type="bibr" target="#b16">[17]</ref>.</p><p>Additionally, training could be done separately on multiple environments and then combined to learn an environment that shares subproblems with all the previous environments. This would be a natural merging of incremental learning and elastic weight consolidation <ref type="bibr" target="#b6">[7]</ref>. It may also provide a synergistic effect to algorithms such as UNREAL <ref type="bibr" target="#b5">[6]</ref> which rely on auxiliary tasks. These tasks could act to maximize network utilization across multiple environments, potentially leading the network to better generalizations through incremental learning.</p><p>Finally, environments such as Montezuma's Revenge and Labyrinth <ref type="bibr" target="#b9">[10]</ref> which require exploration with sparse rewards are a natural expansion to the application of incremental learning. Developing incremental exploration environments could result in far superior performance on exploration tasks.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="9">Conclusion</head><p>The ability to learn and transfer knowledge across domains is essential to the advancement of agents that can solve complex tasks. This paper introduced the continual learning toolkit Dex for training and evaluation of continual learning methods. We proposed the method of incremental learning for deep reinforcement learning, and demonstrated its ability to accelerate learning and produce drastically superior results to standard training methods in multiple Dex environments, supporting the notion of avoiding randomly initialized weights and instead using continual learning techniques to solve complex tasks.</p><p>Source code for both the training methods used in this paper as well as the Dex toolkit source code can be found at github.com/innixma/dex.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure1: Dex environments. The small triangle is the player that must be rotated around the center to avoid incoming walls. Many of these environments incorporate various distortion effects that are not evident in screenshots. Reversal periodically flips game controls, and some environments even add additional actions, such as in Arithmetic, which requires the agent to correctly solve various math equations during the level through the numpad.</figDesc><graphic coords="3,111.27,338.09,60.19,60.19" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: Saliency mappings of a state from environment a 3 , with weights from set a. The first row consists of the trained baseline weights w 1 to w 3 . The second row consists of the incrementally learned weights w 2 to w 3 .</figDesc><graphic coords="7,222.84,381.27,166.31,110.87" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 3 :</head><label>3</label><figDesc>Figure 3: Saliency mappings of a state from environment b 3 , with weights from set b. The first row consists of the trained baseline weights w 1 to w 7 . The second row consists of the incrementally learned weights w 2 to w 7 .</figDesc><graphic coords="7,108.00,567.16,395.98,113.14" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 1 :</head><label>1</label><figDesc>Set b rewards Max</figDesc><table><row><cell>E</cell><cell cols="4">Random Initial Baseline Incremental</cell></row><row><cell>b 1</cell><cell>31.43</cell><cell>-</cell><cell>425.92</cell><cell>-</cell></row><row><cell>b 2</cell><cell>8.23</cell><cell>120.77</cell><cell>259.80</cell><cell>280.59</cell></row><row><cell>b 3</cell><cell>7.73</cell><cell>58.30</cell><cell>132.31</cell><cell>221.96</cell></row><row><cell>b 4</cell><cell>8.27</cell><cell>35.10</cell><cell>35.66</cell><cell>105.48</cell></row><row><cell>b 5</cell><cell>8.79</cell><cell>19.76</cell><cell>52.81</cell><cell>41.57</cell></row><row><cell>b 6</cell><cell>9.33</cell><cell>11.05</cell><cell>10.79</cell><cell>13.11</cell></row><row><cell>b 7</cell><cell>9.97</cell><cell>7.13</cell><cell>9.59</cell><cell>14.54</cell></row><row><cell>Mean</cell><cell></cell><cell></cell><cell></cell><cell></cell></row><row><cell>E</cell><cell cols="4">Random Initial Baseline Incremental</cell></row><row><cell>b 1</cell><cell>9.10</cell><cell>-</cell><cell>169.54</cell><cell>-</cell></row><row><cell>b 2</cell><cell>2.23</cell><cell>36.05</cell><cell>92.24</cell><cell>85.52</cell></row><row><cell>b 3</cell><cell>2.43</cell><cell>8.22</cell><cell>41.17</cell><cell>66.32</cell></row><row><cell>b 4</cell><cell>2.17</cell><cell>5.30</cell><cell>8.11</cell><cell>26.75</cell></row><row><cell>b 5</cell><cell>1.88</cell><cell>4.17</cell><cell>12.23</cell><cell>11.61</cell></row><row><cell>b 6</cell><cell>2.17</cell><cell>2.89</cell><cell>2.15</cell><cell>2.25</cell></row><row><cell>b 7</cell><cell>2.30</cell><cell>2.34</cell><cell>2.08</cell><cell>2.58</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>Table 2 :</head><label>2</label><figDesc>Set a rewards Max</figDesc><table><row><cell>E</cell><cell cols="4">Random Initial Baseline Incremental</cell></row><row><cell>a 1</cell><cell>40.73</cell><cell>-</cell><cell>771.67</cell><cell>-</cell></row><row><cell>a 2</cell><cell>19.65</cell><cell>53.37</cell><cell>445.85</cell><cell>86.57</cell></row><row><cell>a 3</cell><cell>10.85</cell><cell>15.69</cell><cell>49.50</cell><cell>59.10</cell></row><row><cell>Mean</cell><cell></cell><cell></cell><cell></cell><cell></cell></row><row><cell>E</cell><cell cols="4">Random Initial Baseline Incremental</cell></row><row><cell>a 1</cell><cell>8.93</cell><cell>-</cell><cell>717.93</cell><cell>-</cell></row><row><cell>a 2</cell><cell>7.46</cell><cell>18.34</cell><cell>87.06</cell><cell>18.31</cell></row><row><cell>a 3</cell><cell>6.01</cell><cell>7.32</cell><cell>9.81</cell><cell>13.52</cell></row></table></figure>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>Acknowledgments</head><p>We thank <rs type="person">Vittorio Romeo for designing Open Hexagon</rs>.</p></div>
+			</div>			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title level="m" type="main">Tensorflow: Large-scale machine learning on heterogeneous distributed systems</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Abadi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Agarwal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Barham</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Brevdo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Citro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">S</forename><surname>Corrado</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Davis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Dean</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Devin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ghemawat</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">J</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Harp</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Irving</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Isard</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Jia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Józefowicz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Kaiser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kudlur</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Levenberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Mané</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Monga</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Moore</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">G</forename><surname>Murray</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Olah</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Schuster</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Shlens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Steiner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Sutskever</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Talwar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">A</forename><surname>Tucker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Vanhoucke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Vasudevan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">B</forename><surname>Viégas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Vinyals</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Warden</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Wattenberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Wicke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zheng</surname></persName>
+		</author>
+		<idno>CoRR, abs/1603.04467</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">The arcade learning environment: An evaluation platform for general agents</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">G</forename><surname>Bellemare</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Naddaf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Veness</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Bowling</surname></persName>
+		</author>
+		<idno>CoRR, abs/1207.4708</idno>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<title level="m" type="main">Unifying count-based exploration and intrinsic motivation</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">G</forename><surname>Bellemare</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Srinivasan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Ostrovski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Schaul</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Saxton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Munos</surname></persName>
+		</author>
+		<idno>CoRR, abs/1606.01868</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<author>
+			<persName><forename type="first">G</forename><surname>Brockman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Cheung</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Pettersson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Schneider</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Schulman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Tang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Zaremba</surname></persName>
+		</author>
+		<idno>CoRR, abs/1606.01540</idno>
+		<title level="m">Openai gym</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Imagenet: A large-scale hierarchical image database</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Deng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Dong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Socher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L.-J</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Fei-Fei</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Computer Vision and Pattern Recognition</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2009">2009. 2009</date>
+			<biblScope unit="page" from="248" to="255" />
+		</imprint>
+	</monogr>
+	<note>CVPR 2009. IEEE Conference on</note>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<title level="m" type="main">Reinforcement learning with unsupervised auxiliary tasks</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Jaderberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Mnih</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">M</forename><surname>Czarnecki</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Schaul</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">Z</forename><surname>Leibo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Silver</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Kavukcuoglu</surname></persName>
+		</author>
+		<idno>CoRR, abs/1611.05397</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Overcoming catastrophic forgetting in neural networks</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Kirkpatrick</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Pascanu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Rabinowitz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Veness</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Desjardins</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">A</forename><surname>Rusu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Milan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Quan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Ramalho</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Grabska-Barwinska</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Hassabis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Clopath</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Kumaran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Hadsell</surname></persName>
+		</author>
+		<idno type="DOI">10.1073/pnas.1611835114</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the National Academy of Sciences</title>
+		<imprint>
+			<biblScope unit="volume">114</biblScope>
+			<biblScope unit="issue">13</biblScope>
+			<biblScope unit="page" from="3521" to="3526" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">Riedmiller. Playing atari with deep reinforcement learning</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Mnih</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Kavukcuoglu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Silver</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Graves</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Antonoglou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wierstra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A</forename></persName>
+		</author>
+		<idno>CoRR, abs/1312.5602</idno>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Human-level control through deep reinforcement learning</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Mnih</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Kavukcuoglu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Silver</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">A</forename><surname>Rusu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Veness</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">G</forename><surname>Bellemare</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Graves</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Riedmiller</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">K</forename><surname>Fidjeland</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Ostrovski</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<biblScope unit="volume">518</biblScope>
+			<biblScope unit="issue">7540</biblScope>
+			<biblScope unit="page" from="529" to="533" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<title level="m" type="main">Asynchronous methods for deep reinforcement learning</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Mnih</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">P</forename><surname>Badia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Mirza</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Graves</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">P</forename><surname>Lillicrap</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Harley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Silver</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Kavukcuoglu</surname></persName>
+		</author>
+		<idno>CoRR, abs/1602.01783</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Rectified linear units improve restricted boltzmann machines</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Nair</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 27th International Conference on Machine Learning (ICML-10)</title>
+		<editor>
+			<persName><forename type="first">J</forename><surname>Fürnkranz</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">T</forename><surname>Joachims</surname></persName>
+		</editor>
+		<meeting>the 27th International Conference on Machine Learning (ICML-10)</meeting>
+		<imprint>
+			<publisher>Omnipress</publisher>
+			<date type="published" when="2010">2010</date>
+			<biblScope unit="page" from="807" to="814" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Learning and transferring mid-level image representations using convolutional neural networks</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Oquab</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Bottou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Laptev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Sivic</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)</title>
+		<imprint>
+			<date type="published" when="2014-06">June 2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">A survey on transfer learning</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Pan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Yang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on knowledge and data engineering</title>
+		<imprint>
+			<biblScope unit="volume">22</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page" from="1345" to="1359" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Incremental multi-step q-learning</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Peng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">J</forename><surname>Williams</surname></persName>
+		</author>
+		<idno type="DOI">10.1023/A:1018076709321</idno>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning</title>
+		<imprint>
+			<date type="published" when="1996">1996</date>
+			<biblScope unit="volume">22</biblScope>
+			<biblScope unit="page" from="283" to="290" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Child: A first step towards continual learning</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">B</forename><surname>Ring</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning</title>
+		<imprint>
+			<date type="published" when="1997">1997</date>
+			<biblScope unit="volume">28</biblScope>
+			<biblScope unit="page" from="77" to="104" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<title level="m" type="main">Open hexagon</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Romeo</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<monogr>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">A</forename><surname>Rusu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">C</forename><surname>Rabinowitz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Desjardins</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Soyer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Kirkpatrick</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Kavukcuoglu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Pascanu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Hadsell</surname></persName>
+		</author>
+		<idno>CoRR, abs/1606.04671</idno>
+		<title level="m">Progressive neural networks</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Mastering the game of Go with deep neural networks and tree search</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Silver</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">J</forename><surname>Maddison</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Guez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Sifre</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Van Den Driessche</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Schrittwieser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Antonoglou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Panneershelvam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lanctot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Dieleman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Grewe</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Nham</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Kalchbrenner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Sutskever</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Lillicrap</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Leach</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Kavukcuoglu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Graepel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Hassabis</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/nature16961</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<idno type="ISSN">0028-0836</idno>
+		<imprint>
+			<biblScope unit="volume">529</biblScope>
+			<biblScope unit="issue">7587</biblScope>
+			<biblScope unit="page" from="484" to="489" />
+			<date type="published" when="2016-01">jan 2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title level="m" type="main">Deep inside convolutional networks: Visualising image classification models and saliency maps</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Simonyan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Vedaldi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Zisserman</surname></persName>
+		</author>
+		<idno>CoRR, abs/1312.6034</idno>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<monogr>
+		<title level="m" type="main">Deep reinforcement learning with double q-learning</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Van Hasselt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Guez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Silver</surname></persName>
+		</author>
+		<idno>CoRR, abs/1509.06461</idno>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<title level="m" type="main">Dueling network architectures for deep reinforcement learning</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>De Freitas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lanctot</surname></persName>
+		</author>
+		<idno>CoRR, abs/1511.06581</idno>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<monogr>
+		<title level="m" type="main">Sample efficient actor-critic with experience replay</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Bapst</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Heess</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Mnih</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Munos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Kavukcuoglu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>De Freitas</surname></persName>
+		</author>
+		<idno>CoRR, abs/1611.01224</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<monogr>
+		<title level="m" type="main">Bengio. Show, attend and tell: Neural image caption generation with visual attention</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Ba</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Kiros</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Cho</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">C</forename><surname>Courville</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Salakhutdinov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">S</forename><surname>Zemel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename></persName>
+		</author>
+		<idno>CoRR, abs/1502.03044</idno>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

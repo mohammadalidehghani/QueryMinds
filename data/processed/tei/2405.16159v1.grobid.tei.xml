@@ -1,0 +1,2752 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">A Declarative Query Language for Scientific Machine Learning</title>
+				<funder ref="#_dPtYa3c">
+					<orgName type="full">National Science Foundation</orgName>
+				</funder>
+				<funder ref="#_su7um3d">
+					<orgName type="full">National Institute of General Medical Sciences of the National Institutes of Health</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2024-05-25">25 May 2024</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Hasan</forename><forename type="middle">M</forename><surname>Jamil</surname></persName>
+							<email>jamil@uidaho.edu</email>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Idaho</orgName>
+								<address>
+									<settlement>Washington</settlement>
+									<region>DC</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Idaho</orgName>
+								<address>
+									<settlement>Washington</settlement>
+									<region>DC</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">A Declarative Query Language for Scientific Machine Learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2024-05-25">25 May 2024</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">CB7ED44CEB0A496013F16D8131052777</idno>
+					<idno type="DOI">10.1145/xxxxxxxxxx</idno>
+					<idno type="arXiv">arXiv:2405.16159v1[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:07+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>Translational semantics, declarative query language</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>The popularity of data science as a discipline and its importance in the emerging economy and industrial progress dictate that machine learning be democratized for the masses. This also means that the current practice of workforce training using machine learning tools, which requires low-level statistical and algorithmic details, is a barrier that needs to be addressed. Similar to data management languages such as SQL, machine learning needs to be practiced at a conceptual level to help make it a staple tool for general users. In particular, the technical sophistication demanded by existing machine learning frameworks is prohibitive for many scientists who are not computationally savvy or well versed in machine learning techniques. The learning curve to use the needed machine learning tools is also too high for them to take advantage of these powerful platforms to rapidly advance science. In this paper, we introduce a new declarative machine learning query language, called MQL, for naive users. We discuss its merit and possible ways of implementing it over a traditional relational database system. We discuss two materials science experiments implemented using MQL on a materials science workflow system called MatFlow.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>can it perform the most complex analysis a modern ML algorithm can?</p><p>The current state of ML is not accessible to most of potential users of data science <ref type="bibr" target="#b28">[29]</ref>, scientists in particular, and we concur with many researchers who believe that a significant barrier exists towards exploiting ML without a declarative platform <ref type="bibr" target="#b46">[47]</ref>. In the absence of a language similar to SQL, it is extremely difficult and unlikely for naive users and scientists alike to comprehend, let alone devise, a simple regression analysis code fragment easily executable on a machine. For example, the process to perform a clustering analysis <ref type="bibr" target="#b54">[55]</ref> (or classification <ref type="bibr" target="#b45">[46]</ref>) on the Boston housing dataset on Kaggle <ref type="bibr" target="#b49">[50]</ref> is by no means an easy task even for a good computational scientist, without adequate proficiency in regression analysis. It requires exploratory data analysis, principal component analysis, and more to get a sense of the data and to make a decision about the number of clusters that are appropriate, most of which can also be performed by a smart algorithm. Then there is the issue of accuracy and selection of the best model for the analysis <ref type="bibr" target="#b4">[5,</ref><ref type="bibr" target="#b29">30,</ref><ref type="bibr" target="#b65">66]</ref>.</p><p>The natural question then is, are all these details necessary, at least most of the time? Could these analysis algorithms be chosen by a query processor from an abstract request for prediction, clustering or classification based on the properties of the data sets the same way relational database engines select join algorithms, aggregate function algorithms or procedures for OLAP functions? Could optimization be possible and decided by query processors in ways analogous to SQL engines? While we do not currently have all the answers, we believe that the starting point should be the development of a suitable declarative query language for ML that will be simple in spirit and expressive enough to be able to support most, if not all, ML analysis needs on tabular data. To that end, our goal in this paper is to introduce an ML query language, called MQL (stands for Machine learning Query Language), capable of supporting three basic classes of ML tasks -prediction, classification and clustering. We stagger the language constructs in three tiers -data preparation (or wrangling), model construction, and ML analysis. These language constructs have distinct semantics and no inherent inter-dependencies.</p><p>Finally, as data science becomes mainstream <ref type="bibr" target="#b9">[10]</ref> and scientists increasingly rely on ML tools almost in every areas of science and engineering (e.g., <ref type="bibr" target="#b5">[6,</ref><ref type="bibr" target="#b43">44,</ref><ref type="bibr" target="#b52">53,</ref><ref type="bibr" target="#b70">71]</ref>), efforts are needed to lower the entry barriers to ML tools for scientists. As various user aids emerge (e.g., visual interfaces <ref type="bibr" target="#b41">[42,</ref><ref type="bibr" target="#b57">58]</ref>, natural language interfaces <ref type="bibr" target="#b55">[56]</ref>, ML tools <ref type="bibr" target="#b10">[11,</ref><ref type="bibr" target="#b11">12,</ref><ref type="bibr" target="#b50">51]</ref>, arresting ML application development costs <ref type="bibr" target="#b20">[21,</ref><ref type="bibr" target="#b27">28,</ref><ref type="bibr" target="#b40">41]</ref> are becoming imperative. New ways must be found to reduce access and application development costs involving AI and ML. Declarative query languages reduce the access barrier, and thus costs of data analysis by allowing minimally trained experts to use ML. We believe, declarative languages also are more amenable to automated code synthesis, e.g., natural language interfaces to scientific applications that can be constructed fully autonomously from software specifications, again expressed in natural language.</p><p>In the sections to follow, we first present MQL's syntax and semantics, and then discuss its merit over the contemporary declarative languages. Using two materials science experiments in our lab, we highlight how easy cost-inspiring it is to use MQL for scientific application using tabular data and traditional ML. While more research is needed to make MQL more expressive and powerful to support more sophisticated ML frameworks such as deep learning, the current edition of MQL paves the way for further extensions.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">RELATED WORK</head><p>The main purpose of a declarative language to reduce the humanmachine interfacing barriers by making machine instructions simple and easy to conceptualize. An all time great example of declarative languages is SQL. While this definition of declarativity is subjected to interpretation, the essence should remain. From this standpoint, a simple language for ML has to be highly abstract, and should support the so called naive users' use of ML tasks having only conceptual and rudimentary knowledge of this technology while the machines assume the bulk of the technical underpinnings and efficiency concerns <ref type="bibr" target="#b69">[70]</ref>. Given that ML tasks are complex, involved, and require subject expertise, meeting such levels of abstraction requirements in a human-machine interfacing language, or query language, is undoubtedly a tall order.</p><p>Nonetheless, several attempts were made to simplify the use of ML technologies for the masses. Among them, AutoML <ref type="bibr" target="#b58">[59]</ref> maybe the most prominent effort of all. While challenges remain <ref type="bibr" target="#b22">[23]</ref>, the emergence of large language models appear to address many of these challenges to some extent <ref type="bibr" target="#b68">[69]</ref> toward democratizing ML. AutoML, or Automated Machine Learning, is a set of techniques aimed at automating the process of building ML models. The basic idea behind AutoML is to make ML more accessible to users with limited ML expertise by automating some of the complex and timeconsuming tasks, such as data preprocessing, feature engineering, model selection, and hyperparameter optimization, involved in model development. By automating these tasks, AutoML aims to reduce the amount of manual effort required to build and deploy ML models, making it easier for non-experts to leverage the power of ML in their applications.</p><p>Variants of the ideas behind AutoML are also being investigated. Among them, MLBase <ref type="bibr" target="#b32">[33]</ref> attempted to help automating the pipeline by proposing a declarative language and an optimizer to lend a hand in balancing the efficiency aspects of declarativity that usually delegates this responsibility to the system. Despite the design goal, the language they support appears to retail procedural features still and is not abstract enough compared to languages such as SQL to have a wider appeal.</p><p>An early effort to develop a simpler ML front-end was a natural language interpreter called WOLFE <ref type="bibr" target="#b64">[65]</ref>. In approaches such as WOLFE, query understanding and mapping the intent into some form of executable code is employed, in WOLFE the code is written in TensorFlow. A similar translational approach is used in languages such as sql4ml <ref type="bibr" target="#b44">[45]</ref>, ML2SQL/MLearn <ref type="bibr" target="#b59">[60,</ref><ref type="bibr" target="#b60">61]</ref>, P6 <ref type="bibr" target="#b37">[38]</ref>, MLog <ref type="bibr" target="#b38">[39]</ref>, Datalog <ref type="bibr" target="#b72">[73]</ref>, and Dyna <ref type="bibr" target="#b71">[72]</ref>. The popularity of translational implementation of declarative languages to ML frameworks such as TensorFlow, PyTorch or SciKit Learn is not by accident. Rather it is convenience and a desire to leverage the community investments in powerful and a large body of algorithms for ML over a few decades. While a more powerful end-to-end ML systems are developed and mature, such as SystemML <ref type="bibr" target="#b15">[16]</ref>, SystemDS <ref type="bibr" target="#b14">[15]</ref>, End-ToEndML <ref type="bibr" target="#b51">[52]</ref>, Merlion <ref type="bibr" target="#b12">[13]</ref>, VeML <ref type="bibr" target="#b35">[36]</ref>, and Relax <ref type="bibr" target="#b33">[34]</ref>, we believe these translation grounded systems will continue to play a major role in democratizing ML.</p><p>In sql4ml, an SQL like ML instruction is mapped to TensorFlow script. However, the CREATE VIEW abstraction conceived can do little to hide the subject expertise users need to state the analysis needs defeating the purpose of a declarative language for ML. The MLearn system <ref type="bibr" target="#b59">[60]</ref> also do so using its ML2SQL mapping approach <ref type="bibr" target="#b60">[61]</ref>. The operator creation based approach is tedious and rests significant domain knowledge burden on the users. Dyna and P6 systems bring optimization and visualization capabilities into the declarative ML landscape. A more systematic investigation to deal with performance of AutoML engines show that ML pipelines efficiency can be improved using a predictive model <ref type="bibr" target="#b75">[76]</ref>. And in cases where automation is difficult, a human-in-the-loop approach may also help <ref type="bibr" target="#b73">[74]</ref>.</p><p>In MQL, however, we adopt a SQL-Centric approach, as opposed to DSL-Centric or UDF-Centric approaches <ref type="bibr" target="#b16">[17]</ref> and propose an entirely new declarative language for ML in the spirit of SQL even though we too rely on a translational approach to its implementation. While we present a mapping to SciKit Learn for its implementation as a proof of concept, we note that more needs to be done to make MQL a viable system for serious ML platform. In sections 5 and 6, we will present MQL's capabilities in scientific computing, and possible improvements respectively to elaborate further.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">MACHINE LEARNING QUERY LANGUAGE</head><p>With the intent to stay close to an SQL-like language, called MQL, we propose a syntax similar to SQL and design lower level operational procedures to assign a semantics to the declarative statements of MQL. MQL retains part of SQL flavor to leverage the community knowledge of SQL and reduce cognitive overload.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Syntax of MQL</head><p>Similar to SQL, MQL supports two basic statements -the GEN-ERATE statement for querying tables and CONSTRUCT statement for creating a ML model. While the GENERATE statement is able to exploit an existing model, it can also operate without one by generating its own model. 3.1.1 The GENERATE Statement. GENERATE statement stands at the level of SQL's SELECT statement and is the main workhorse of MQL. It operates on tabular data to make predictions, categorize objects and group sets of objects into bins. It has five basic clausesan ML class selection (one of PREDICTION, CLASSIFICATION and CLUSTER), optional object labeling, feature selection, a data set, a filter condition over the data set, and an input table of unknown cases (test set). GENERATE [DISPLAY OF] PREDICTION v [OVER s] | CLASSIFICATION INTO L1, L2, ..., Lp [OVER s] | CLUSTER OF k [USING MODEL ModelName | ALGORITHM AlgorithmName] [WITH MODEL ACCURACY P] [LABEL B1, B2, ..., Bm] [FEATURES A1, A2, ..., An FROM r1, r2, ..., rq WHERE c] In the above statement, 𝑟 𝑙 is a table over the scheme 𝑅 𝑙 , 𝑐 is a Boolean condition, 𝐴 𝑖 ∈ ∪ 𝑙 𝑅 𝑙 , 𝑠 is a table over the scheme ∪ 𝑗 𝐵 𝑗 ∪ 𝑖 𝐴 𝑖 , k is an integer, and 𝑣 ∈ ∪ 𝑙 𝑅 𝑙 , 𝐿 𝑘 ∈ 𝑑𝑜𝑚(𝑋 ) 1 . In this statement and in all the MQL statements, the vertical bar (|) means exclusive OR, and the square bracket ([]) means optional. 𝑣 in the PREDICTION clause is the target variable, and 𝐴 𝑖 s are the features. The optional LABEL clause identifies attributes 𝐵 𝑗 as the object identifiers for all the three ML tasks. The CLASSIFICATION clause classifies each object ∪ 𝑗 𝐵 𝑗 into one of 𝐿 𝑘 categories. The 𝑘 in CLUSTER clause is an integer expression that can include SQL aggregate functions over the tables 𝑟 𝑙 . Finally, the optional USING clause is meant to either use an existing model (MODEL option) generated using the CONSTRUCT clause (discussed next), or a specific ML algorithm (ALGORITHM option) for the generation of the model. As in SQL, WHERE is an optional clause, but unlike SQL, FROM is required. The OVER clause supplies the unknown test dataset over the scheme 𝐴 𝑖 ∪ 𝐵 𝑗 . The ACCURACY option accepts a threshold within the interval (0,1). 3.1.2 CONSTRUCT Statement. To create an explicit model, MQL uses the CONSTRUCT statement below. It stands at a level similar to SQL's CREATE TABLE statement, but is at the data level and more functional. It is able to generate a default model for prediction, classification or clustering, optionally using a specific algorithm for supervised or unsupervised learning. The TRAIN ON parameter N (similarly TEST ON) is an integer value less than the cardinality of the table 𝑟 , and can be expressed as an expression, possibly using SQL aggregate functions. While the expression for 𝑀 should be such that 𝑁 + 𝑀 ≤ |𝑟 | (where |𝑟 | = |𝑟 1 | × |𝑟 2 | × . . . × |𝑟 𝑛 |), MQL will not object if the condition 𝑁 + 𝑀 ≤ |𝑟 | is not met and will assign the eventual semantics entailed by these two expressions. In this statement, 𝐴 𝑖 is the feature vector over which the model is created. CONSTRUCT ModelName [AS SUPERVISED | UNSUPERVISED] FOR PREDICTION v | CLASSIFICATION INTO L1, L2, ..., Lp | CLUSTER OF k [USING AlgorithmName] [WITH MODEL ACCURACY P] TRAIN ON N TEST ON M FEATURES A1, A2, ..., An FROM r1, r2, ..., rn WHERE c 3.1.3 The INSPECT Statement. The INSPECT statement is similar to the UPDATE statement of SQL and helps editing or wrangling the tables. For attributes 𝐴 𝑖 , it allows the values in these columns to be categorized, missing values predicted, convert categories to continuous values and eliminate duplicate rows. This statement affords MQL the power to manipulate a table to make it suitable 1 𝑑𝑜𝑚 (𝑋 ) is the set of elements in the domain of the column 𝑋 , and 𝑋 ∈ ∪ 𝑖 𝐴 𝑖 . for a potential learning task fully autonomously by a smart preprocessing engine. INSPECT returns a table with a scheme of a relation reflective of the resulting table in the FROM clause. INSPECT A1 [CATEGORIZE INTO L1, L2, ..., Lx | IMPUTE | NUMERIZE AS E | DEDUPLICATE], A2 [CATEGORIZE INTO L1, L2, ..., Lx | IMPUTE | NUMERIZE AS E | DEDUPLICATE], ..., An [CATEGORIZE INTO L1, L2, ..., Lx | IMPUTE | NUMERIZE AS E | DEDUPLICATE] FROM r1, r2, ..., rn WHERE c</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Semantics of MQL</head><p>The semantics we assign to each of these statements are system and implementation specific. By that we mean that each system implementing these statements will play a major role in their meaning, efficiency, accuracy and performance. For example, if they are implemented in TensorFlow, as opposed to PyTorch or R, they will demonstrate different characteristics, i.e., the predictions made by underlying TensorFlow algorithms could be different from the Pytorch or SciKit-Learn based algorithms, and the prediction accuracies may vary. We consider this aspect of MQL as somewhat similar to SQL's optimization strategies. Only difference is in the case of MQL it is more about the quality of the predictions or the semantic interpretations of data. In this paper, we do not address these issues and only focus on generic semantics we expect from each of these statements.</p><p>For illustrative purposes, we use Kaggle's Boston housing market dataset <ref type="bibr" target="#b49">[50]</ref> as our example. This data has 506 observations with 13 continuous and 1 binary attributes stored as the file bostonHomes with the following interpretations (partial list, full list in <ref type="bibr" target="#b49">[50]</ref>):</p><p>(1) CRIM -per capita crime rate by town (2) ZN -proportion of residential land zoned for lots over 25,000 sq.ft.</p><p>(3) NOX -nitric oxides concentration (parts per 10 million) (4) DIS -weighted distances to five Boston employment centres (5) TAX -full-value property-tax rate per $10,000 (6) PTRATIO -pupil-teacher ratio by town (7) MEDV -Median value of owner-occupied homes in $1000's Many distinct analyses for this dataset by a large number of researchers point to how a smart query processor and optimizer could exploit them to develop processing strategies to meet user needs. Our goal, however, is not to delve into processing strategies or optimization opportunities except to offer these passing comments for interested readers. Instead, we refer to the Python code segment in Fig 2 <ref type="figure">that</ref> implements a linear regression model assuming a Pandas DataFrame "df" with columns MEDV, CRIM, ZN, NOX, DIS, TAX, PTRATIO. It splits the data into training and testing sets, standardizes the features, builds a linear regression model using SciKit-Learn, trains the model on the training set, evaluates it on the test set, and makes predictions. The number of epochs and other hyperparameters can be adjusted by a query processor for the dataset, as needed, to meet any user specified performance threshold. Similar code segments can be generated to implement the CONSTRUCT and INSPECT statements.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2.1">Query</head><p>Processing. Compared to SQL databases, ML databases and query processing are likely more nuanced, complex, and require more user involvement in library and algorithm selection, or code customization. Query processing for MQL currently needs additional instructions beyond the Python scripts similar to the one in Fig 2 , and are not explained further. A file handler has been implemented to bring data to the MQL store and link with the query processor. The directory path for the Boston housing data in CSV format can be included in the Python code segment or copied into the directory where the code is running.</p><p>The MQL query for the prediction of home values using the Boston housing data in Fig 1 can be submitted in command line mode in the MQL engine for execution. In this query, the median home value is being predicted for homes in the file homesNew given a subset of features in CRIM, ZN, NOX, DIS, TAX, PTRATIO. In the plot, the HomeNo in the file homesNew is used as label.  In this program, we first extract the features ('CRIM', 'ZN', 'NOX', 'DIS', 'TAX', 'PTRATIO') and the target ('MEDV') from the DataFrame. We then split the data into training and testing sets using train_test_split. Next, we create a Linear Regression model and train it on the training data using fit. We then make predictions on the test set using predict, and evaluate the model using mean squared error (mean_squared_error). On execution over the slightly sparse dataset in </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>GENERATE DISPLAY OF PREDICTION MEDV OVER homesNew LABEL HomeNo FEATURES CRIM, ZN, NOX, DIS, TAX, PTRATIO FROM bostonHomes</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">IMPLEMENTATION STRATEGY</head><p>We have implemented the MQL statements using SciKit-Learn over CSV datasets. Currently, we only support one table in CSV format in the FROM clause and no WHERE clause condition is allowed <ref type="foot" target="#foot_0">2</ref> . Note that these restrictions are not a limitation of the language and does not affect its expressive power.</p><p>While the current implementation is directly using Python over CSV files on Panda, a more serious implementation in PostgreSQL using User Defined Functions (UDFs) written in SQL and PL/Python <ref type="bibr" target="#b56">[57,</ref><ref type="bibr" target="#b61">62]</ref> is underway. Once completed, we should be able to compare performance of the current file based and the PostgreSQL based approaches to implementation and comment more on how these choices influence various ML query processing parameters in ways import pandas as pd df = pd.read_csv("bostonHomes.csv") from sklearn.model_selection import train_test_split from sklearn.linear_model import LinearRegression from sklearn.metrics import mean_squared_error # Assuming you have a DataFrame 'df' with columns 'MEDV', 'CRIM', 'ZN', 'NOX', 'DIS', 'TAX', 'PTRATIO' # Extracting features (CRIM, ZN, NOX, DIS, TAX, PTRATIO) and target (MEDV) X = df[['CRIM', 'ZN', 'NOX', 'DIS', 'TAX', 'PTRATIO']] y = df['MEDV'] # Splitting the data into training and testing sets X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42) # Creating a linear regression model model = LinearRegression() # Training the model model.fit(X_train, y_train) # Making predictions on the test set y_pred = model.predict(X_test) # Evaluating the model mse = mean_squared_error(y_test, y_pred) print("Mean Squared Error:", mse) # Printing the coefficients of the model print("Coefficients:", model.coef_) # Printing the intercept of the model print("Intercept:", model.intercept_) # Test set prediction from sklearn.impute import SimpleImputer test_samples = pd.DataFrame({ 'CRIM': [0.00632 , 0.50031, np.nan, 0.02731], 'ZN': [18, 7, 12, 0], 'NOX': [0.538, np.nan, np.nan, 0.469], 'DIS': [4.09, 3.20, 2.78, np.nan], 'TAX': [296, 107, 148, 242], 'PTRATIO': [15.3, 3.5, 11.6, np.nan]}) imputer = SimpleImputer(strategy='median') imputer.fit(X_train) X_test_imputed = imputer.transform(test_samples) X_test_imputed_df = pd.DataFrame(X_test_imputed, columns=['CRIM', 'ZN', 'NOX', 'DIS', 'TAX', 'PTRATIO']) predictions = model.predict(X_test_imputed_df) # Printing the predictions print("Predictions for the 4 test samples:", predictions) Figure 2: SciKit-Learn Python code for MQL query in Fig 1. HomeNo CRIM ZN NOX DIS TAX PTRATIO 1 0.00632 18 0.538 4.09 296 15.3 2 0.50031 7 -3.20 107 3.5 3 -12 -2.78 148 11.6 4 0.02731 0 0.469 -242 -Figure 3: Test data input table homesNew.  similar to P2D <ref type="bibr" target="#b26">[27]</ref> that also takes a similar translational approach.</p><p>Opportunities also exist to decide system defaults for DISPLAY OF, data wrangling for test data (e.g., assuming zero va;ue imputation), and so on.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Translational Semantics of MQL</head><p>One of the most convenient and effective implementation strategies for novel languages is to map it to a fully functional and well known language. Among the popular ML frameworks such as PyTorch, Keras, TensorFlow, XGBoost, MXNet and so, SciKit Learn probably is one of the most widely used. We choose SciKit Learn for its excellent support for tabular data analysis using traditional ML tasks, and the ease of use. In this section, we develop an algorithm 𝜏 to assign a translational semantics to all MQL programs P by mapping it to a SciKit Learn program S, i.e., 𝜏 (P) = 𝑆, such that 𝜇 (P) ≡ 𝜇 (𝑆), where 𝜇 is a meaning function.</p><p>An MQL program essentially is a sequence of one of three MQL statements -GENERATE, CONSTRUCT or INSPECT. Therefore, the meaning of a program P is the intended meaning of each of the statements in the sequence they are stated. As MQL is a contextindependent language, it is easy to see that if every MQL statement 𝑝 ∈ P could be translated into a SciKit Learn program S 𝑝 , i.e., 𝜏 (𝑝) = S 𝑝 , such that 𝜇 (𝑝) ≡ S 𝑝 , then the relationship 𝜇 (P) ≡ 𝜇 (S) will hold. We therefore, design our translation function 𝜏 to map P on a case by case basis. The operational model of MQL shown in  It should be noted that there is an inherent dependency ↼ among the MQL statements as follows. Although the semantics of the CONSTRUCT statements depends on the appropriate table representation conforming to the data types that can be adhered to by data wrangling operations using the INSPECT statements, MQL mandates that such an operation should be initiated by the user's program. In other words, invoking an INSPECT operation is not automatic even when CONSTRUCT ↼ INSPECT holds, and MQL expects the program to FAIL if CONSTRUCT is not executable due to datatype errors and not corrective step using INSPECT precedes it.</p><p>On the other hand, the dependency GENERATE ↼ CONSTRUCT is fully automatic. The dependency of the GENERATE statement on CONSTRUCT is manifested in two principal ways. First, when the ALGORITHM option is used and a new model generation is required as follows.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>GENERATE [DISPLAY OF] PREDICTION v [OVER</head><p>s] | CLASSIFICATION INTO L1, L2, ..., Lp [OVER s] | CLUSTER OF k ALGORITHM AlgorithmName [WITH MODEL ACCURACY P] [LABEL B1, B2, ..., Bm] FEATURES A1, A2, ..., An FROM r1, r2, ..., rq WHERE c Or when none of the options USING or ALGORITHMS is used in the GENERATE statement indicating a default model must be generated as follows. GENERATE [DISPLAY OF] PREDICTION v [OVER s] | CLASSIFICATION INTO L1, L2, ..., Lp [OVER s] | CLUSTER OF k [WITH MODEL ACCURACY P] [LABEL B1, B2, ..., Bm] FEATURES A1, A2, ..., An FROM r1, r2, ..., rq WHERE c</p><p>In these cases, an appropriate CONSTRUCT execution is invoked and a model is generated for use and destroyed once GENERATE ends. Note that in both cases, FEATURES option is mandatory as GENERATE needs to know which features to use.</p><p>The second way GENERATE indirectly depends on CONSTRUCT is when USING is used as follows. In this case, FEATURES need be used as a model is already built and deployed. In this case, dependency is explicitly captured using an explicit CONSTRUCT statement ahead of the GENERATE statement in the program (or executed separately and the generated model archived in the MQL system).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>GENERATE [DISPLAY OF] PREDICTION v [OVER s] | CLASSIFICATION INTO L1, L2, ..., Lp [OVER s] | CLUSTER OF k USING MODEL ModelName [WITH MODEL ACCURACY P]</head><p>[LABEL B1, B2, ..., Bm]</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Mapping Algorithm 𝜏</head><p>We breakdown the mapping algorithm 𝜏 into three component algorithms driven by a main driver algorithm where the translation takes off (see Alg 1). In the Algs 2 through 4, we use a function generate(p) that returns a set of descriptive properties of a syntactically correct MQL statement 𝑝. generate retruns the following descriptions:</p><p>-StType: returns the class of statement type -one of gen, con or ins. -Model: in GENERATE, stored when USING MODEL, custom when ALGORITHM and default when none.</p><p>-MLtype: in GENERATE or CONSTRUCT, pred when PREDIC-TION, class when CLASSIFICATION and clus when CLUS-TER. -ModName: in GENERATE, ModelName when USING MODEL, NULL otherwise. -Features: in GENERATE and CONSTRUCT, 𝐴 1 , 𝐴 2 , . . . , 𝐴 𝑛 when FEATURES, NULL otherwise. -Display: in GENERATE, yes when DISPLAY OFF, no otherwise. -Label: in GENERATE, yes when LABEL, no otherwise. -AlgName: in GENERATE and CONSTRUCT, AlgorithmName when ALGORITHM, NULL otherwise. In the Alg 1, we call generate and assign all these descriptive features of a statement 𝑝 into a class Δ, and pass it to the other algorithms as a decision making tool. Algorithm 1: Translator 𝜏 Data: an MQL program P Result: A SciKit Learn Script S 𝑝 1 begin 2 for all 𝑝 ∈ P do 3 Δ ← gather(𝑝); 4 switch Δ.StType do 5 case gen do 6 call GENERATE(𝑝, Δ) 7 case cons do 8 call CONSTRUCT(𝑝, Δ) 9 case ins do 10 call INSPECT(𝑝, Δ) 11 return</p><p>The Alg 2 for translating a GENERATE statement, uses a stored model when USING MODEL is used, otherwise it calls Alg 3 to use the functionalities of CONSTRUCT even though a CONSTRUCT statement is not explicitly requested. This is because when a stored model is not used in it, either a specific or custom model is requested using the ALGORITHM option, or none at all (default), which in both cases must be constructed, used and discarded. Note that, MQL has a default algorithm for each class of analysis, and it is not query or data dependent. This also means that use of a default algorithm is not always appropriate though results will be generated. To ensure analysis quality, WITH MODEL ACCURACY option can be used with default so that the system is able to find the best model for the intended analysis.</p><p>Alg 4 implements a quicker and shortcut instruction for SQL's UPDATE statement. It supports convenient operations not directly available in UPDATE. For example, IMPUTE or DEDUPLICATE have no UPDATE counterparts.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">EXPERIMENTAL RESULTS</head><p>In this section, we discuss two scientific ML applications that were recently modeled using MQL in our materials design system Mat-Flow as shown in Fig</p><p>6. Our first application is a quantum dye Algorithm 2: GENERATE Data: a GENERATE Statement 𝑝, Δ Result: A SciKit Learn Script S 𝑝 1 begin 2 switch Δ.Model do 3 case stored do 4 switch Δ.MLType do 5 case pred do 6 create S 𝑝 for Δ.ModName for prediction of 𝑣 using test set 𝑠; 7 case class do 8 create S 𝑝 for Δ.ModName for classification of 𝑣 using test set 𝑠 into classes 𝐿 1 , 𝐿 2 , . . . , 𝐿 𝑝 ; 9 case clus do 10 create S 𝑝 for Δ.ModName to create 𝑘 clusters using test set 𝑠; 11 if Δ.Display=yes then 12 include visualization instructions 13 if Δ.Label=yes then 14 include instructions for labels 𝐵 1 , 𝐵 2 , . . . , 𝐵 𝑚 15 return 16 case custom or default or best do 17 call CONSTRUCT(𝑝, Δ) 18 return</p><p>design experiment in which we aim to discover a new quantum dye molecule with a target extinction coefficient (𝜀) higher than 250,000 𝑀 -1 𝑐𝑚 -1 using inverse ML <ref type="bibr" target="#b53">[54]</ref>. The experiment involves two steps. In the first step, we use experimental data to learn the most relevant features 𝐹 that are significant contributors to high extinction coefficient of dyes. Then in the second step, we estimate the values of the features 𝐹 as a directional feature vector as candidates for our target extinction coefficient. The idea is to use these candidate features to design a novel molecule using a system such as GenUI <ref type="bibr" target="#b63">[64]</ref>. Our validation process involved finding Cyanine-5 (Cy5) as a possible quantum dye with an extinction coefficient 𝜀 = 250, 000</p><formula xml:id="formula_0">𝑀 -1 𝑐𝑚 -1 .</formula><p>The second experiment is about prediction of bending modulus 𝜅 of lipid bilayer membranes using experimental data. In this experiment, a meticulously curated dataset is used representing a large number of lipid bilayer membrane properties. We analyzed this data set using a graph convolutional neural network to generate a model for estimating the bending modulus of new experimental lipids with more than 78% accuracy, which is much higher than existing methods.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1">Quantum Dye Design</head><p>Quantum dyes or dots are widely used in biomedical applications such as cancer detection, medical imaging, and also in studying transport mechanisms in cells, functional heterogeneity of cells, diffusion movements of membrane transport proteins, and many</p><p>Algorithm 3: CONSTRUCT Data: a CONSTRUCT Statement 𝑝, Δ Result: A SciKit Learn Script S 𝑝 1 begin 2 create instructions to generate a table 𝑇 (Δ.Features) from the FROM clause tables ; /* includes 𝑣 in the feature set if Δ.MLType=pred */ 3 include instructions to divide table 𝑇 into 𝑁 training and 𝑀 test sets; 4 switch Δ.Model do 5 case others do 6 choose the default algorithm 𝐴 for Δ.MLType; 7 switch Δ.MLType do 8 case pred do 9 if Δ.Model==custom then 10 create S 𝑝 for prediction of 𝑣 using Δ.AlgName 11 else 12 create S 𝑝 for prediction of 𝑣 of objects in 𝑇 using 𝐴 13 case class do 14 if Δ.Model==custom then 15 create S 𝑝 for classification of objects in 𝑇 using using Δ.AlgName and labels 𝐿 1 , 𝐿 2 , . . . , 𝐿 𝑝 16 else 17 create S 𝑝 for classification of objects in 𝑇 using 𝐴 and labels 𝐿 1 , 𝐿 2 , . . . , 𝐿 𝑝 18 case clus do 19 if Δ.Model==custom then 20 create S 𝑝 for classification of objects in 𝑇 using Δ.AlgName for 𝑘 classes 21 else 22 create S 𝑝 for classification of objects in 𝑇 using 𝐴 for 𝑘 classes 23 return 24 case best do 25 for each algorithm 𝐴 of Δ.MLType do 26 create S 𝑝 for Δ.MLType of objects in 𝑇 using Δ.AlgName; 27 include instructions to choose the best model with accuracy ≥ 𝑃 28</p><p>return similar health research. Quantum dots also play a major role in solar cells, semiconductors, light emitting devices, etc. <ref type="bibr" target="#b21">[22]</ref>. Our partner materials science lab is interested in discovering new quantum dyes that have molar extinction coefficient (𝜀) higher than or equal to 250,000 𝑀 -1 𝑐𝑚 -1 <ref type="bibr" target="#b13">[14]</ref>. Algorithm 4: INSPECT Data: an INSPECT Statement 𝑝, Δ Result: A SciKit Learn Script S 𝑝 1 begin 2 create instructions to generate a table 𝑇 (𝑅) from the FROM clause tables ; /* Following an SQL interpretation of the relations in the FROM clause */ 3 for every attribute 𝐴 𝑖 and for every row in 𝑇 do 4 generate instructions for categorize, impute, numerize or deduplicate 5 return</p><p>However, 𝜀 is not the only property of quantum dyes that are of interest. Their optical properties including high quantum yield, high brightness, high stability against photobleaching, and intermittent fluorescence signals are too in general <ref type="bibr" target="#b66">[67]</ref>, making dye discovery a multi-dimensional design problem. It is actually known that the specific characteristics of quantum dyes can vary depending on the material system (such as CdSe, PbS, or InP) and the synthesis techniques employed. Quantum dyes can be engineered with different properties by modifying their size, shape, composition, and surface functionalization, offering a wide range of possibilities for tailoring their characteristics to specific applications. Thus discovering the fact that Cy5 has 𝜀 = 250, 000 from a Google search is not sufficient <ref type="bibr" target="#b2">[3]</ref>. In fact, many Alexa Fluor family of dyes have members with even higher 𝜀 <ref type="bibr" target="#b0">[1]</ref>.</p><p>In our experiment, we use nanoHUB <ref type="bibr" target="#b42">[43]</ref> quantum dye design data and set out to first determine which ML model 𝑀 predicts the extinction coefficient 𝜀 most accurately, and learn a very small dominant set of predictive features 𝐹 , the latent space 𝑧, that control 𝜀. Our goal is to discover dyes that are absent in nanoHUB dataset that have 𝜀 ≥ 150, 000, such as Cyanine-5 (Cy5). We then query scientific literature, and scientific repositories such as PubChem <ref type="bibr" target="#b31">[32]</ref>, ChemSpider <ref type="bibr" target="#b48">[49]</ref> or ChemDB <ref type="bibr" target="#b18">[19]</ref> to extract the feature values 𝐹 of dye molecules, and compare their predicted 𝜀 by our chosen model 𝑀, and with experimental and literature reports, and validate the accuracy.</p><p>For our experiment, we generated a dataset, called DyeData, from nanoHUB over a 249 column feature space consisting of 8,802 dye objects. The feature space attributes represent important dye characteristics that are significant determinants of dipole moments (𝜇) and are used to optimize coupling within dye aggregates, especially in materials research <ref type="bibr" target="#b13">[14]</ref>. We have integrated and explored Deep4Chem <ref type="bibr" target="#b30">[31]</ref>, PhotoChem CAD 3 <ref type="bibr" target="#b67">[68]</ref>, and Dyomics <ref type="bibr" target="#b1">[2]</ref>, in order to prepare our feature space. In addition, we utilized RDKit <ref type="bibr" target="#b3">[4]</ref> to extract various molecular descriptors as physical properties. The context 𝑐 in this set up is the extinction coefficient 𝜀.</p><p>The following INSPECT and CONSTRUCT statements are representative of a sequence operations we have performed in MatFlow. We created two models -a Random Forest model and a Linear Regression Model, from which the Random Forest model was chosen for its higher model accuracy. The discovered latent feature space 𝐹 selected only 23 features from a total of 249 columns. A GEN-ERATE statement is issued to predict the extinction coefficients of unknown dyes using the Random Forest Model. The results of this analysis can be found in <ref type="bibr" target="#b53">[54]</ref>.</p><p>The INSPECT statement below involves two CSV files -Chromophore.csv(Tag, MolarCoeff, . . .) and High_Extinction.csv(Tag, ShouldBe) with a join column named "Tag". MQL supports all SQL statements and MQL statements can be used anywhere a table is expected, and vice versa. The INSPECT and SQL statements below show a sequence of data wrangling operations during the generation of the DyeData dataset. We have used about 80% (equal to 7,040) of the total observations <ref type="bibr" target="#b7">(8,</ref><ref type="bibr">802)</ref> in the DyeData dataset as the training data in the GENERATE statement below, and about 20% (equal to 1,760) as the test data. INSPECT ShouldBe NUMERIZE AS log(ShouldBe) FROM High_Extinction.csv; CREATE VIEW Temp.csv as SELECT Tag, CASE WHEN ShouldBe=NULL THEN ShouldBe=MolarCoeff END AS Epsilon FROM FROM Chromophore.csv LEFT OUTER JOIN High_Extinction.csv; ALTER TABLE Chromophore.csv DROP COLUMN MolarCoeff; CREATE VIEW DyeData.csv as SELECT * FROM Chromophore.csv LEFT OUTER JOIN Temp.csv; CONSTRUCT epsilonPred FOR PREDICTION epsilon USING RandomForest TRAIN ON 7040 TEST ON 1760 FEATURES * FROM DyeData; GENERATE DISPLAY OF PREDICTION epsilon OVER TestData USING ALGORITHM LinearRegression WITH MODEL ACCURACY 80 FEATURES * FROM DyeData; GENERATE DISPLAY OF PREDICTION epsilon OVER TestData USING MODEL RandonForest;</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2">Membrane Bending Modulus Prediction</head><p>Lipid bilayer membranes play an important role in the functional architecture of living cells, facilitating essential processes including the transmission of signals between and within cells and the transport of substances across the cellular barrier <ref type="bibr" target="#b6">[7]</ref>. These bilayers are dynamic structures composed of molecules with hydrophilic heads and hydrophobic tails, resulting in considerable variations in both their composition and physical properties <ref type="bibr" target="#b62">[63]</ref>. Several factors, including molecular composition, environmental conditions, and physical state of lipids have a wide range of interactions in bilayers. These interactions make it difficult to understand and forecast the combined effects on the bilayer's properties <ref type="bibr" target="#b24">[25]</ref>. Prediction of bending modulus of lipid membranes is important in various fields such as biophysics, biochemistry, and materials science. The bending modulus is a measure of the membrane's resistance to bending or deformation and is a crucial parameter in understanding the mechanical properties and behavior of lipid membranes and has applications in lipid design, drug discovery, nanotechnology, material science and other biomedical applications. However, this application requires the use of graph neural networks which the current edition of MQL does not support. We thus implemented a PyTorch translation for the GENERATE statement so that we are able to use a GNN model created using PyTorch through the invocation of the following GENERATE statement as a one off demonstration of the versatility of MQL and that developing a multi-framework implementation of MQL is feasible.</p><p>GENERATE DISPLAY OF PREDICTION Kappa OVER LipidTestData USING MODEL LipidGnn;</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">DISCUSSION</head><p>In our view, there are not too many declarative ML languages that stand at the same level as MQL. By that we mean, a language that does not require users to express analysis needs using a language more akin to procedural codes. It should be readily noticed that the languages such as Dyna, ML2SQL, sql4ml, and P6 <ref type="bibr" target="#b37">[38]</ref> though possibly are more powerful and customizable, they are closer to procedural languages such as Python or C++, and thus give an appearance and flavor of imperative programming. The CREATE FUNCTION or the CREATE OPERATOR statements and the elaborate codes in Python or C++ is a significant barrier. In contrast, we hide all procedurality and offer a flavor of SQL like semantics.</p><p>As discussed in Sec 2, Dyna and P6 are both focused on optimization and visualization respectively, and thus declarativity is not their main focus. They are successful in code optimization and developing conceptual codes for easy visual analytics specification. They too are not truly comparable to MQL. We actually agree with Gleeson <ref type="bibr" target="#b25">[26]</ref> and believe that declarativity should be SQL like, even for ML. Gleeson, however, encoded several ML tasks directly in PostgreSQL using ML features supported in it. For example, regression has been coded as follows where the objective is to "learn" the parameters 𝑚 and 𝑐 of a linear equation of the form 𝑦 = 𝑚𝑥 + 𝑐 from the training data.</p><p>WITH regression AS (SELECT regr_slope(y, x) AS gradient, regr_intercept(y, x) AS intercept FROM linear_regression WHERE y IS NOT NULL) SELECT x, (x * gradient) + intercept AS prediction FROM linear_regression CROSS JOIN regression WHERE y IS NULL;</p><p>In this code segment, the regr_slope() and regr_intercept() functions are used to estimate the gradient and intercept terms, respectively. These correspond to the parameters 𝑔𝑟𝑎𝑑𝑖𝑒𝑛𝑡 and 𝑖𝑛𝑡𝑒𝑟𝑐𝑒𝑝𝑡 in the equation 𝑦 = 𝑔𝑟𝑎𝑑𝑖𝑒𝑛𝑡 × 𝑥 + 𝑖𝑛𝑡𝑒𝑟𝑐𝑒𝑝𝑡. However, this is possible only in PostgreSQL and other database engines will not recognize this code segment. In MQL, we will express the same functionality as follows, which we are able to execute on any database engine using a front-end.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>GENERATE DISPLAY OF PREDICTION y OVER unknown_xs FEATURES x, gradient, intercept FROM linear_regression</head><p>In the above query, the table unknown_xs contains the values 𝑥 for which 𝑦 needs to be predicted. The DISPLAY OF option plots a graph to show the 𝑦 values against each 𝑥 in unknown_xs. Without the DISPLAY OF option, MQL will just compute a table with the columns 𝑥 and 𝑦. The difference obviously is, in MQL, users think in a more abstract manner and at a very conceptual level.</p><p>Our current implementation has a few drawbacks that we plan to address in MQL's future editions. The first drawback was a design choice for the first edition of MQL. In this edition, we did not include an option to generate visualization primitives for the CONSTRUCT and INSPECT statements, only GENERATE supports data visualization. But, it is necessary to allow visualization of various relationships during model building, feature selection and data wrangling. We are in the process of designing an extended set of suitable features to support data visualization.</p><p>The second limitation of MQL is related to the quality of analysis and query processing performance. There are numerous ML frameworks and a large number of ML algorithms that are suitable for applications on a case by case basis. Therefore, it is imperative that an MQL query optimizer be developed to identify candidate algorithms most relevant to a specific ML task, data set and analytic options. In absence of such an optimizer, MQL is in risk to compromise quality of analysis or performance, or both. We hope to address this limitation soon.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7">CONCLUSION</head><p>The MQL language we have introduced has several basic strengths and advantages over other similar languages. First, its basic structure is simple and easy to understand. For example, the most basic construct for a prediction analysis is GENERATE PREDICTION f OVER inputData FEATURES f1, f2, ..., fk [LABEL objectName] FROM dataSet where 𝑓 is a feature outside the feature vector ⟨𝑓 1 , 𝑓 2 , . . . , 𝑓 𝑘 ⟩ which must be included in the scheme of the table dataSet, and so must be objectName if LABEL option is used. The table inputData must have a scheme that includes the feature vector ⟨𝑓 1 , 𝑓 2 , . . . , 𝑓 𝑘 ⟩ plus objectName. The statement basically requests predictions of 𝑓 for the objects labeled objectName with features {𝑓 1 , 𝑓 2 , . . . , 𝑓 𝑘 }. Similar comments apply to classification and clustering requests in MQL.</p><p>The algorithmic and procedural separation of MQL and its declarative semantics also offers the opportunity for selecting implementation strategies, optimization and system level customization not offered by most contemporary declarative ML languages (the few that we are aware of). Better opportunities for using large language models now emerge to map natural language queries into MQL in ways similar to SQL for a more streamlined execution, instead of mapping to archaic Python codes. While we are contemplating a PostgreSQL implementation of MQL and explore optimization strategies, its current implementation on a file based store serves as a proof of concept and demonstrates its merits. A more detailed description of MQL's implementation will be published elsewhere.</p><p>Before concluding, we would like to note that one of the goals behind designing a declarative language for ML is to explore the possibility of a conversational ML agent that is capable of understanding analysis needs and autonomously construct ML models by selecting appropriate data sets and algorithms to be able to generate responses to scientific inquiries <ref type="bibr" target="#b8">[9,</ref><ref type="bibr" target="#b39">40]</ref>. Developing an SQL like query language for ML such as MQL makes it easier to leverage decades of experience of mapping natural language to SQL <ref type="bibr" target="#b23">[24,</ref><ref type="bibr" target="#b77">78]</ref>. A growing research interest is supporting exploration of ML models <ref type="bibr" target="#b17">[18]</ref>, and conversational systems based on ML <ref type="bibr" target="#b34">[35]</ref>. We believe that natural language to ML mapping could also help with explainable AI <ref type="bibr" target="#b7">[8,</ref><ref type="bibr" target="#b47">48]</ref>. Recent interest in using large language models (LLM) as an interface to database applications <ref type="bibr" target="#b36">[37,</ref><ref type="bibr" target="#b74">75]</ref> opens up opportunities for LLM interfaces to scientific applications requiring ML <ref type="bibr" target="#b19">[20,</ref><ref type="bibr" target="#b76">77]</ref>. Our future research is aimed at developing a conversational interface for scientific inquiries in the areas of materials science and computational biology using an LLM as a front-end and a ML system at the back-end for data analysis.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: MQL query for median home value prediction.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>3. 2 . 2</head><label>22</label><figDesc>Results. We assign translational semantics to the query in Fig 1 by mapping it to the SciKit-Learn program in Fig 2 for execution.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><figDesc>Fig 3, it produced the plot in Fig 4(b) in which we assumed zero for missing values as shown in Fig 4(a). If imputed values are used for missing values as shown in the code in Fig 2, predictions will be slightly different. The predicted versus actual plot is shown in Fig 4(c).</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><figDesc>(a) homesNew assumed table.(b) Bar plot. (c) Predicted v actual plot.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Figure 4 :</head><label>4</label><figDesc>Figure 4: Predicted home median values.</figDesc><graphic coords="5,56.04,469.05,247.16,155.29" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Fig 5</head><label>5</label><figDesc>follows this simple implementation strategy.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><head>Figure 5 :</head><label>5</label><figDesc>Figure 5: MQL operational model.</figDesc><graphic coords="5,317.96,369.62,247.15,145.66" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head>Figure 6 :</head><label>6</label><figDesc>Figure 6: MatFlow architecture.</figDesc><graphic coords="8,150.69,83.69,310.63,211.34" type="bitmap" /></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_0"><p>This means that if data has to come from multiple tables, users will need to pre-process and create a single table.</p></note>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>ACKNOWLEDGEMENT</head><p>The author would like to acknowledge the help of <rs type="person">Hasan H Rahman</rs> who carried out the experiments described in Sec 5, and also implemented the mapping algorithm 𝜏 discussed in Sec 4.2.</p><p>The experimental setup described in this article is based on a research on quantum dye design by <rs type="person">Lan Li</rs> et al. <ref type="bibr" target="#b13">[14]</ref>. The data and some of the tools were contributed by <rs type="institution">Li materials science lab</rs> which we thankfully acknowledge. We also acknowledge the contributions of <rs type="person">Marat Talipov</rs>'s <rs type="institution">Chemistry and Biochemistry lab</rs> for providing the data and helping to design the experiment of the lipid membrane bending modulus study.</p><p>This research was partially supported by an <rs type="grantName">Institutional Development Award (IDeA)</rs> from the <rs type="funder">National Institute of General Medical Sciences of the National Institutes of Health</rs> under Grant #<rs type="grantNumber">P20GM103408</rs>, and a grant from the <rs type="funder">National Science Foundation</rs> #<rs type="grantNumber">OIA 2019609</rs>.</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_su7um3d">
+					<idno type="grant-number">P20GM103408</idno>
+					<orgName type="grant-name">Institutional Development Award (IDeA)</orgName>
+				</org>
+				<org type="funding" xml:id="_dPtYa3c">
+					<idno type="grant-number">OIA 2019609</idno>
+				</org>
+			</listOrg>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title level="m" type="main">The Alexa Fluor family of fluorescent dyes</title>
+		<ptr target="https://www.chemeurope.com/en/encyclopedia/Alexa_Fluor.html" />
+		<imprint>
+			<date type="published" when="2023-06-14">2023. 6/14/2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Dyomics -Colours for Life</title>
+		<ptr target="https://dyomics.com/en/" />
+		<imprint>
+			<date type="published" when="2023-06-14">2023. 6/14/2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<title level="m" type="main">Extinction Coefficient</title>
+		<ptr target="https://www.aatbio.com/resources/extinction-coefficient/cy" />
+		<imprint>
+			<date type="published" when="2023-06-14">2023. 6/14/2023</date>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="page">5</biblScope>
+		</imprint>
+	</monogr>
+	<note>Cy5 (Cyanine-5)</note>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">RDKit: Open-Source Cheminformatics Software</title>
+		<ptr target="https://www.rdkit.org/" />
+		<imprint>
+			<date type="published" when="2023-06-14">2023. 6/14/2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Predicting late delivery in Supply chain 4.0 using feature selection: a machine learning model</title>
+		<author>
+			<persName><forename type="first">Houria</forename><surname>Abouloifa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mohamed</forename><surname>Bahaj</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">5th International Conference on Advanced Communication Technologies and Networking</title>
+		<meeting><address><addrLine>Marrakech, Morocco</addrLine></address></meeting>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2022-12-12">2022. December 12-14, 2022</date>
+			<biblScope unit="volume">2022</biblScope>
+			<biblScope unit="page" from="1" to="5" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Detecting fake news and disinformation using artificial intelligence and machine learning to avoid supply chain disruptions</title>
+		<author>
+			<persName><forename type="first">Pervaiz</forename><surname>Akhtar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Arsalan</forename><surname>Mujahid Ghouri</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Haseeb</forename><surname>Ur Rehman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mirza</forename><surname>Khan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Usama</forename><surname>Amin Ul Haq</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nadia</forename><surname>Awan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zaheer</forename><surname>Zahoor</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aniqa</forename><surname>Khan</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ashraf</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Ann. Oper. Res</title>
+		<imprint>
+			<biblScope unit="volume">327</biblScope>
+			<biblScope unit="page" from="633" to="657" />
+			<date type="published" when="2023">2023. 2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Genesis, modulation, and regeneration of skeletal muscle</title>
+		<author>
+			<persName><forename type="first">Bruce</forename><surname>Alberts</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexander</forename><surname>Johnson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Julian</forename><surname>Lewis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Martin</forename><surname>Raff</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Keith</forename><surname>Roberts</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Peter</forename><surname>Walter</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Molecular Biology of the Cell</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+	<note>th edition. Garland Science</note>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">HuntGPT: Integrating Machine Learning-Based Anomaly Detection and Explainable AI with Large Language Models (LLMs)</title>
+		<author>
+			<persName><forename type="first">Tarek</forename><surname>Ali</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Panos</forename><surname>Kostakos</surname></persName>
+		</author>
+		<idno>CoRR abs/2309.16021</idno>
+		<imprint>
+			<date type="published" when="2023">2023. 2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<title level="m" type="main">Using Large Language Models to Automate and Expedite Reinforcement Learning with Reward Machine</title>
+		<author>
+			<persName><forename type="first">Shayan</forename><surname>Meshkat</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alsadat</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jean-Raphaël</forename><surname>Gaglione</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Daniel</forename><surname>Neider</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ufuk</forename><surname>Topcu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhe</forename><surname>Xu</surname></persName>
+		</author>
+		<idno>CoRR abs/2402.07069</idno>
+		<imprint>
+			<date type="published" when="2024">2024. 2024</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<author>
+			<persName><forename type="first">Oisin</forename><surname>Mac Aodha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vassilios</forename><surname>Stathopoulos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Gabriel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><surname>Brostow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mark</forename><forename type="middle">A</forename><surname>Terry</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kate</forename><forename type="middle">E</forename><surname>Girolami</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Jones</surname></persName>
+		</author>
+		<title level="m">Putting the Scientist in the Loop -Accelerating Scientific Progress with Interactive Machine Learning</title>
+		<meeting><address><addrLine>Stockholm, Sweden</addrLine></address></meeting>
+		<imprint>
+			<publisher>IEEE Computer Society</publisher>
+			<date type="published" when="2014-08-24">2014. August 24-28, 2014</date>
+			<biblScope unit="page" from="9" to="17" />
+		</imprint>
+	</monogr>
+	<note>ICPR 2014</note>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Machine Learning Based Soft Sensing Tool for the Prediction of Leaf Wetness Duration in Precision Agriculture</title>
+		<author>
+			<persName><forename type="first">Maria</forename><surname>Arostegi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Diana</forename><surname>Manjarres</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sonia</forename><surname>Bilbao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Javier</forename><forename type="middle">Del</forename><surname>Ser</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Intelligent Systems and Computing</title>
+		<editor>
+			<persName><forename type="first">Emilio</forename><surname>Héctor Quintián</surname></persName>
+		</editor>
+		<editor>
+			<persName><surname>Corchado</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Bilbao, Spain; Hugo Sanjurjo-González; Pablo García Bringas</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2021-09-24">2021. 22-24 September, 2021</date>
+			<biblScope unit="volume">1401</biblScope>
+			<biblScope unit="page" from="525" to="535" />
+		</imprint>
+		<respStmt>
+			<orgName>Iker Pastor-López</orgName>
+		</respStmt>
+	</monogr>
+	<note>SOCO 2021</note>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">MultiToxPred 1.0: a novel comprehensive tool for predicting 27 classes of protein toxins using an ensemble machine learning approach</title>
+		<author>
+			<persName><forename type="first">Jorge</forename><surname>Beltrán</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lisandra</forename><surname>Herrera Belén</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Fernanda</forename><forename type="middle">Parraguez</forename><surname>Contreras</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jorge</forename><forename type="middle">G</forename><surname>Farias</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jorge</forename><surname>Machuca-Sepúlveda</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stefania</forename><surname>Short</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">BMC Bioinform</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="page">148</biblScope>
+			<date type="published" when="2024">2024. 2024</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">Aadyot</forename><surname>Bhatnagar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Paul</forename><surname>Kassianik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chenghao</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tian</forename><surname>Lan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Wenzhuo</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rowan</forename><surname>Cassius</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Doyen</forename><surname>Sahoo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Devansh</forename><surname>Arpit</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sri</forename><surname>Subramanian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gerald</forename><surname>Woo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Amrita</forename><surname>Saha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Arun</forename><surname>Kumar Jagota</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gokulakrishnan</forename><surname>Gopalakrishnan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Manpreet</forename><surname>Singh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">C</forename><surname>Krithika</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sukumar</forename><surname>Maddineni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dae-Ki</forename><surname>Cho</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bo</forename><surname>Zong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yingbo</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Caiming</forename><surname>Xiong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Silvio</forename><surname>Savarese</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">H</forename><surname>Steven</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Huan</forename><surname>Hoi</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Merlion: End-to-End Machine Learning for Time Series. J. Mach. Learn. Res</title>
+		<imprint>
+			<biblScope unit="volume">24</biblScope>
+			<biblScope unit="page">6</biblScope>
+			<date type="published" when="2023">2023. 2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Data-Driven and Multiscale Modeling of DNA-Templated Dye Aggregates</title>
+		<author>
+			<persName><forename type="first">Austin</forename><surname>Biaggne</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lawrence</forename><surname>Spear</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">German</forename><surname>Barcenas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Maia</forename><surname>Ketteridge</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Young</forename><forename type="middle">C</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joseph</forename><forename type="middle">S</forename><surname>Melinger</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">William</forename><forename type="middle">B</forename><surname>Knowlton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bernard</forename><surname>Yurke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lan</forename><surname>Li</surname></persName>
+		</author>
+		<idno type="DOI">10.3390/molecules27113456</idno>
+		<ptr target="https://doi.org/10.3390/molecules27113456" />
+	</analytic>
+	<monogr>
+		<title level="j">Molecules</title>
+		<imprint>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="page">3456</biblScope>
+			<date type="published" when="2022">2022. 2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">SystemDS: A Declarative Machine Learning System for the End-to-End Data Science Lifecycle</title>
+		<author>
+			<persName><forename type="first">Matthias</forename><surname>Boehm</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Iulian</forename><surname>Antonov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sebastian</forename><surname>Baunsgaard</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mark</forename><surname>Dokter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Robert</forename><surname>Ginthör</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kevin</forename><surname>Innerebner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Florijan</forename><surname>Klezin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stefanie</forename><forename type="middle">N</forename><surname>Lindstaedt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Arnab</forename><surname>Phani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Benjamin</forename><surname>Rath</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Berthold</forename><surname>Reinwald</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shafaq</forename><surname>Siddiqui</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sebastian</forename><surname>Benjamin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Wrede</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">CIDR 2020</title>
+		<meeting><address><addrLine>Amsterdam, The Netherlands</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2020-01-12">2020. January 12-15, 2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<author>
+			<persName><forename type="first">Matthias</forename><surname>Boehm</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><surname>Dusenberry</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Deron</forename><surname>Eriksson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexandre</forename><forename type="middle">V</forename><surname>Evfimievski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Faraz</forename><surname>Makari Manshadi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Niketan</forename><surname>Pansare</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Berthold</forename><surname>Reinwald</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Frederick</forename><surname>Reiss</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Prithviraj</forename><surname>Sen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Arvind</forename><surname>Surve</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shirish</forename><surname>Tatikonda</surname></persName>
+		</author>
+		<title level="m">SystemML: Declarative Machine Learning on Spark. Proc. VLDB Endow</title>
+		<imprint>
+			<date type="published" when="2016">2016. 2016</date>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="page" from="1425" to="1436" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<monogr>
+		<title level="m" type="main">Declarative Machine Learning -A Classification of Basic Properties and Types</title>
+		<author>
+			<persName><forename type="first">Matthias</forename><surname>Boehm</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexandre</forename><forename type="middle">V</forename><surname>Evfimievski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Niketan</forename><surname>Pansare</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Berthold</forename><surname>Reinwald</surname></persName>
+		</author>
+		<idno>CoRR abs/1605.05826</idno>
+		<imprint>
+			<date type="published" when="2016">2016. 2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">A Conversational Interface for interacting with Machine Learning models</title>
+		<author>
+			<persName><forename type="first">Davide</forename><surname>Carneiro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Patrícia</forename><surname>Veloso</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Miguel</forename><surname>Guimarães</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joana</forename><surname>Baptista</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Miguel</forename><surname>Sousa</surname></persName>
+		</author>
+		<ptr target="CEUR-WS.org" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of 4th International Workshop on eXplainable and Responsible AI and Law co-located with 18th International Conference on Artificial Intelligence and Law (ICAIL 2021), Virtual Event, Sao Paolo</title>
+		<title level="s">CEUR Workshop Proceedings</title>
+		<editor>
+			<persName><forename type="first">Michal</forename><surname>Araszkiewicz</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Martin</forename><surname>Atzmueller</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Grzegorz</forename><forename type="middle">J</forename><surname>Nalepa</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Bart</forename><surname>Verheij</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Szymon</forename><surname>Bobek</surname></persName>
+		</editor>
+		<meeting>4th International Workshop on eXplainable and Responsible AI and Law co-located with 18th International Conference on Artificial Intelligence and Law (ICAIL 2021), Virtual Event, Sao Paolo<address><addrLine>Brazil</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2021-06-21">2021. June 21, 2021</date>
+			<biblScope unit="volume">3168</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">ChemDB update, a full-text search and virtual chemical space</title>
+		<author>
+			<persName><forename type="first">Jonathan</forename><forename type="middle">H</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Erik</forename><surname>Linstead</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">Joshua</forename><surname>Swamidass</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dennis</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pierre</forename><surname>Baldi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Bioinformatics</title>
+		<imprint>
+			<biblScope unit="volume">23</biblScope>
+			<biblScope unit="page" from="2348" to="2351" />
+			<date type="published" when="2007-06">2007. 06 2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Aliro: an automated machine learning tool leveraging large language models</title>
+		<author>
+			<persName><forename type="first">Hyunjun</forename><surname>Choi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jay</forename><surname>Moran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nicholas</forename><surname>Matsumoto</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Miguel</forename><forename type="middle">E</forename><surname>Hernandez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jason</forename><forename type="middle">H</forename><surname>Moore</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Bioinform</title>
+		<imprint>
+			<biblScope unit="volume">39</biblScope>
+			<biblScope unit="page">10</biblScope>
+			<date type="published" when="2023">2023. 2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<author>
+			<persName><forename type="first">Robert</forename><surname>Coop</surname></persName>
+		</author>
+		<ptr target="https://www.phdata.io/blog/what-is-the-cost-to-deploy-and-maintain-a-machine-learning-model" />
+		<title level="m">What is the Cost to Deploy and Maintain a Machine Learning Model?</title>
+		<imprint>
+			<date type="published" when="2021-04-26">2021. 4/26/2024</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Quantum Dots and Their Applications: What Lies Ahead?</title>
+		<author>
+			<persName><forename type="first">Monica</forename><surname>Cotta</surname></persName>
+		</author>
+		<idno type="DOI">10.1021/acsanm.0c01386</idno>
+		<ptr target="https://doi.org/10.1021/acsanm" />
+	</analytic>
+	<monogr>
+		<title level="j">ACS Applied Nano Materials</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="page">1386</biblScope>
+			<date type="published" when="2020-06">2020. 06 2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Challenges of Accurate and Efficient AutoML</title>
+		<author>
+			<persName><forename type="first">Swarnava</forename><surname>Dey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Avik</forename><surname>Ghose</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Soumik</forename><surname>Das</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE/ACM ASE 2023</title>
+		<meeting><address><addrLine>Luxembourg</addrLine></address></meeting>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2023-09-11">2023. September 11-15, 2023</date>
+			<biblScope unit="page" from="1834" to="1839" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Gar: A Generateand-Rank Approach for Natural Language to SQL Translation</title>
+		<author>
+			<persName><forename type="first">Yuankai</forename><surname>Fan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhenying</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tonghui</forename><surname>Ren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dianjun</forename><surname>Guo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lin</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ruisi</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Guanduo</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yinan</forename><surname>Jing</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kai</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sean</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICDE 2023</title>
+		<meeting><address><addrLine>Anaheim, CA, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2023-04-03">2023. April 3-7, 2023</date>
+			<biblScope unit="page" from="110" to="122" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">On the coupling between mechanical properties and electrostatics in biological membranes</title>
+		<author>
+			<persName><forename type="first">Viviana</forename><surname>Vanesa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Natalia</forename><surname>Galassi</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Wilke</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Membranes</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="page">478</biblScope>
+			<date type="published" when="2021">2021. 2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<monogr>
+		<author>
+			<persName><forename type="first">Peter</forename><surname>Gleeson</surname></persName>
+		</author>
+		<ptr target="https://www.freecodecamp.org/news/machine-learning-directly-in-sql/Accessed:3/17/2024" />
+		<title level="m">Machine Learning Directly in SQL ‚Äì How to Use ML in Databases</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">P2D: A Transpiler Framework for Optimizing Data Science Pipelines</title>
+		<author>
+			<persName><forename type="first">Yordan</forename><surname>Grigorov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Haralampos</forename><surname>Gavriilidis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sergey</forename><surname>Redyuk</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kaustubh</forename><surname>Beedkar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Volker</forename><surname>Markl</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Seventh Workshop on Data Management for End-to-End Machine Learning</title>
+		<meeting>the Seventh Workshop on Data Management for End-to-End Machine Learning<address><addrLine>Seattle, WA, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2023-06-18">2023. 18 June 2023</date>
+			<biblScope unit="volume">2023</biblScope>
+			<biblScope unit="page" from="1" to="3" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<monogr>
+		<author>
+			<persName><forename type="first">Elia</forename><surname>Guerra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Francesc</forename><surname>Wilhelmi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Marco</forename><surname>Miozzo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Paolo</forename><surname>Dini</surname></persName>
+		</author>
+		<idno type="DOI">10.48550/ARXIV.2209.07124</idno>
+		<ptr target="https://doi.org/10.48550/ARXIV.2209.07124" />
+		<title level="m">The Cost of Training Machine Learning Models over Distributed Data Sources</title>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Beyond Wrangling and Modeling: Data Science and Machine Learning Competencies and Curricula for The Rest of Us</title>
+		<author>
+			<persName><forename type="first">William</forename><forename type="middle">R</forename><surname>Hersh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jessica</forename><surname>Ancker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Robert</forename><surname>Hoyt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aditi</forename><surname>Gupta</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">AMIA 2022</title>
+		<meeting><address><addrLine>Washington, DC, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2022-09">2022. November 5-9, 2022</date>
+		</imprint>
+	</monogr>
+	<note>AMIA</note>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<monogr>
+		<author>
+			<persName><forename type="first">Sohail</forename><surname>Hosseini</surname></persName>
+		</author>
+		<ptr target="https://medium.com/@s.sadathosseini/selecting-the-best-model-for-boston-housing-dataset-using-cross-validation-in-python-e59afa" />
+		<title level="m">Selecting the Best Model for Boston Housing Dataset using Cross-Validation in Python</title>
+		<imprint>
+			<date type="published" when="2023-03-17">2023. 3/17/2024</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Experimental database of optical properties of organic compounds</title>
+		<author>
+			<persName><forename type="first">Minhi</forename><surname>Joonyoung F Joung</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Minseok</forename><surname>Han</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sungnam</forename><surname>Jeong</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Park</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Scientific data</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="page">295</biblScope>
+			<date type="published" when="2020">2020. 2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<author>
+			<persName><forename type="first">Sunghwan</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jie</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tiejun</forename><surname>Cheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Asta</forename><surname>Gindulyte</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jia</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Siqian</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Qingliang</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Benjamin</forename><forename type="middle">A</forename><surname>Shoemaker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Paul</forename><forename type="middle">A</forename><surname>Thiessen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bo</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Leonid</forename><surname>Zaslavsky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jian</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Evan</forename><forename type="middle">E</forename><surname>Bolton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">PubChem 2023 update</title>
+		<imprint>
+			<date type="published" when="2022-10">2022. 10 2022</date>
+			<biblScope unit="volume">51</biblScope>
+			<biblScope unit="page" from="1373" to="D1380" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">MLbase: A Distributed Machine-learning System</title>
+		<author>
+			<persName><forename type="first">Tim</forename><surname>Kraska</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ameet</forename><surname>Talwalkar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">John</forename><forename type="middle">C</forename><surname>Duchi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rean</forename><surname>Griffith</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><forename type="middle">J</forename><surname>Franklin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><forename type="middle">I</forename><surname>Jordan</surname></persName>
+		</author>
+		<ptr target="www.cidrdb.org" />
+	</analytic>
+	<monogr>
+		<title level="m">CIDR 2013</title>
+		<meeting><address><addrLine>Asilomar, CA, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2013-01-06">2013. January 6-9, 2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<monogr>
+		<author>
+			<persName><forename type="first">Ruihang</forename><surname>Lai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Junru</forename><surname>Shao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Siyuan</forename><surname>Feng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Steven</forename><forename type="middle">S</forename><surname>Lyubomirsky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bohan</forename><surname>Hou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Wuwei</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zihao</forename><surname>Ye</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hongyi</forename><surname>Jin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yuchen</forename><surname>Jin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jiawei</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lesheng</forename><surname>Jin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yaxing</forename><surname>Cai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ziheng</forename><surname>Jiang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yong</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sunghyun</forename><surname>Park</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Prakalp</forename><surname>Srivastava</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jared</forename><forename type="middle">G</forename><surname>Roesch</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Todd</forename><forename type="middle">C</forename><surname>Mowry</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tianqi</forename><surname>Chen</surname></persName>
+		</author>
+		<idno>CoRR abs/2311.02103</idno>
+		<title level="m">Relax: Composable Abstractions for End-to-End Dynamic Machine Learning</title>
+		<imprint>
+			<date type="published" when="2023">2023. 2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">A Conversational Framework for Semantic Question Answering in Customer Services with Machine Learning on Knowledge Graph</title>
+		<author>
+			<persName><forename type="first">Giorgio</forename><surname>Lazzarinetti</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nicola</forename><surname>Massarenti</surname></persName>
+		</author>
+		<ptr target="CEUR-WS.org" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 1st Italian Workshop on Artificial Intelligence and Applications for Business and Industries (AIABI 2021) co-located with 20th International Conference of the Italian Association for Artificial Intelligence (AI*IA 2021)</title>
+		<title level="s">CEUR Workshop Proceedings</title>
+		<editor>
+			<persName><forename type="first">Francesco</forename><surname>Epifania</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Luca</forename><surname>Marconi</surname></persName>
+		</editor>
+		<meeting>the 1st Italian Workshop on Artificial Intelligence and Applications for Business and Industries (AIABI 2021) co-located with 20th International Conference of the Italian Association for Artificial Intelligence (AI*IA 2021)<address><addrLine>Milan, Italy</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2021-11-30">2021. November 30th, 2021</date>
+			<biblScope unit="volume">3102</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<monogr>
+		<title level="m" type="main">VeML: An End-to-End Machine Learning Lifecycle for Largescale and High-dimensional Data</title>
+		<author>
+			<persName><forename type="first">Van-Duc</forename><surname>Le</surname></persName>
+		</author>
+		<idno>CoRR abs/2304.13037</idno>
+		<imprint>
+			<date type="published" when="2023">2023. 2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<analytic>
+		<title level="a" type="main">Can LLM Already Serve as A Database Interface? A BIg Bench for Large-Scale Database Grounded Text-to-SQLs</title>
+		<author>
+			<persName><forename type="first">Jinyang</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Binyuan</forename><surname>Hui</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ge</forename><surname>Qu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jiaxi</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Binhua</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bowen</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bailin</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bowen</forename><surname>Qin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ruiying</forename><surname>Geng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nan</forename><surname>Huo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xuanhe</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chenhao</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Guoliang</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kevin</forename><surname>Chen-Chuan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Fei</forename><surname>Chang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Reynold</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yongbin</forename><surname>Cheng</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Li</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems 36: Annual Conference on Neural Information Processing Systems 2023, NeurIPS 2023</title>
+		<editor>
+			<persName><forename type="first">Kate</forename><surname>Amir Globerson</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Moritz</forename><surname>Saenko</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Sergey</forename><surname>Hardt</surname></persName>
+		</editor>
+		<editor>
+			<persName><surname>Levine</surname></persName>
+		</editor>
+		<meeting><address><addrLine>New Orleans, LA, USA; Alice Oh, Tristan Naumann</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2023-12-10">2023. December 10 -16, 2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">P6: A Declarative Language for Integrating Machine Learning in Visual Analytics</title>
+		<author>
+			<persName><forename type="first">Kelvin</forename><surname>Jianping</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kwan-Liu</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ma</surname></persName>
+		</author>
+		<idno type="DOI">10.1109/TVCG.2020.3030453</idno>
+		<ptr target="https://doi.org/10.1109/TVCG.2020.3030453" />
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Vis. Comput. Graph</title>
+		<imprint>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="page" from="380" to="389" />
+			<date type="published" when="2021">2021. 2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<analytic>
+		<title level="a" type="main">MLog: Towards Declarative In-Database Machine Learning</title>
+		<author>
+			<persName><forename type="first">Xupeng</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bin</forename><surname>Cui</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yiru</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Wentao</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ce</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. VLDB Endow</title>
+		<meeting>VLDB Endow</meeting>
+		<imprint>
+			<date type="published" when="2017">2017. 2017</date>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="page" from="1933" to="1936" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<monogr>
+		<title level="m" type="main">ML-Bench: Large Language Models Leverage Open-source Libraries for Machine Learning Tasks</title>
+		<author>
+			<persName><forename type="first">Yuliang</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xiangru</forename><surname>Tang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zefan</forename><surname>Cai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Junjie</forename><surname>Lu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yichi</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yanjun</forename><surname>Shao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zexuan</forename><surname>Deng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Helan</forename><surname>Hu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zengxian</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kaikai</forename><surname>An</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ruijun</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shuzheng</forename><surname>Si</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sheng</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Haozhe</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhengliang</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Liang</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yiming</forename><surname>Zong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yan</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tianyu</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhiwei</forename><surname>Jiang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Baobao</forename><surname>Chang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yujia</forename><surname>Qin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Wangchunshu</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yilun</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Arman</forename><surname>Cohan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mark</forename><surname>Gerstein</surname></persName>
+		</author>
+		<idno>CoRR abs/2311.09835</idno>
+		<imprint>
+			<date type="published" when="2023">2023. 2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<analytic>
+		<title level="a" type="main">Reilly Media Company Safari</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Lorica</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Nathan</surname></persName>
+		</author>
+		<ptr target="https://books.google.com/books?id=HnbXwQEACAAJ" />
+	</analytic>
+	<monogr>
+		<title level="m">The State of Machine Learning Adoption in the Enterprise. O&apos;Reilly Media</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title level="a" type="main">A Visual Interactive Analytics Interface for Complex Event Processing and Machine Learning Processing of Financial Market Data</title>
+		<author>
+			<persName><forename type="first">Nhan</forename><surname>Nathan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tri</forename><surname>Luong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zoran</forename><surname>Milosevic</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><surname>Berry</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Fethi</forename><forename type="middle">A</forename><surname>Rabhi ; Ebad</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Farzad</forename><surname>Banissi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Anna</forename><surname>Khosrow-Shahi</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ursyn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Mark</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Mck</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">João</forename><surname>Bannatyne</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nuno</forename><surname>Moura Pires</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kawa</forename><surname>Datia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Boris</forename><surname>Nazemi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">John</forename><surname>Kovalerchuk</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><surname>Counsell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zora</forename><surname>Agapiou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hing-Wah</forename><surname>Vrcelj</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mengbi</forename><surname>Chau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gehan</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Richard</forename><surname>Nagy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rita</forename><surname>Laing</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Muhammad</forename><surname>Francese</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Fatma</forename><surname>Sarfraz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gilles</forename><surname>Bouali</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Marjan</forename><surname>Venturini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Urska</forename><surname>Trutschl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Heimo</forename><surname>Cvek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Minoru</forename><surname>Müller</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Marco</forename><surname>Nakayama</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tania</forename><surname>Temperini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Filippo</forename><surname>Di Mascio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Veronica</forename><surname>Sciarrone</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ralf</forename><surname>Rossano</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Loredana</forename><surname>Dörner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Autilia</forename><surname>Caruccio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Weidong</forename><surname>Vitiello</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michele</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Risi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">24th International Conference on Information Visualisation, IV 2020</title>
+		<editor>
+			<persName><forename type="first">Muhammad</forename><forename type="middle">Aurangzeb</forename><surname>Andonie</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Ana</forename><surname>Ahmad</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Alfredo</forename><surname>Figueiras</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Mabule</forename><surname>Cuzzocrea</surname></persName>
+		</editor>
+		<editor>
+			<persName><surname>Samuel Mabakane</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Melbourne, Australia; Ugo Erra</addrLine></address></meeting>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2020-09-07">2020. September 7-11, 2020</date>
+			<biblScope unit="page" from="189" to="194" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b42">
+	<analytic>
+		<title level="a" type="main">nanoHUB.org: cloud-based services for nanoscale modeling, simulation, and education</title>
+		<author>
+			<persName><forename type="first">Krishna</forename><surname>Madhavan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lynn</forename><surname>Zentner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Victoria</forename><surname>Farnsworth</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Swaroop</forename><surname>Shivarajapura</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><surname>Zentner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nathan</forename><surname>Denny</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gerhard</forename><surname>Klimeck</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nanotechnology Reviews</title>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="page" from="107" to="117" />
+			<date type="published" when="2013">2013. 2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b43">
+	<analytic>
+		<title level="a" type="main">Yerzhan Malgazhdarov, and Yerlan Yergaliyev. 2023. A Combined Approach for Predicting the Distribution of Harmful Substances in the Atmosphere Based on Parameter Estimation and Machine Learning Algorithms</title>
+		<author>
+			<persName><forename type="first">Muratkan</forename><surname>Madiyarov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nurlan</forename><surname>Temirbekov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nurlana</forename><surname>Alimbekova</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Comput</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="page">249</biblScope>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b44">
+	<monogr>
+		<title level="m" type="main">sql4ml A declarative end-to-end workflow for machine learning</title>
+		<author>
+			<persName><forename type="first">Nantia</forename><surname>Makrynioti</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ruy</forename><surname>Ley-Wild</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vasilis</forename><surname>Vassalos</surname></persName>
+		</author>
+		<idno>CoRR abs/1907.12415</idno>
+		<imprint>
+			<date type="published" when="2019">2019. 2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b45">
+	<monogr>
+		<author>
+			<persName><forename type="first">James</forename><forename type="middle">D</forename><surname>Mccaffrey</surname></persName>
+		</author>
+		<ptr target="https://jamesmccaffrey.wordpress.com/2021/08/20/ordinal-classification-for-the-boston-housing-dataset-using-pytorch/Accessed:3/17/2024" />
+		<title level="m">Ordinal Classification for the Boston Housing Dataset Using PyTorch</title>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b46">
+	<analytic>
+		<title level="a" type="main">Declarative Machine Learning Systems: The future of machine learning will depend on it being in the hands of the rest of us</title>
+		<author>
+			<persName><forename type="first">Piero</forename><surname>Molino</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Christopher</forename><surname>Ré</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM Queue</title>
+		<imprint>
+			<biblScope unit="volume">19</biblScope>
+			<biblScope unit="page" from="46" to="76" />
+			<date type="published" when="2021">2021. 2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b47">
+	<monogr>
+		<author>
+			<persName><forename type="first">Jörg</forename><surname>Van Bach Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Christin</forename><surname>Schlötterer</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Seifert</surname></persName>
+		</author>
+		<idno>CoRR abs/2209.02552</idno>
+		<title level="m">Explaining Machine Learning Models in Natural Conversations: Towards a Conversational XAI Agent</title>
+		<imprint>
+			<date type="published" when="2022">2022. 2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b48">
+	<analytic>
+		<title level="a" type="main">ChemSpider: An Online Chemical Information Resource</title>
+		<author>
+			<persName><forename type="first">Harry</forename><forename type="middle">E</forename><surname>Pence</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Antony</forename><surname>Williams</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Chemical Education</title>
+		<imprint>
+			<biblScope unit="volume">87</biblScope>
+			<biblScope unit="page" from="1123" to="1124" />
+			<date type="published" when="2010">2010. 2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b49">
+	<monogr>
+		<author>
+			<persName><forename type="first">Prasad</forename><surname>Perera</surname></persName>
+		</author>
+		<ptr target="https://www.kaggle.com/code/prasadperera/the-boston-housing-datasetAccessed:3/17/2024" />
+		<title level="m">The Boston Housing Dataset</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b50">
+	<analytic>
+		<title level="a" type="main">An Intelligent Tutoring System Tool Combining Machine Learning and Gamification in Education</title>
+		<author>
+			<persName><forename type="first">Riccardo</forename><surname>Di</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pietro</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Salvatore</forename><surname>Distefano</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Software Technology: Methods and Tools -51st International Conference</title>
+		<title level="s">Lecture Notes in Computer Science</title>
+		<editor>
+			<persName><forename type="first">Manuel</forename><surname>Mazzara</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Jean-Michel</forename><surname>Bruel</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Bertrand</forename><surname>Meyer</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Alexander</forename><forename type="middle">K</forename><surname>Petrenko</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Tatarstan, Russia</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2019-10-15">2019. 2019. October 15-17, 2019</date>
+			<biblScope unit="volume">11771</biblScope>
+			<biblScope unit="page" from="218" to="226" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b51">
+	<monogr>
+		<title level="m" type="main">EndToEndML: An Open-Source End-to-End Pipeline for Machine Learning Applications</title>
+		<author>
+			<persName><forename type="first">Nisha</forename><surname>Pillai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ram</forename><surname>Athish</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Moses</forename><surname>Das</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ganga</forename><surname>Ayoola</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bindu</forename><surname>Gireesan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mahalingam</forename><surname>Nanduri</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ramkumar</surname></persName>
+		</author>
+		<idno>CoRR abs/2403.18203</idno>
+		<imprint>
+			<date type="published" when="2024">2024. 2024</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b52">
+	<analytic>
+		<title level="a" type="main">Transcriptomics and machine learning to advance schizophrenia genetics: A casecontrol study using post-mortem brain data</title>
+		<author>
+			<persName><forename type="first">Bill</forename><surname>Qi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sonia</forename><surname>Boscenco</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Janani</forename><surname>Ramamurthy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yannis</forename><forename type="middle">J</forename><surname>Trakadis</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Comput. Methods Programs Biomed</title>
+		<imprint>
+			<biblScope unit="volume">214</biblScope>
+			<biblScope unit="page">106590</biblScope>
+			<date type="published" when="2022">2022. 2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b53">
+	<analytic>
+		<title level="a" type="main">Toward Knowledge Engineering Using MatFlow for Inverse Quantum Dye Design</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Hasan</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Rahman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Hasan</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Jamil</surname></persName>
+		</author>
+		<idno type="DOI">10.1109/HPCC-DSS-SmartCity-DependSys60770.2023.00124</idno>
+		<ptr target="https://doi.org/10.1109/HPCC-DSS-SmartCity-DependSys60770.2023.00124" />
+	</analytic>
+	<monogr>
+		<title level="m">2023 IEEE International Conference on High Performance Computing &amp; Communications</title>
+		<imprint>
+			<publisher>HPCC/DSS/SmartCity/DependSys</publisher>
+			<date type="published" when="2023">2023</date>
+			<biblScope unit="page" from="852" to="859" />
+		</imprint>
+	</monogr>
+	<note>Smart City &amp; Dependability in Sensor, Cloud &amp; Big Data Systems &amp; Application</note>
+</biblStruct>
+
+<biblStruct xml:id="b54">
+	<monogr>
+		<author>
+			<persName><forename type="first">Tommi</forename><surname>Ranta</surname></persName>
+		</author>
+		<ptr target="https://github.com/tommiranta/data-science-blog/blob/master/python_in_powerbi/boston_housing" />
+		<title level="m">Clustering of the Boston Housing Dataset</title>
+		<imprint>
+			<date type="published" when="2018-03-17">2018. 3/17/2024</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b55">
+	<analytic>
+		<title level="a" type="main">Snorkel: rapid training data creation with weak supervision</title>
+		<author>
+			<persName><forename type="first">Alexander</forename><surname>Ratner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stephen</forename><forename type="middle">H</forename><surname>Bach</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Henry</forename><forename type="middle">R</forename><surname>Ehrenberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jason</forename><forename type="middle">A</forename><surname>Fries</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sen</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Christopher</forename><surname>Ré</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">VLDB J</title>
+		<imprint>
+			<biblScope unit="volume">29</biblScope>
+			<biblScope unit="page" from="709" to="730" />
+			<date type="published" when="2020">2020. 2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b56">
+	<analytic>
+		<title level="a" type="main">An Approach to Data Mining inside PostgreSQL Based on Parallel Implementation of UDFs</title>
+		<author>
+			<persName><forename type="first">Timofey</forename><surname>Rechkalov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mikhail</forename><forename type="middle">L</forename><surname>Zymbler</surname></persName>
+		</author>
+		<ptr target="CEUR-WS.org" />
+	</analytic>
+	<monogr>
+		<title level="m">Selected Papers of the XIX International Conference on Data Analytics and Management in Data Intensive Domains</title>
+		<title level="s">CEUR Workshop Proceedings</title>
+		<editor>
+			<persName><forename type="first">Leonid</forename><forename type="middle">A</forename><surname>Kalinichenko</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Yannis</forename><surname>Manolopoulos</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Nikolay</forename><forename type="middle">A</forename><surname>Skvortsov</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Vladimir</forename><surname>Sukhomlin</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Moscow, Russia</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2017-10-09">2017. 2017. October 9-13, 2017</date>
+			<biblScope unit="volume">2022</biblScope>
+			<biblScope unit="page" from="114" to="121" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b57">
+	<analytic>
+		<title level="a" type="main">A Visual Interface for Feature Subset Selection Using Machine Learning Methods</title>
+		<author>
+			<persName><forename type="first">Diego</forename><surname>Rojo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Laura</forename><surname>Raya</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Manuel</forename><surname>Rubio-Sánchez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alberto</forename><surname>Sánchez</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">XXVIII Spanish Computer Graphics Conference, CEIG 2018</title>
+		<editor>
+			<persName><forename type="first">Ignacio</forename><surname>García</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">-Fernández</forename></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Carlos</forename><surname>Ureña</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Madrid, Spain</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2018-06-27">2018. June 27-29, 2018</date>
+			<biblScope unit="page" from="119" to="128" />
+		</imprint>
+	</monogr>
+	<note>Eurographics Association</note>
+</biblStruct>
+
+<biblStruct xml:id="b58">
+	<analytic>
+		<title level="a" type="main">AutoML to Date and Beyond: Challenges and Opportunities</title>
+		<author>
+			<persName><forename type="first">Shubhra</forename><surname>Kanti</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Karmaker</forename><surname>Santu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Md</forename><forename type="middle">Mahadi</forename><surname>Hassan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Micah</forename><forename type="middle">J</forename><surname>Smith</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lei</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chengxiang</forename><surname>Zhai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kalyan</forename><surname>Veeramachaneni</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM Comput. Surv</title>
+		<imprint>
+			<biblScope unit="volume">54</biblScope>
+			<biblScope unit="page">36</biblScope>
+			<date type="published" when="2022">2022. 2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b59">
+	<analytic>
+		<title level="a" type="main">MLearn: A Declarative Machine Learning Language for Database Systems</title>
+		<author>
+			<persName><forename type="first">Maximilian</forename><forename type="middle">E</forename><surname>Schüle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Matthias</forename><surname>Bungeroth</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alfons</forename><surname>Kemper</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stephan</forename><surname>Günnemann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Thomas</forename><surname>Neumann</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 3rd International Workshop on Data Management for End-to-End Machine Learning</title>
+		<editor>
+			<persName><forename type="first">Sebastian</forename><surname>Schelter</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Neoklis</forename><surname>Polyzotis</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Stephan</forename><surname>Seufert</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Manasi</forename><surname>Vartak</surname></persName>
+		</editor>
+		<meeting>the 3rd International Workshop on Data Management for End-to-End Machine Learning<address><addrLine>Amsterdam, The Netherlands</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2019-06-30">2019. June 30, 2019</date>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="page" from="1" to="7" />
+		</imprint>
+	</monogr>
+	<note>DEEM@SIGMOD 2019</note>
+</biblStruct>
+
+<biblStruct xml:id="b60">
+	<analytic>
+		<title level="a" type="main">ML2SQL -Compiling a Declarative Machine Learning Language to SQL and Python</title>
+		<author>
+			<persName><forename type="first">Maximilian</forename><forename type="middle">E</forename><surname>Schüle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Matthias</forename><surname>Bungeroth</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dimitri</forename><surname>Vorona</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alfons</forename><surname>Kemper</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stephan</forename><surname>Günnemann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Thomas</forename><surname>Neumann</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Database Technology -22nd International Conference on Extending Database Technology, EDBT 2019</title>
+		<editor>
+			<persName><forename type="first">Melanie</forename><surname>Herschel</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Helena</forename><surname>Galhardas</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Berthold</forename><surname>Reinwald</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Irini</forename><surname>Fundulaki</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Carsten</forename><surname>Binnig</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Zoi</forename><surname>Kaoudi</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Lisbon, Portugal</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2019-03-26">2019. March 26-29, 2019</date>
+			<biblScope unit="page" from="562" to="565" />
+		</imprint>
+	</monogr>
+	<note>OpenProceedings.org</note>
+</biblStruct>
+
+<biblStruct xml:id="b61">
+	<analytic>
+		<title level="a" type="main">Freedom for the SQL-Lambda: Just-in-Time-Compiling User-Injected Functions in PostgreSQL</title>
+		<author>
+			<persName><forename type="first">Maximilian</forename><forename type="middle">E</forename><surname>Schüle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jakob</forename><surname>Huber</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alfons</forename><surname>Kemper</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Thomas</forename><surname>Neumann</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">SSDBM 2020: 32nd International Conference on Scientific and Statistical Database Management</title>
+		<editor>
+			<persName><forename type="first">Dimitris</forename><surname>Sacharidis</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Kurt</forename><surname>Stockinger</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Thanasis</forename><surname>Vergoulis</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Vienna, Austria</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2020-07-07">2020. July 7-9, 2020</date>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="page">12</biblScope>
+		</imprint>
+	</monogr>
+	<note>Elaheh Pourabbas</note>
+</biblStruct>
+
+<biblStruct xml:id="b62">
+	<analytic>
+		<title level="a" type="main">Physical properties of model biological lipid bilayers: insights from all-atom molecular dynamics simulations</title>
+		<author>
+			<persName><forename type="first">Ganesh</forename><surname>Shahane</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Wei</forename><surname>Ding</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michail</forename><surname>Palaiokostas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mario</forename><surname>Orsi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of molecular modeling</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="page" from="1" to="13" />
+			<date type="published" when="2019">2019. 2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b63">
+	<analytic>
+		<title level="a" type="main">GenUI: interactive and extensible open source software platform for de novo molecular generation and cheminformatics</title>
+		<author>
+			<persName><forename type="first">Martin</forename><surname>Sícho</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xuhan</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Daniel</forename><surname>Svozil</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gerard</forename><forename type="middle">J P</forename><surname>Van Westen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Cheminformatics</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="page">73</biblScope>
+			<date type="published" when="2021">2021. 2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b64">
+	<analytic>
+		<title level="a" type="main">WOLFE: An NLP-friendly Declarative Machine Learning Stack</title>
+		<author>
+			<persName><forename type="first">Sameer</forename><surname>Singh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tim</forename><surname>Rocktäschel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Luke</forename><surname>Hewitt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jason</forename><surname>Naradowsky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sebastian</forename><surname>Riedel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">NAACL HLT 2015, The 2015 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies</title>
+		<editor>
+			<persName><forename type="first">Rada</forename><surname>Mihalcea</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Joyce</forename><forename type="middle">Yue</forename><surname>Chai</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Anoop</forename><surname>Sarkar</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Denver, Colorado, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>The Association for Computational Linguistics</publisher>
+			<date type="published" when="2015-05-31">2015. May 31 -June 5, 2015</date>
+			<biblScope unit="page" from="61" to="65" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b65">
+	<analytic>
+		<title level="a" type="main">Rapid Selection of Machine Learning Models Using Greedy Cross Validation</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Daniel</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Soper</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">55th Hawaii International Conference on System Sciences, HICSS 2022</title>
+		<meeting><address><addrLine>Maui, Hawaii, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2022-01-04">2022. January 4-7, 2022</date>
+			<biblScope unit="page" from="1" to="10" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b66">
+	<analytic>
+		<title level="a" type="main">A nanocomposite of carbon quantum dots and TiO2 nanotube arrays: enhancing photoelectrochemical and photocatalytic properties</title>
+		<author>
+			<persName><forename type="first">Mingxuan</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xiaoqing</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xi</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yujun</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xiaoli</forename><surname>Cui</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yuehe</forename><surname>Lin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">RSC Adv</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="page" from="1120" to="1127" />
+			<date type="published" when="2014">2014. 2014</date>
+		</imprint>
+	</monogr>
+	<note>Issue 3</note>
+</biblStruct>
+
+<biblStruct xml:id="b67">
+	<analytic>
+		<title level="a" type="main">PhotochemCAD 3: diverse modules for photophysical calculations with multiple spectral databases</title>
+		<author>
+			<persName><forename type="first">Masahiko</forename><surname>Taniguchi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hai</forename><surname>Du</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jonathan</forename><forename type="middle">S</forename><surname>Lindsey</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Photochemistry and photobiology</title>
+		<imprint>
+			<biblScope unit="volume">94</biblScope>
+			<biblScope unit="page" from="277" to="289" />
+			<date type="published" when="2018">2018. 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b68">
+	<monogr>
+		<author>
+			<persName><forename type="first">Alexander</forename><surname>Tornede</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Difan</forename><surname>Deng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Theresa</forename><surname>Eimer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joseph</forename><surname>Giovanelli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aditya</forename><surname>Mohan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tim</forename><surname>Ruhkopf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sarah</forename><surname>Segel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Daphne</forename><surname>Theodorakopoulos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tanja</forename><surname>Tornede</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Henning</forename><surname>Wachsmuth</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Marius</forename><surname>Lindauer</surname></persName>
+		</author>
+		<idno>CoRR abs/2306.08107</idno>
+		<title level="m">AutoML in the Age of Large Language Models: Current Challenges, Future Opportunities and Risks</title>
+		<imprint>
+			<date type="published" when="2023">2023. 2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b69">
+	<analytic>
+		<title level="a" type="main">The Power of Declarative Languages: From Information Extraction to Machine Learning</title>
+		<author>
+			<persName><forename type="first">Shivakumar</forename><surname>Vaithyanathan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Datenbanksysteme für Business, Technologie und Web (BTW), 14. Fachtagung des GI-Fachbereichs &quot;Datenbanken und Informationssysteme&quot; (DBIS), 2.-4.3.2011 in Kaiserslautern</title>
+		<editor>
+			<persName><forename type="first">Theo</forename><surname>Härder</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Wolfgang</forename><surname>Lehner</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Bernhard</forename><surname>Mitschang</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Harald</forename><surname>Schöning</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Holger</forename><surname>Schwarz</surname></persName>
+		</editor>
+		<imprint>
+			<publisher>GI</publisher>
+			<date type="published" when="2011">2011</date>
+			<biblScope unit="volume">180</biblScope>
+			<biblScope unit="page">23</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b70">
+	<analytic>
+		<title level="a" type="main">Machine learning for accurate and fast bandgap prediction of solid-state materials</title>
+		<author>
+			<persName><forename type="first">Shomik</forename><surname>Verma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shivam</forename><surname>Kajale</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rafael</forename><surname>Gómez-Bombarelli</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE High Performance Extreme Computing Conference</title>
+		<meeting><address><addrLine>Waltham, MA, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2022-09-19">2022. September 19-23, 2022</date>
+			<biblScope unit="volume">2022</biblScope>
+			<biblScope unit="page" from="1" to="2" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b71">
+	<analytic>
+		<title level="a" type="main">Dyna: toward a self-optimizing declarative language for machine learning applications</title>
+		<author>
+			<persName><forename type="first">Tim</forename><surname>Vieira</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Matthew</forename><surname>Francis-Landau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nathaniel</forename><forename type="middle">Wesley</forename><surname>Filardo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Farzad</forename><surname>Khorasani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jason</forename><surname>Eisner</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 1st ACM SIGPLAN International Workshop on Machine Learning and Programming Languages</title>
+		<editor>
+			<persName><forename type="first">Tatiana</forename><surname>Shpeisman</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Justin</forename><surname>Gottschlich</surname></persName>
+		</editor>
+		<meeting>the 1st ACM SIGPLAN International Workshop on Machine Learning and Programming Languages<address><addrLine>Barcelona, Spain</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2017-06-18">2017. June 18, 2017</date>
+			<biblScope unit="page" from="8" to="17" />
+		</imprint>
+	</monogr>
+	<note>MAPL@PLDI 2017</note>
+</biblStruct>
+
+<biblStruct xml:id="b72">
+	<analytic>
+		<title level="a" type="main">Formal semantics and high performance in declarative machine learning using Datalog</title>
+		<author>
+			<persName><forename type="first">Jin</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jiacheng</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mingda</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jiaqi</forename><surname>Gu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ariyam</forename><surname>Das</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Carlo</forename><surname>Zaniolo</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">VLDB J</title>
+		<imprint>
+			<biblScope unit="volume">30</biblScope>
+			<biblScope unit="page" from="859" to="881" />
+			<date type="published" when="2021">2021. 2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b73">
+	<analytic>
+		<title level="a" type="main">Putting the Human Back in the AutoML Loop</title>
+		<author>
+			<persName><forename type="first">Iordanis</forename><surname>Xanthopoulos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ioannis</forename><surname>Tsamardinos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vassilis</forename><surname>Christophides</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Eric</forename><surname>Simon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alejandro</forename><surname>Salinger</surname></persName>
+		</author>
+		<ptr target="CEUR-WS.org" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Workshops of the EDBT/ICDT 2020 Joint Conference</title>
+		<title level="s">CEUR Workshop Proceedings</title>
+		<editor>
+			<persName><forename type="first">Alexandra</forename><surname>Poulovassilis</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">David</forename><surname>Auber</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Nikos</forename><surname>Bikakis</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Panos</forename><forename type="middle">K</forename><surname>Chrysanthis</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">George</forename><surname>Papastefanatos</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Mohamed</forename><forename type="middle">A</forename><surname>Sharaf</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Nikos</forename><surname>Pelekis</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Chiara</forename><surname>Renso</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Yannis</forename><surname>Theodoridis</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Karine</forename><surname>Zeitouni</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Tania</forename><surname>Cerquitelli</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Silvia</forename><surname>Chiusano</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Genoveva</forename><surname>Vargas-Solar</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Behrooz</forename><surname>Omidvar-Tehrani</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Katharina</forename><surname>Morik</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Jean-Michel</forename><surname>Renders</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Donatella</forename><surname>Firmani</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Letizia</forename><surname>Tanca</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Davide</forename><surname>Mottin</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Matteo</forename><surname>Lissandrini</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Yannis</forename><surname>Velegrakis</surname></persName>
+		</editor>
+		<meeting>the Workshops of the EDBT/ICDT 2020 Joint Conference<address><addrLine>Copenhagen, Denmark</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2020-03-30">2020. March 30, 2020</date>
+			<biblScope unit="volume">2578</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b74">
+	<monogr>
+		<author>
+			<persName><forename type="first">Chao</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yuren</forename><surname>Mao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yijiang</forename><surname>Fan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yu</forename><surname>Mi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yunjun</forename><surname>Gao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lu</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dongfang</forename><surname>Lou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jinshu</forename><surname>Lin</surname></persName>
+		</author>
+		<idno>CoRR abs/2401.10506</idno>
+		<title level="m">FinSQL: Model-Agnostic LLMs-based Text-to-SQL Framework for Financial Analysis</title>
+		<imprint>
+			<date type="published" when="2024">2024. 2024</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b75">
+	<analytic>
+		<title level="a" type="main">Using Pipeline Performance Prediction to Accelerate AutoML Systems</title>
+		<author>
+			<persName><forename type="first">Haoxiang</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Roque</forename><surname>Lopez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">R</forename><surname>Aécio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jorge</forename><forename type="middle">Piazentin</forename><surname>Santos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aline</forename><surname>Ono</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Juliana</forename><surname>Bessa</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Freire</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Seventh Workshop on Data Management for End-to-End Machine Learning</title>
+		<meeting>the Seventh Workshop on Data Management for End-to-End Machine Learning<address><addrLine>Seattle, WA, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2023-06-18">2023. 18 June 2023</date>
+			<biblScope unit="volume">2023</biblScope>
+			<biblScope unit="page">11</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b76">
+	<analytic>
+		<title level="a" type="main">ML-Copilot: Unleashing the Power of Large Language Models in Solving Machine Learning Tasks</title>
+		<author>
+			<persName><forename type="first">Lei</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yuge</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kan</forename><surname>Ren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dongsheng</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yuqing</forename><surname>Yang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 18th Conference of the European Chapter</title>
+		<editor>
+			<persName><forename type="first">Yvette</forename><surname>Graham</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Matthew</forename><surname>Purver</surname></persName>
+		</editor>
+		<meeting>the 18th Conference of the European Chapter</meeting>
+		<imprint>
+			<publisher>Association for Computational Linguistics</publisher>
+			<date type="published" when="2024-03-17">2024. March 17-22, 2024</date>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="page" from="2931" to="2959" />
+		</imprint>
+	</monogr>
+	<note>EACL 2024</note>
+</biblStruct>
+
+<biblStruct xml:id="b77">
+	<analytic>
+		<title level="a" type="main">ScienceBenchmark: A Complex Real-World Benchmark for Evaluating Natural Language to SQL Systems</title>
+		<author>
+			<persName><forename type="first">Yi</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jan</forename><surname>Deriu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">George</forename><surname>Katsogiannis-Meimarakis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Catherine</forename><surname>Kosten</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Georgia</forename><surname>Koutrika</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kurt</forename><surname>Stockinger</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. VLDB Endow</title>
+		<meeting>VLDB Endow</meeting>
+		<imprint>
+			<date type="published" when="2023">2023. 2023</date>
+			<biblScope unit="volume">17</biblScope>
+			<biblScope unit="page" from="685" to="698" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

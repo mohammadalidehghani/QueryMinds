@@ -1,0 +1,1088 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Minimal Achievable Sufficient Statistic Learning</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Milan</forename><surname>Cvitkovic</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Computing and Mathematical Sciences</orgName>
+								<orgName type="institution">Califor- nia Institute of Technology</orgName>
+								<address>
+									<settlement>Pasadena</settlement>
+									<region>California</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">G</forename><surname>Ünther Koliander</surname></persName>
+							<affiliation key="aff1">
+								<orgName type="department">Acoustics Research Institute</orgName>
+								<orgName type="institution">Austrian Academy of Sciences</orgName>
+								<address>
+									<settlement>Vienna</settlement>
+									<country key="AT">Austria</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Minimal Achievable Sufficient Statistic Learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">A9A388605C0D66070E85BA39F629F32F</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>We introduce Minimal Achievable Sufficient Statistic (MASS) Learning, a training method for machine learning models that attempts to produce minimal sufficient statistics with respect to a class of functions (e.g. deep networks) being optimized over. In deriving MASS Learning, we also introduce Conserved Differential Information (CDI), an information-theoretic quantity that -unlike standard mutual information -can be usefully applied to deterministically-dependent continuous random variables like the input and output of a deep network. In a series of experiments, we show that deep networks trained with MASS Learning achieve competitive performance on supervised learning and uncertainty quantification benchmarks.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.">Introduction</head><p>The representation learning approach to machine learning focuses on finding a representation Z of an input random variable X that is useful for predicting a random variable Y <ref type="bibr" target="#b14">(Goodfellow et al., 2016)</ref>.</p><p>What makes a representation Z "useful" is much debated, but a common assertion is that Z should be a minimal sufficient statistic of X for Y <ref type="bibr" target="#b2">(Adragni, Kofi P. &amp; Cook, R. Dennis, 2009;</ref><ref type="bibr" target="#b35">Shamir et al., 2010;</ref><ref type="bibr" target="#b18">James et al., 2017;</ref><ref type="bibr">Achille &amp; Soatto, 2018b)</ref>. That is:</p><p>1. Z should be a statistic of X. This means Z = f (X)</p><p>for some function f .</p><p>2. Z should be sufficient for Y . This means p(X|Z, Y ) = p(X|Z).</p><p>3. Given that Z is a sufficient statistic, it should be minimal with respect to X. This means for any measurable, non-invertible function g, g(Z) is no longer sufficient for Y .<ref type="foot" target="#foot_0">foot_0</ref> </p><p>In other words: a minimal sufficient statistic is a random variable Z that tells you everything about Y you could ever care about, but if you do any irreversible processing to Z, you are guaranteed to lose some information about Y .</p><p>Minimal sufficient statistics have a long history in the field of statistics <ref type="bibr" target="#b26">(Lehmann &amp; Scheffe, 1950;</ref><ref type="bibr" target="#b11">Dynkin, 1951)</ref>. But the minimality condition (3, above) is perhaps too strong to be useful in machine learning, since it is a statement about any function g, rather than about functions in a practical hypothesis class like the class of deep neural networks.</p><p>Instead, in this work we consider minimal achievable sufficient statistics: sufficient statistics that are minimal among some particular set of functions.</p><p>Definition 1 (Minimal Achievable Sufficient Statistic). Let Z = f (X) be a sufficient statistic of X for Y . Z is minimal achievable with respect to a set of functions F if f ∈ F and for any Lipschitz continuous, non-invertible function g where g • f ∈ F, g(Z) is no longer sufficient for Y .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Contributions:</head><p>• We introduce Conserved Differential Information (CDI), an information-theoretic quantity that, unlike mutual information, is meaningful for deterministically-dependent continuous random variables, such as the input and output of a deep network.</p><p>• We introduce Minimal Achievable Sufficient Statistic Learning (MASS Learning), a training objective based on CDI for finding minimal achievable sufficient statistics.</p><p>• We provide empirical evidence that models trained by MASS Learning achieve competitive performance on supervised learning and uncertainty quantification benchmarks.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.">Conserved Differential Information</head><p>Before we present MASS Learning, we need to introduce Conserved Differential Information (CDI), on which MASS Learning is based.</p><p>CDI is an information-theoretic quantity that addresses an oft-cited issue in machine learning <ref type="bibr" target="#b6">(Bell &amp; Sejnowski, 1995;</ref><ref type="bibr" target="#b5">Amjad &amp; Geiger, 2018;</ref><ref type="bibr" target="#b34">Saxe et al., 2018;</ref><ref type="bibr" target="#b27">Nash et al., 2018;</ref><ref type="bibr" target="#b13">Goldfeld et al., 2018)</ref>, which is that for a continuous random variable X and a continuous, non-constant function f , the mutual information I(X, f (X)) is infinite. (See Supplementary Material 7.2 for details.) This makes I(X, f (X)) unsuitable for use in a learning objective when f is, for example, a standard deep network.</p><p>The infinitude of I(X, f (X)) has been circumvented in prior works by two strategies. One is discretize X and f (X) <ref type="bibr" target="#b39">(Tishby &amp; Zaslavsky, 2015;</ref><ref type="bibr" target="#b36">Shwartz-Ziv &amp; Tishby, 2017)</ref>, though this is controversial <ref type="bibr" target="#b34">(Saxe et al., 2018)</ref>. Another is to use a random variable Z with distribution p(Z|X) as the representation of X rather than using f (X) itself as the representation <ref type="bibr" target="#b3">(Alemi et al., 2017;</ref><ref type="bibr" target="#b20">Kolchinsky et al., 2017;</ref><ref type="bibr">Achille &amp; Soatto, 2018b)</ref>. In this latter approach, p(Z|X) is usually implemented by adding noise to a deep network that takes X as input.</p><p>These are both reasonable strategies for avoiding the infinitude of I(X, f (X)). But another approach would be to derive a new information-theoretic quantity that is better suited to this situation. To that end we present Conserved Differential Information:</p><p>Definition 2. For a continuous random variable X taking values in R d and a Lipschitz continuous function f : R d → R r , the Conserved Differential Information (CDI) is</p><formula xml:id="formula_0">C(X, f (X)) := H(f (X)) -E X [log (J f (X))]<label>(1)</label></formula><p>where H denotes the differential entropy</p><formula xml:id="formula_1">H(Z) = -p(z) log p(z) dz and J f is the Jacobian determinant of f J f (x) = det ∂f (x) ∂x T ∂f (x) ∂x T T with ∂f (x)</formula><p>∂x T ∈ R r×d the Jacobian matrix of f at x.</p><p>Readers familiar with normalizing flows <ref type="bibr" target="#b31">(Rezende &amp; Mohamed, 2015)</ref> or Real NVP <ref type="bibr" target="#b10">(Dinh et al., 2017)</ref> will note that the Jacobian determinant used in those methods is a special case of the Jacobian determinant in the definition of CDI. This is because normalizing flows and Real NVP are based on the change of variables formula for invertible mappings, while CDI is based in part on the more general change of variables formula for non-invertible mappings. More details on this connection are given in Supplementary Material 7.3. The mathematical motivation for CDI based on the recent work of <ref type="bibr" target="#b22">Koliander et al. (2016)</ref> is provided in Supplementary Material 7.4. Figure <ref type="figure" target="#fig_3">1</ref> gives a visual example of what CDI measures about a function.</p><formula xml:id="formula_2">0 1 1 X p(X) 0 ½ 2 f 1 (X) p(f 1 (X)) f 1 (X) = ½ X f 2 (X) = ┃X -½┃ 0 ½ 2 f 2 (X) p(f 2 (X)) C(X, f 1 (X)) = 0 C(X, f 2 (X)) = -log 2</formula><p>Figure <ref type="figure" target="#fig_3">1</ref>. CDI of two functions f1 and f2 of the random variable X. Even though the random variables f1(X) and f2(X) have the same distribution, C(X, f1(X)) is different from C(X, f2(X)). This is because f1 is an invertible function, while f2 is not. CDI quantifies, roughly speaking, "how non-invertible" f2 is.</p><p>The conserved differential information C(X, f (X)) between continuous, deterministically-dependent random variables behaves much like mutual information does between discrete random variables. For example, when f is invertible, C(X, f (X)) = H(X), just like with the mutual information between discrete random variables. Most importantly for our purposes, though, C(X, f (X)) obeys the following data processing inequality:</p><p>Theorem 1 (CDI Data Processing Inequality). For Lipschitz continuous functions f and g with the same output space,</p><formula xml:id="formula_3">C (X, f (X)) ≥ C (X, g(f (X)))</formula><p>with equality if and only if g is invertible almost everywhere.</p><p>The proof is in Supplementary Material 7.5.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">MASS Learning</head><p>With CDI and its data processing inequality in hand, we can give the following optimization-based characterization of minimal achievable sufficient statistics:</p><p>Theorem 2. Let X be a continuous random variable, Y be a discrete random variable, and F be any set of Lipschitz continuous functions with a common output space (e.g., different parameter settings of a deep network). If</p><formula xml:id="formula_4">f ∈ arg min S∈F C(X, S(X)) s.t. I(S(X), Y ) = max S I(S (X), Y )</formula><p>then f (X) is a minimal achievable sufficient statistic of X for Y with respect to F.</p><p>Proof. First note the following lemma <ref type="bibr" target="#b8">(Cover &amp; Thomas, 2006)</ref>.</p><formula xml:id="formula_5">Lemma 1. Z = f (X) is a sufficient statistic for a discrete random variable Y if and only if I(Z, Y ) = max S I(S (X), Y ).</formula><p>Lemma 1 guarantees that any f satisfying the conditions in Theorem 2 is sufficient. Suppose such an f was not minimal achievable. Then by Definition 1 there would exist a non-invertible, Lipschitz continuous g such that g(f (X)) was sufficient. But by Theorem 1, it would then also be the case that C(X, g(f (X))) &lt; C(X, f (X)), which would contradict f minimizing C(X, S(X)).</p><p>We can turn Theorem 2 into a learning objective over functions f by relaxing the strict constraint into a Lagrangian formulation with Lagrange multiplier 1/β for β &gt; 0:</p><formula xml:id="formula_6">C(X, f (X)) - 1 β I(f (X), Y )</formula><p>The larger the value of β, the more our objective will encourage minimality over sufficiency. We can then simplify this formulation using the identity</p><formula xml:id="formula_7">I(f (X), Y ) = H(Y ) -H(Y |f (X))</formula><p>, which gives us the following optimization objective:</p><formula xml:id="formula_8">L M ASS (f ) := H(Y |f (X)) + βH(f (X)) -βE X [log J f (X)].<label>(2)</label></formula><p>We refer to minimizing this objective as MASS Learning.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1.">Practical implementation</head><p>In practice, we are interested in using MASS Learning to train a deep network f θ with parameters θ using a finite dataset {(x i , y i )} N i=1 of N datapoints sampled from the joint distribution p(x, y) of X and Y . To do this, we introduce a parameterized variational approximation q φ (f θ (x)|y) ≈ p(f θ (x)|y). Using q φ , we minimize the following empirical upper bound to L M ASS :</p><formula xml:id="formula_9">L M ASS ≤ L M ASS (θ, φ) := 1 N N i=1 -log q φ (y i |f θ (x i )) -β log q φ (f θ (x i )) -β log J f θ (x i ),</formula><p>where the quantity q φ (f θ (x i )) is computed as y q φ (f θ (x i )|y)p(y) and the quantity q φ (y i |f θ (x i )) is computed with Bayes rule as</p><formula xml:id="formula_10">q φ (f θ (xi)|yi)p(yi) y q φ (f θ (xi)|y)p(y)</formula><p>. When Y is discrete and takes on finitely many values, as in classification problems, and when we choose a variational distribution q φ that is differentiable with respect to φ (e.g. a multivariate Gaussian), then we can minimize L M ASS (θ, φ) using stochastic gradient descent (SGD).</p><p>To perform classification using our trained network, we use the learned variational distribution q φ and Bayes rule:</p><formula xml:id="formula_11">p(y i |x i ) ≈ p(y i |f θ (x i )) ≈ q φ (f θ (x i )|y i )p(y i ) y q φ (f θ (x i )|y)p(y)</formula><p>.</p><p>Computing the J f θ term in L M ASS for every sample in an SGD minibatch is too expensive to be practical. For f θ : R d → R r , doing so would require on the order of r times more operations than in standard training of deep networks by, since computing the J f θ term involves computing the full Jacobian matrix of the network, which, in our implementation, involves performing r backpropagations. Thus to make training tractable, we use a subsampling strategy: we estimate the J f θ term using only a 1/r fraction of the datapoints in a minibatch. In practice, we have found this subsampling strategy to not noticeably alter the numerical value of the J f θ term during training.</p><p>Subsampling for the J f θ term results in a significant training speedup, but it must nevertheless be emphasized that, even with subsampling, our implementation of MASS Learning is roughly eight times as slow as standard deep network training. (Unless β = 0, in which case the speed is the same.) This is by far the most significant drawback of (our implementation of) MASS Learning. There are many easierto-compute upper bounds or estimates of J f θ that one could use to make MASS Learning faster, and one could also potentially find non-invertible network architectures which admit more efficiently computable Jacobians, but we do not explore these options in this work.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.">Related Work</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1.">Connection to the Information Bottleneck</head><p>The well-studied Information Bottleneck learning method <ref type="bibr" target="#b40">(Tishby et al., 2000;</ref><ref type="bibr" target="#b39">Tishby &amp; Zaslavsky, 2015;</ref><ref type="bibr" target="#b38">Strouse &amp; Schwab, 2015;</ref><ref type="bibr" target="#b3">Alemi et al., 2017;</ref><ref type="bibr" target="#b34">Saxe et al., 2018;</ref><ref type="bibr" target="#b5">Amjad &amp; Geiger, 2018;</ref><ref type="bibr" target="#b13">Goldfeld et al., 2018;</ref><ref type="bibr" target="#b21">Kolchinsky et al., 2019;</ref><ref type="bibr">Achille &amp; Soatto, 2018b;</ref><ref type="bibr">a)</ref> is based on minimizing the Information Bottleneck Lagrangian</p><formula xml:id="formula_12">L IB (Z) := βI(X, Z) -I(Y, Z)</formula><p>for β &gt; 0, where Z is the representation whose conditional distribution p(Z|X) one is trying to learn.</p><p>The L IB learning objective can be motivated based on pure information-theoretic elegance. But some works like <ref type="bibr" target="#b35">(Shamir et al., 2010)</ref> also point out the connection between the L IB objective and minimal sufficient statistics, which is based on the following theorem: Theorem 3. Let X be a discrete random variable drawn according to a distribution p(X|Y ) determined by the discrete random variable Y . Let F be the set of deterministic functions of X to any target space. Then f (X) is a minimal sufficient statistic of X for Y if and only if</p><formula xml:id="formula_13">f ∈ arg min S∈F I(X, S(X)) s.t. I(S(X), Y ) = max S ∈F I(S (X), Y ).</formula><p>The L IB objective can then be thought of as a Lagrangian relaxation of the optimization problem in this theorem.</p><p>Theorem 3 only holds for discrete random variables. For continuous X it holds only in the reverse direction, so minimizing L IB for continuous X has no formal connection to finding minimal sufficient statistics, not to mention minimal achievable sufficient statistics. See Supplementary Material 7.6 for details.</p><p>Nevertheless, the optimization problems in Theorem 2 and Theorem 3 are extremely similar, relying as they both do on Lemma 1 for their proofs. And the idea of relaxing the optimization problem in Theorem 2 into a Lagrangian formulation to get L M ASS is directly inspired by the Information Bottleneck. So while MASS Learning and Information Bottleneck learning entail different network architectures and loss functions, there is an Information Bottleneck flavor to MASS Learning.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2.">Jacobian Regularization</head><p>The presence of the J f θ term in L M ASS is reminiscent of the contrastive autoencoder <ref type="bibr" target="#b32">(Rifai et al., 2011)</ref> and Jacobian Regularization literature <ref type="bibr" target="#b37">(Sokolic et al., 2017;</ref><ref type="bibr" target="#b33">Ross &amp; Doshi-Velez, 2018;</ref><ref type="bibr" target="#b41">Varga et al., 2017;</ref><ref type="bibr" target="#b29">Novak et al., 2018;</ref><ref type="bibr" target="#b17">Jakubovitz &amp; Giryes, 2018)</ref>. Both these literatures suggest that minimizing</p><formula xml:id="formula_14">E X [ D f (X) F ], where D f (x) = ∂f (x)</formula><p>∂x T ∈ R r×d is the Jacobian matrix, seems to improve generalization and adversarial robustness. This may seem paradoxical at first, since by applying the AM-GM inequality to the eigenvalues of D f (x)D f (x) T we have</p><formula xml:id="formula_15">E X [ D f (X) 2r F ] = E X [Tr(D f (X)D f (X) T ) r ] ≥ E X [r r det(D f (X)D f (X) T )] = E X [r r J f (X) 2 ] ≥ log E X [r r J f (X) 2 ] ≥ 2E X [log J f (X)] + r log r and E X [log J f (X)</formula><p>] is being maximized by L M ASS . So L M ASS might seem to be optimizing for worse generalization according to the Jacobian regularization literature. However, the entropy term in L M ASS strongly encourages minimizing E X [ D f (X) F ]. So overall L M ASS seems to be seeking the right balance of sensitivity (dependent on the value of β) in the network to its inputs, which is precisely in alignment with what the Jacobian regularization literature suggests.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.">Experiments</head><p>In this section we compare MASS Learning to other approaches for training deep networks. Code to reproduce all experiments is available online.<ref type="foot" target="#foot_1">foot_1</ref> Full details on all experiments is in Supplementary Material 7.7.</p><p>We use the abbreviation "SoftmaxCE" to refer to the standard approach of training deep networks for classification problems by minimizing the softmax cross entropy loss</p><formula xml:id="formula_16">L Sof tmaxCE (θ) := - 1 N N i=1 log softmax(f θ (x i )) yi</formula><p>where softmax(f θ (x i )) yi is the y i th element of the softmax function applied to the outputs f θ (x i ) of the network's last linear layer. As usual, softmax(f θ (x i )) yi is taken to be the network's estimate of p(y i |x i ).</p><p>We also compare against the Variational Information Bottleneck method <ref type="bibr" target="#b3">(Alemi et al., 2017)</ref> for representation learning, which we abbreviate as "VIB".</p><p>We use two networks in our experiments. "SmallMLP" is a feedforward network with two fully-connected layers of 400 and 200 hidden units, respectively, both with elu nonlinearities <ref type="bibr">(Clevert et al., 2015)</ref>. "ResNet20" is the 20layer residual network of <ref type="bibr" target="#b15">He et al. (2016)</ref>.</p><p>We performed all experiments on the CIFAR-10 dataset <ref type="bibr" target="#b24">(Krizhevsky, 2009)</ref> and implemented all experiments using PyTorch <ref type="bibr" target="#b30">(Paszke et al., 2017)</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1.">Classification Accuracy and Regularization</head><p>We first confirm that networks trained by MASS Learning can make accurate predictions in supervised learning tasks. We compare the classification accuracy of networks trained on varying amounts of data to see the extent to which MASS Learning regularizes networks.</p><p>Classification accuracies for the SmallMLP network are shown in Table <ref type="table" target="#tab_0">1</ref>, and for the ResNet20 network in Table <ref type="table" target="#tab_1">2</ref>. For the SmallMLP network, MASS Learning performs slightly worse than SoftmaxCE and VIB training. For the </p><formula xml:id="formula_17">.2 ± 0.9 MASS, β=1e-2, D 29.3 ± 1.2 41.7 ± 0.4 52.0 ± 0.6 MASS, β=1e-3, D 31.5 ± 0.6 43.7 ± 0.2 53.1 ± 0.4 MASS, β=1e-4, D 32.7 ± 0.8 43.4 ± 0.5 53.2 ± 0.1 MASS, β=0, D</formula><p>32.2 ± 1.1 43.9 ± 0.4 52.7 ± 0.0 larger ResNet20 network, MASS Learning performs equivalently to the other methods. It is notable that with the ResNet20 network VIB and MASS Learning both perform well when β = 0, and neither perform significantly better than SoftmaxCE. This may be because the hyperparameters used in training the ResNet20 network, which were taken directly from the original paper <ref type="bibr" target="#b15">(He et al., 2016)</ref>, are specifically tuned for SoftmaxCE training and are more sensitive to the specifics of the network architecture than to the loss function.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2.">Uncertainty Quantification</head><p>We also evaluate the ability of networks trained by MASS Learning to properly quantify their uncertainty about their predictions. We assess uncertainty quantification in two ways: using proper scoring rules <ref type="bibr" target="#b25">(Lakshminarayanan et al., 2017)</ref>, which are scalar measures of how well a network's predictive distribution p(y|f θ (x)) is calibrated, and by assessing performance on an out-of-distribution (OOD) detection task.</p><p>Tables <ref type="table" target="#tab_7">3 through 8</ref> show the uncertainty quantification performance of networks according to two proper scoring rules: the Negative Log Likelihood (NLL) and the Brier Score.</p><p>The entropy and test accuracy of the predictive distributions are also given, for reference.  and <ref type="table" target="#tab_6">7</ref>, MASS Learning provides the best combination of accuracy and proper scoring rule performance, though its performance falters when trained on only 2,500 datapoints in Table and <ref type="table" target="#tab_7">8</ref>. These ResNet20 UQ results also show the trend that MASS Learning with larger β leads to better calibrated network predictions. Thus, as measured by proper scoring rules, MASS Learning can significantly improve the calibration of a network's predictions while maintaining the same accuracy.</p><p>Tables 9 through 14 show metrics for performance on an OOD detection task where the network predicts not just the class of the input image, but whether the image is from its training distribution (CIFAR-10 images) or from another distribution (SVHN images <ref type="bibr" target="#b28">(Netzer et al., 2011)</ref>). Following <ref type="bibr" target="#b16">Hendrycks &amp; Gimpel (2017)</ref> and <ref type="bibr" target="#b4">Alemi et al. (2018)</ref>, the metrics we report for this task are the Area under the ROC curve (AUROC) and Average Precision score (APR). APR depends on whether the network is tasked with identifying in-distribution or out-of-distribution images; we report values for both cases as APR In and APR Out, respectively.</p><p>There are different detection methods that networks can use to identify OOD inputs. One way, applicable to all training methods, is to use the entropy of the predictive distribution p(y|f θ (x)): larger entropy suggests the input is OOD. For networks trained by MASS Learning, the variational distribution q φ (f θ (x)|y) is a natural OOD detector: a small value of max i q φ (f θ (x)|y i ) suggests the input is OOD. For networks trained by SoftmaxCE, a distribution q φ (f θ (x)|y) can be learned by MLE on the training set and used to detect OOD inputs in the same way.</p><p>For both the SmallMLP network in Tables 9, 10, and 11 and the ResNet20 network in Tables <ref type="table" target="#tab_11">12</ref>, <ref type="table" target="#tab_12">13</ref>, and 14, MASS Learning performs comparably or better than SoftmaxCE and VIB. However, one should note that MASS Learning with β = 0 gives performance not significantly different to MASS Learning with β = 0 on these OOD tasks, which suggests that the good performance of MASS Learning may be due to its use of a variational distribution to produce predictions, rather than to the overall MASS Learning training scheme.</p><p>5.3. Does MASS Learning finally solve the mystery of why stochastic gradient descent with the cross entropy loss works so well in deep learning?</p><p>We do not believe so. Figure <ref type="figure" target="#fig_0">2</ref> shows how the values of the three terms in L M ASS change as the SmallMLP network trains on the CIFAR-10 dataset using either the SoftmaxCE training or MASS Learning. Despite achieving similar accuracies, the SoftmaxCE training method does not seem to be implicitly performing MASS Learning, based on the differing values of the entropy (orange) and Jacobian (green) terms between the two methods as training progresses.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.">Discussion</head><p>MASS Learning is a new approach to representation learning that performs well on classification accuracy, regularization, and uncertainty quantification benchmarks, despite not being directly formulated for any of these tasks. It shows particularly strong performance in improving uncertainty quantification.</p><p>There are several potential ways to improve MASS Learning. Starting at the lowest level: it is likely that we did not manage to minimize L M ASS anywhere close to the extent possible in our experiments, given the minimal hyperparameter tuning we performed. In particular, we noticed that the initialization of the variational distribution played a large role in performance, but we were not able to fully explore it.</p><p>Moving a level higher, it may be that we are effectively minimized L M ASS , but that L M ASS is not a useful empirical approximation or upper bound to L M ASS . This could be due to an insufficiently expressive variational distribution, or simply that the quantities in L M ASS require more data to approximate well than our datasets contained.</p><p>At higher levels still, it may be the case that the Lagrangian formulation of Theorem 2 as L M ASS is impractical for finding minimal achievable sufficient statistics. Or it may be that the difference between minimal and minimal achievable sufficient statistics is relevant for performance on machine learning tasks. Or it may simply be that framing machine learning as a problem of finding minimal sufficient statistics is not productive.</p><p>Finally, while we again note that more work is needed to reduce the computational cost of our implementation of MASS Learning, we believe the concept of MASS learning, and the concepts of minimal achievability and Conserved Differential Information we introduce along with it, are beneficial to the theoretical understanding of representation learning.   The most common phrasing of the definition of minimal sufficient statistic is: Definition 3 (Minimal Sufficient Statistic). A sufficient statistic f (X) for Y is minimal if for any other sufficient statistic h(X) there exists a measurable function g such that f = g • h almost everywhere. Some references do not explicitly mention the "measurability" and "almost everywhere" conditions on g, but since we are in the probabilistic setting it is this definition of f = g • h that is meaningful.</p><p>Our preferred phrasing of the definition of minimal sufficient statistic, which we use in our Introduction, is: Definition 4 (Minimal Sufficient Statistic). A sufficient statistic f (X) for Y is minimal if for any measurable function g, g(f (X)) is no longer sufficient for Y unless g is invertible almost everywhere (i.e. there exist a measurable function g -1 and a set A such that g -1 (g(x)) = x for all x ∈ A and the event {X ∈ A c } has probability zero).</p><p>The equivalence of Definition 3 and Definition 4 is given by the following lemma:</p><p>Lemma 2. Assume that there exists a minimal sufficient statistic h(X) for Y by Definition 3. Then a sufficient statistic f (X) is minimal in the sense of Definition 3 if and only if it is minimal in the sense of Definition 4.</p><p>Proof. We first assume that f (X) is minimal in the sense of Definition 3. Let g be any measurable function such that g(f (X)) is sufficient for Y . By the minimality (Def. 3) of f there must exist a measurable function g such that g(g(f (x))) = f (x) almost everywhere. This proves that f is minimal in the sense of Definition 4. Now assume that f (X) is minimal in the sense of Definition 4 and let f (X) be another sufficient statistic. Because h is minimal (Def. 3), there exist g 1 such that h = g 1 • f almost everywhere and g 2 such that h = g 2 • f almost everywhere. Because f is minimal (Def. 4), g 2 must be one-to-one almost everywhere, i.e. there exists a g2 such that g2 • h = g2 • g 2 • f = f almost everywhere. In turn, we obtain that g2 • g 1 • f = f almost everywhere, and since f was arbitrary this proves the minimality of f in the sense of Definition 3.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.2.">The Mutual Information Between the Input and Output of a Deep Network is Infinite</head><p>Typically the mutual information between continuous random variables X and Y is given by I(X, Y ) = p(x, y) log p(x, y) p(x)p(y) dxdy, but this quantity is only defined when the joint density p(x, y) is integrable, which it is not in the case that Y = f (X). (The technical term for p(x, y) in this case is a "singular distribution".) Instead, to compute I(X, f (X)) we must refer to the "master definition" of mutual information <ref type="bibr" target="#b8">(Cover &amp; Thomas, 2006)</ref>, which is</p><formula xml:id="formula_18">I(X, Y ) = sup P,Q I([X] P , [Y ] Q ),<label>(3)</label></formula><p>where P and Q are finite partitions of the range of X and Y , respectively, and [X] P is the random variable obtained by quantizing X using partition P, and analogously for [Y ] Q .</p><p>From this definition, we can prove the following Lemma: This includes all X and Y where Y = f (X) for an f that is continuous somewhere on its domain, e.g., any deep network (considered as a function from an input vector to an output vector).</p><p>Proof. Suppose X and Y satisfy the conditions of the lemma.</p><p>Let O X and O Y be open sets with f (O X ) = O Y and P[X ∈ O X ] =: δ &gt; 0, which exist by the lemma's assumptions. Then let P n O Y be a partition of O Y into n disjoint sets. Because Y is continuous and hence does not have any atoms, we may assume that the probability of Y belonging to each element of P n O Y is equal to the same nonzero value δ/n. Denote by P n O X the partition of O X into n disjoint sets, where each set in P n O X is the preimage of one of the sets in P n O Y . We can construct partitions of the whole domains of X and Y as P n O X ∪ O c X and P n O Y ∪ O c Y , respectively. Using these partitions in (3), we obtain</p><formula xml:id="formula_19">I(X, Y ) ≥ (1 -δ) log(1 -δ) + A∈[X] P n O X P[X ∈ A, Y ∈ f (A)] log P[X ∈ A, Y ∈ f (A)] P[X ∈ A]P[Y ∈ f (A)] = (1 -δ) log(1 -δ) + n δ n log δ n δ n δ n = (1 -δ) log(1 -δ) + δ log n δ .</formula><p>By letting n go to infinity, we can see that the supremum in Eq. 3 is infinity.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.3.">The Change of Variables Formula for Non-invertible Mappings</head><p>The change of variables formula is widely used in machine learning and is key to recent results in density estimation and generative modeling like normalizing flows <ref type="bibr" target="#b31">(Rezende &amp; Mohamed, 2015)</ref>, NICE <ref type="bibr" target="#b9">(Dinh et al., 2014)</ref>, and Real NVP <ref type="bibr" target="#b10">(Dinh et al., 2017)</ref>. But all uses of the change of variables formula in the machine learning literature that we are aware of use it with respect to bijective mappings between random variables, despite the formula also being applicable to non-invertible mappings between random variables. To address this gap, we offer the following brief tutorial.</p><p>The familiar form of the change of variables formula for a random variable X with density p(x) and a bijective, differentiable function</p><formula xml:id="formula_20">f : R d → R d is R d p(x)J f (x) dx = R d p(f -1 (y)) dy.<label>(4)</label></formula><p>where</p><formula xml:id="formula_21">J f (x) = det ∂f (x) ∂x T . A slightly more general phrasing of Equation 4 is f -1 (B) g(x)J f (x) dx = B g(f -1 (y)) dy.</formula><p>(5)</p><p>where g : R d → R is any non-negative measurable function, and B ⊆ R d is any measurable subset of R d .</p><p>We can extend Equation 5 to work in the case that f is not invertible. To do this, we must address two issues. First, if f is not invertible, then f -1 (y) is not a single point but rather a set. Second, if f is not invertible, then the Jacobian matrix ∂f (x) ∂x T may not be square, and thus has no well defined determinant. Both issues can be resolved and lead to the following change of variables theorem <ref type="bibr" target="#b23">(Krantz &amp; Parks, 2009)</ref>, which is based on the so-called coarea formula <ref type="bibr" target="#b12">(Federer, 1969)</ref>.</p><p>Theorem 4. Let f : R d → R r with r ≤ d be a differentiable function, g : R d → R a non-negative measurable function, B ⊆ R d a measurable set, and</p><formula xml:id="formula_22">J f (x) = det ∂f (x) ∂x T ∂f (x) ∂x T T . Then f -1 (B) g(x)J f (x) dx = B f -1 (y) g(x) dH d-r (x) dy. (<label>6</label></formula><formula xml:id="formula_23">)</formula><p>where H d-r is the (d -r)-dimensional Hausdorff measure (one can think of this as a measure for lower-dimensional structures in high-dimensional space, e.g. the area of 2-dimensional surfaces in 3-dimensional space).<ref type="foot" target="#foot_2">foot_2</ref> </p><p>We see in Theorem 4 that Equation 6 looks a lot like Equations 4 and 5, but with f -1 (y) replaced by an integral over the set f -1 (y), which for almost every y is a (d -r)-dimensional set. And if f in Equation 6 happens to be bijective, Equation <ref type="formula" target="#formula_22">6</ref>reduces to Equation <ref type="formula">5</ref>.</p><p>We also see that the Jacobian determinant in Equation 5 was replaced by the so-called r-dimensional Jacobian</p><formula xml:id="formula_24">det ∂f (x) ∂x T ∂f (x) ∂x T T</formula><p>in Equation <ref type="formula" target="#formula_22">6</ref>. A word of caution is in order, as the r-dimensional Jacobian does not have the same nice properties for concatenated functions as does the Jacobian in the bijective case. In particular, we cannot calculate J f2•f1 based on the values of J f1 and J f2 because the product ∂f2</p><p>(x) ∂x T ∂f1(x) ∂x T ∂f2(x) ∂x T ∂f1(x) ∂x T T does not decompose into a product of ∂f2(x) ∂x T ∂f2(x) ∂x T T and ∂f1(x) ∂x T ∂f1(x) ∂x T T</p><p>. In other words, the trick used in techniques like normalizing flows and NICE to compute determinants of deep networks for use in the change of variables formula by decomposing the network's Jacobian into the product of layerwise Jacobians does not work straightforwardly in the case of non-invertible mappings.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.4.">Motivation for Conserved Differential Information</head><p>First, we present an alternative definition of conditional entropy that is meaningful for singular distributions (e.g., the joint distribution p(X, f (X)) for a function f ). More information on this definition can be found in <ref type="bibr" target="#b22">Koliander et al. (2016)</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.4.1.">SINGULAR CONDITIONAL ENTROPY</head><p>Assume that the random variable X has a probability density function p X (x) on R d . For a given differentiable function f : R d → R r (r ≤ d), we want to analyze the conditional differential entropy H(X|f (X)). Following <ref type="bibr" target="#b22">Koliander et al. (2016)</ref>, we define this quantity as:</p><formula xml:id="formula_25">H(X|f (X)) = - R r p f (X) (y) f -1 (y) θ d-r Pr{X∈•|f (X)=y} (x) log θ d-r Pr{X∈•|f (X)=y} (x) dH d-r (x) dy<label>(7)</label></formula><p>where H d-r denotes (d -r)-dimensional Hausdorff measure. The function p f (X) is the probability density function of the random variable f (X). Although θ d-r Pr{X∈•|f (X)=y} can also be interpreted as a probability density, it is not the commonly used density with respect to Lebesgue measure (which does not exist for X|f (X) = y) but a density with respect to a lower-dimensional Hausdorff measure. We will analyze the two functions p f (X) and θ d-r Pr{X∈•|f (X)=y} in more detail. The density p f (X) is defined by the relation</p><formula xml:id="formula_26">f -1 (B) p X (x) dx = B p f (X) (y) dy ,<label>(8)</label></formula><p>which has to hold for every measurable set B ⊆ R r . Using the coarea formula (or the related change-of-variables theorem), we see that</p><formula xml:id="formula_27">f -1 (B) p X (x) dx = B f -1 (y) p X (x) J f (x) dH d-r (x) dy ,<label>(9)</label></formula><p>where J f (x) = det ∂f (x)</p><formula xml:id="formula_28">∂x T ∂f (x) ∂x T</formula><p>T is the r-dimensional Jacobian determinant. Thus, we identified</p><formula xml:id="formula_29">p f (X) (y) = f -1 (y) p X (x) J f (x) dH d-r (x) . (<label>10</label></formula><formula xml:id="formula_30">)</formula><p>The second function, namely θ d-r Pr{X∈•|f (X)=y} , is the Radon-Nikodym derivative of the conditional probability Pr{X ∈ •|f (X) = y} with respect to H d-r restricted to the set where X|f (X) = y has positive probability (in the end, this will be the set f -1 (y)). To understand this function, we have to know something about the conditional distribution of X given f (X). Formally, a (regular) conditional probability Pr{X ∈ •|f (X) = y} has to satisfy three conditions:</p><p>• Pr{X ∈ •|f (X) = y} is a probability measure for each fixed y ∈ R r .</p><p>• Pr{X ∈ A|f (X) = •} is measurable for each fixed measurable set A ⊆ R d .</p><p>• For measurable sets A ⊆ R d and B ⊆ R r , we have Pr{(X, f (X)) ∈ A × B} = B Pr{X ∈ A|f (X) = y}p f (X) (y) dy .</p><p>(11)</p><p>In our setting, (11) becomes </p><p>where the final equality is again an application of the coarea formula. Thus, we identified</p><formula xml:id="formula_32">θ d-r Pr{X∈•|f (X)=y} (x) = p X (x) J f (x) p f (X) (y) .<label>(15)</label></formula><p>Although things might seem complicated up to this point, they simplify significantly once we put everything together. In particular, inserting (15) into (7), we obtain</p><formula xml:id="formula_33">H(X|f (X)) = - R r p f (X) (y) f -1 (y)</formula><p>p X (x) J f (x) p f (X) (y) log p X (x) J f (x) p f (X) (y) dH d-r (x) dy = -R r f -1 (y) p X (x) J f (x) log p X (x) J f (x) p f (X) (y) dH d-r (x) dy = -</p><formula xml:id="formula_34">R d p X (x) log p X (x) J f (x) p f (X) (f (x)) dx (16) = H(X) + R d p X (x) log J f (x)p f (X) (f (x)) dx = H(X) + R d p X (x) log p f (X) (f (x)) dx + R d p X (x) log J f (x) dx = H(X) + R r f -1 (y) p X (x) J f (x) log p f (X) (f (x)) dH d-r (x) dy + E log J f (X) (17) = H(X) + R r f -1 (y) p X (x) J f (x) dH d-r (x) log p f (X) (y) dy + E log J f (X) = H(X) + R r p f (X) (y) log p f (X) (y) dy + E log J f (X) = H(X) -H(f (X)) + E log J f (X)<label>(18)</label></formula><p>where ( <ref type="formula">16</ref>) and ( <ref type="formula">17</ref>) hold by the coarea formula.</p><p>So, altogether we have that for a random variable X and a function f , the singular conditional entropy between X and f (X) is H(X|f (X)) = H(X) -H(f (X)) + E log J f (X) .</p><p>This quantity can loosely be interpreted as being the difference in differential entropies between X and f (X) but with an additional term that corrects for any "uninformative" scaling that f does.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 2 .</head><label>2</label><figDesc>Figure 2. Estimated value of each term in the MASS Learning loss function, LMASS(f ) = H(Y |f (X))+βH(f (X))-βEX [log J f (X)],during training of the SmallMLP network on the CIFAR-10 dataset. The MASS training was performed with β = 0.001, though the plotted values are for the terms without being multiplied by the β coefficients. The values of these terms for SoftmaxCE training are estimated using a distribution q φ (f θ (x)|y), with the distribution parameters φ being estimated at each training step by MLE over the training data.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Lemma 3 .</head><label>3</label><figDesc>If X and Y are continuous random variables, and there are open sets O X and O Y in the support of X and Y , respectively, such that y = f (x) for x ∈ O X and y ∈ O Y , then I(X, Y ) = ∞.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>A∩f - 1</head><label>1</label><figDesc>(B) p X (x) dx = B Pr{X ∈ A|f (X) = y}p f (X) (y) dy . (12) Choosing Pr{X ∈ A|f (X) = y} = 1 p f (X) (y) A∩f -1 (y) p X (x) J f (x) dH d-r (x) ,(13)the right-hand side in (12) becomesB Pr{X ∈ A|f (X) = y}p f (X) (y) dy = B A∩f -1 (y) p X (x) J f (x) dH d-r (x) dy = A∩f -1 (B)p X (x) dx ,</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 1 .</head><label>1</label><figDesc>Test-set classification accuracy (percent) on CIFAR-10 dataset using the SmallMLP network trained by various methods. Full experiment details are in Supplementary Material 7.7. Values are the mean classification accuracy over 4 training runs with different random seeds, plus or minus the standard deviation. Emboldened accuracies are those for which the maximum observed mean accuracy in the column was within one standard deviation. WD is weight decay; D is dropout.</figDesc><table><row><cell>METHOD</cell><cell>2500</cell><cell cols="3">TRAINING SET SIZE 10,000</cell><cell>40,000</cell></row><row><cell>SoftmaxCE</cell><cell cols="2">34.2 ± 0.8</cell><cell>44.6 ± 0.6</cell><cell>52.7 ± 0.4</cell></row><row><cell>SoftmaxCE, WD</cell><cell cols="2">23.9 ± 0.9</cell><cell>36.4 ± 0.9</cell><cell>48.1 ± 0.1</cell></row><row><cell>SoftmaxCE, D</cell><cell cols="2">33.7 ± 1.1</cell><cell>44.1 ± 0.6</cell><cell>53.7 ± 0.3</cell></row><row><cell>VIB, β=1e-1</cell><cell cols="2">32.2 ± 0.6</cell><cell>40.6 ± 0.4</cell><cell>46.1 ± 0.5</cell></row><row><cell>VIB, β=1e-2</cell><cell cols="2">34.6 ± 0.4</cell><cell>43.8 ± 0.8</cell><cell>51.9 ± 0.8</cell></row><row><cell>VIB, β=1e-3</cell><cell cols="3">35.6 ± 0.5 44.6 ± 0.6</cell><cell>51.8 ± 0.8</cell></row><row><cell>VIB, β=1e-1, D</cell><cell cols="2">29.0 ± 0.6</cell><cell>40.1 ± 0.5</cell><cell>49.5 ± 0.5</cell></row><row><cell>VIB, β=1e-2, D</cell><cell cols="2">32.5 ± 0.9</cell><cell>43.9 ± 0.3</cell><cell>53.6 ± 0.3</cell></row><row><cell>VIB, β=1e-3, D</cell><cell cols="2">34.5 ± 1.0</cell><cell cols="2">44.4 ± 0.4 54.3 ± 0.2</cell></row><row><cell>MASS, β=1e-2</cell><cell cols="2">29.6 ± 0.4</cell><cell>39.9 ± 1.2</cell><cell>46.3 ± 1.2</cell></row><row><cell>MASS, β=1e-3</cell><cell cols="2">32.7 ± 0.8</cell><cell>41.5 ± 0.7</cell><cell>47.8 ± 0.8</cell></row><row><cell>MASS, β=1e-4</cell><cell cols="2">34.0 ± 0.3</cell><cell>41.5 ± 1.1</cell><cell>47.9 ± 0.8</cell></row><row><cell>MASS, β=0</cell><cell cols="2">34.1 ± 0.6</cell><cell>42.0 ± 0.6</cell><cell>48</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>Table 2 .</head><label>2</label><figDesc>Test-set classification accuracy (percent) on CIFAR-10 dataset using the ResNet20 network trained by various methods. No data augmentation was used -full details in Supplementary Material 7.7. Values are the mean classification accuracy over 4 training runs with different random seeds, plus or minus the standard deviation. Emboldened accuracies are those for which the maximum observed mean accuracy in the column was within one standard deviation.</figDesc><table><row><cell>METHOD</cell><cell>2500</cell><cell cols="3">TRAINING SET SIZE 10,000</cell><cell>40,000</cell></row><row><cell>SoftmaxCE</cell><cell cols="4">50.0 ± 0.7 67.5 ± 0.8 81.7 ± 0.3</cell></row><row><cell>VIB, β=1e-3</cell><cell cols="3">49.5 ± 1.1 66.9 ± 1.0</cell><cell>81.0 ± 0.3</cell></row><row><cell>VIB, β=1e-4</cell><cell cols="2">49.4 ± 1.0</cell><cell>66.4 ± 0.5</cell><cell>81.2 ± 0.4</cell></row><row><cell>VIB, β=1e-5</cell><cell cols="3">50.0 ± 1.1 67.9 ± 0.8</cell><cell>80.9 ± 0.5</cell></row><row><cell>VIB, β=0</cell><cell cols="4">50.6 ± 0.8 67.1 ± 1.0 81.5 ± 0.2</cell></row><row><cell>MASS, β=1e-3</cell><cell cols="2">38.2 ± 0.7</cell><cell>59.6 ± 0.8</cell><cell>75.8 ± 0.5</cell></row><row><cell cols="3">MASS, β=1e-4 49.9 ± 1.0</cell><cell>66.6 ± 0.4</cell><cell>80.6 ± 0.5</cell></row><row><cell cols="5">MASS, β=1e-5 50.1 ± 0.5 67.4 ± 1.0 81.6 ± 0.4</cell></row><row><cell>MASS, β=0</cell><cell>50.</cell><cell></cell><cell></cell></row></table><note><p>2 ± 1.0 67.4 ± 0.3 81.5 ± 0.2</p><p>For the SmallMLP network in Tables3, 4, and 5</p><p>, VIB provides the best combination of high accuracy and low NLL and Brier score across all sizes of training set, despite SoftmaxCE with weight decay achieving the best scoring rule values. For the larger ResNet20 network in Tables 6</p></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_2"><head>Table 3 .</head><label>3</label><figDesc>Uncertainty quantification metrics (proper scoring rules) on CIFAR-10 using the SmallMLP network trained on 40,000 datapoints. Test Accuracy and Entropy of the network's predictive distribution are given for reference. Full experiment details are in Supplementary Material 7.7. Values are the mean over 4 training runs with different random seeds, plus or minus the standard deviation. Emboldened values are those for which the minimum observed mean value in the column was within one standard deviation. WD is weight decay; D is dropout. Lower values are better.</figDesc><table><row><cell>Method</cell><cell cols="2">Test Accuracy Entropy</cell><cell>NLL</cell><cell>Brier Score</cell></row><row><cell>SoftmaxCE</cell><cell>52.7 ± 0.4</cell><cell cols="2">0.211 ± 0.003 4.56 ± 0.07</cell><cell>0.0840 ± 0.0005</cell></row><row><cell>SoftmaxCE, WD</cell><cell>48.1 ± 0.1</cell><cell cols="3">1.500 ± 0.009 1.47 ± 0.01 0.0660 ± 0.0003</cell></row><row><cell>SoftmaxCE, D</cell><cell>53.7 ± 0.3</cell><cell cols="2">0.606 ± 0.005 1.79 ± 0.02</cell><cell>0.0681 ± 0.0005</cell></row><row><cell>VIB, β=1e-1</cell><cell>46.1 ± 0.5</cell><cell cols="2">0.258 ± 0.005 5.35 ± 0.15</cell><cell>0.0944 ± 0.0009</cell></row><row><cell>VIB, β=1e-2</cell><cell>51.9 ± 0.8</cell><cell cols="2">0.193 ± 0.004 5.03 ± 0.19</cell><cell>0.0861 ± 0.0015</cell></row><row><cell>VIB, β=1e-3</cell><cell>51.8 ± 0.8</cell><cell cols="2">0.174 ± 0.003 5.49 ± 0.20</cell><cell>0.0866 ± 0.0015</cell></row><row><cell>VIB, β=1e-1, D</cell><cell>49.5 ± 0.5</cell><cell cols="2">0.957 ± 0.005 1.62 ± 0.01</cell><cell>0.0660 ± 0.0003</cell></row><row><cell>VIB, β=1e-2, D</cell><cell>53.6 ± 0.3</cell><cell cols="2">0.672 ± 0.014 1.69 ± 0.01</cell><cell>0.0668 ± 0.0006</cell></row><row><cell>VIB, β=1e-3, D</cell><cell>54.3 ± 0.2</cell><cell cols="2">0.617 ± 0.007 1.75 ± 0.02</cell><cell>0.0677 ± 0.0005</cell></row><row><cell>MASS, β=1e-2</cell><cell>46.3 ± 1.2</cell><cell cols="2">0.203 ± 0.005 6.89 ± 0.16</cell><cell>0.0968 ± 0.0024</cell></row><row><cell>MASS, β=1e-3</cell><cell>47.8 ± 0.8</cell><cell cols="2">0.207 ± 0.004 5.89 ± 0.21</cell><cell>0.0935 ± 0.0017</cell></row><row><cell>MASS, β=1e-4</cell><cell>47.9 ± 0.8</cell><cell cols="2">0.212 ± 0.003 5.71 ± 0.16</cell><cell>0.0934 ± 0.0017</cell></row><row><cell>MASS, β=0</cell><cell>48.2 ± 0.9</cell><cell cols="2">0.208 ± 0.004 5.74 ± 0.20</cell><cell>0.0927 ± 0.0017</cell></row><row><cell cols="2">MASS, β=1e-2, D 52.0 ± 0.6</cell><cell cols="2">0.690 ± 0.013 1.85 ± 0.03</cell><cell>0.0694 ± 0.0005</cell></row><row><cell cols="2">MASS, β=1e-3, D 53.1 ± 0.4</cell><cell cols="2">0.649 ± 0.010 1.82 ± 0.04</cell><cell>0.0684 ± 0.0007</cell></row><row><cell cols="2">MASS, β=1e-4, D 53.2 ± 0.1</cell><cell cols="2">0.664 ± 0.020 1.79 ± 0.02</cell><cell>0.0680 ± 0.0002</cell></row><row><cell>MASS, β=0, D</cell><cell>52.7 ± 0.0</cell><cell cols="2">0.662 ± 0.003 1.82 ± 0.02</cell><cell>0.0690 ± 0.0003</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_3"><head>Table 4 .</head><label>4</label><figDesc>Uncertainty quantification metrics (proper scoring rules) on CIFAR-10 using the SmallMLP network trained on 10,000 datapoints. Test Accuracy and Entropy of the network's predictive distribution are given for reference. Full experiment details are in Supplementary Material 7.7. Values are the mean over 4 training runs with different random seeds, plus or minus the standard deviation. Emboldened values are those for which the minimum observed mean value in the column was within one standard deviation. WD is weight decay; D is dropout. Lower values are better.</figDesc><table><row><cell>Method</cell><cell cols="2">Test Accuracy Entropy</cell><cell>NLL</cell><cell>Brier Score</cell></row><row><cell>SoftmaxCE</cell><cell>44.6 ± 0.6</cell><cell cols="2">0.250 ± 0.004 5.33 ± 0.06</cell><cell>0.0974 ± 0.0011</cell></row><row><cell>SoftmaxCE, WD</cell><cell>36.4 ± 0.9</cell><cell cols="3">0.897 ± 0.033 2.44 ± 0.11 0.0905 ± 0.0019</cell></row><row><cell>SoftmaxCE, D</cell><cell>44.1 ± 0.6</cell><cell cols="2">0.379 ± 0.007 3.76 ± 0.04</cell><cell>0.0935 ± 0.0012</cell></row><row><cell>VIB, β=1e-1</cell><cell>40.6 ± 0.4</cell><cell cols="2">0.339 ± 0.011 4.86 ± 0.23</cell><cell>0.1017 ± 0.0016</cell></row><row><cell>VIB, β=1e-2</cell><cell>43.8 ± 0.8</cell><cell cols="2">0.274 ± 0.004 4.83 ± 0.16</cell><cell>0.0983 ± 0.0017</cell></row><row><cell>VIB, β=1e-3</cell><cell>44.6 ± 0.6</cell><cell cols="2">0.241 ± 0.004 5.50 ± 0.11</cell><cell>0.0983 ± 0.0005</cell></row><row><cell>VIB, β=1e-1, D</cell><cell>40.1 ± 0.5</cell><cell cols="2">0.541 ± 0.015 3.22 ± 0.09</cell><cell>0.0945 ± 0.0012</cell></row><row><cell>VIB, β=1e-2, D</cell><cell>43.9 ± 0.3</cell><cell cols="2">0.413 ± 0.009 3.43 ± 0.09</cell><cell>0.0927 ± 0.0011</cell></row><row><cell>VIB, β=1e-3, D</cell><cell>44.4 ± 0.4</cell><cell cols="2">0.389 ± 0.004 3.61 ± 0.06</cell><cell>0.0927 ± 0.0004</cell></row><row><cell>MASS, β=1e-2</cell><cell>39.9 ± 1.2</cell><cell cols="3">0.172 ± 0.008 10.06 ± 0.37 0.1109 ± 0.0020</cell></row><row><cell>MASS, β=1e-3</cell><cell>41.5 ± 0.7</cell><cell cols="2">0.197 ± 0.005 8.03 ± 0.28</cell><cell>0.1069 ± 0.0016</cell></row><row><cell>MASS, β=1e-4</cell><cell>41.5 ± 1.1</cell><cell cols="2">0.208 ± 0.008 7.55 ± 0.44</cell><cell>0.1054 ± 0.0023</cell></row><row><cell>MASS, β=0</cell><cell>42.0 ± 0.6</cell><cell cols="2">0.215 ± 0.009 7.21 ± 0.28</cell><cell>0.1043 ± 0.0015</cell></row><row><cell cols="2">MASS, β=1e-2, D 41.7 ± 0.4</cell><cell cols="2">0.399 ± 0.017 4.21 ± 0.17</cell><cell>0.0974 ± 0.0013</cell></row><row><cell cols="2">MASS, β=1e-3, D 43.7 ± 0.2</cell><cell cols="2">0.412 ± 0.010 3.71 ± 0.07</cell><cell>0.0930 ± 0.0006</cell></row><row><cell cols="2">MASS, β=1e-4, D 43.4 ± 0.5</cell><cell cols="2">0.435 ± 0.011 3.50 ± 0.05</cell><cell>0.0923 ± 0.0005</cell></row><row><cell>MASS, β=0, D</cell><cell>43.9 ± 0.4</cell><cell cols="2">0.447 ± 0.009 3.40 ± 0.03</cell><cell>0.0913 ± 0.0008</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_4"><head>Table 5 .</head><label>5</label><figDesc>Uncertainty quantification metrics (proper scoring rules) on CIFAR-10 using the SmallMLP network trained on 2,500 datapoints. Test Accuracy and Entropy of the network's predictive distribution are given for reference. Full experiment details are in Supplementary Material 7.7. Values are the mean over 4 training runs with different random seeds, plus or minus the standard deviation. Emboldened values are those for which the minimum observed mean value in the column was within one standard deviation. WD is weight decay; D is dropout. Lower values are better.</figDesc><table><row><cell>Method</cell><cell cols="2">Test Accuracy Entropy</cell><cell>NLL</cell><cell>Brier Score</cell></row><row><cell>SoftmaxCE</cell><cell>34.2 ± 0.8</cell><cell cols="2">0.236 ± 0.025 8.14 ± 0.84</cell><cell>0.1199 ± 0.0024</cell></row><row><cell>SoftmaxCE, WD</cell><cell>23.9 ± 0.9</cell><cell cols="3">0.954 ± 0.017 3.41 ± 0.07 0.1114 ± 0.0013</cell></row><row><cell>SoftmaxCE, D</cell><cell>33.7 ± 1.1</cell><cell cols="2">0.203 ± 0.006 9.68 ± 0.06</cell><cell>0.1219 ± 0.0013</cell></row><row><cell>VIB, β=1e-1</cell><cell>32.2 ± 0.6</cell><cell cols="2">0.247 ± 0.007 8.33 ± 0.50</cell><cell>0.1219 ± 0.0013</cell></row><row><cell>VIB, β=1e-2</cell><cell>34.6 ± 0.4</cell><cell cols="2">0.249 ± 0.004 7.36 ± 0.18</cell><cell>0.1175 ± 0.0005</cell></row><row><cell>VIB, β=1e-3</cell><cell>35.6 ± 0.5</cell><cell cols="2">0.217 ± 0.008 8.03 ± 0.37</cell><cell>0.1175 ± 0.0012</cell></row><row><cell>VIB, β=1e-1, D</cell><cell>29.0 ± 0.6</cell><cell cols="2">0.383 ± 0.011 6.32 ± 0.16</cell><cell>0.1219 ± 0.0010</cell></row><row><cell>VIB, β=1e-2, D</cell><cell>32.5 ± 0.9</cell><cell cols="2">0.260 ± 0.006 7.41 ± 0.25</cell><cell>0.1211 ± 0.0019</cell></row><row><cell>VIB, β=1e-3, D</cell><cell>34.5 ± 1.0</cell><cell cols="2">0.200 ± 0.002 9.44 ± 0.16</cell><cell>0.1203 ± 0.0020</cell></row><row><cell>MASS, β=1e-2</cell><cell>29.6 ± 0.4</cell><cell cols="3">0.047 ± 0.002 57.13 ± 1.60 0.1381 ± 0.0007</cell></row><row><cell>MASS, β=1e-3</cell><cell>32.7 ± 0.8</cell><cell cols="3">0.048 ± 0.004 46.40 ± 3.81 0.1322 ± 0.0018</cell></row><row><cell>MASS, β=1e-4</cell><cell>34.0 ± 0.3</cell><cell cols="3">0.052 ± 0.002 39.10 ± 1.96 0.1293 ± 0.0009</cell></row><row><cell>MASS, β=0</cell><cell>34.1 ± 0.6</cell><cell cols="3">0.061 ± 0.003 33.60 ± 1.34 0.1285 ± 0.0012</cell></row><row><cell cols="2">MASS, β=1e-2, D 29.3 ± 1.2</cell><cell cols="3">0.118 ± 0.008 20.51 ± 0.83 0.1349 ± 0.0018</cell></row><row><cell cols="2">MASS, β=1e-3, D 31.5 ± 0.6</cell><cell cols="3">0.145 ± 0.004 15.65 ± 0.71 0.1289 ± 0.0010</cell></row><row><cell cols="2">MASS, β=1e-4, D 32.7 ± 0.8</cell><cell cols="3">0.185 ± 0.010 11.21 ± 0.66 0.1245 ± 0.0011</cell></row><row><cell>MASS, β=0, D</cell><cell>32.2 ± 1.1</cell><cell cols="2">0.217 ± 0.008 9.70 ± 0.29</cell><cell>0.1236 ± 0.0021</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_5"><head>Table 6 .</head><label>6</label><figDesc>Uncertainty</figDesc><table><row><cell>Method</cell><cell cols="2">Test Accuracy Entropy</cell><cell>NLL</cell><cell>Brier Score</cell></row><row><cell>SoftmaxCE</cell><cell>81.7 ± 0.3</cell><cell cols="2">0.087 ± 0.002 1.45 ± 0.04</cell><cell>0.0324 ± 0.0005</cell></row><row><cell>VIB, β=1e-3</cell><cell>81.0 ± 0.3</cell><cell cols="2">0.089 ± 0.003 1.51 ± 0.04</cell><cell>0.0334 ± 0.0005</cell></row><row><cell>VIB, β=1e-4</cell><cell>81.2 ± 0.4</cell><cell cols="2">0.092 ± 0.002 1.46 ± 0.05</cell><cell>0.0331 ± 0.0007</cell></row><row><cell>VIB, β=1e-5</cell><cell>80.9 ± 0.5</cell><cell cols="2">0.087 ± 0.005 1.58 ± 0.08</cell><cell>0.0339 ± 0.0008</cell></row><row><cell>VIB, β=0</cell><cell>81.5 ± 0.2</cell><cell cols="2">0.079 ± 0.001 1.70 ± 0.06</cell><cell>0.0331 ± 0.0007</cell></row><row><cell cols="2">MASS, β=1e-3 75.8 ± 0.5</cell><cell cols="2">0.139 ± 0.003 1.66 ± 0.07</cell><cell>0.0417 ± 0.0011</cell></row><row><cell cols="2">MASS, β=1e-4 80.6 ± 0.5</cell><cell cols="3">0.109 ± 0.002 1.33 ± 0.02 0.0337 ± 0.0008</cell></row><row><cell cols="2">MASS, β=1e-5 81.6 ± 0.4</cell><cell cols="3">0.095 ± 0.003 1.36 ± 0.03 0.0320 ± 0.0005</cell></row><row><cell>MASS, β=0</cell><cell>81.5 ± 0.2</cell><cell cols="2">0.092 ± 0.000 1.43 ± 0.04</cell><cell>0.0325 ± 0.0004</cell></row></table><note><p>quantification metrics (proper scoring rules) on CIFAR-10 using the ResNet20 network trained on 40,000 datapoints. Test Accuracy and Entropy of the network's predictive distribution are given for reference. Full experiment details are in Supplementary Material 7.7. Values are the mean over 4 training runs with different random seeds, plus or minus the standard deviation. Emboldened values are those for which the minimum observed mean value in the column was within one standard deviation. Lower values are better.</p></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_6"><head>Table 7 .</head><label>7</label><figDesc>Uncertainty quantification metrics (proper scoring rules) on CIFAR-10 using the ResNet20 network trained on 10,000 datapoints. Test Accuracy and Entropy of the network's predictive distribution are given for reference. Full experiment details are in Supplementary Material 7.7. Values are the mean over 4 training runs with different random seeds, plus or minus the standard deviation. Emboldened values are those for which the minimum observed mean value in the column was within one standard deviation. Lower values are better.</figDesc><table><row><cell>Method</cell><cell cols="2">Test Accuracy Entropy</cell><cell>NLL</cell><cell>Brier Score</cell></row><row><cell>SoftmaxCE</cell><cell>67.5 ± 0.8</cell><cell cols="3">0.195 ± 0.011 2.19 ± 0.06 0.0557 ± 0.0012</cell></row><row><cell>VIB, β=1e-3</cell><cell>66.9 ± 1.0</cell><cell cols="3">0.193 ± 0.008 2.26 ± 0.13 0.0570 ± 0.0017</cell></row><row><cell>VIB, β=1e-4</cell><cell>66.4 ± 0.5</cell><cell cols="2">0.197 ± 0.009 2.30 ± 0.02</cell><cell>0.0577 ± 0.0007</cell></row><row><cell>VIB, β=1e-5</cell><cell>67.9 ± 0.8</cell><cell cols="2">0.166 ± 0.010 2.49 ± 0.13</cell><cell>0.0561 ± 0.0011</cell></row><row><cell>VIB, β=0</cell><cell>67.1 ± 1.0</cell><cell cols="2">0.162 ± 0.009 2.64 ± 0.11</cell><cell>0.0578 ± 0.0016</cell></row><row><cell cols="2">MASS, β=1e-3 59.6 ± 0.8</cell><cell cols="2">0.252 ± 0.007 2.61 ± 0.11</cell><cell>0.0688 ± 0.0014</cell></row><row><cell cols="2">MASS, β=1e-4 66.6 ± 0.4</cell><cell cols="3">0.209 ± 0.009 2.18 ± 0.05 0.0570 ± 0.0005</cell></row><row><cell cols="2">MASS, β=1e-5 67.4 ± 1.0</cell><cell cols="3">0.192 ± 0.007 2.22 ± 0.07 0.0561 ± 0.0017</cell></row><row><cell>MASS, β=0</cell><cell>67.4 ± 0.3</cell><cell cols="2">0.189 ± 0.004 2.30 ± 0.08</cell><cell>0.0562 ± 0.0007</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_7"><head>Table 8 .</head><label>8</label><figDesc>Uncertainty quantification metrics (proper scoring rules) on CIFAR-10 using the ResNet20 network trained on 2,500 datapoints. Test Accuracy and Entropy of the network's predictive distribution are given for reference. Full experiment details are in Supplementary Material 7.7. Values are the mean over 4 training runs with different random seeds, plus or minus the standard deviation. Emboldened values are those for which the minimum observed mean value in the column was within one standard deviation. Lower values are better.</figDesc><table><row><cell>Method</cell><cell cols="2">Test Accuracy Entropy</cell><cell>NLL</cell><cell>Brier Score</cell></row><row><cell>SoftmaxCE</cell><cell>50.0 ± 0.7</cell><cell cols="3">0.349 ± 0.005 2.98 ± 0.06 0.0833 ± 0.0012</cell></row><row><cell>VIB, β=1e-3</cell><cell>49.5 ± 1.1</cell><cell cols="2">0.363 ± 0.005 3.10 ± 0.11</cell><cell>0.0836 ± 0.0020</cell></row><row><cell>VIB, β=1e-4</cell><cell>49.4 ± 1.0</cell><cell cols="3">0.372 ± 0.016 3.02 ± 0.10 0.0833 ± 0.0016</cell></row><row><cell>VIB, β=1e-5</cell><cell>50.0 ± 1.1</cell><cell cols="2">0.306 ± 0.021 3.48 ± 0.15</cell><cell>0.0849 ± 0.0013</cell></row><row><cell>VIB, β=0</cell><cell>50.6 ± 0.8</cell><cell cols="2">0.271 ± 0.019 3.80 ± 0.15</cell><cell>0.0850 ± 0.0007</cell></row><row><cell cols="2">MASS, β=1e-3 38.2 ± 0.7</cell><cell cols="2">0.469 ± 0.012 3.75 ± 0.08</cell><cell>0.1010 ± 0.0017</cell></row><row><cell cols="2">MASS, β=1e-4 49.9 ± 1.0</cell><cell cols="2">0.344 ± 0.001 3.24 ± 0.08</cell><cell>0.0837 ± 0.0017</cell></row><row><cell cols="2">MASS, β=1e-5 50.1 ± 0.5</cell><cell cols="2">0.277 ± 0.008 3.81 ± 0.11</cell><cell>0.0859 ± 0.0005</cell></row><row><cell>MASS, β=0</cell><cell>50.2 ± 1.0</cell><cell cols="2">0.265 ± 0.009 3.96 ± 0.15</cell><cell>0.0861 ± 0.0020</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_8"><head>Table 9 .</head><label>9</label><figDesc>Out-of-distribution detection metrics for SmallMLP network trained on 40,000 CIFAR-10 images, with SVHN as the out-ofdistribution examples. Full experiment details are in Supplementary Material 7.7. Values are the mean over 4 training runs with different random seeds, plus or minus the standard deviation. Emboldened values are those for which the maximum observed mean value in the column was within one standard deviation. WD is weight decay; D is dropout. Higher values are better.</figDesc><table><row><cell>Training Method</cell><cell>Test Accuracy</cell><cell>Detection Method</cell><cell>AUROC</cell><cell>APR In</cell><cell>APR Out</cell></row><row><cell>SoftmaxCE</cell><cell>52.7 ± 0.4</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.65 ± 0.01 0.38 ± 0.01</cell><cell>0.68 ± 0.01 0.42 ± 0.01</cell><cell>0.61 ± 0.01 0.43 ± 0.01</cell></row><row><cell>SoftmaxCE, WD</cell><cell>48.1 ± 0.1</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.65 ± 0.01 0.43 ± 0.01</cell><cell>0.69 ± 0.01 0.43 ± 0.01</cell><cell>0.59 ± 0.01 0.48 ± 0.02</cell></row><row><cell>SoftmaxCE, D</cell><cell>53.7 ± 0.3</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.71 ± 0.01 0.33 ± 0.00</cell><cell>0.75 ± 0.01 0.39 ± 0.00</cell><cell>0.65 ± 0.01 0.40 ± 0.00</cell></row><row><cell>VIB, β=1e-1</cell><cell>46.1 ± 0.5</cell><cell>Entropy Rate</cell><cell>0.62 ± 0.01 0.47 ± 0.02</cell><cell>0.66 ± 0.01 0.49 ± 0.01</cell><cell>0.57 ± 0.01 0.46 ± 0.01</cell></row><row><cell>VIB, β=1e-2</cell><cell>51.9 ± 0.8</cell><cell>Entropy Rate</cell><cell>0.64 ± 0.01 0.58 ± 0.03</cell><cell>0.67 ± 0.01 0.59 ± 0.02</cell><cell>0.59 ± 0.01 0.55 ± 0.02</cell></row><row><cell>VIB, β=1e-3</cell><cell>51.8 ± 0.8</cell><cell>Entropy Rate</cell><cell>0.65 ± 0.00 0.52 ± 0.03</cell><cell>0.67 ± 0.01 0.54 ± 0.03</cell><cell>0.61 ± 0.00 0.50 ± 0.03</cell></row><row><cell>VIB, β=1e-1, D</cell><cell>49.5 ± 0.5</cell><cell>Entropy Rate</cell><cell>0.68 ± 0.01 0.34 ± 0.01</cell><cell>0.74 ± 0.01 0.40 ± 0.01</cell><cell>0.60 ± 0.01 0.39 ± 0.00</cell></row><row><cell>VIB, β=1e-2, D</cell><cell>53.6 ± 0.3</cell><cell>Entropy Rate</cell><cell>0.69 ± 0.02 0.50 ± 0.03</cell><cell>0.73 ± 0.01 0.51 ± 0.02</cell><cell>0.62 ± 0.02 0.51 ± 0.03</cell></row><row><cell>VIB, β=1e-3, D</cell><cell>54.3 ± 0.2</cell><cell>Entropy Rate</cell><cell>0.69 ± 0.01 0.45 ± 0.01</cell><cell>0.73 ± 0.01 0.45 ± 0.01</cell><cell>0.62 ± 0.01 0.49 ± 0.01</cell></row><row><cell>MASS, β=1e-2</cell><cell>46.3 ± 1.2</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.64 ± 0.01 0.51 ± 0.03</cell><cell>0.67 ± 0.01 0.56 ± 0.05</cell><cell>0.61 ± 0.01 0.49 ± 0.01</cell></row><row><cell>MASS, β=1e-3</cell><cell>47.8 ± 0.8</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.63 ± 0.02 0.63 ± 0.07</cell><cell>0.65 ± 0.02 0.64 ± 0.08</cell><cell>0.60 ± 0.02 0.60 ± 0.05</cell></row><row><cell>MASS, β=1e-4</cell><cell>47.9 ± 0.8</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.63 ± 0.02 0.57 ± 0.06</cell><cell>0.65 ± 0.02 0.58 ± 0.05</cell><cell>0.60 ± 0.02 0.56 ± 0.05</cell></row><row><cell>MASS, β=0</cell><cell>48.2 ± 0.9</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.63 ± 0.02 0.58 ± 0.06</cell><cell>0.65 ± 0.02 0.58 ± 0.05</cell><cell>0.59 ± 0.02 0.56 ± 0.05</cell></row><row><cell>MASS, β=1e-2, D</cell><cell>52.0 ± 0.6</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell cols="3">0.73 ± 0.01 0.75 ± 0.01 0.67 ± 0.01 0.65 ± 0.06 0.70 ± 0.06 0.58 ± 0.05</cell></row><row><cell>MASS, β=1e-3, D</cell><cell>53.1 ± 0.4</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.71 ± 0.02 0.64 ± 0.10</cell><cell>0.73 ± 0.01 0.66 ± 0.10</cell><cell>0.64 ± 0.02 0.60 ± 0.09</cell></row><row><cell>MASS, β=1e-4, D</cell><cell>53.2 ± 0.1</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell cols="3">0.73 ± 0.01 0.75 ± 0.01 0.67 ± 0.01 0.65 ± 0.09 0.65 ± 0.08 0.61 ± 0.08</cell></row><row><cell>MASS, β=0, D</cell><cell>52.7 ± 0.0</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell cols="3">0.71 ± 0.02 0.74 ± 0.01 0.65 ± 0.02 0.63 ± 0.09 0.65 ± 0.08 0.59 ± 0.09</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_9"><head>Table 10 .</head><label>10</label><figDesc>Out-of-distribution detection metrics for SmallMLP network trained on 10,000 CIFAR-10 images, with SVHN as the out-ofdistribution examples. Full experiment details are in Supplementary Material 7.7. Values are the mean over 4 training runs with different random seeds, plus or minus the standard deviation. Emboldened values are those for which the maximum observed mean value in the column was within one standard deviation. WD is weight decay; D is dropout. Higher values are better.</figDesc><table><row><cell>Training Method</cell><cell>Test Accuracy</cell><cell>Detection Method</cell><cell>AUROC</cell><cell>APR In</cell><cell>APR Out</cell></row><row><cell>SoftmaxCE</cell><cell>44.6 ± 0.6</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.62 ± 0.00 0.36 ± 0.01</cell><cell>0.64 ± 0.01 0.40 ± 0.01</cell><cell>0.59 ± 0.00 0.42 ± 0.00</cell></row><row><cell>SoftmaxCE, WD</cell><cell>36.4 ± 0.9</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.62 ± 0.02 0.30 ± 0.01</cell><cell>0.62 ± 0.02 0.37 ± 0.00</cell><cell>0.60 ± 0.02 0.39 ± 0.01</cell></row><row><cell>SoftmaxCE, D</cell><cell>44.1 ± 0.6</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.66 ± 0.01 0.29 ± 0.01</cell><cell>0.69 ± 0.01 0.37 ± 0.00</cell><cell>0.62 ± 0.01 0.38 ± 0.00</cell></row><row><cell>VIB, β=1e-1</cell><cell>40.6 ± 0.4</cell><cell>Entropy Rate</cell><cell>0.60 ± 0.01 0.50 ± 0.02</cell><cell>0.64 ± 0.01 0.52 ± 0.02</cell><cell>0.56 ± 0.01 0.48 ± 0.01</cell></row><row><cell>VIB, β=1e-2</cell><cell>43.8 ± 0.8</cell><cell>Entropy Rate</cell><cell>0.62 ± 0.00 0.55 ± 0.03</cell><cell>0.64 ± 0.01 0.57 ± 0.02</cell><cell>0.59 ± 0.01 0.53 ± 0.02</cell></row><row><cell>VIB, β=1e-3</cell><cell>44.6 ± 0.6</cell><cell>Entropy Rate</cell><cell>0.62 ± 0.01 0.49 ± 0.04</cell><cell>0.64 ± 0.01 0.52 ± 0.04</cell><cell>0.59 ± 0.01 0.48 ± 0.03</cell></row><row><cell>VIB, β=1e-1, D</cell><cell>40.1 ± 0.5</cell><cell>Entropy Rate</cell><cell>0.62 ± 0.00 0.49 ± 0.02</cell><cell>0.65 ± 0.01 0.51 ± 0.02</cell><cell>0.57 ± 0.00 0.48 ± 0.01</cell></row><row><cell>VIB, β=1e-2, D</cell><cell>43.9 ± 0.3</cell><cell>Entropy Rate</cell><cell cols="2">0.67 ± 0.01 0.69 ± 0.01 0.60 ± 0.02 0.61 ± 0.02</cell><cell>0.62 ± 0.00 0.56 ± 0.01</cell></row><row><cell>VIB, β=1e-3, D</cell><cell>44.4 ± 0.4</cell><cell>Entropy Rate</cell><cell cols="2">0.67 ± 0.01 0.69 ± 0.01 0.50 ± 0.03 0.53 ± 0.03</cell><cell>0.63 ± 0.01 0.49 ± 0.02</cell></row><row><cell>MASS, β=1e-2</cell><cell>39.9 ± 1.2</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.63 ± 0.02 0.54 ± 0.03</cell><cell>0.64 ± 0.02 0.58 ± 0.04</cell><cell>0.60 ± 0.01 0.50 ± 0.02</cell></row><row><cell>MASS, β=1e-3</cell><cell>41.5 ± 0.7</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.61 ± 0.02 0.59 ± 0.07</cell><cell>0.62 ± 0.02 0.60 ± 0.06</cell><cell>0.59 ± 0.01 0.56 ± 0.06</cell></row><row><cell>MASS, β=1e-4</cell><cell>41.5 ± 1.1</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.60 ± 0.00 0.55 ± 0.05</cell><cell>0.61 ± 0.01 0.56 ± 0.04</cell><cell>0.58 ± 0.00 0.53 ± 0.04</cell></row><row><cell>MASS, β=0</cell><cell>42.0 ± 0.6</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.60 ± 0.02 0.55 ± 0.06</cell><cell>0.61 ± 0.02 0.57 ± 0.04</cell><cell>0.57 ± 0.01 0.54 ± 0.05</cell></row><row><cell>MASS, β=1e-2, D</cell><cell>41.7 ± 0.4</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell cols="3">0.67 ± 0.01 0.68 ± 0.01 0.63 ± 0.01 0.63 ± 0.04 0.65 ± 0.04 0.57 ± 0.04</cell></row><row><cell>MASS, β=1e-3, D</cell><cell>43.7 ± 0.2</cell><cell cols="4">Entropy maxi q φ (f θ (x)|yi) 0.66 ± 0.05 0.67 ± 0.01 0.68 ± 0.01 0.63 ± 0.01 0.66 ± 0.04 0.61 ± 0.06</cell></row><row><cell>MASS, β=1e-4, D</cell><cell>43.4 ± 0.5</cell><cell cols="4">Entropy maxi q φ (f θ (x)|yi) 0.64 ± 0.07 0.65 ± 0.05 0.59 ± 0.08 0.68 ± 0.01 0.69 ± 0.01 0.64 ± 0.02</cell></row><row><cell>MASS, β=0, D</cell><cell>43.9 ± 0.4</cell><cell cols="4">Entropy maxi q φ (f θ (x)|yi) 0.65 ± 0.04 0.66 ± 0.03 0.60 ± 0.06 0.68 ± 0.00 0.69 ± 0.01 0.64 ± 0.00</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_10"><head>Table 11 .</head><label>11</label><figDesc>Out-of-distribution detection metrics for SmallMLP network trained on 2,500 CIFAR-10 images, with SVHN as the out-ofdistribution examples. Full experiment details are in Supplementary Material 7.7. Values are the mean over 4 training runs with different random seeds, plus or minus the standard deviation. Emboldened values are those for which the maximum observed mean value in the column was within one standard deviation. WD is weight decay; D is dropout. Higher values are better.</figDesc><table><row><cell>Training Method</cell><cell>Test Accuracy</cell><cell>Detection Method</cell><cell>AUROC</cell><cell>APR In</cell><cell>APR Out</cell></row><row><cell>SoftmaxCE</cell><cell>34.2 ± 0.8</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.61 ± 0.01 0.30 ± 0.02</cell><cell>0.62 ± 0.01 0.38 ± 0.01</cell><cell>0.59 ± 0.01 0.39 ± 0.01</cell></row><row><cell>SoftmaxCE, WD</cell><cell>23.9 ± 0.9</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell cols="3">0.70 ± 0.03 0.67 ± 0.03 0.71 ± 0.04 0.23 ± 0.02 0.36 ± 0.01 0.36 ± 0.01</cell></row><row><cell>SoftmaxCE, D</cell><cell>33.7 ± 1.1</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.60 ± 0.01 0.27 ± 0.01</cell><cell>0.62 ± 0.01 0.37 ± 0.00</cell><cell>0.58 ± 0.01 0.37 ± 0.00</cell></row><row><cell>VIB, β=1e-1</cell><cell>32.2 ± 0.6</cell><cell>Entropy Rate</cell><cell>0.58 ± 0.01 0.52 ± 0.02</cell><cell>0.60 ± 0.02 0.54 ± 0.02</cell><cell>0.56 ± 0.01 0.49 ± 0.02</cell></row><row><cell>VIB, β=1e-2</cell><cell>34.6 ± 0.4</cell><cell>Entropy Rate</cell><cell>0.60 ± 0.01 0.52 ± 0.04</cell><cell>0.62 ± 0.01 0.55 ± 0.04</cell><cell>0.57 ± 0.01 0.48 ± 0.03</cell></row><row><cell>VIB, β=1e-3</cell><cell>35.6 ± 0.5</cell><cell>Entropy Rate</cell><cell>0.59 ± 0.01 0.50 ± 0.04</cell><cell>0.60 ± 0.01 0.53 ± 0.03</cell><cell>0.56 ± 0.01 0.48 ± 0.03</cell></row><row><cell>VIB, β=1e-1, D</cell><cell>29.0 ± 0.6</cell><cell>Entropy Rate</cell><cell>0.57 ± 0.01 0.45 ± 0.02</cell><cell>0.60 ± 0.01 0.48 ± 0.02</cell><cell>0.53 ± 0.01 0.46 ± 0.01</cell></row><row><cell>VIB, β=1e-2, D</cell><cell>32.5 ± 0.9</cell><cell>Entropy Rate</cell><cell>0.62 ± 0.01 0.53 ± 0.05</cell><cell>0.63 ± 0.02 0.56 ± 0.04</cell><cell>0.59 ± 0.01 0.52 ± 0.04</cell></row><row><cell>VIB, β=1e-3, D</cell><cell>34.5 ± 1.0</cell><cell>Entropy Rate</cell><cell>0.63 ± 0.01 0.56 ± 0.05</cell><cell>0.64 ± 0.02 0.57 ± 0.03</cell><cell>0.60 ± 0.01 0.54 ± 0.05</cell></row><row><cell>MASS, β=1e-2</cell><cell>29.6 ± 0.4</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.59 ± 0.01 0.43 ± 0.03</cell><cell>0.61 ± 0.01 0.48 ± 0.03</cell><cell>0.56 ± 0.01 0.43 ± 0.01</cell></row><row><cell>MASS, β=1e-3</cell><cell>32.7 ± 0.8</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.57 ± 0.01 0.57 ± 0.04</cell><cell>0.59 ± 0.02 0.59 ± 0.04</cell><cell>0.55 ± 0.01 0.54 ± 0.03</cell></row><row><cell>MASS, β=1e-4</cell><cell>34.0 ± 0.3</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.57 ± 0.01 0.59 ± 0.03</cell><cell>0.57 ± 0.01 0.58 ± 0.03</cell><cell>0.55 ± 0.01 0.57 ± 0.03</cell></row><row><cell>MASS, β=0</cell><cell>34.1 ± 0.6</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.57 ± 0.01 0.61 ± 0.03</cell><cell>0.58 ± 0.01 0.59 ± 0.04</cell><cell>0.55 ± 0.00 0.59 ± 0.04</cell></row><row><cell>MASS, β=1e-2, D</cell><cell>29.3 ± 1.2</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.62 ± 0.02 0.50 ± 0.05</cell><cell>0.64 ± 0.03 0.54 ± 0.05</cell><cell>0.59 ± 0.02 0.47 ± 0.03</cell></row><row><cell>MASS, β=1e-3, D</cell><cell>31.5 ± 0.6</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.61 ± 0.02 0.62 ± 0.04</cell><cell>0.62 ± 0.03 0.63 ± 0.04</cell><cell>0.58 ± 0.01 0.58 ± 0.04</cell></row><row><cell>MASS, β=1e-4, D</cell><cell>32.7 ± 0.8</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.61 ± 0.02 0.65 ± 0.04</cell><cell>0.61 ± 0.03 0.63 ± 0.04</cell><cell>0.59 ± 0.01 0.62 ± 0.05</cell></row><row><cell>MASS, β=0, D</cell><cell>32.2 ± 1.1</cell><cell cols="3">Entropy maxi q φ (f θ (x)|yi) 0.65 ± 0.05 0.64 ± 0.05 0.63 ± 0.01 0.64 ± 0.02</cell><cell>0.61 ± 0.01 0.62 ± 0.06</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_11"><head>Table 12 .</head><label>12</label><figDesc>Out-of-distribution detection metrics for ResNet20 network trained on 40,000 CIFAR-10 images, with SVHN as the out-ofdistribution examples. Full experiment details are in Supplementary Material 7.7. Values are the mean over 4 training runs with different random seeds, plus or minus the standard deviation. Emboldened values are those for which the maximum observed mean value in the column was within one standard deviation. Higher values are better.</figDesc><table><row><cell>Training Method</cell><cell>Test Accuracy</cell><cell>Detection Method</cell><cell>AUROC</cell><cell>APR In</cell><cell>APR Out</cell></row><row><cell>SoftmaxCE</cell><cell>81.7 ± 0.3</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.77 ± 0.02 0.59 ± 0.03</cell><cell>0.81 ± 0.02 0.62 ± 0.03</cell><cell>0.70 ± 0.02 0.55 ± 0.02</cell></row><row><cell>VIB, β=1e-3</cell><cell>81.0 ± 0.3</cell><cell>Entropy Rate</cell><cell>0.74 ± 0.02 0.55 ± 0.04</cell><cell>0.79 ± 0.02 0.57 ± 0.05</cell><cell>0.67 ± 0.02 0.51 ± 0.03</cell></row><row><cell>VIB, β=1e-4</cell><cell>81.2 ± 0.4</cell><cell>Entropy Rate</cell><cell>0.73 ± 0.02 0.50 ± 0.02</cell><cell>0.76 ± 0.03 0.54 ± 0.02</cell><cell>0.66 ± 0.02 0.48 ± 0.01</cell></row><row><cell>VIB, β=1e-5</cell><cell>80.9 ± 0.5</cell><cell>Entropy Rate</cell><cell>0.75 ± 0.02 0.18 ± 0.05</cell><cell>0.80 ± 0.02 0.34 ± 0.01</cell><cell>0.67 ± 0.02 0.34 ± 0.01</cell></row><row><cell>VIB, β=0</cell><cell>81.5 ± 0.2</cell><cell>Entropy Rate</cell><cell cols="3">0.79 ± 0.02 0.84 ± 0.02 0.73 ± 0.04 0.11 ± 0.03 0.32 ± 0.01 0.32 ± 0.01</cell></row><row><cell>MASS, β=1e-3</cell><cell>75.8 ± 0.5</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.74 ± 0.03 0.37 ± 0.04</cell><cell>0.77 ± 0.03 0.43 ± 0.02</cell><cell>0.69 ± 0.03 0.42 ± 0.02</cell></row><row><cell>MASS, β=1e-4</cell><cell>80.6 ± 0.5</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell cols="3">0.76 ± 0.04 0.80 ± 0.04 0.70 ± 0.05 0.48 ± 0.06 0.53 ± 0.05 0.47 ± 0.04</cell></row><row><cell>MASS, β=1e-5</cell><cell>81.6 ± 0.4</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.77 ± 0.01 0.54 ± 0.03</cell><cell cols="2">0.82 ± 0.01 0.71 ± 0.02 0.58 ± 0.03 0.51 ± 0.02</cell></row><row><cell>MASS, β=0</cell><cell>81.5 ± 0.2</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell cols="3">0.79 ± 0.03 0.83 ± 0.02 0.73 ± 0.03 0.49 ± 0.04 0.54 ± 0.04 0.47 ± 0.02</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_12"><head>Table 13 .</head><label>13</label><figDesc>Out-of-distribution detection metrics for ResNet20 network trained on 10,000 CIFAR-10 images, with SVHN as the out-ofdistribution examples. Full experiment details are in Supplementary Material 7.7. Values are the mean over 4 training runs with different random seeds, plus or minus the standard deviation. Emboldened values are those for which the maximum observed mean value in the column was within one standard deviation. Higher values are better.</figDesc><table><row><cell>Training Method</cell><cell>Test Accuracy</cell><cell>Detection Method</cell><cell>AUROC</cell><cell>APR In</cell><cell>APR Out</cell></row><row><cell>SoftmaxCE</cell><cell>67.5 ± 0.8</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.64 ± 0.02 0.59 ± 0.03</cell><cell>0.68 ± 0.02 0.61 ± 0.03</cell><cell>0.58 ± 0.02 0.57 ± 0.04</cell></row><row><cell>VIB, β=1e-3</cell><cell>66.9 ± 1.0</cell><cell>Entropy Rate</cell><cell cols="3">0.59 ± 0.02 0.72 ± 0.05 0.73 ± 0.05 0.67 ± 0.05 0.63 ± 0.04 0.54 ± 0.02</cell></row><row><cell>VIB, β=1e-4</cell><cell>66.4 ± 0.5</cell><cell>Entropy Rate</cell><cell>0.59 ± 0.01 0.59 ± 0.07</cell><cell>0.63 ± 0.02 0.60 ± 0.07</cell><cell>0.54 ± 0.01 0.56 ± 0.06</cell></row><row><cell>VIB, β=1e-5</cell><cell>67.9 ± 0.8</cell><cell>Entropy Rate</cell><cell>0.61 ± 0.03 0.39 ± 0.07</cell><cell>0.65 ± 0.04 0.42 ± 0.03</cell><cell>0.56 ± 0.03 0.43 ± 0.04</cell></row><row><cell>VIB, β=0</cell><cell>67.1 ± 1.0</cell><cell>Entropy Rate</cell><cell>0.64 ± 0.01 0.32 ± 0.03</cell><cell>0.68 ± 0.01 0.39 ± 0.01</cell><cell>0.58 ± 0.01 0.39 ± 0.01</cell></row><row><cell>MASS, β=1e-3</cell><cell>59.6 ± 0.8</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.59 ± 0.02 0.49 ± 0.07</cell><cell>0.62 ± 0.03 0.46 ± 0.06</cell><cell>0.56 ± 0.02 0.48 ± 0.08</cell></row><row><cell>MASS, β=1e-4</cell><cell>66.6 ± 0.4</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.62 ± 0.02 0.61 ± 0.05</cell><cell>0.67 ± 0.02 0.61 ± 0.05</cell><cell>0.56 ± 0.03 0.60 ± 0.05</cell></row><row><cell>MASS, β=1e-5</cell><cell>67.4 ± 1.0</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.64 ± 0.02 0.61 ± 0.08</cell><cell>0.69 ± 0.03 0.61 ± 0.06</cell><cell>0.58 ± 0.01 0.61 ± 0.09</cell></row><row><cell>MASS, β=0</cell><cell>67.4 ± 0.3</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.64 ± 0.01 0.55 ± 0.05</cell><cell>0.68 ± 0.02 0.56 ± 0.04</cell><cell>0.58 ± 0.01 0.54 ± 0.05</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_13"><head>Table 14 .</head><label>14</label><figDesc>Out-of-distribution detection metrics for ResNet20 network trained on 2,500 CIFAR-10 images, with SVHN as the out-ofdistribution examples. Full experiment details are in Supplementary Material 7.7. Values are the mean over 4 training runs with different random seeds, plus or minus the standard deviation. Emboldened values are those for which the maximum observed mean value in the column was within one standard deviation. Higher values are better.</figDesc><table><row><cell>Training Method</cell><cell>Test Accuracy</cell><cell>Detection Method</cell><cell>AUROC</cell><cell>APR In</cell><cell>APR Out</cell></row><row><cell>SoftmaxCE</cell><cell>50.0 ± 0.7</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.51 ± 0.01 0.63 ± 0.04</cell><cell>0.52 ± 0.02 0.62 ± 0.03</cell><cell>0.49 ± 0.01 0.63 ± 0.04</cell></row><row><cell>VIB, β=1e-3</cell><cell>49.5 ± 1.1</cell><cell>Entropy Rate</cell><cell cols="3">0.48 ± 0.05 0.68 ± 0.07 0.68 ± 0.05 0.66 ± 0.08 0.50 ± 0.05 0.47 ± 0.03</cell></row><row><cell>VIB, β=1e-4</cell><cell>49.4 ± 1.0</cell><cell>Entropy Rate</cell><cell cols="3">0.47 ± 0.05 0.66 ± 0.09 0.65 ± 0.08 0.66 ± 0.09 0.50 ± 0.05 0.47 ± 0.03</cell></row><row><cell>VIB, β=1e-5</cell><cell>50.0 ± 1.1</cell><cell>Entropy Rate</cell><cell>0.48 ± 0.05 0.59 ± 0.10</cell><cell>0.49 ± 0.05 0.55 ± 0.08</cell><cell>0.48 ± 0.03 0.61 ± 0.09</cell></row><row><cell>VIB, β=0</cell><cell>50.6 ± 0.8</cell><cell>Entropy Rate</cell><cell>0.51 ± 0.07 0.52 ± 0.20</cell><cell>0.54 ± 0.08 0.53 ± 0.15</cell><cell>0.50 ± 0.06 0.56 ± 0.17</cell></row><row><cell>MASS, β=1e-3</cell><cell>38.2 ± 0.7</cell><cell>Entropy maxi q φ (f θ (x)|yi)</cell><cell>0.48 ± 0.04 0.54 ± 0.11</cell><cell>0.50 ± 0.04 0.48 ± 0.06</cell><cell>0.47 ± 0.03 0.51 ± 0.08</cell></row><row><cell>MASS, β=1e-4</cell><cell>49.9 ± 1.0</cell><cell cols="4">Entropy maxi q φ (f θ (x)|yi) 0.72 ± 0.08 0.71 ± 0.08 0.73 ± 0.08 0.49 ± 0.04 0.51 ± 0.05 0.48 ± 0.03</cell></row><row><cell>MASS, β=1e-5</cell><cell>50.1 ± 0.5</cell><cell cols="4">Entropy maxi q φ (f θ (x)|yi) 0.69 ± 0.10 0.68 ± 0.10 0.70 ± 0.10 0.50 ± 0.06 0.51 ± 0.06 0.49 ± 0.04</cell></row><row><cell>MASS, β=0</cell><cell>50.2 ± 1.0</cell><cell cols="4">Entropy maxi q φ (f θ (x)|yi) 0.69 ± 0.07 0.68 ± 0.07 0.68 ± 0.07 0.51 ± 0.06 0.53 ± 0.06 0.50 ± 0.04</cell></row></table></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0"><p>This is not the most common phrasing of statistical minimality, but we feel it is more understandable. For the equivalence of this phrasing and the standard definition see Supplementary Material 7.1.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_1"><p>https://github.com/mwcvitkovic/ MASS-Learning</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="3" xml:id="foot_2"><p>In what follows, we will sometimes replace g by g/J f such that the Jacobian appears on the right-hand side. Furthermore, we will not only use non-negative g. This can be justified by splitting g into positive and negative parts provided that either part results in a finite integral.</p></note>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>Acknowledgements</head><p>We would like to thank <rs type="person">Georg Pichler</rs>, <rs type="person">Thomas Vidick</rs>, <rs type="person">Alex Alemi</rs>, <rs type="person">Alessandro Achille</rs>, and <rs type="person">Joseph Marino</rs> for useful discussions.</p></div>
+			</div>			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.4.2.">CONSERVED DIFFERENTIAL INFORMATION</head><p>For random variables that are not related by a deterministic function, mutual information can be expanded as</p><p>where H(X) and H(X|Y ) are differential entropy and conditional differential entropy, respectively. As we would like to measure information between random variables that are deterministically dependent, we can mimic this behavior by defining for a Lipschitz continuous mapping f :</p><p>By ( <ref type="formula">18</ref>), this can be simplified to</p><p>yielding our definition of CDI.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.5.">Proof of CDI Data Processing Inequality</head><p>CDI Data Processing Inequality (Theorem 1)</p><p>For Lipschitz continuous functions f and g with the same output space,</p><p>with equality if and only if g is one-to-one almost everywhere.</p><p>Proof. We calculate the difference between C(X, f (X)) and C(X, g(f (X))).</p><p>where ( <ref type="formula">24</ref>) holds because the Jacobian determinant J g•f can be decomposed as g has the same domain and codomain and (25) holds because the probability density function of g(f (X)) can be calculated as p</p><p>using a change of variables argument. The resulting term in (26) is clearly always nonnegative which proves the inequality.</p><p>To prove the equality statement, we first assume that (26) is zero. In this case, z∈g -1 (g(f (x)))</p><p>almost everywhere. Of course, we also have that p f (X) (f (x)) &gt; 0 almost everywhere. Thus, there exists a set A of probability one such that z∈g -1 (g(f (x)))</p><p>Jg(f (x)) and p f (X) (f (x)) &gt; 0 for all x ∈ A. In particular, the set g -1 (g(f (x))) ∩ A = {f (x)} and hence g is one-to-one almost everywhere.</p><p>For the other direction, assume that there exists g such that g(g(f (x))) = f (x) almost everywhere. We can assume without loss of generality that p f (X) (f (x)) = 0 for all x that do not satisfy this equation. Restricting the expectation in (26) to the values that satisfy g(g(f (x))) = f (x) does not change the expectation and gives the value zero.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.6.">Theorem 3 Only Holds in the Reverse Direction for Continuous X</head><p>The specific claim we are making is as follows:</p><p>Theorem 5. Let X be a continuous random variable drawn according to a distribution p(X|Y ) determined by the discrete random variable Y . Let F be the set of measurable functions of X to any target space</p><p>However, there may exist a function f satisfying (27) such that f (X) is not a minimal sufficient statistic.</p><p>Proof. First, we prove the forward direction. According to Lemma 1,</p><p>To show the minimality condition in ( <ref type="formula">27</ref>) for a minimal sufficient statistic, assume that there exists S(X) such that I(S(X), Y ) = max S ∈F I(S (X), Y ) and I(X, S(X)) &lt; I(X, f (X)). Because f is assumed to be a minimal sufficient statistic, there exists g such that f (X) = g(S(X)) and by the data-processing inequality I(X, S(X)) ≥ I(X, f (X)), a contradiction.</p><p>Next, we give an example of a function satisfying ( <ref type="formula">27</ref>) such that f (X) is not a minimal sufficient statistic. The example is the case when I(X, f (X)) is not finite, as is the case when f is a deterministic function and X is continuous. (See Lemma 3.) In this case, I(X, S(X)) is infinite for all deterministic, sufficient statistics S. Thus the set arg min S I(X, S(X)) contains not only the minimal sufficient statistics, but all deterministic sufficient statistics. As a concrete example, consider two i.i.d. normally-distributed random variables with mean µ:</p><p>) is a non-minimal sufficient statistic for µ. However, both statistics satisfy T, T ∈ arg min S∈F I(X, S(X)) since min S∈F I(X, S(X)) = ∞ under the constraint I(S(X), Y ) = max S ∈F I(S (X), Y ).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.7.">Experiment Details</head><p>Code to reproduce all experiments is available online at <ref type="url" target="https://github.com/mwcvitkovic/MASS-Learning">https://github.com/mwcvitkovic/MASS-Learning</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.7.1.">DATA</head><p>In all experiments above, the models were trained on the CIFAR-10 dataset <ref type="bibr" target="#b24">(Krizhevsky, 2009)</ref>. In the out-of-distribution detection experiments, the SVHN dataset <ref type="bibr" target="#b28">(Netzer et al., 2011)</ref> was used as the out-of-distribution dataset. All channels in all datapoints were normalized to have zero mean and unit variance across their dataset. No data augmentation was used in any experiments.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.7.2.">NETWORKS</head><p>The SmallMLP network is a 2-hidden-layer, fully-connected network with elu nonlinearities <ref type="bibr">(Clevert et al., 2015)</ref>. The first hidden layer contains 400 hidden units; the second contains 200 hidden units. Batch norm was applied after the linear mapping and before the nonlinearity of each hidden layer. Dropout, when used, was applied after the nonlinearity of each hidden layer. When used in VIB and MASS, the representation f θ (x) was in R 15 , with the VIB encoder outputting parameters for a fully-covariant Gaussian distribution in R 15 . The marginal distribution in VIB and each component of the variational distribution q φ (one component for each possible output class) in MASS were both mixtures of 10 full-covariance, 15-dimensional multivariate Gaussians.</p><p>The ResNet20 network is the 20-layer residual net of <ref type="bibr" target="#b15">He et al. (2016)</ref>. We adapted our implementation from <ref type="url" target="https://github.com/akamaster/pytorch_resnet_cifar10">https:  //github.com/akamaster/pytorch_resnet_cifar10</ref>, to whose authors we are very grateful. When used in VIB and MASS, the representation f θ (x) was in R 20 , with the VIB encoder outputting parameters for a diagonally-covariant Gaussian distribution in R 20 . The marginal distribution in VIB and each component of the the variational distribution q φ (one component for each possible output class) in MASS were both mixtures of 10 full-covariance, 20-dimensional multivariate Gaussians.</p><p>In experiments where a distribution q φ (f θ (x)|y) is used in conjunction with a function f θ trained by SoftmaxCE, each component of q φ (f θ (x)|y) was a mixture of 10 full-covariance, 10-dimensional multivariate Gaussians, the parameters φ of which were estimated by MLE on the training set.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.7.3.">TRAINING</head><p>The SmallMLP network in all experiments and with all training methods was trained using the Adam optimizer <ref type="bibr" target="#b19">(Kingma &amp; Ba, 2015)</ref> with a learning rate of 0.0005 for 100,000 steps of stochastic gradient descent, using minibatches of size 256. All quantities we report in this paper were fully-converged to stable values by 100,000 steps. When training VIB, 5 encoder samples per datapoint were used during training, and 10 during testing. When training MASS, the learning rate of the parameters of the variational distribution q φ was set at 2.5e-5 to aid numerical stability.</p><p>The ResNet20 network in all experiments and with all training methods was trained using SGD with an initial learning rate of 0.1, decayed by a multiplicative factor of 0.1 at epochs 100 and 150, a momentum factor of 0.9, and minibatches of size 128. These values were taken directly from the original paper <ref type="bibr" target="#b15">(He et al., 2016)</ref>. However, unlike the original paper, we did not use data augmentation in order to keep the comparison between different numbers of training points more rigorous. This, combined with the smaller number of training points used, accounts for the around 82% accuracy we observe on CIFAR-10 compared to the around 91% accuracy in the original paper. We trained the network for 70,000 steps of stochastic gradient descent. All quantities we report in this paper were fully-converged to stable values by 70,000 steps. When training VIB, 10 encoder samples per datapoint were used during training, and 20 during testing. When training MASS, the learning rate of the parameters of the variational distribution was the same as those of the network.</p><p>The values of β we chose for VIB and MASS were selected so that the largest β value used in each experiment was much larger in magnitude than the remaining terms in the VIB or MASS training loss, and the smallest β value used was much smaller than the remaining terms. We made this choice in the hope of clearly observing the effect of the β parameter and more fairly comparing SoftmaxCE, VIB, and MASS. But we note that a finer-tuning of the β parameter would likely result in better performance for both VIB and MASS. We also note that the reason we omit a β = 0 run for VIB with the SmallMLP network was that we could not prevent training from failing due to numerical instability with β = 0 with this network.</p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Emergence of invariance and disentanglement in deep representations</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Achille</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Soatto</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2018 Information Theory and Applications Workshop (ITA)</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="1" to="9" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Information dropout: Learning optimal representations through noisy computation</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Achille</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Soatto</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE Transactions on Pattern Analysis and Machine Intelligence</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="2897" to="2905" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Sufficient dimension reduction and prediction in regression</title>
+		<author>
+			<persName><forename type="first">Kofi</forename><forename type="middle">P</forename><surname>Adragni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Cook</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Dennis</surname></persName>
+		</author>
+		<idno type="DOI">10.1098/rsta.2009.0110</idno>
+		<ptr target="https://royalsocietypublishing.org/doi/full/10.1098/rsta.2009.0110" />
+	</analytic>
+	<monogr>
+		<title level="j">Philosophical Transactions of the Royal Society A: Mathematical, Physical and Engineering Sciences</title>
+		<imprint>
+			<biblScope unit="volume">367</biblScope>
+			<biblScope unit="page" from="4385" to="4405" />
+			<date type="published" when="1906-11">1906. November 2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Deep variational information bottleneck</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">A</forename><surname>Alemi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Fischer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">V</forename><surname>Dillon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Murphy</surname></persName>
+		</author>
+		<idno>abs/1612.00410</idno>
+		<ptr target="https://arxiv.org/abs/1612.00410" />
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Learning Representations</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<title level="m" type="main">Uncertainty in the Variational Information Bottleneck</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">A</forename><surname>Alemi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Fischer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">V</forename><surname>Dillon</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1807.00906</idno>
+		<idno>arXiv: 1807.00906</idno>
+		<ptr target="http://arxiv.org/abs/1807.00906" />
+		<imprint>
+			<date type="published" when="2018-07">July 2018</date>
+		</imprint>
+	</monogr>
+	<note>cs, stat</note>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Learning representations for neural network-based classification using the information bottleneck principle</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">A</forename><surname>Amjad</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">C</forename><surname>Geiger</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE transactions on pattern analysis and machine intelligence</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">An informationmaximization approach to blind separation and blind deconvolution</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">J</forename><surname>Bell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">J</forename><surname>Sejnowski</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural Computation</title>
+		<idno type="ISSN">0899-7667</idno>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="1129" to="1159" />
+			<date type="published" when="1995-11">November 1995</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Fast and Accurate Deep Network Learning by Exponential Linear Units (ELUs)</title>
+		<author>
+			<persName><forename type="first">D.-A</forename><surname>Clevert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Unterthiner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Hochreiter</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1511.07289</idno>
+		<idno>arXiv: 1511.07289</idno>
+		<ptr target="http://arxiv.org/abs/1511.07289" />
+	</analytic>
+	<monogr>
+		<title level="m">November 2015</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<title level="m" type="main">Elements of Information Theory 2nd Edition</title>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">M</forename><surname>Cover</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">A</forename><surname>Thomas</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2006-07">July 2006</date>
+			<publisher>Wiley-Interscience</publisher>
+			<pubPlace>Hoboken, NJ</pubPlace>
+		</imprint>
+	</monogr>
+	<note>2 edition edition</note>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<title level="m" type="main">NICE: Non-linear Independent Components Estimation</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Dinh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Krueger</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1410.8516</idno>
+		<idno>arXiv: 1410.8516</idno>
+		<ptr target="http://arxiv.org/abs/1410.8516" />
+		<imprint>
+			<date type="published" when="2014-10">October 2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Density estimation using Real NVP</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Dinh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Sohl-Dickstein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Bengio</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/1605.08803" />
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Learning Representations</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Necessary and sufficient statistics for afamily of probability distributions. Uspekhi Mat</title>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">B</forename><surname>Dynkin</surname></persName>
+		</author>
+		<ptr target="http://www.mathnet.ru/php/archive.phtml?wshow=paper&amp;jrnid=rm&amp;paperid=6820&amp;option_lang=eng" />
+	</analytic>
+	<monogr>
+		<title level="j">Nauk</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="68" to="90" />
+			<date type="published" when="1951">1951</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<title level="m" type="main">Geometric Measure Theory</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Federer</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1969">1969</date>
+			<publisher>Springer</publisher>
+			<pubPlace>New York, NY</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Goldfeld</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">V D</forename><surname>Berg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Greenewald</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Melnyk</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Kingsbury</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Polyanskiy</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1810.05728</idno>
+		<idno>arXiv: 1810.05728</idno>
+		<ptr target="http://arxiv.org/abs/1810.05728" />
+		<title level="m">Estimating Information Flow in Neural Networks</title>
+		<imprint>
+			<date type="published" when="2018-10">October 2018</date>
+		</imprint>
+	</monogr>
+	<note>cs, stat</note>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">Deep</forename><surname>Courville</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Learning</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>MIT Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Deep residual learning for image recognition</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Sun</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE Conference on Computer Vision and Pattern Recognition (CVPR)</title>
+		<imprint>
+			<date type="published" when="2016">2016. 2016</date>
+			<biblScope unit="page" from="770" to="778" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">A Baseline for Detecting Misclassified and Out-of-Distribution Examples in Neural Networks</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Hendrycks</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Gimpel</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/1610" />
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Learning Representations</title>
+		<imprint>
+			<date type="published" when="2017">2017. 02136v3</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Improving dnn robustness to adversarial attacks using jacobian regularization</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Jakubovitz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Giryes</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/1803.08680" />
+	</analytic>
+	<monogr>
+		<title level="j">ECCV</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Trimming the Independent Fat: Sufficient Statistics, Mutual Information, and Predictability from Effective Channel States</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">G</forename><surname>James</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">R</forename><surname>Mahoney</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">P</forename><surname>Crutchfield</surname></persName>
+		</author>
+		<idno type="DOI">10.1103/PhysRevE.95.060102</idno>
+		<idno type="arXiv">arXiv:1702.01831</idno>
+		<ptr target="http://arxiv.org/abs/1702.01831" />
+	</analytic>
+	<monogr>
+		<title level="j">Physical Review E</title>
+		<idno type="ISSN">2470-0045, 2470-0053</idno>
+		<imprint>
+			<biblScope unit="volume">95</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<date type="published" when="2017-06">June 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">A Method for Stochastic Optimization</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Kingma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Ba</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Adam</surname></persName>
+		</author>
+		<ptr target="http://arxiv.org/abs/1412.6980" />
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Learning Representations</title>
+		<imprint>
+			<date type="published" when="2015-12">December 2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kolchinsky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">D</forename><surname>Tracey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">H</forename><surname>Wolpert</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1705.02436</idno>
+		<idno>arXiv: 1705.02436</idno>
+		<ptr target="http://arxiv.org/abs/1705.02436" />
+		<title level="m">Nonlinear Information Bottleneck</title>
+		<imprint>
+			<date type="published" when="2017-05">May 2017</date>
+		</imprint>
+	</monogr>
+	<note>cs, math, stat</note>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<monogr>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kolchinsky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">D</forename><surname>Tracey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Van Kuyk</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1808.07593</idno>
+		<ptr target="http://arxiv.org/abs/1808.07593" />
+		<title level="m">Caveats for information bottleneck in deterministic scenarios. International Conference on Learning Representations</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Entropy and Source Coding for Integer-Dimensional Singular Random Variables</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Koliander</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Pichler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Riegler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Hlawatsch</surname></persName>
+		</author>
+		<idno type="DOI">10.1109/TIT.2016.2604248</idno>
+		<idno type="arXiv">arXiv:1505.03337</idno>
+		<ptr target="http://arxiv.org/abs/1505.03337" />
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Information Theory</title>
+		<idno type="ISSN">0018- 9448</idno>
+		<imprint>
+			<biblScope unit="volume">62</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<biblScope unit="page" from="1557" to="9654" />
+			<date type="published" when="2016-11">November 2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">G</forename><surname>Krantz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">R</forename><surname>Parks</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Geometric Integration Theory. Birkhuser</title>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+			<pubPlace>Basel, Switzerland</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<monogr>
+		<title level="m" type="main">Learning multiple layers of features from tiny images</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Krizhevsky</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Simple and scalable predictive uncertainty estimation using deep ensembles</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Lakshminarayanan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Pritzel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Blundell</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">NIPS</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<monogr>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">L</forename><surname>Lehmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Scheffe</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Completeness</surname></persName>
+		</author>
+		<ptr target="https://www.jstor.org/stable/25048038" />
+		<title level="m">Similar Regions, and Unbiased Estimation: Part I. Sankhy: The Indian Journal of Statistics</title>
+		<imprint>
+			<date type="published" when="1933">1933-1960. 1950</date>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="page" from="305" to="340" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<monogr>
+		<title level="m" type="main">Inverting Supervised Representations with Autoregressive Neural Density Models</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Nash</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Kushman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">K I</forename><surname>Williams</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/1806.00400" />
+		<imprint>
+			<date type="published" when="2018-06">June 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<monogr>
+		<title level="m" type="main">Reading digits in natural images with unsupervised feature learning</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Netzer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Coates</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Bissacco</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">Y</forename><surname>Ng</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Sensitivity and Generalization in Neural Networks: an Empirical Study</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Novak</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bahri</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">A</forename><surname>Abolafia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Pennington</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Sohl-Dickstein</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1802.08760</idno>
+		<ptr target="http://arxiv.org/abs/1802.08760" />
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Learning Representations</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<monogr>
+		<title level="m" type="main">Automatic differentiation in PyTorch</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Paszke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Gross</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Chintala</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Chanan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Devito</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Desmaison</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Antiga</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Lerer</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Variational inference with normalizing flows</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">J</forename><surname>Rezende</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Mohamed</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/1505.05770" />
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Machine Learning</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Higher Order Contractive Auto-Encoder</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Rifai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Mesnil</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Vincent</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Muller</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Dauphin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Glorot</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning and Knowledge Discovery in Databases</title>
+		<title level="s">Lecture Notes in Computer Science</title>
+		<meeting><address><addrLine>Berlin Heidelberg</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2011">2011</date>
+			<biblScope unit="page" from="645" to="660" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Improving the adversarial robustness and interpretability of deep neural networks by regularizing their input gradients</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">S</forename><surname>Ross</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Doshi-Velez</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/1711.09404" />
+	</analytic>
+	<monogr>
+		<title level="j">AAAI</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">On the Information Bottleneck Theory of Deep Learning</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">M</forename><surname>Saxe</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bansal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Dapello</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Advani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kolchinsky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">D</forename><surname>Tracey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">D</forename><surname>Cox</surname></persName>
+		</author>
+		<ptr target="https://openreview.net/forum?id=ry_WPG-A-" />
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Learning Representations</title>
+		<imprint>
+			<date type="published" when="2018-02">February 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Learning and generalization with the information bottleneck</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Shamir</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Sabato</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Tishby</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.tcs.2010.04</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Theoretical Computer Science</title>
+		<idno type="ISSN">0304-3975</idno>
+		<imprint>
+			<biblScope unit="volume">411</biblScope>
+			<biblScope unit="issue">29</biblScope>
+			<biblScope unit="page" from="2696" to="2711" />
+			<date type="published" when="2010-06">June 2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<monogr>
+		<title level="m" type="main">Opening the Black Box of Deep Neural Networks via Information</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Shwartz-Ziv</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Tishby</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1703.00810</idno>
+		<idno>arXiv: 1703.00810</idno>
+		<ptr target="http://arxiv.org/abs/1703.00810" />
+		<imprint>
+			<date type="published" when="2017-03">March 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">Robust Large Margin Deep Neural Networks</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Sokolic</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Giryes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Sapiro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">R D</forename><surname>Rodrigues</surname></persName>
+		</author>
+		<idno type="DOI">10.1109/TSP.2017.2708039</idno>
+		<idno type="arXiv">arXiv:1605.08254</idno>
+		<ptr target="http://arxiv.org/abs/1605.08254" />
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Signal Processing</title>
+		<idno type="ISSN">1053-587</idno>
+		<imprint>
+			<biblScope unit="volume">65</biblScope>
+			<biblScope unit="issue">16</biblScope>
+			<biblScope unit="page" from="1941" to="0476" />
+			<date type="published" when="2017-08">August 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<analytic>
+		<title level="a" type="main">The deterministic information bottleneck</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Strouse</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">J</forename><surname>Schwab</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/1604.00268" />
+	</analytic>
+	<monogr>
+		<title level="j">Neural Computation</title>
+		<imprint>
+			<biblScope unit="volume">29</biblScope>
+			<biblScope unit="page" from="1611" to="1630" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">Deep Learning and the Information Bottleneck Principle</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Tishby</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Zaslavsky</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/1503.02406" />
+	</analytic>
+	<monogr>
+		<title level="m">IEEE Information Theory Workshop (ITW)</title>
+		<imprint>
+			<date type="published" when="2015-03">2015. March 2015</date>
+			<biblScope unit="page" from="1" to="5" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<monogr>
+		<author>
+			<persName><forename type="first">N</forename><surname>Tishby</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">C</forename><surname>Pereira</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Bialek</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:physics/0004057</idno>
+		<idno>arXiv: physics/0004057</idno>
+		<ptr target="http://arxiv.org/abs/physics/0004057" />
+		<title level="m">The information bottleneck method</title>
+		<imprint>
+			<date type="published" when="2000-04">April 2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<monogr>
+		<author>
+			<persName><forename type="first">D</forename><surname>Varga</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Csiszrik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Zombori</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1712.09936</idno>
+		<idno>arXiv: 1712.09936</idno>
+		<ptr target="http://arxiv.org/abs/1712.09936" />
+		<title level="m">Gradient Regularization Improves Accuracy of Discriminative Models</title>
+		<imprint>
+			<date type="published" when="2017-12">December 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>
