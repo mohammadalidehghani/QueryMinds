@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Is &apos;Unsupervised Learning&apos; a Misconceived Term?</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2019-04-09">April 9, 2019</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><roleName>M.D</roleName><forename type="first">Stephen</forename><forename type="middle">G</forename><surname>Odaibo</surname></persName>
+							<email>stephen.odaibo@retina-ai.com</email>
+							<affiliation key="aff0">
+								<orgName type="institution">RETINA-AI Health, Inc</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Is &apos;Unsupervised Learning&apos; a Misconceived Term?</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2019-04-09">April 9, 2019</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">C7F99E41FF56FFE114B9F93B1EF59016</idno>
+					<idno type="arXiv">arXiv:1904.03259v1[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Is all of machine learning supervised to some degree? The field of machine learning has traditionally been categorized pedagogically into supervised vs unsupervised learning; where supervised learning has typically referred to learning from labeled data, while unsupervised learning has typically referred to learning from unlabeled data. In this paper, we assert that all machine learning is in fact supervised to some degree, and that the scope of supervision is necessarily commensurate to the scope of learning potential. In particular, we argue that clustering algorithms such as k-means, and dimensionality reduction algorithms such as principal component analysis, variational autoencoders, and deep belief networks are each internally supervised by the data itself to learn their respective representations of its features. Furthermore, these algorithms are not capable of external inference until their respective outputs (clusters, principal components, or representation codes) have been identified and externally labeled in effect. As such, they do not suffice as examples of unsupervised learning. We propose that the categorization 'supervised vs unsupervised learning' be dispensed with, and instead, learning algorithms be categorized as either internally or externally supervised (or both). We believe this change in perspective will yield new fundamental insights into the structure and character of data and of learning algorithms.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Figure <ref type="figure">1</ref>: Prototypical Illustration of Supervised vs Unsupervised Learning Traditional thinking has been to pedagogically divide machine learning into supervised vs unsupervised learning, as depicted in Figure <ref type="bibr">(1)</ref>. In this paper, we challenge that scheme by arguing that all machine learning is supervised to some degree. In the literature, the methods which have typically been referred to as unsupervised learning include methods such as kmeans <ref type="bibr" target="#b5">[MacQueen et al., 1967</ref><ref type="bibr">, Wagstaff et al., 2001</ref><ref type="bibr" target="#b0">, Coates et al., 2011</ref><ref type="bibr" target="#b1">,Coates and Ng, 2012]</ref> which cluster data based on some distance metric, and methods which attempt to derive some representation code of the data in terms of the algorithm's individual architecture. This latter class of methods can be thought of on the one hand as dimensionality reducers, and they include autoencoders <ref type="bibr" target="#b5">[Le et al., 2011</ref><ref type="bibr" target="#b4">, Hinton and Salakhutdinov, 2006</ref><ref type="bibr" target="#b5">, Lee et al., 2009</ref><ref type="bibr" target="#b9">, Vincent et al., 2010</ref><ref type="bibr" target="#b6">, Ngiam et al., 2011]</ref>, principal component analysis <ref type="bibr" target="#b5">[Jolliffe, 2011]</ref>, deep belief networks <ref type="bibr" target="#b4">[Hinton et al., 2006]</ref>, and adversarial generative models such as predictability minimization <ref type="bibr" target="#b8">[Schmidhuber, 1992]</ref> and generative adversarial networks <ref type="bibr" target="#b2">[Goodfellow et al., 2014</ref><ref type="bibr" target="#b7">, Radford et al., 2015</ref><ref type="bibr" target="#b6">, Mirza and Osindero, 2014]</ref>. Another interpretation for these is as density estimators which effectively maximize the likelihood of the input data. In other words, they attempt to derive a distribution estimate, Q(x), for the native probability distribution, P (x), of the data, χ, by minimizing the Kullback-Liebler or related distance:</p><formula xml:id="formula_0">D KL (P ||Q) = - x∈χ P (x) log Q(x) P (x)<label>(1)</label></formula><p>Each of the above mentioned algorithms are guided strongly by the data, which is in every sense their supervisor. In the case of kmeans clustering, the location of the data point is the label and the loss is its distance to the k centroids. In the case of deep neural autoencoders, the input image is the label and the loss is a function of the distance between the original and the reconstructed image. And in the case of principal component analysis, the multivariate data points are the labels, and they contain all the information needed to select the mutually orthogonal set of principal component vectors.</p><p>In the above examples, this direct supervision by the data itself constrains the learning potential to things intrinsic to the data, e.g. internal feature representations of the data. If on the other hand, one wanted to learn things externally ascribed to the data, i.e labels, then external supervision via implicit or explicit labeling will be necessary. Prior to such labeling, these algorithms are not directly useful for inference of externally defined meaning. For example, without some form of feature identification and labeling, an image autoencoder's output cannot be used to directly infer things such as 'cat,' 'dog,' or 'face.' Therefore one must recognize these methods as supervised learning algorithms where the supervision is by the data itself and the learning is of a representation of the data's internal features.</p><p>We propose that the categorization 'supervised vs unsupervised learning' be dispensed with, and instead, learning algorithms be categorized as either internally or externally supervised (or both). We believe this change in perspective will yield new fundamental insights into the structure and character of data and of learning algorithms.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Supervision, Learning, and Inference Scope</head><p>Here, we propose the concept of scope in regards to supervision, learning, and inference. We conjecture that all machine learning is supervised to some degree. And the level and scope of supervision determines the level and scope of learning potential. This in turn determines the level and scope of inference potential of which the algorithm's output is capable. An algorithm cannot learn beyond the scope of its supervision, and cannot infer beyond the scope of what it has learned. For instance, when the only supervisor is the data itself and there is no external supervision in the form of labels, such an algorithm will only be capable of learning things intrinsic to the data; things such as internal feature representation codes. By the same token, the inference which such an algorithm will be capable of will be restricted to what it has learned, for example it will be able to represent new unseen data in the learned representation code. This can be considered an intrinsic data-level Figure <ref type="figure">2</ref>: Kmeans-to-kNN: Internal-to-External Supervision scope of supervision, learning, and inference. On the other hand, if externally defined meaning is ascribed to the learned features codes or some algebraic combination of them like an image, then the scope of learning and inference will similarly go beyond intrinsic features of the data. In this instance, there will be a mapping into the corresponding semantic space.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Data as Supervisor</head><p>When there are no labels, i.e. no external supervision to guide the learning process, one is limited to internal supervision by the data itself. Under this circumstance, the range of admissible learning processes can be summarized as basis feature selection. This may include a change of basis feature opera- </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Some Examples</head><p>Table <ref type="table" target="#tab_0">1</ref> shows some examples of algorithms and their associated supervision type. The table assumes the standard implementation of the algorithms.</p><p>The previously mentioned examples where the data itself is the supervisor are all internally supervised. The examples on the table are externally supervised. Notably, the external labeling is not always obvious. GANs are such an example. For most machine learning applications, some form of external inference capability is ultimately desired. To enable this, the internally supervised output will need to be converted to externally supervised method as exemplified by kmeans-to-kNN illustrated in Figure ( <ref type="formula">2</ref>). In such cases, the composite process is therefore both internally and externally supervised.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">GANs are Externally Supervised</head><p>Generative adversarial networks (GANs) are an interesting example of an algorithm that is surprisingly externally supervised, but have often been called 'unsupervised' <ref type="bibr" target="#b7">[Radford et al., 2015]</ref>. Their individual modules such as the discriminator or the generator considered in isolation, are externally supervised. The Discriminator in a GAN is a binary classification convolutional neural network with clearly labeled outputs: real vs synthesized; real if the image source is the training data and synthesized if the image source is the Generator. Similarly, the Generator is a deconvolutional neural network whose weights are updated based on the Discriminator's assessment of the Generator's clearly labeled output. This clearly labeled output are what directly constitute the loss function and guide the training, as exemplified by the stochastic gradient of the Shannon-Jensen loss:</p><formula xml:id="formula_1">∇ θ d 1 m m i=1 log D x (i) + log 1 -D G z (i) (2)</formula><p>The entire process of training a GAN is guided by the algorithm designer's knowledge and labeling of the training data as real and the generator's output as synthesized.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Discussion</head><p>No algorithms in existence are truly unsupervised. Instead, the scope of supervision of algorithms determine the learning potential, which in turn determines the inference potential of resulting trained model. We found that most algorithms that have been termed 'unsupervised' in the literature are supervised by the data, i.e. they they are internally supervised. The learning potential of such data-level scope algorithms is to determine a 'basis' feature set to represent the data. The specific mechanisms of data-level scope supervision varied between algorithms, but each presented the data as the standard against which the resulting basis feature set was evaluated.</p><p>An algorithm can be termed unsupervised if it is able to learn outside of the scope of its supervision. We however conjecture that this is impossible. For instance, while there is a representation for face, dog, cat, or any other visual object in terms of any appropriately deep neural network architecture, one does not have semblance of intelligence till the representations are mapped to meaning. In other words, one can not make useful and meaningful inference until the derived basis features are mapped to meaningful objects such as 'face', 'cat', and 'dog'. This is labeling and makes it an externally supervised problem.</p><p>Neural networks learn so many more features that we can currently track or be aware of. For instance, in a standard convolutional neural network image classification problem, our labels are based on certain salient discriminative features, yet the network may utilize other and more (or less) features for discrimination. This makes it clear that the designation of supervision type is based on the intended task. For instance, assigning class labels in an image classification problem suffices to designate the algorithm as 'supervised' regardless of how exactly the neural network makes its determination, which may be via a feature different from the label. By the same token, when the task is to find an internal representation of a dataset, then presenting the algorithm with a representative sample of that dataset clearly qualifies as supervision, and in this work we have termed such supervision internal. This is in contrast to external supervision in which the internal 'basis' feature are mapped to an external label.</p><p>In contrast to previous thinking which categorized supervision as either present (supervised) or absent (unsupervised); in this work, we have argued that supervision is always present in learning algorithms and is either internal, external, or both. We have also pointed out how the scope of supervision determines the scope of learning potential, which in turn determines the scope of inference potential. We anticipate that this change in perspective will yield new fundamental insights into the structure and character of data and of learning algorithms.</p><p>[ <ref type="bibr">Wagstaff et al., 2001</ref><ref type="bibr">] Wagstaff, K., Cardie, C., Rogers, S., Schrödl, S., et al. (2001)</ref>. Constrained k-means clustering with background knowledge. In Icml, volume 1, pages 577-584. </p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 3 :</head><label>3</label><figDesc>Figure 3: About the Author: Dr. Stephen G. Odaibo is Founder, CEO, and Chief Software Architect of RETINA-AI Health Inc, a company using Artificial Intelligence to improve Healthcare. He is a Retina specialist, Mathematician, Computer Scientist, and Full-Stack AI Engineer. Dr. Odaibo is the only Ophthalmologist in the world with advanced degrees in both Mathematics and Computer Science. In 2017 UAB College of Arts and Sciences awarded Dr. Odaibo its highest honor, the Distinguished Alumni Achievement Award. In 2005 he won the Barrie Hurwitz Award for Excellence in Clinical Neurology at Duke Univ. School of Medicine where he topped the class in Neurology and in Pediatrics. In 2016 Dr. Odaibo delivered the Opening Keynote address at the Global Ophthalmologists Meeting in Osaka Japan. And he delivered the inaugural Special Guest Lecture in Ophthalmology at the University of Ilorin, Nigeria. In 2018, Dr. Odaibo delivered the keynote address at the National Medical Association's New Innovations in Ophthalmology Session. And he delivered a Plenary Keynote address on AI in Healthcare at AI Expo Africa in Cape town, South Africa. He is author of the book "Quantum Mechanics and the MRI Machine" (2012), and of the book "The Form of Finite Groups: A Course on Finite Group Theory" (2016). Clinically, Dr. Odaibo focuses on caring for patients with macular degeneration, diabetic retinopathy, retinal vascular occlusions, retinal tears, and localized retinal detachments.</figDesc><graphic coords="9,252.36,198.86,89.60,89.60" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="2,129.36,163.43,335.60,172.40" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="4,152.02,128.79,290.26,346.38" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 1 :</head><label>1</label><figDesc>Supervision type of some algorithms tion; or a reduction in span, i.e. a dimensionality reduction. The entire range of data-supervised examples such as kmeans clustering, principal component analysis, autoencoding, deep belief nets, and generative adversarial nets can all be described as basis feature selection operations. The possible inference in this case is essentially limited to expressing new data in the learned feature basis.</figDesc><table><row><cell>Algorithm</cell><cell>Supervision</cell></row><row><cell>Kmeans clustering</cell><cell>Internal</cell></row><row><cell>Variational autoencoders</cell><cell>Internal</cell></row><row><cell>Deep belief networks</cell><cell>Internal</cell></row><row><cell>Principal component analysis</cell><cell>Internal</cell></row><row><cell>K nearest neighbor (kNN)</cell><cell>External</cell></row><row><cell>CNN image classification</cell><cell>External</cell></row><row><cell>Generative adversarial nets</cell><cell>External</cell></row><row><cell>Kmeans-to-kNN</cell><cell>Both</cell></row></table></figure>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>Acknowledgement</head><p>I initially posted this idea on Linkedin on Friday March 29th 2019, where it generated good discussion. I'm thankful to discussion participants such as <rs type="person">Emml Asimadi</rs>, <rs type="person">Adebayo Aderibigbe</rs>, <rs type="person">Idris Azeez</rs>, <rs type="person">Busayo Coker</rs>, <rs type="person">Oden Vangelis</rs>, and <rs type="person">Busayo Olukunle</rs> amongst others.</p></div>
+			</div>			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">An analysis of single-layer networks in unsupervised feature learning</title>
+		<author>
+			<persName><surname>Coates</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the fourteenth international conference on artificial intelligence and statistics</title>
+		<meeting>the fourteenth international conference on artificial intelligence and statistics</meeting>
+		<imprint>
+			<date type="published" when="2011">2011. 2011</date>
+			<biblScope unit="page" from="215" to="223" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Learning feature representations with k-means</title>
+		<author>
+			<persName><surname>Coates</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Ng ; Coates</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">Y</forename><surname>Ng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Neural networks: Tricks of the trade</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2012">2012. 2012</date>
+			<biblScope unit="page" from="561" to="580" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Generative adversarial nets</title>
+		<author>
+			<persName><surname>Goodfellow</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in neural information processing systems</title>
+		<imprint>
+			<date type="published" when="2014">2014. 2014</date>
+			<biblScope unit="page" from="2672" to="2680" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">A fast learning algorithm for deep belief nets</title>
+		<author>
+			<persName><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural computation</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="issue">7</biblScope>
+			<biblScope unit="page" from="1527" to="1554" />
+			<date type="published" when="2006">2006. 2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Reducing the dimensionality of data with neural networks</title>
+		<author>
+			<persName><forename type="first">Salakhutdinov ;</forename><surname>Hinton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Hinton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">R</forename><surname>Salakhutdinov</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">science</title>
+		<imprint>
+			<biblScope unit="volume">313</biblScope>
+			<biblScope unit="issue">5786</biblScope>
+			<biblScope unit="page" from="504" to="507" />
+			<date type="published" when="2006">2006. 2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Convolutional deep belief networks for scalable unsupervised learning of hierarchical representations</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Jolliffe ; Jolliffe</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Le</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1112.6209</idno>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the fifth Berkeley symposium on mathematical statistics and probability</title>
+		<meeting>the fifth Berkeley symposium on mathematical statistics and probability<address><addrLine>Oakland, CA, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="1967">2011. 2011. 2011. 2011. 2009. 2009. 1967. 1967</date>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="page" from="281" to="297" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+	<note>Building high-level features using large scale unsupervised learning Principal component analysis Some methods for classification and analysis of multivariate observations Proceedings of the 26th annual international conference on machine learning</note>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Multimodal deep learning</title>
+		<author>
+			<persName><forename type="first">Osindero ;</forename><surname>Mirza</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Mirza</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Osindero</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ngiam</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1411.1784</idno>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 28th international conference on machine learning (ICML-11)</title>
+		<meeting>the 28th international conference on machine learning (ICML-11)</meeting>
+		<imprint>
+			<date type="published" when="2011">2014. 2014. 2011. 2011</date>
+			<biblScope unit="page" from="689" to="696" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+	<note>Conditional generative adversarial nets</note>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">Unsupervised representation learning with deep convolutional generative adversarial networks</title>
+		<author>
+			<persName><surname>Radford</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1511.06434</idno>
+		<imprint>
+			<date type="published" when="2015">2015. 2015</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Learning factorial codes by predictability minimization</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Schmidhuber ; Schmidhuber</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural Computation</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="863" to="879" />
+			<date type="published" when="1992">1992. 1992</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Stacked denoising autoencoders: Learning useful representations in a deep network with a local denoising criterion</title>
+		<author>
+			<persName><surname>Vincent</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of machine learning research</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="page" from="3371" to="3408" />
+			<date type="published" when="2010-12">2010. 2010. Dec</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

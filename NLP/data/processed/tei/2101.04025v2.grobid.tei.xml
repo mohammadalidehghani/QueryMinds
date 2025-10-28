@@ -1,0 +1,1149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Distributed Double Machine Learning with a Serverless Architecture</title>
+				<funder ref="#_f8hw6ET">
+					<orgName type="full">Deutsche Forschungsgemeinschaft (DFG, German Research Foundation</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2021-02-24">24 Feb 2021</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Malte</forename><forename type="middle">S</forename><surname>Kurz</surname></persName>
+							<email>malte.simon.kurz@uni-hamburg.de</email>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Hamburg Hamburg</orgName>
+								<address>
+									<country key="DE">Germany</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Distributed Double Machine Learning with a Serverless Architecture</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2021-02-24">24 Feb 2021</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">1C3D4269C8059EC223A7C997368CE67B</idno>
+					<idno type="arXiv">arXiv:2101.04025v2[cs.DC]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>Machine Learning</term>
+					<term>Serverless Computing</term>
+					<term>Function-as-a-Service (FaaS)</term>
+					<term>Distributed Computing</term>
+					<term>AWS Lambda</term>
+					<term>Causal Machine Learning</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>This paper explores serverless cloud computing for double machine learning. Being based on repeated cross-fitting, double machine learning is particularly well suited to exploit the high level of parallelism achievable with serverless computing. It allows to get fast on-demand estimations without additional cloud maintenance effort. We provide a prototype Python implementation DoubleML-Serverless for the estimation of double machine learning models with the serverless computing platform AWS Lambda and demonstrate its utility with a case study analyzing estimation times and costs.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>CCS CONCEPTS</head><p>• Computer systems organization → Cloud computing; • Computing methodologies → Machine learning.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">INTRODUCTION</head><p>Double machine learning (DML) models <ref type="bibr" target="#b18">[19]</ref> are becoming increasingly popular among statisticians, econometricians and data scientists with numerous methodological extensions <ref type="bibr">[8, 18, 21, 27-29, 33, 34, 37]</ref> and applications in areas like finance <ref type="bibr" target="#b21">[22]</ref>, COVID-19 research <ref type="bibr" target="#b19">[20,</ref><ref type="bibr" target="#b37">39]</ref> or economics <ref type="bibr" target="#b29">[30,</ref><ref type="bibr" target="#b36">38]</ref>. The DML models allow researchers to exploit the excellent prediction power of machine learning algorithms in a valid statistical framework for estimation and inference on causal parameters. Recently, the Python and R packages DoubleML with a flexible object-oriented structure for estimating double machine learning models have been published <ref type="bibr" target="#b5">[6,</ref><ref type="bibr" target="#b6">7]</ref>.</p><p>Serverless cloud computing is predicted to be the dominating and default architecture of cloud computing in the coming decade (Berkley View on Serverless Computing <ref type="bibr" target="#b25">[26]</ref>) and is becoming increasingly adopted in the industry and by researchers. Its Function as a Service (FaaS) paradigm lowers the entry bar to cloud computing technologies as the cloud providers are responsible for almost every operational and maintenance task. A key advantage of serverless computing is the high elasticity in terms of an automated on-demand scaling depending on the actual amount of computing requests. A second key advantage of serverless computing is the pricing model: Only actually used resources are charged without provisioning costs.</p><p>The management of computing clusters is usually not part of the daily business of econometricians or data scientists using DML for data analysis or in applied research. Nevertheless there is demand for a high level of scalability to speed up the estimation of models like DML in interactive data analysis tasks. In our experience, econometricians or data scientists who consider using cloud computing resources often want to achieve goals like the following:</p><p>• A high level of parallelism.</p><p>• A "cloud button": Easy deployment and if possible no ongoing maintenance tasks for the user. • A high level of elasticity: On-demand availability of a high level of parallelism, pay-per-request and ideally no costs when the systems are idle.</p><p>The goal of this paper is to explore to what extent such goals are achievable with serverless cloud computing and we put special focus on DML models as an application. Our study is based on AWS Lambda and we made our prototype implementation DoubleML-Serverless publicly available. <ref type="foot" target="#foot_0">1</ref> We demonstrate the functionalities of the prototype with an experiment where we analyze estimation times and costs with different settings. The rest of the paper is organized as follows: Introductions to serverless computing and double machine learning are given in Sections 2 and 3. The prototype implementation DoubleML-Serverless is described in Section 4. Section 5 presents our experiment setup and results. In Section 6 we discuss our prototype implementation and give an outlook to potential future extensions. Section 7 concludes the paper.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">SERVERLESS COMPUTING</head><p>A core principle of serverless computing is that the user just writes a cloud function, often in a high-level programming language like Python, and all the server provisioning and administration is done by the cloud provider. These serverless cloud function offerings are often called Function as a Service (FaaS), because the user basically only specifies the function code to be executed and declares which events should trigger such function calls. There is especially no need for ex-ante provisioning of computing resources. It is in the hand of the cloud provider to automatically scale up resources depending on the number of requests sent to the FaaS. This is one of the key differences in comparison to a classical cloud server, where the user ex-ante needs to decide which requirements best match the upcoming computing tasks.</p><p>General discussions of serverless computing, recent developments and challenges can be found in <ref type="bibr" target="#b8">[9,</ref><ref type="bibr" target="#b22">23,</ref><ref type="bibr" target="#b25">26,</ref><ref type="bibr" target="#b31">32,</ref><ref type="bibr" target="#b39">41,</ref><ref type="bibr" target="#b40">42]</ref>. Besides that, serverless computing is getting more and more adopted for various machine learning tasks, like for example to serve deep learning models <ref type="bibr" target="#b13">[14,</ref><ref type="bibr" target="#b23">24,</ref><ref type="bibr" target="#b38">40]</ref> or more generally for ML model training and hyperparameter tuning <ref type="bibr" target="#b14">[15,</ref><ref type="bibr" target="#b15">16,</ref><ref type="bibr" target="#b41">43]</ref>.</p><p>Another core principle of serverless computing is the pricing model. The billing is usually done proportionally to the actually used resources and not proportionally to resources provisioned. In case of AWS Lambda it is proportional to the execution time and very fine grained as the duration billing granularity was recently lowered to per millisecond billing <ref type="bibr" target="#b1">[2]</ref>.</p><p>When using AWS Lambda there is one key parameter set by the user, which is the memory available to the function at runtime. AWS Lambda also scales other resources like CPU power proportionally to the allocated memory. In the past the maximum memory allocatable was regularly increased and recently there was an significant extension from a maximum of 3 GB to 10 GB <ref type="bibr" target="#b2">[3]</ref>. According to AWS this translates to a maximum of 6 vCPUs accessible in a single FaaS request <ref type="bibr" target="#b2">[3]</ref>. By its nature the enormous elasticity of serverless computing platforms comes at the cost of rather strict resource limits for a single request. When using AWS Lambda among others the maximum runtime is 15 minutes. However, the recent updates make serverless computing increasingly attractive for computationally intense tasks like machine learning.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">A BRIEF INTRODUCTION TO DOUBLE MACHINE LEARNING</head><p>Double machine learning (DML) was developed in a series of papers <ref type="bibr" target="#b9">[10]</ref><ref type="bibr" target="#b10">[11]</ref><ref type="bibr" target="#b11">[12]</ref> and introduced as a general framework in <ref type="bibr" target="#b18">[19]</ref>. The application of DML for model classes like the partially linear regression model, the partially linear instrumental variable model, the interactive regression model and the interactive instrumental variable model is discussed in <ref type="bibr" target="#b18">[19]</ref>. Recently the DML framework and related techniques have been extended to numerous model classes like for example reinforcement learning <ref type="bibr" target="#b26">[27,</ref><ref type="bibr">34]</ref>, transformation models <ref type="bibr" target="#b27">[28]</ref>, generalized additive models <ref type="bibr" target="#b7">[8]</ref>, continuous treatment effects <ref type="bibr" target="#b20">[21,</ref><ref type="bibr" target="#b35">37]</ref>, dynamic treatment effects <ref type="bibr" target="#b32">[33]</ref>, Gaussian graphical models <ref type="bibr" target="#b28">[29]</ref>, difference-in-differences models <ref type="bibr" target="#b17">[18]</ref> and many more. In these applications of DML, one is usually interested in statistical inference for a causal parameter 𝜃 0 . The DML framework makes it possible to obtain valid statistical inference for 𝜃 0 while exploiting the excellent prediction quality of machine learning methods for estimating nuisance functions denoted as 𝜂 0 .</p><p>As an example, we consider the partially linear regression (PLR) model as studied by <ref type="bibr" target="#b34">[36]</ref> </p><formula xml:id="formula_0">𝑌 = 𝐷𝜃 0 + 𝑔 0 (𝑋 ) + 𝑈 , E(𝑈 |𝑋, 𝐷) = 0,<label>(1)</label></formula><formula xml:id="formula_1">𝐷 = 𝑚 0 (𝑋 ) + 𝑉 , E(𝑉 |𝑋 ) = 0,<label>(2)</label></formula><p>with outcome variable 𝑌 , treatment/policy variable 𝐷 and the potentially high-dimensional vector of controls 𝑋 := (𝑋 1 , . . . , 𝑋 𝑝 ).</p><p>The causal parameter of interest is 𝜃 0 . It measures the average treatment effect of 𝐷 on 𝑌 , if 𝐷 is conditionally exogenous. The confounding variables 𝑋 affect 𝐷 via the function 𝑚 0 (𝑋 ) and 𝑌 via the function 𝑔 0 (𝑋 ). Figure <ref type="figure" target="#fig_0">1</ref> visualizes the interpretation in a causal diagram. The DML framework allows to obtain valid statistical inference for 𝜃 0 while exploiting the excellent prediction quality of machine learning methods when estimating the nuisance functions 𝜂 0 = (𝑔 0 , 𝑚 0 ). In the DML framework the nuisance functions 𝜂 0 = (𝑔 0 , 𝑚 0 ) can be estimated with different ML-methods, e.g., <ref type="bibr" target="#b18">[19]</ref> use random forests, regression trees, boosting, lasso, neural networks and ensembles of these methods. Depending on the structural assumptions on 𝜂 0 , different ML-methods are appropriate. <ref type="foot" target="#foot_1">2</ref>Y D V X A key component of the DML framework are so-called Neyman orthogonal score functions 𝜓 (𝑊 ; 𝜃, 𝜂). The score functions identify the causal parameter of interest 𝜃 0 as the unique solution to E(𝜓 (𝑊 ; 𝜃 0 , 𝜂 0 )) = 0. Neyman orthogonality of 𝜓 (𝑊 ; 𝜃, 𝜂) with respect to the nuisance functions 𝜂 guarantees that there are no first-order effects of estimation errors in the nuisance functions on the estimation of the causal parameter 𝜃 0 .</p><p>A second key component of the DML framework is sample splitting to avoid biases caused by overfitting. The application of repeated cross-fitting is further recommended in <ref type="bibr" target="#b18">[19]</ref>. This makes it particularly well suited for a distributed architecture where the computationally intense inference tasks run in parallel. Estimation of typical DML models often requires the estimation and prediction of several hundreds of ML models to approximate nuisance functions in different sample splits. An ambitious goal of a serverless DML implementation would be to achieve that the estimation of the whole DML model with repeated cross-fitting does not take much longer than the estimation of the nuisance functions on a single fold. The enormous elasticity of serverless cloud computing makes such a goal achievable in an on-demand setup with no need to start and maintain a large computing cluster, which is becoming costly if being idle.</p><p>The DML algorithm with repeated cross-fitting can be summarized as follows (w.l.o.g. we assume that the number of observations 𝑁 is divisible by the number of folds 𝐾):</p><p>( ).</p><p>(2) For each sample split, compute an estimate θ0,𝑚 of the causal parameter as the solution to the equation 1</p><formula xml:id="formula_2">𝑁 𝐾 ∑︁ 𝑘=1 ∑︁ 𝑖 ∈𝐼 𝑚,𝑘 𝜓 (𝑊 𝑖 ; θ0,𝑚 , η0,𝑘 ) = 0.</formula><p>The final estimate for the causal parameter is obtain via aggregation θ0 = Median(( θ0,𝑚</p><formula xml:id="formula_3">) 𝑚 ∈ [𝑀 ] ).</formula><p>Note that the number of nuisance functions, which need to be estimated with ML methods, depends on the considered model, e.g., for the PLR model we have 𝐿 = 2 nuisance functions 𝜂 0 = (𝑔 0 , 𝑚 0 ). The total number of ML fits is 𝑀 × 𝐾 × 𝐿, i.e., one ML estimation in each fold, of each repeated sample splitting and for each nuisance function. For example <ref type="bibr" target="#b18">[19]</ref> choose 𝐾 = 5 (or 𝐾 = 2) and 𝑀 = 100, which for the PLR model with 𝐿 = 2 nuisance functions amounts to 1000 (or 400) ML fits or for the partially linear instrumental variable model with 𝐿 = 3 nuisance functions it amounts to 1500 (or 600) ML fits. Note that for the interactive regression models, as considered in <ref type="bibr" target="#b18">[19]</ref>, even more nuisance functions need to be estimated. As mentioned before, our prototype for serverless DML allows for parallelization of all these 1000 machine learning tasks and therefore potentially speeds up the estimation of DML models by a significant factor. Basically, the estimation time with repeated cross-fitting with five folds and 100 repetitions could be almost reduced to the time needed to estimate a single nuisance function for one fold in a single sample split. Note that we do not require to transfer the estimated ML models for the nuisance functions η0,𝑘 , instead it suffices to return the predictions on the test datasets (i.e., for the observations indexed with 𝑖 ∈ 𝐼 𝑚,𝑘 ) to evaluate the score function and solve for the causal parameter θ0,𝑚 in a second step.</p><p>Neyman orthogonal score functions for many model classes, like for example the PLR model, can be written as linear functions in the parameter 𝜃 , i.e., 𝜓 (𝑊 ; 𝜃 ; 𝜂) = 𝜃𝜓 𝑎 (𝑊 ; 𝜂) + 𝜓 𝑏 (𝑊 ; 𝜂). This common property forms the basis for a very general objectoriented implementation of DML models in the Python package DoubleML <ref type="bibr" target="#b5">[6]</ref>, which serves as a basis four our prototype DoubleML-Serverless.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">SERVERLESS DOUBLE MACHINE LEARNING</head><p>Similar to PyWren <ref type="bibr" target="#b24">[25]</ref>, our prototype implementation DoubleML-Serverless is intended to be used in an interactive fashion: The user runs a Python session on a local machine or server, but at the same time has access to a high level of parallelism with an ondemand and pay-per-request interface for the computationally most intense tasks during the estimation of DML models. <ref type="foot" target="#foot_3">3</ref> In comparison to PyWren, which allows to run more or less arbitrary parallel tasks, like for example map reduce, our implementation is more specialized to the specific use case of DML models. Many cloud providers have serverless FaaS offerings. Our prototype DoubleML-Serverless uses AWS Lambda and is developed in Python as an extension of the DoubleML package <ref type="bibr" target="#b5">[6]</ref>. <ref type="foot" target="#foot_4">4</ref>4.1 The Architecture of DoubleML-Serverless</p><p>The architecture of DoubleML-Serverless is summarized in Figure 2. As data storage we use the AWS S3 object storage. In the DoubleML-Serverless package, we implement a DoubleMLDataS3 DoubleML-Serverless S3 Bucket λ-Function • LambdaCVPredict λ-Layer • scikit-learn • pandas • numpy deploy upload data deploy pull data fit aws lambda() invoke lambdas return predictions λ λ λ λ λ λ λ λ λ λ λ λ . . . . . . . . . . . . LambdaCVPredict 1. Pull data from S3 2. Estimate ML-models 3. Compute predictions 4. Return predictions class, which serves as a data backend. It is inherited from the Dou-bleML class DoubleMLData and primarily extends it by methods to transfer datasets from and to AWS S3. The model classes, like for example DoubleMLPLRServerless for the PLR model, extend the corresponding classes from the DoubleML package by methods to perform the ML estimation and prediction step on AWS Lambda.</p><p>In addition to the standard inputs for DoubleML model classes, the user needs to provide the name of the deployed lambda function and the AWS region on initialization. Then the DML model can be estimated with a call to the method fit_aws_lambda(). On invocation, each request consists of a reference to the dataset on S3, the nuisance-function-specific names of target variables and confounders and the sample splitting. The lambda function returns the predictions for the corresponding test indices.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">The Level of Scaling</head><p>Our prototype implementation DoubleML-Serverless offers two different degrees of scaling. Figure <ref type="figure" target="#fig_5">3</ref> visualizes the level of scaling options for the PLR class DoubleMLPLRServerless. Per-samplesplit scaling is achieved by choosing scaling = 'n_rep'. It results in a lambda function invocation for each nuisance function and repeated sample split, i.e., for each blue rectangle in Figure <ref type="figure" target="#fig_5">3</ref>. In each such invocation, 𝐾 machine learning models are estimated and corresponding predictions for the test indices returned. As an alternative one can choose scaling = 'n_folds * n_rep' to invoke a separate lambda for each single fold, nuisance function and sample split, i.e., for each orange rectangle in Figure <ref type="figure" target="#fig_5">3</ref>.</p><p>DoubleMLPLRServerless g0(X) Outcome Variable: Y Controls: X m0(X) Outcome Variable: D Controls: X Fold 1 Fold 2 Fold 3 . . . Fold K Split 1 . . .</p><p>Fold 1 Fold 2 Fold 3 . . . Fold K Split M Fold 1 Fold 2 Fold 3 . . . Fold K Split 1 . . . If we again consider the above mentioned PLR model with 𝐾 = 5 folds, 𝑀 = 100 splits and 𝐿 = 2 nuisance functions, it means that we either sent 𝑀 × 𝐿 = 200 requests or 𝑀 × 𝐾 × 𝐿 = 1000 requests. Which level of scaling is favorable depends on the individual use case. First of all, the runtime limit of AWS Lambda implies that the per-sample-split scaling cannot be applied if the estimation of 𝐾 machine learning models takes longer than the maximum runtime, which might be the case, depending on the machine learning approach and the size of the dataset. Furthermore, there is always a cost vs. estimation-time tradeoff which the user controls via the scaling parameter and the allocated memory.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.3">Deployment with AWS SAM</head><p>User-friendly deployment of the prototype is achieved with the AWS Serverless Application Model (AWS SAM) for deploying our FaaS to AWS Lambda. AWS SAM <ref type="bibr" target="#b3">[4]</ref> allows for easy deployment of serverless applications to AWS Lambda and is configured via template files. We added an AWS SAM template to our prototype, which deploys the following components (see Figure <ref type="figure" target="#fig_2">2</ref> for a visualization of the architecture):</p><p>• A lambda function called LambdaCVPredict.</p><p>• A layer providing the Python libraries scikit-learn, pandas and numpy together with their dependencies. • An S3 bucket for the data transfer (can be optionally generated, or an existing bucket is used). • A role for the execution of the lambda function LambdaCVPredict which consists of the AWS-managed AWSLambdaBa-sicExecutionRole policy plus read access to the S3 bucket for data transfer.</p><p>LambdaCVPredict is the main function being invoked when estimating DML models on AWS Lambda. The main advantage of AWS SAM is that the deployment process is simple with only two calls sam build and sam deploy -guided. Additionally, based on the same SAM template, even simpler deployment is offered directly from the AWS Serverless Application Repository. <ref type="foot" target="#foot_5">5</ref> The listing in the AWS Serverless Application Repository gives the user almost a "bring me to the cloud"-button for estimating DML models. <ref type="foot" target="#foot_6">6</ref></p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">ESTIMATING DOUBLE MACHINE LEARNING MODELS WITH DOUBLEML-SERVERLESS</head><p>To demonstrate our prototype implementation DoubleML-Serverless we revisit the Pennsylvania Reemployment Bonus experiment and estimate the effect of provisioning a cash bonus on the unemployment duration as studied in <ref type="bibr" target="#b18">[19]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1">Experiment Setup</head><p>We consider the previously discussed PLR model ( <ref type="formula" target="#formula_0">1</ref>)-( <ref type="formula" target="#formula_1">2</ref>). The nuisance functions 𝑔 0 and 𝑚 0 are estimated using a random forest with 500 regression trees. <ref type="foot" target="#foot_7">7</ref> We choose 𝐾 = 5 folds and 𝑀 = 100 splits.</p><p>At invocation, the following information is transferred to Lamb-daCVPredict:</p><p>• The name of the outcome variable, e.g., for 𝑔 0 the 𝑌 column.</p><p>• The names of the controls, e.g., for 𝑔 0 the 𝑋 columns.</p><p>• The ML model to be estimated, e.g., random forest.</p><p>• The set of indices 𝐼 𝑚,𝑘 .</p><p>In Listing 1 we provide sample code which demonstrates the syntax to estimate the described DML model with DoubleML-Serverless for the bonus dataset. .</p><p>Based on the evaluated score function, inference tasks like the computation of standard errors and confidence intervals that build on a multiplier bootstrap approach could be easily done locally using the functionalities of the DoubleML package. For further details, we refer to the paper introducing the DML framework <ref type="bibr" target="#b18">[19]</ref> and the documentation of the DoubleML package <ref type="bibr" target="#b5">[6]</ref>. <ref type="foot" target="#foot_8">8</ref></p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2">Timings and Costs</head><p>To demonstrate the utility of our prototype DoubleML-Serverless we ran a couple of experiments on AWS Lambda with the above stated bonus data example. We especially focus on the two different settings for the scaling parameter, i.e., scaling = 'n_rep' for per-sample-split scaling and scaling = 'n_folds * n_rep' for per-fold scaling. With the above mentioned settings (𝐾 = 5 folds and 𝑀 = 100 splits) this amounts to 200 and 1000 invocations, respectively. Additionally, we also alter the memory available to the function at runtime which also impacts the CPU power, because AWS Lambda scales other resources proportionally to the allocated memory. All experiments are repeated 100 times and the estimation times and costs are visualized with boxplots in Figure <ref type="figure" target="#fig_7">4</ref> and <ref type="figure" target="#fig_8">5</ref>. In Figure <ref type="figure" target="#fig_7">4</ref> we can clearly see that the total estimation times for the DML models decrease if more memory is allocated. However, the marginal improvement in the estimation times is decreasing which is a typical behavior as for example documented in <ref type="bibr" target="#b0">[1,</ref><ref type="bibr" target="#b23">24]</ref>. It is also important to point out that faster estimation does not necessarily come at higher costs. In Figure <ref type="figure" target="#fig_8">5</ref> we see that by allocating more memory, 512 MB or 1024 MB instead of 256 MB, besides lowering the estimation time we could also lower the total costs for the estimation on AWS Lambda. The observation that too low or high memory allocations result in higher costs is also common for serverless computing with AWS Lambda and this observation has been used to propose cost optimization frameworks <ref type="bibr" target="#b0">[1,</ref><ref type="bibr" target="#b16">17]</ref>.</p><p>When comparing the two different levels of scaling, we can see in Figure <ref type="figure" target="#fig_7">4</ref> that by choosing per-fold scaling the estimation times can be further decreased. It is important to note that the costs are only slightly increasing when going from per-sample-split to perfold scaling (see Figure <ref type="figure" target="#fig_8">5</ref>). This is one of the benefits of serverless computing where one can increase the concurrency dramatically but still the billing is proportional to the actual computing time and therefore is often only slightly increased due to more overhead.</p><p>Table <ref type="table" target="#tab_1">1</ref> provides more detailed results for the cheapest case in our experiment which is the setting with 1024 MB memory allocated and per-sample-split scaling. We can see that in the 100 repetitions of our experiment the estimation time was on average 19.82 seconds. The response time from the invocation of the first lambda until we received the predictions from each of the 200 invocations took on average 19.09 seconds and the average computation time for a single invocation was 17.16 seconds. <ref type="foot" target="#foot_9">9</ref> Therefore, in this setting we are very close to the ambitious goal that using serverless computing the estimation of the DML model with repeated cross-fitting only takes a little bit more time than estimating with only a single sample split on a machine with similar CPU power as one lambda. In Table <ref type="table" target="#tab_1">1</ref> we can further see that the average estimation costs amount to 3515.36 GB-seconds, which translates to roughly 0.05858 USD at the current price of 0.0000166667 USD per GB-second that AWS charges in eu-central-1 <ref type="bibr" target="#b4">[5]</ref>. <ref type="foot" target="#foot_10">10</ref></p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">DISCUSSIONS</head><p>In the following, we discuss features, advantages and limits of the current prototype implementation DoubleML-Serverless and give an outlook to potential future extensions.</p><p>Reproducibility and seeds: The prototype comes with a basic implementation of seeds to obtain reproducible results. We refer to Launch overhead &amp; cold vs. warm invocations: It is well known that there is a launch overhead when using serverless computing which results in timing differences between so-called cold and warm starts. We report timings for warm starts and refer to <ref type="bibr" target="#b23">[24,</ref><ref type="bibr" target="#b25">26]</ref> for a discussion of the phenomenon.</p><p>Transfer of ML models: The ML models are transferred at invocation using their string representation and only a subset of all scikit-learn ML-models is supported. To transfer more sophisticated learners, an alternative approach like pickling the learners similar to PyWren could be implemented.</p><p>Data transfer via payloads: The prototype uses the payloads to transfer the test indices and to return the predictions. This implies some restrictions, which could be overcome by implementation of a data transfer via S3.</p><p>Distributed storage: The datasets, which are loaded in every learning task, are stored in the Amazon S3 object storage. An alternative would be the AWS Elastic File System (EFS) which can be mounted directly for AWS Lambda calls <ref type="bibr" target="#b12">[13]</ref>.</p><p>Cost optimization: The main configuration parameter of AWS Lambda is the allocated memory. It is important to know that AWS Lambda allocates CPU power proportional to the amount of memory. Therefore, the memory allocation has an impact on the total execution time and the costs. Discussions and proposal for cost optimization of serverless applications are provided in <ref type="bibr" target="#b23">[24,</ref><ref type="bibr" target="#b41">43]</ref> and implementations of frameworks for cost optimization in <ref type="bibr" target="#b0">[1,</ref><ref type="bibr" target="#b16">17]</ref>. Similar approaches could also be used to cost-optimize our prototype DoubleML-Serverless.</p><p>Limits on runtime and memory: Currently on AWS Lambda, there is an upper limit for execution time of 15 minutes. Obviously, our prototype cannot be used if the single fold estimation is not doable within this limit. Considering the previously discussed scenario with 𝐾 = 5 folds, 100 splits and two nuisance functions and assuming that the estimation of each task is of similar effort, this translates to a total estimation time limit of roughly 10.5 days (5 × 100 × 2 × 15 minutes). Note that in the past AWS Lambda regularly increased these limits.</p><p>Limits on memory: Recently AWS Lambda announced a significant increase of their memory limit from 3 GB to 10 GB <ref type="bibr" target="#b2">[3]</ref>. This implies that serverless computing is becoming increasingly suitable and attractive for memory-intense models and big data applications. For standard applications of DML these memory limits are not an issue. However, DML is particularly well suited for causal inference in high-dimensional settings and therefore also used for very big datasets. Realizing such estimations in very high-dimensional and big data sets with our prototype will be challenging.</p><p>Parameter tuning for DML models: As usual in machine learning, hyperparameter tuning is also done for DML models. The prototype could be extended to also support hyperparameter tuning with an efficient serverless implementation.</p><p>DML models with multiple treatment variables: The prototype implementation only supports a single treatment variable but an extension to multiple treatment variables, as supported by DoubleML, would be straightforward.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7">CONCLUSION</head><p>For many users like econometricians, statisticians and data scientists existing serverfull frameworks for distributed machine learning have a high entry barrier and are often expensive if being used infrequently or inefficiently. In this paper we explore serverless cloud computing for estimation of double machine learning models. Our prototype DoubleML-Serverless using AWS Lambda gives econometricians, statisticians and data scientists access to an enormous level of parallelism, it almost comes with a "cloud button" as it can be easily deployed via AWS SAM and it comes at the advantage of a pay-per-request pricing model.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Causal Diagram for the PLR Model (1)-(2).</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>1 )</head><label>1</label><figDesc>For each 𝑚 ∈ [𝑀] := {1, . . . , 𝑀 } draw a 𝐾-fold random partition (𝐼 𝑚,𝑘 ) 𝑘 ∈𝐾 of observation indices [𝑁 ] := {1, . . . , 𝑁 } of size 𝑛 = 𝑁 /𝐾. Define 𝐼 𝑐 𝑚,𝑘 := [𝑁 ] \ 𝐼 𝑚,𝑘 and for each 𝑘 construct a ML estimator η0,𝑘 = η0 ((𝑊 𝑖 ) 𝑖 ∈𝐼 𝑐 𝑚,𝑘</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: DoubleML-Serverless: Architecture.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Figure 3 :</head><label>3</label><figDesc>Figure 3: DoubleML-Serverless: Level of Scaling.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><head>Listing 1 :</head><label>1</label><figDesc>Estimation of a Partially Linear Regression (PLR) Model with DoubleML-Serverless. from d o u b l e m l . d a t a s e t s import f e t c h _ b o n u s from d o u b l e m l _ s e r v e r l e s s import DoubleMLDataS3 , D o u b l e M L P L R S e r v e r l e s s from s k l e a r n . b a s e import c l o n e from s k l e a r n . e n s e m b l e import R a n d o m F o r e s t R e g r e s s o r d f _ b o n u s = f e t c h _ b o n u s ( ' DataFrame ' ) d m l _ d a t a _ b o n u s = DoubleMLDataS3 ( ' double ml -s e r v e r l e s s -d a t a ' , ' b o n u s _ d a t a . c s v ' , d f _ b o n u s , y _ c o l = ' i n u i d u r 1 ' , d _ c o l s = ' t g ' , x _ c o l s =[ ' f e m a l e ' , ' b l a c k ' , ' o t h r a c e ' , ' dep1 ' , ' dep2 ' , ' q2 ' , ' q3 ' , ' q4 ' , ' q5 ' , ' q6 ' , ' a g e l t 3 5 ' , ' a g e g t 5 4 ' , ' d u r a b l e ' , ' l u s d ' , ' husd ' ] ) d m l _ d a t a _ b o n u s . s t o r e _ a n d _ u p l o a d _ t o _ s 3 ( ) ml = R a n d o m F o r e s t R e g r e s s o r ( n _ e s t i m a t o r s = 5 0 0 , n _ j o b s = -1) ml_g = c l o n e ( ml ) ml_m = c l o n e ( ml ) d m l _ l a m b d a _ p l r _ b o n u s = D o u b l e M L P L R S e r v e r l e s s ( ' LambdaCVPredict ' , ' eu -c e n t r a l -1 ' , d m l _ d a t a _ b o n u s , ml_g , ml_m , n _ f o l d s = 5 , n _ r e p = 1 0 0 ) d m l _ l a m b d a _ p l r _ b o n u s . f i t _ a w s _ l a m b d a ( ) The FaaS function LambdaCVPredict returns predictions which are obtained by estimating the nuisance function based on the training indices 𝐼 𝑐 𝑚,𝑘 and then predictions are computed for all 𝑖 ∈ 𝐼 𝑚,𝑘 . When all requested predictions have been returned, the score function components for the PLR model at hand are obtained as 𝜓 𝑎 (𝑊 𝑖 ; η0 ) = -(𝐷 𝑖 -m0 (𝑋 𝑖 ))(𝐷 𝑖 -m0 (𝑋 𝑖 )), 𝜓 𝑏 (𝑊 𝑖 ; η0 ) = (𝑌 𝑖 -ĝ0 (𝑋 𝑖 ))(𝐷 𝑖 -m0 (𝑋 𝑖 )). Using the evaluated score function components, we can solve for the parameter estimate θ0 = -𝑁 𝑖=1 𝜓 𝑏 (𝑊 𝑖 ; η0 ) 𝑁 𝑖=1 𝜓 𝑎 (𝑊 𝑖 ; η0 )</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head>Figure 4 :</head><label>4</label><figDesc>Figure 4: Serverless Fit Times with Different Scaling and Allocated Memory.</figDesc><graphic coords="5,58.72,420.68,230.39,115.20" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_8"><head>Figure 5 :</head><label>5</label><figDesc>Figure 5: Serverless Costs with Different Scaling and Allocated Memory.</figDesc><graphic coords="5,322.88,83.69,230.39,115.20" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>Table 1 :</head><label>1</label><figDesc>Serverless Fit Times and Costs with 1024 MB Memory and Per-Sample-Split Scaling (Mean, Min &amp; Max in 100 Runs).</figDesc><table><row><cell></cell><cell>Mean</cell><cell>Min</cell><cell>Max</cell></row><row><cell>Fit Time (s)</cell><cell>19.82</cell><cell>19.53</cell><cell>21.49</cell></row><row><cell>Billed Duration (GB-s)</cell><cell cols="3">3515.36 3492.01 3571.42</cell></row><row><cell>Avg. Duration per Invocation (s)</cell><cell>17.16</cell><cell>17.05</cell><cell>17.44</cell></row><row><cell>Total Response Time (s)</cell><cell>19.09</cell><cell>18.81</cell><cell>20.76</cell></row><row><cell cols="4">the numpy documentation [35] for a discussion of parallel random</cell></row><row><cell>number generation.</cell><cell></cell><cell></cell><cell></cell></row></table></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0"><p>GitHub: https://github.com/DoubleML/doubleml-serverless and AWS Serverless Application Repository: https://serverlessrepo.aws.amazon.com/applications/eu-central-1/839779594349/doubleml-serverless.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_1"><p>We refer to<ref type="bibr" target="#b18">[19,</ref> Section  </p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_2"><p>3] for a discussion and the formal conditions for the quality of the nuisance estimators.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="3" xml:id="foot_3"><p>As suggested by an anonymous referee, alternatively a fully serverless version could be implemented using services like AWS Step Functions to organize the serverless workflow.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="4" xml:id="foot_4"><p>The prototype is tied to AWS Lambda. Adaptions of the data transfer and the deployment process would be necessary to make it compatible with other serverless platforms.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="5" xml:id="foot_5"><p>https://serverlessrepo.aws.amazon.com/applications/eu-central-1/839779594349/ doubleml-serverless</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="6" xml:id="foot_6"><p>From the AWS Serverless Application Repository, the deployment can be done directly in the browser by clicking "Deploy" and following the steps in the AWS Management Console.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="7" xml:id="foot_7"><p>In case of a binary treatment variable 𝐷, one can also use classifiers to estimate 𝑚 0 .</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="8" xml:id="foot_8"><p>https://docs.doubleml.org</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="9" xml:id="foot_9"><p>The maximum total response time of 20.76 seconds for 200 invocations, each with an computation time between 17.16 and 17.44 seconds (see Table1), also gives some indication that a high level of elasticity seems to be achievable. For an empirical evaluation of the elasticity of different FaaS platforms we refer to<ref type="bibr" target="#b30">[31]</ref>.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="10" xml:id="foot_10"><p>For comparison, the estimation of the same DML model on a virtual machine (AWS EC2 instance of type m5.2xlarge with 8 vCPUs) takes much longer with approximately 383.90 seconds and at the same time amounts to slightly lower costs of 0.04905 USD at the current price of 0.46 USD per hour when ignoring the additional costs from setup and teardown of the virtual machine.</p></note>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>ACKNOWLEDGMENTS</head><p>We are grateful for helpful comments by <rs type="person">Philipp Bach</rs>, <rs type="person">Martin Spindler</rs> and three anonymous referees. This work was funded by the <rs type="funder">Deutsche Forschungsgemeinschaft (DFG, German Research Foundation</rs>) -Project Number <rs type="grantNumber">431701914</rs>.</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_f8hw6ET">
+					<idno type="grant-number">431701914</idno>
+				</org>
+			</listOrg>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">COSE: Configuring Serverless Functions using Statistical Learning</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Akhtar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Raza</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Ishakian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Matta</surname></persName>
+		</author>
+		<idno type="DOI">10.1109/INFOCOM41043.2020.9155363</idno>
+		<ptr target="https://doi.org/10.1109/INFOCOM41043.2020.9155363" />
+	</analytic>
+	<monogr>
+		<title level="m">IEEE INFOCOM 2020 -IEEE Conference on Computer Communications</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page" from="129" to="138" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">AWS Lambda changes duration billing granularity from 100ms down to 1ms</title>
+		<author>
+			<persName><surname>Aws</surname></persName>
+		</author>
+		<ptr target="https://aws.amazon.com/about-aws/whats-new/2020/12/aws-lambda-changes-duration-billing-granularity-from-100ms-to-1ms" />
+		<imprint>
+			<date type="published" when="2020-12">2020. -Dec-2020</date>
+			<biblScope unit="volume">20</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<title level="m" type="main">AWS Lambda now supports up to 10 GB of memory and 6 vCPU cores for Lambda Functions</title>
+		<author>
+			<persName><surname>Aws</surname></persName>
+		</author>
+		<ptr target="https://aws.amazon.com/about-aws/whats-new/2020/12/aws-lambda-supports-10gb-memory-6-vcpu-cores-lambda-functions/" />
+		<imprint>
+			<date type="published" when="2020-12">2020. -Dec-2020</date>
+			<biblScope unit="volume">20</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<idno>AWS. 2020. AWS</idno>
+		<ptr target="https://aws.amazon.com/serverless/sam/" />
+		<title level="m">Serverless Application Model (SAM)</title>
+		<imprint>
+			<date type="published" when="2021-01">Jan-2021</date>
+			<biblScope unit="volume">04</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<author>
+			<persName><surname>Aws</surname></persName>
+		</author>
+		<ptr target="https://aws.amazon.com/lambda/pricing/" />
+		<title level="m">AWS Lambda Pricing</title>
+		<imprint>
+			<date type="published" when="2021-01">2021. Jan-2021</date>
+			<biblScope unit="volume">04</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<author>
+			<persName><forename type="first">P</forename><surname>Bach</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Chernozhukov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">S</forename><surname>Kurz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Spindler</surname></persName>
+		</author>
+		<ptr target="https://github.com/DoubleML/doubleml-for-py" />
+		<title level="m">DoubleML -Double Machine Learning in Python</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note>Python-Package version 0.1.2</note>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<author>
+			<persName><forename type="first">P</forename><surname>Bach</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Chernozhukov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">S</forename><surname>Kurz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Spindler</surname></persName>
+		</author>
+		<ptr target="https://github.com/DoubleML/doubleml-for-r" />
+		<title level="m">DoubleML -Double Machine Learning in R</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note>R-Package version 0.1.1</note>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<author>
+			<persName><forename type="first">Philipp</forename><surname>Bach</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sven</forename><surname>Klaassen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jannis</forename><surname>Kueck</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Martin</forename><surname>Spindler</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2004.01623</idno>
+		<title level="m">Uniform Inference in High-Dimensional Generalized Additive Models</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note>stat.ME</note>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<author>
+			<persName><forename type="first">Ioana</forename><surname>Baldini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Paul</forename><surname>Castro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kerry</forename><surname>Chang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Perry</forename><surname>Cheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stephen</forename><surname>Fink</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vatche</forename><surname>Ishakian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nick</forename><surname>Mitchell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vinod</forename><surname>Muthusamy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rodric</forename><surname>Rabbah</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aleksander</forename><surname>Slominski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Philippe</forename><surname>Suter</surname></persName>
+		</author>
+		<idno type="DOI">10.1007/978-981-10-5026-8_1</idno>
+		<ptr target="https://doi.org/10.1007/978-981-10-5026-8_1" />
+		<title level="m">Serverless Computing: Current Trends and Open Problems</title>
+		<meeting><address><addrLine>Singapore, Singapore</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="1" to="20" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Uniformly valid post-regularization confidence regions for many functional parameters in z-estimation framework</title>
+		<author>
+			<persName><forename type="first">Alexandre</forename><surname>Belloni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Victor</forename><surname>Chernozhukov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Denis</forename><surname>Chetverikov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ying</forename><surname>Wei</surname></persName>
+		</author>
+		<idno type="DOI">10.1214/17-AOS1671</idno>
+		<ptr target="https://doi.org/10.1214/17-AOS1671" />
+	</analytic>
+	<monogr>
+		<title level="j">Ann. Statist</title>
+		<imprint>
+			<biblScope unit="volume">46</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="3643" to="3675" />
+			<date type="published" when="2018">2018. 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Inference on Treatment Effects after Selection among High-Dimensional Controls</title>
+		<author>
+			<persName><forename type="first">Alexandre</forename><surname>Belloni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Victor</forename><surname>Chernozhukov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Christian</forename><surname>Hansen</surname></persName>
+		</author>
+		<idno type="DOI">10.1093/restud/rdt044</idno>
+		<ptr target="https://doi.org/10.1093/restud/rdt044" />
+	</analytic>
+	<monogr>
+		<title level="j">The Review of Economic Studies</title>
+		<imprint>
+			<biblScope unit="volume">81</biblScope>
+			<biblScope unit="page" from="608" to="650" />
+			<date type="published" when="2013">2013. 2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Uniform post-selection inference for least absolute deviation regression and other Z-estimation problems</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Belloni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Chernozhukov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Kato</surname></persName>
+		</author>
+		<idno type="DOI">10.1093/biomet/asu056</idno>
+		<ptr target="https://doi.org/10.1093/biomet/asu056" />
+	</analytic>
+	<monogr>
+		<title level="j">Biometrika</title>
+		<imprint>
+			<biblScope unit="volume">102</biblScope>
+			<biblScope unit="page" from="77" to="94" />
+			<date type="published" when="2014">2014. 2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Using Amazon EFS for AWS Lambda in your serverless applications</title>
+		<author>
+			<persName><forename type="first">James</forename><surname>Beswick</surname></persName>
+		</author>
+		<ptr target="https://aws.amazon.com/blogs/compute/using-amazon-efs-for-aws-lambda-in-your-serverless-applications/" />
+	</analytic>
+	<monogr>
+		<title level="s">AWS Compute Blog</title>
+		<imprint>
+			<biblScope unit="volume">04</biblScope>
+			<date type="published" when="2020-01">2020. Jan-2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">BARISTA: Efficient and Scalable Serverless Serving System for Deep Learning Prediction Services</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Bhattacharjee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">D</forename><surname>Chhokra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Kang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gokhale</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Karsai</surname></persName>
+		</author>
+		<idno type="DOI">10.1109/IC2E.2019.00-10</idno>
+		<ptr target="https://doi.org/10.1109/IC2E.2019.00-10" />
+	</analytic>
+	<monogr>
+		<title level="m">2019 IEEE International Conference on Cloud Engineering (IC2E)</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="23" to="33" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">A case for serverless machine learning</title>
+		<author>
+			<persName><forename type="first">Joao</forename><surname>Carreira</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pedro</forename><surname>Fonseca</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexey</forename><surname>Tumanov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Randy</forename><surname>Katz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Workshop on Systems for ML and Open Source Software at NeurIPS</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Cirrus: A Serverless Framework for End-to-End ML Workflows</title>
+		<author>
+			<persName><forename type="first">Joao</forename><surname>Carreira</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pedro</forename><surname>Fonseca</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexey</forename><surname>Tumanov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Randy</forename><surname>Katz</surname></persName>
+		</author>
+		<idno type="DOI">10.1145/3357223.3362711</idno>
+		<ptr target="https://doi.org/10.1145/3357223.3362711" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the ACM Symposium on Cloud Computing</title>
+		<meeting>the ACM Symposium on Cloud Computing<address><addrLine>Santa Cruz, CA, USA; New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>Association for Computing Machinery</publisher>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="13" to="24" />
+		</imprint>
+	</monogr>
+	<note>SoCC &apos;19</note>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<monogr>
+		<author>
+			<persName><forename type="first">A</forename><surname>Casalboni</surname></persName>
+		</author>
+		<ptr target="https://github.com/alexcasalboni/aws-lambda-power-tuning" />
+		<title level="m">AWS Lambda Power Tuning</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Double/debiased machine learning for differencein-differences models</title>
+		<author>
+			<persName><forename type="first">Neng-Chieh</forename><surname>Chang</surname></persName>
+		</author>
+		<idno type="DOI">10.1093/ectj/utaa001</idno>
+		<ptr target="https://doi.org/10.1093/ectj/utaa001" />
+	</analytic>
+	<monogr>
+		<title level="j">The Econometrics Journal</title>
+		<imprint>
+			<biblScope unit="volume">23</biblScope>
+			<biblScope unit="page" from="177" to="191" />
+			<date type="published" when="2020">2020. 2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Double/debiased machine learning for treatment and structural parameters</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Chernozhukov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Chetverikov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Demirer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Duflo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Hansen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Newey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Robins</surname></persName>
+		</author>
+		<idno type="DOI">10.1111/ectj.12097</idno>
+		<ptr target="https://doi.org/10.1111/ectj.12097" />
+	</analytic>
+	<monogr>
+		<title level="j">The Econometrics Journal</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="page" from="1" to="C68" />
+			<date type="published" when="2018">2018. 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Causal impact of masks, policies, behavior on early covid-19 pandemic in the U.S</title>
+		<author>
+			<persName><forename type="first">Victor</forename><surname>Chernozhukov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hiroyuki</forename><surname>Kasahara</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Paul</forename><surname>Schrimpf</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.jeconom.2020.09.003</idno>
+		<ptr target="https://doi.org/10.1016/j.jeconom.2020.09.003PandemicEconometrics" />
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Econometrics</title>
+		<imprint>
+			<biblScope unit="volume">220</biblScope>
+			<biblScope unit="page" from="23" to="62" />
+			<date type="published" when="2021">2021. 2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<author>
+			<persName><forename type="first">Kyle</forename><surname>Colangelo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ying-Ying</forename><surname>Lee</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2004.03036[econ.EM]</idno>
+		<title level="m">Double Debiased Machine Learning Nonparametric Inference with Continuous Treatments</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Taming the Factor Zoo: A Test of New Factors</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Feng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Giglio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Xiu</surname></persName>
+		</author>
+		<idno type="DOI">10.1111/jofi.12883</idno>
+		<ptr target="https://doi.org/10.1111/jofi.12883" />
+	</analytic>
+	<monogr>
+		<title level="j">The Journal of Finance</title>
+		<imprint>
+			<biblScope unit="volume">75</biblScope>
+			<biblScope unit="page" from="1327" to="1370" />
+			<date type="published" when="2020">2020. 2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<monogr>
+		<author>
+			<persName><forename type="first">Joseph</forename><forename type="middle">M</forename><surname>Hellerstein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jose</forename><surname>Faleiro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joseph</forename><forename type="middle">E</forename><surname>Gonzalez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Johann</forename><surname>Schleier-Smith</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vikram</forename><surname>Sreekanti</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexey</forename><surname>Tumanov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chenggang</forename><surname>Wu</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1812.03651[cs.DC]</idno>
+		<title level="m">Serverless Computing: One Step Forward, Two Steps Back</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Serving Deep Learning Models in a Serverless Platform</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Ishakian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Muthusamy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Slominski</surname></persName>
+		</author>
+		<idno type="DOI">10.1109/IC2E.2018.00052</idno>
+		<ptr target="https://doi.org/10.1109/IC2E.2018.00052" />
+	</analytic>
+	<monogr>
+		<title level="m">2018 IEEE International Conference on Cloud Engineering (IC2E)</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="257" to="262" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Occupy the Cloud: Distributed Computing for the 99%</title>
+		<author>
+			<persName><forename type="first">Eric</forename><surname>Jonas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Qifan</forename><surname>Pu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shivaram</forename><surname>Venkataraman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ion</forename><surname>Stoica</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Benjamin</forename><surname>Recht</surname></persName>
+		</author>
+		<idno type="DOI">10.1145/3127479.3128601</idno>
+		<ptr target="https://doi.org/10.1145/3127479.3128601" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2017 Symposium on Cloud Computing</title>
+		<meeting>the 2017 Symposium on Cloud Computing<address><addrLine>Santa Clara, California; New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>Association for Computing Machinery</publisher>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="445" to="451" />
+		</imprint>
+	</monogr>
+	<note>SoCC &apos;17)</note>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<monogr>
+		<author>
+			<persName><forename type="first">Eric</forename><surname>Jonas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Johann</forename><surname>Schleier-Smith</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vikram</forename><surname>Sreekanti</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chia-Che</forename><surname>Tsai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Anurag</forename><surname>Khandelwal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Qifan</forename><surname>Pu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vaishaal</forename><surname>Shankar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joao</forename><surname>Carreira</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Karl</forename><surname>Krauth</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Neeraja</forename><surname>Yadwadkar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joseph</forename><forename type="middle">E</forename><surname>Gonzalez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ada</forename><surname>Raluca</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ion</forename><surname>Popa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David</forename><forename type="middle">A</forename><surname>Stoica</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Patterson</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1902.03383[cs.OS]</idno>
+		<title level="m">Cloud Programming Simplified: A Berkeley View on Serverless Computing</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Double Reinforcement Learning for Efficient Off-Policy Evaluation in Markov Decision Processes</title>
+		<author>
+			<persName><forename type="first">Nathan</forename><surname>Kallus</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Masatoshi</forename><surname>Uehara</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="page" from="1" to="63" />
+			<date type="published" when="2020">2020. 2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<monogr>
+		<author>
+			<persName><forename type="first">Sven</forename><surname>Klaassen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jannis</forename><surname>Kueck</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Martin</forename><surname>Spindler</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1712.07364</idno>
+		<title level="m">Transformation Models in High-Dimensions</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note>stat.ME</note>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<monogr>
+		<author>
+			<persName><forename type="first">Sven</forename><surname>Klaassen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jannis</forename><surname>Kück</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Martin</forename><surname>Spindler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Victor</forename><surname>Chernozhukov</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1808.10532</idno>
+		<title level="m">Uniform Inference in High-Dimensional Gaussian Graphical Models</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note>stat.ME</note>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<monogr>
+		<title level="m" type="main">Double Machine Learning based Program Evaluation under Unconfoundedness</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Michael</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Knaus</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2003.03191</idno>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note>econ.EM</note>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Benchmarking Elasticity of FaaS Platforms as a Foundation for Objective-Driven Design of Serverless Applications</title>
+		<author>
+			<persName><forename type="first">Jörn</forename><surname>Kuhlenkamp</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sebastian</forename><surname>Werner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Maria</forename><forename type="middle">C</forename><surname>Borges</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dominik</forename><surname>Ernst</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Daniel</forename><surname>Wenzel</surname></persName>
+		</author>
+		<idno type="DOI">10.1145/3341105.3373948</idno>
+		<ptr target="https://doi.org/10.1145/3341105.3373948" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 35th Annual ACM Symposium on Applied Computing</title>
+		<meeting>the 35th Annual ACM Symposium on Applied Computing<address><addrLine>Brno, Czech Republic; New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>Association for Computing Machinery</publisher>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page" from="1576" to="1585" />
+		</imprint>
+	</monogr>
+	<note>SAC &apos;20)</note>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">The Ifs and Buts of Less is More: A Serverless Computing Reality Check</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Kuhlenkamp</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Werner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Tai</surname></persName>
+		</author>
+		<idno type="DOI">10.1109/IC2E48712.2020.00023</idno>
+		<ptr target="https://doi.org/10.1109/IC2E48712.2020.00023" />
+	</analytic>
+	<monogr>
+		<title level="m">2020 IEEE International Conference on Cloud Engineering (IC2E)</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page" from="154" to="161" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<monogr>
+		<author>
+			<persName><forename type="first">Greg</forename><surname>Lewis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vasilis</forename><surname>Syrgkanis</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2002.07285[econ.EM</idno>
+		<idno>arXiv:2002.08536 [cs.LG]</idno>
+		<title level="m">Yusuke Narita, Shota Yasui, and Kohei Yata. 2020. Off-policy Bandit and Reinforcement Learning</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="volume">34</biblScope>
+		</imprint>
+	</monogr>
+	<note>Double/Debiased Machine Learning for Dynamic Treatment Effects</note>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<monogr>
+		<author>
+			<persName><surname>Numpy</surname></persName>
+		</author>
+		<ptr target="https://numpy.org/doc/stable/reference/random/parallel.html" />
+		<title level="m">Parallel Random Number Generation</title>
+		<imprint>
+			<date type="published" when="2021-01">2021. Jan-2021</date>
+			<biblScope unit="volume">04</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">Root-N-Consistent Semiparametric Regression</title>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">M</forename><surname>Robinson</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Econometrica</title>
+		<imprint>
+			<biblScope unit="volume">56</biblScope>
+			<biblScope unit="page" from="931" to="954" />
+			<date type="published" when="1988">1988. 1988</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Debiased machine learning of conditional average treatment effects and other causal functions</title>
+		<author>
+			<persName><forename type="first">Vira</forename><surname>Semenova</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Victor</forename><surname>Chernozhukov</surname></persName>
+		</author>
+		<idno type="DOI">10.1093/ectj/utaa027</idno>
+		<ptr target="https://doi.org/10.1093/ectj/utaa027" />
+	</analytic>
+	<monogr>
+		<title level="j">The Econometrics Journal (forthcoming)</title>
+		<imprint>
+			<date type="published" when="2020">2020. 2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<monogr>
+		<author>
+			<persName><forename type="first">Vira</forename><surname>Semenova</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Matt</forename><surname>Goldman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Victor</forename><surname>Chernozhukov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Matt</forename><surname>Taddy</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1712.09988</idno>
+		<title level="m">Estimation and Inference about Heterogeneous Treatment Effects in High-Dimensional Dynamic Panels</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note>stat.ML</note>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">Using machine learning to estimate the effect of racial segregation on COVID-19 mortality in the United States</title>
+		<author>
+			<persName><forename type="first">Gerard</forename><surname>Torrats-Espinosa</surname></persName>
+		</author>
+		<idno type="DOI">10.1073/pnas.2015577118</idno>
+		<ptr target="https://doi.org/10.1073/pnas" />
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the National Academy of Sciences</title>
+		<imprint>
+			<biblScope unit="volume">118</biblScope>
+			<biblScope unit="page" from="7" to="2021" />
+			<date type="published" when="2021">2021. 2015577118</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<analytic>
+		<title level="a" type="main">Pay-Per-Request Deployment of Neural Network Models Using Serverless Architectures</title>
+		<author>
+			<persName><forename type="first">Zhucheng</forename><surname>Tu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mengping</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jimmy</forename><surname>Lin</surname></persName>
+		</author>
+		<idno type="DOI">10.18653/v1/N18-5002</idno>
+		<ptr target="https://doi.org/10.18653/v1/N18-5002" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2018 Conference of the North American Chapter</title>
+		<meeting>the 2018 Conference of the North American Chapter<address><addrLine>New Orleans, Louisiana</addrLine></address></meeting>
+		<imprint>
+			<publisher>the Association for Computational Linguistics: Demonstrations. Association for Computational Linguistics</publisher>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="6" to="10" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">A SPEC RG Cloud Group&apos;s Vision on the Performance Challenges of FaaS Cloud Architectures</title>
+		<author>
+			<persName><forename type="first">Alexandru</forename><surname>Erwin Van Eyk</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cristina</forename><forename type="middle">L</forename><surname>Iosup</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Johannes</forename><surname>Abad</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Simon</forename><surname>Grohmann</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Eismann</surname></persName>
+		</author>
+		<idno type="DOI">10.1145/3185768.3186308</idno>
+		<ptr target="https://doi.org/10.1145/3185768.3186308" />
+	</analytic>
+	<monogr>
+		<title level="m">Companion of the 2018 ACM/SPEC International Conference on Performance Engineering</title>
+		<meeting><address><addrLine>Berlin, Germany; New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>Association for Computing Machinery</publisher>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="21" to="24" />
+		</imprint>
+	</monogr>
+	<note>) (ICPE &apos;18)</note>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<analytic>
+		<title level="a" type="main">The SPEC Cloud Group&apos;s Research Vision on FaaS and Serverless Architectures</title>
+		<author>
+			<persName><forename type="first">Alexandru</forename><surname>Erwin Van Eyk</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Simon</forename><surname>Iosup</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Markus</forename><surname>Seif</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Thömmes</surname></persName>
+		</author>
+		<idno type="DOI">10.1145/3154847.3154848</idno>
+		<ptr target="https://doi.org/10.1145/3154847.3154848" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2nd International Workshop on Serverless Computing</title>
+		<meeting>the 2nd International Workshop on Serverless Computing<address><addrLine>Las Vegas, Nevada; New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>Association for Computing Machinery</publisher>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="1" to="4" />
+		</imprint>
+	</monogr>
+	<note>WoSC &apos;17)</note>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title level="a" type="main">Distributed Machine Learning with a Serverless Architecture</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Niu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Li</surname></persName>
+		</author>
+		<idno type="DOI">10.1109/INFOCOM.2019.8737391</idno>
+		<ptr target="https://doi.org/10.1109/INFOCOM.2019.8737391" />
+	</analytic>
+	<monogr>
+		<title level="m">IEEE INFOCOM 2019 -IEEE Conference on Computer Communications</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="1288" to="1296" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

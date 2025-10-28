@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">TF.Learn: TensorFlow&apos;s High-level Module for Distributed Machine Learning</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2016-12-13">13 Dec 2016</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Yuan</forename><surname>Tang</surname></persName>
+							<email>terry.tang@uptake.com</email>
+							<affiliation key="aff0">
+								<orgName type="institution">Uptake Technologies, Inc</orgName>
+								<address>
+									<addrLine>600 W. Chicago Ave Suite 620</addrLine>
+									<postCode>60654</postCode>
+									<settlement>Chicago</settlement>
+									<region>IL</region>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">TF.Learn: TensorFlow&apos;s High-level Module for Distributed Machine Learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2016-12-13">13 Dec 2016</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">098EC9549379016018F9DF5BFAA584C8</idno>
+					<idno type="arXiv">arXiv:1612.04251v1[cs.DC]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:04+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>machine learning</term>
+					<term>deep learning</term>
+					<term>distributed system</term>
+					<term>open-source</term>
+					<term>Python</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>TF.Learn is a high-level Python module for distributed machine learning inside Tensor-Flow (Abadi et al., 2015). It provides an easy-to-use Scikit-learn (Pedregosa et al., 2011)   style interface to simplify the process of creating, configuring, training, evaluating, and experimenting a machine learning model. TF.Learn integrates a wide range of state-ofart machine learning algorithms built on top of TensorFlow's low level APIs for small to large-scale supervised and unsupervised problems. This module focuses on bringing machine learning to non-specialists using a general-purpose high-level language as well as researchers who want to implement, benchmark, and compare their new methods in a structured environment. Emphasis is put on ease of use, performance, documentation, and API consistency.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.">Introduction</head><p>TensorFlow, a general-purpose numerical computation library open-sourced by Google in November 2015, has flexible implementation and architecture enables users to focus on building the computation graph and deploy the model with little efforts on heterogeous platforms such as mobile devices, hundreds of machines, or thousands of computational devices.</p><p>TensorFlow is generally very straightforward to use in a sense that most of the researchers in the research area without experience of using this library could understand what's happening behind the code blocks. TensorFlow provides a good backbone for building different shapes of machine learning applications.</p><p>However, there's a large number of potential users, including some researchers, data scientists, and students who may be familiar with many machine learning algorithms already but who have never got involved in deep learning research and applications, may found it really hard to start building deep learning models using TensorFlow.</p><p>TF.Learn is a simplified interface for TensorFlow, to get people started on predictive analytics and data mining. It helps smooth the transition from the Scikit-learn world of one-liner machine learning into the more open world of building different shapes of machine learning models. Users can start by using familiar fit/predict style and slide into utilizing TensorFlow APIs as getting more comfortable. It's Scikit-learn compatible so users can also benefit from Scikit-learn features like GridSearch and Pipeline.</p><p>With such high-level interface and building blocks provided by TF.Learn, researchers can focus on building their model specifications and architecture that are suitable for their applications. For example, Google has recently open-sourced the implementation for wide and deep learning recommender system using TF.Learn <ref type="bibr" target="#b3">(Cheng et al., 2016)</ref>. This greatly increases reproducibility and productivity in research.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.">Main Features</head><p>TF.Learn fully utilizes Python's object oriented characteristics. Every classes are as modular, reusable, and extensible as possible. This allows users or developers to easily extend the package and implement new machine learning algorithms by using existing modular components as well as TensorFlow's low-level APIs that serve as building blocks of machine learning algorithms, such as metrics, layers, losses, optimizers, etc. The followings are the main features provided by TF.Learn.</p><p>Estimator . An estimator is a rule for calculating an estimate of a given quantity. Estimators are used to train and evaluate TensorFlow models. Each estimator is an implementation of a particular type of machine learning algorithm. They currently support regression and classification problems. A list of available estimators include LinearRegressor/Classifier, DNNRegressor/Classifier, DNNLinearCombinedRegressor/Classifier, TensorForestEstimator, SVM, LogisticRegressor, as well as generic Estimator that can be used to construct a custom model for either classification or regression problems. This provides a wide range of state-of-art machine learning algorithms and the building blocks needed for users to construct their own algorithms. Estimators module also utilizes the graph actions module in TF.Learn that contains all the necessary and complicated logics for distributed training, inference, evaluation of a model that are built on top of TensorFlow's low-level APIs such as Supervisor and Coordinator. These details are hidden away from users side so users can focus on utilizing the simplified interface to conduct their research. All estimators can then be distributed using multiple machines and devices and all extended estimators get this functionality for free.</p><p>RunConfig . This class specifies the run-time configurations for an Estimator run, it provides necessary parameters such as number of cores to be used, the fraction of GPU memory to be used, etc. It also contains a ClusterConfig that specifies the configurations for a distributed run, which configures the tasks, clusters, master nodes, parameter servers, etc.</p><p>DataFrame. Similar to libraries like Pandas <ref type="bibr" target="#b6">(McKinney, 2012)</ref>, a high-level DataFrame module was included in TF.Learn to facilitate many common data reading/parsing tasks from various resources such as tensorflow.Examples, pandas.DataFrame, etc. It also includes functions like FeedingQueueRunner to fetch data batches and put them in a queue so training and data feeding can be performed asynchronously in different threads to avoid wasting a lot of time waiting for data batches to get fetched. This is very useful especially in case of using virtual GPU cloud computing services such as Google Cloud.</p><p>SessionRunHook . SessionRunHooks are useful to track training, report progress, request early stopping and more. SessionRunHooks use the observer pattern and notify when a session starts being used, before and after a call to the session.run(), and when the session is closed. There are several pre-defined hooks that serves as monitors such as StopAtStepHook that requests stop based on certain conditions, CheckpointSaverHook that saves the checkpoints, etc.</p><p>Experiment. Experiment is a class containing all information needed to train a model. After an experiment is created by passing an Estimator and inputs for training and evaluation, an Experiment instance knows how to invoke training and evaluation loops in a sensible fashion for distributed training. Users can configure things like minimum evaluation frequency, evaluation delay seconds, continuous evaluation throttle seconds, etc., that controls experiments in different settings such as local or distributed settings. Export strategy can also be specified if the model needs to be exported into a format that TensorFlow Serving (<ref type="url" target="https://github.com/tensorflow/serving">https://github.com/tensorflow/serving</ref>) accepts to deploy and serve new algorithms and experiments in production, while keeping the same server architecture and APIs.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">Examples</head><p>To illustrate basic functionalities of TF.Learn module, we start with building a basic deep neural network model. First of all, we load example iris data from TF.Learn's datasets module and use Scikit-learn's cross-validated splitting function to split the dataset into 80% training and 20% validation. Next, we use TF.Learn helper function to infer the real valued columns from the dataset that we can then use to pass into DNNClassifier to build our deep neural network model with 3 fully connected layers with 10, 20, 10 units respectively in each layer. Here we also specify the number of classes to to indicate that this is multi-class classifications. Other allowed types are multi-class single label classification, binary classification, multi-label classification, regression, etc. We then call the familiar Scikit-learn-like functions like fit() to specify training data and the number of training steps, as well as predict() to make predictions on validation data. Note that we can specify as iterable to indicate whether we want to return the predictions as Python's iterator, which can be really useful in situations like making predictions for streaming data. Finally, we can use Scikit-learn's metrics module to calculate the score such as accuracy.</p><p>from sklearn import cross_validation from sklearn import metrics import tensorflow as tf from tensorflow.contrib import learn iris = learn.datasets.load_dataset('iris') x_train, x_test, y_train, y_test = cross_validation.train_test_split( iris.data, iris.target, test_size=0.2, random_state=42) feature_columns = learn.infer_real_valued_columns_from_input(x_train) classifier = learn.DNNClassifier( feature_columns=feature_columns, hidden_units=[10, 20, 10], n_classes=3) classifier.fit(x_train, y_train, steps=200) predictions = list(classifier.predict(x_test, as_iterable=True)) score = metrics.accuracy_score(y_test, predictions)</p><p>We can also build our customized model function to define our own losses, model architecture, predictions, etc. Here we firstly convert the target to a one-hot tensor of shape (length of features, 3) and with a on-value of 1 for each one-hot vector of length 3. We then define our fully connected layers using TensorFlow's helper function to stack three same layers without repeating the code for three times respectively of size 10, 20, and 10 with each layer having a dropout probability of 0.1. Next we compute each logit for each class and the softmax cross-entropy loss. Then we use TensorFlow's function to create training operation, which is the optimizer to use for each training step and finally we return the acceptable key-value pairs that will be used during model fitting. We can then pass this customized model function to the Estimator class so it will get all the distributed training logics and advanced data queueing for free. Users can focus on building their different shapes of deep learning and machine learning models.</p><p>def my_model(features, target): target = tf.one_hot(target, 3, 1, 0) features = layers.stack <ref type="bibr">(features, layers.fully_connected, [10, 20, 10]</ref>, normalizer_fn=layers.dropout, normalizer_params='keep_prob': 0.9) logits = layers.fully_connected(features, 3, activation_fn=None) loss = tf.contrib.losses.softmax_cross_entropy(logits, target) train_op = tf.contrib.layers.optimize_loss( loss, tf.contrib.framework.get_global_step(), optimizer='Adagrad', learning_rate=0.1) return ({ 'class': tf.argmax(logits, 1), 'prob': tf.nn.softmax(logits)}, loss, train_op) classifier = learn.Estimator(model_fn=my_model) classifier.fit(x_train, y_train, steps=1000)</p><p>Here we only demonstrate the basic functionalities. Users can find more examples, tutorials, as well as API guide on TensorFlow's website (<ref type="url" target="https://www.tensorflow.org/">https://www.tensorflow.org/</ref> ).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.">Availability, Documentation, Maintenance, and Code Quality Control</head><p>The TF.Learn source code is available under Apache-2.0 license and hosted on Github (<ref type="url" target="https://github.com/tensorflow/tensorflow">https://github.com/tensorflow/tensorflow</ref> ) currently located under tensorflow/contrib/learn folder. Stable releases of the code are regularly published on Github releases tab and all stable releases will have pre-built binary distributions available. We also provide very detailed tutorials for main features of TF.Learn and API documentation on TensorFlow's website (<ref type="url" target="https://www.tensorflow.org/">https://www.tensorflow.org/</ref> ). We use Bazel (<ref type="url" target="https://bazel.build/">https://bazel.build/</ref> ) for continuous integration tests and continuous delivery on Jenkins at <ref type="url" target="https://ci.tensorflow.org/">https://ci.tensorflow.org/</ref> and have nightly binary distributions available.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.">Comparison to Similar Frameworks</head><p>There are many high-level Python libraries, for instance, Lasagne <ref type="bibr" target="#b1">(Battenberg et al., 2016)</ref> and Keras <ref type="bibr" target="#b4">(Chollet, 2016)</ref>. Both of these two libraries are used widely in data science competitions, especially Kaggle (<ref type="url" target="https://www.kaggle.com/">https://www.kaggle.com/</ref>). Lasagne, initiated by a team of deep learning and music information retrieval researchers and based solely on Theano back-end, is a lightweight library with a simple API that allows for fast prototyping of neural network models. Keras is a very flexible wrapper that can switch back-end to either Theano or TensorFlow in a sense that it hides all Theano and TensorFlow code behind its API so users don't need to understand what's actually behind the scenes but rather focusing on prototyping their models and at the end choosing the back-end that's more suitable for their own use cases. It greatly promotes reproducible research and researchers can spend time on the actual model shapes. Whenever a user wants to use some new ops from TensorFlow, he needs to register it in Keras' back-end module for TensorFlow and wrap it around to in cope with Keras' high-level APIs. On the other hand, with TF.Learn, users can directly use TensorFlow's new ops and build a custom model functions that can be directly inserted into TF.Learn's Estimator object as illustrated in previous sections. A lot of existing functionalities and features also become available for free, such as early stopping, dropout, custom learning rate decay, class weights, and multi-output regression/classification without much additional efforts. Users can focus on building their custom graphs to meet the needs. Additionally, TensorFow's distributed power on heterogeneous systems also comes for free without any barrier to streamline TensorFlow graph creation, advanced asynchronous data queueing and batching, model building and testing.</p><p>There are also similar toolkits available in other languages, such as packages in R language (R Core Team, 2016), which is popular in the field of machine learning and statistics, including mlr <ref type="bibr" target="#b2">(Bischl et al., 2016)</ref> and caret <ref type="bibr">(from Jed Wing et al., 2016)</ref> that provide unified interface to many machine learning algorithms. Each framework has its own pros and cons and we highly suggest users to conduct careful comparisons for the best framework for each different use cases.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.">Conclusions and Future Development</head><p>TF.Learn, as a high-level Python module for distributed machine learning inside Tensor-Flow, provides an easy-to-use Scikit-learn style interface to simplify the process of creating, configuring, training, evaluating, and experimenting a machine learning model. TF.Learn integrates a wide range of state-of-art machine learning algorithms built on top of Tensor-Flow's low level APIs for small to large-scale supervised and unsupervised problems. It hides all the grundy details of distributed implementation so users can focus on prototyping their own customized machine learning architectures and later deploy to production without much additional efforts.</p><p>In the future, this module will continue to be highly community-driven and keep moving towards more user-friendly, flexible, extensible, and modular interface so a larger group of users could be benefited.</p></div>		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>Acknowledgments</head><p>We would like to acknowledge the co-creator of TF.Learn Illia Polosukhin from <rs type="person">Google Research</rs> and <rs type="person">Martin Wicke</rs> from <rs type="affiliation">Google TensorFlow</rs> team for their continuous support and contributions as well as many other developers from <rs type="person">Google TensorFlow</rs> team and people from open-source community who submit bug reports, feature requests, and provide really valuable feedback in each phase of the development.</p></div>
+			</div>			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title level="m" type="main">TensorFlow: Large-scale machine learning on heterogeneous systems</title>
+		<author>
+			<persName><forename type="first">Martín</forename><surname>Abadi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ashish</forename><surname>Agarwal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Paul</forename><surname>Barham</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Eugene</forename><surname>Brevdo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhifeng</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Craig</forename><surname>Citro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Greg</forename><forename type="middle">S</forename><surname>Corrado</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andy</forename><surname>Davis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jeffrey</forename><surname>Dean</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Matthieu</forename><surname>Devin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sanjay</forename><surname>Ghemawat</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ian</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><surname>Harp</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Geoffrey</forename><surname>Irving</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><surname>Isard</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yangqing</forename><surname>Jia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rafal</forename><surname>Jozefowicz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lukasz</forename><surname>Kaiser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Manjunath</forename><surname>Kudlur</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Josh</forename><surname>Levenberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dan</forename><surname>Mané</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rajat</forename><surname>Monga</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sherry</forename><surname>Moore</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Derek</forename><surname>Murray</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chris</forename><surname>Olah</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mike</forename><surname>Schuster</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jonathon</forename><surname>Shlens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Benoit</forename><surname>Steiner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ilya</forename><surname>Sutskever</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kunal</forename><surname>Talwar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Paul</forename><surname>Tucker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vincent</forename><surname>Vanhoucke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vijay</forename><surname>Vasudevan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Fernanda</forename><surname>Viégas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Oriol</forename><surname>Vinyals</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pete</forename><surname>Warden</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Martin</forename><surname>Wattenberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Martin</forename><surname>Wicke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yuan</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xiaoqiang</forename><surname>Zheng</surname></persName>
+		</author>
+		<ptr target="http://tensorflow.org/.Softwareavailablefromtensorflow.org" />
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Lasagne: Lightweight library to build and train neural networks in theano</title>
+		<author>
+			<persName><forename type="first">Eric</forename><surname>Battenberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sander</forename><surname>Dieleman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Daniel</forename><surname>Nouri</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Eben</forename><surname>Olson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aaron</forename><surname>Van Den Oord</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Colin</forename><surname>Raffel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jan</forename><surname>Schluter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Soren Kaae</forename><surname>Sonderby</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">mlr: Machine learning in r</title>
+		<author>
+			<persName><forename type="first">Bernd</forename><surname>Bischl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michel</forename><surname>Lang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lars</forename><surname>Kotthoff</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Julia</forename><surname>Schiffner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jakob</forename><surname>Richter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Erich</forename><surname>Studerus</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Giuseppe</forename><surname>Casalicchio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zachary</forename><forename type="middle">M</forename><surname>Jones</surname></persName>
+		</author>
+		<ptr target="http://jmlr.org/papers/v17/15-066.html" />
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">17</biblScope>
+			<biblScope unit="issue">170</biblScope>
+			<biblScope unit="page" from="1" to="5" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Wide &amp; deep learning for recommender systems</title>
+		<author>
+			<persName><forename type="first">Heng-Tze</forename><surname>Cheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Levent</forename><surname>Koc</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jeremiah</forename><surname>Harmsen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tal</forename><surname>Shaked</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tushar</forename><surname>Chandra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hrishi</forename><surname>Aradhye</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Glen</forename><surname>Anderson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Greg</forename><surname>Corrado</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Wei</forename><surname>Chai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mustafa</forename><surname>Ispir</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 1st Workshop on Deep Learning for Recommender Systems</title>
+		<meeting>the 1st Workshop on Deep Learning for Recommender Systems</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="7" to="10" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<title level="m" type="main">Keras: Deep learning library for theano and tensorflow</title>
+		<author>
+			<persName><forename type="first">François</forename><surname>Chollet</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<author>
+			<persName><forename type="first">Max</forename><surname>Kuhn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">;</forename><surname>Wing</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Steve</forename><surname>Weston</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andre</forename><surname>Williams</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chris</forename><surname>Keefer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Allan</forename><surname>Engelhardt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tony</forename><surname>Cooper</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zachary</forename><surname>Mayer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Brenton</forename><surname>Kenkel</surname></persName>
+		</author>
+		<author>
+			<persName><surname>The R Core</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><surname>Team</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Reynald</forename><surname>Benesty</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><surname>Lescarbeau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Luca</forename><surname>Ziem</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yuan</forename><surname>Scrucca</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Can</forename><surname>Tang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tyler</forename><surname>Candan</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Hunt</surname></persName>
+		</author>
+		<ptr target="https://CRAN.R-project.org/package=caret" />
+	</analytic>
+	<monogr>
+		<title level="m">Classification and Regression Training</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="page" from="0" to="72" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">Python for data analysis: Data wrangling with Pandas, NumPy, and IPython</title>
+		<author>
+			<persName><forename type="first">Wes</forename><surname>Mckinney</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<publisher>O&apos;Reilly Media, Inc</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Scikit-learn: Machine learning in python</title>
+		<author>
+			<persName><forename type="first">Fabian</forename><surname>Pedregosa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gaël</forename><surname>Varoquaux</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexandre</forename><surname>Gramfort</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vincent</forename><surname>Michel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bertrand</forename><surname>Thirion</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Olivier</forename><surname>Grisel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mathieu</forename><surname>Blondel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Peter</forename><surname>Prettenhofer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ron</forename><surname>Weiss</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vincent</forename><surname>Dubourg</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page" from="2825" to="2830" />
+			<date type="published" when="2011-10">Oct. 2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<author>
+			<persName><forename type="first">Team</forename><surname>Core</surname></persName>
+		</author>
+		<ptr target="https://www.R-project.org/" />
+		<title level="m">R: A Language and Environment for Statistical Computing. R Foundation for Statistical Computing</title>
+		<meeting><address><addrLine>Vienna, Austria</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

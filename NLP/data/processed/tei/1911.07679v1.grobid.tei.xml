@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Towards Quantification of Bias in Machine Learning for Healthcare: A Case Study of Renal Failure Prediction</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Josie</forename><forename type="middle">V</forename><surname>Williams</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department" key="dep1">Departments of Computer Science Courant Institute of Mathematical Sciences</orgName>
+								<orgName type="department" key="dep2">Departments of Population Health and Radiology Center for Data Science</orgName>
+								<orgName type="institution" key="instit1">New York University</orgName>
+								<orgName type="institution" key="instit2">New York University</orgName>
+								<orgName type="institution" key="instit3">Langone Medical Center</orgName>
+							</affiliation>
+						</author>
+						<author role="corresp">
+							<persName><forename type="first">Narges</forename><surname>Razavian</surname></persName>
+							<email>narges.razavian@nyumc.org</email>
+							<affiliation key="aff0">
+								<orgName type="department" key="dep1">Departments of Computer Science Courant Institute of Mathematical Sciences</orgName>
+								<orgName type="department" key="dep2">Departments of Population Health and Radiology Center for Data Science</orgName>
+								<orgName type="institution" key="instit1">New York University</orgName>
+								<orgName type="institution" key="instit2">New York University</orgName>
+								<orgName type="institution" key="instit3">Langone Medical Center</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Towards Quantification of Bias in Machine Learning for Healthcare: A Case Study of Renal Failure Prediction</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">4BADC0D02482BBCEBB9339BCCFB4073C</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>As machine learning (ML) models, trained on real-world datasets, become common practice, it is critical to measure and quantify their potential biases. In this paper, we focus on renal failure and compare a commonly used traditional risk score, Tangri, with a more powerful machine learning model, which has access to a larger variable set and trained on 1.6 million patients' EHR data. We will compare and discuss the generalization and applicability of these two models, in an attempt to quantify biases of status quo clinical practice, compared to ML-driven models.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Data-driven models have become more common in the U.S. healthcare field as their use in clinical operations and diagnosing procedures have expanded exponentially. The ever-increasing processing power of machine-learning algorithms allows automatic analysis of huge quantities of data, theoretically maximizing the efficiency and accuracy of the medical diagnosing process. Predictions from machine-learning models already drive important healthcare decisions for over 70 million people across the United States <ref type="bibr" target="#b6">[7]</ref>. However, there is reason to be cautious about assuming that the generalization of these models can be applied universally to all populations. Data-driven algorithms used in the criminal sentencing process, for example, have already shown evidence of negatively and disproportionately targeting defendants from low-income black communities due to biases inherent to the data used to train these predictive models <ref type="bibr" target="#b0">[1]</ref>. Considering the fact that health care delivery already varies considerably by race, it is plausible to suspect that similar inequalities might be reflected in the decisions of machine-learning algorithms trained on historical data that lacks awareness and insight into certain populations.</p><p>The scope of this paper will be centered around understanding the accuracy, applicability, and fairness of a simple prediction model, Tangri <ref type="bibr" target="#b9">[10]</ref>, commonly used to predict imminent risk of kidney failure. We compare this model, with another model developed using a larger population and more comprehensive variable sets derived from Electronic Health Records (EHR), and discuss differences in performance, applicability, and generalization. This understanding will help clinical safety professionals critically appraise predictive kidney disease models from a quality perspective.</p><p>In particular, we focus on understanding whether each of the two predictive models are accurate across all populations. If not, what populations are being overlooked by each model? If we start automatic screening and interventions based on features needed to compute Tangri score, which populations will be excluded? How does a new model trained with more comprehensive variables compare to the traditional models commonly used in today's practice? Does more sophisticated machine learning make healthcare operations more or less biased?</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Background and Related Works</head><p>The Tangri baseline model <ref type="bibr" target="#b9">[10]</ref> is a simple logistic regression model, designed to predict the risk of progression towards kidney failure for patients with CKD stages 3 to 5. It has been widely adapted for the US and non-US population <ref type="bibr" target="#b8">[9]</ref>. A basic Tangri score relies on age, gender, estimated glomerular filtration rate (eGFR) and urine Albumin to Creatinine ratio (ACR) tests to compute the risk of kidney failure. This is currently the leading model that provides hospitals and other health care providers with a method of generating a risk assessment for kidney failure and perform early interventions <ref type="bibr" target="#b3">[4]</ref>. However, it is unclear if large scale automatic screening methods based on this model are applicable to all high-risk patients, and/or whether certain sub-populations are excluded from the benefits of screening either due to lack of available eGFR or ACR tests, or due to low predictive performance of the model. This presents the feasible possibility of overlooking potentially high-risk patients and missing crucial opportunities for early intervention.</p><p>However, machine learning models using Electronic Health Records (EHR), have recently emerged as an alternative to traditional risk prediction modeling, and provide more expressive and sophisticated methodologies for predicting future risk of kidney failure <ref type="bibr" target="#b10">[11,</ref><ref type="bibr" target="#b7">8,</ref><ref type="bibr" target="#b2">3]</ref>. These models can simultaneously find surrogate variables when either of eGFR or ACR is missing, and combine all predictive variables to compute the probability of progression to kidney failure. While more expressive models have been criticized for their lack of generalization and performance on minority populations, there are very few studies that expand upon the analysis and comparison of industry standard models and models that are more advanced or accurate.</p><p>Another closely related work, Framingham <ref type="bibr" target="#b5">[6]</ref>, addressed concerns about a commonly used risk score for cardiovascular events. It showed that the presence of atherosclerotic disease interacted differently between race and ethnic groups <ref type="bibr" target="#b1">[2]</ref>. They suggested that factors such as age or blood pressure should be weighed differently in order to retain predictive performance for different racial and ethnic backgrounds. We explore this topic in the context of kidney failure.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Methods</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Development Cohort</head><p>The development cohort was compiled from the electronic health records (EHR) of 1.6 million patients who received care at NYU Langone Medical Center. For each patient, we used all demographics, disease history, lab results, and procedures time series between 2014 to 2018, and focused on the set of patients who do not have kidney failure yet at the time of prediction.</p><p>Kidney failure was defined as observing at least two instances of any of the following ICD-10 codes (I953, R880, T81502A, T81502D, T81502S, T81512A, T81512D, T81512S, T81522A, T81522D, T81522S, T81532A, T81532D, T81532S, T81592A, T81592D, T81592S, T8241XA, T8241XD, T8241XS, T8242XA, T8242XD, T8242XS, T8243XA, T8243XD, T8243XS, T8249XA, T8249XD, T8249XS, T85611A, T85611D, T85611S, T85621A, T85621D, T85621S, T85631A, T85631D, T85631S, T85691A, T85691D, T85691S, T8571XA, T8571XD, T8571XS, Y622, Y841, Z4901, Z4902, Z4931, Z4932, Z9115, Z940, Z992), or dialysis or kidney transplant procedure codes CPTs (G0257, 36902, 36903, 36904, 36905, 36906, 90940, 99512, 90918, 90945). Our analysis was limited to patients who did not have kidney failure by 2016/4/1. The task was to evaluate, based on patient data between 2015/1/1 to 2016/1/1, which patients will proceed to have kidney failure between 2016/4/1 to 2017/4/1.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Training and Validation Cohort</head><p>We included 183,490 patients in training set for our model, and 324,685 patients were included in our validation set. Of these patients without renal failure, 98 patients in the training set, and 166 patients in the validation set proceeded to have renal failure between 2016/4/1 to 2017/4/1.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Variables for building model from EHR</head><p>For each patient, we used a total of 28,561 variables, derived from demographics, disease diagnosis, procedures and lab values observed between 2015/1/1 to 2016/1/1. We aggregated each patient's one year of EHR data by taking the total count of each disease and procedure observations, and maximum of each lab result observed in that year. We then binned all the non-binary data including age. Lab value bins were defined according to the standard deviation of the normalized value (if observed). Age was binned into 10 year spans. Diseases and procedures were binned into &gt;0, &gt;2, and &gt;10 observations. After this pre-processing step, we only kept features that were observed in at least 10 patients in the training set (of 183,490 patients). This, lead to 28561 total variables.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.4">Machine Learning Model</head><p>To build our model, We used L1-regularized logistic regression model <ref type="bibr" target="#b4">[5]</ref> to train a prediction model on the training set. We tuned the regularization parameter between values of 0.0001, 0.001, 0.002, 0.005, 0.007, and 0.01, and report results on our validation set. We used weighted log loss, to deal with our unbalanced data.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.5">Computation of Tangri Scores</head><p>Tangri score in its simplest form requires age, gender, eGFR and Albumin to Creatinine ratio(ACR). For eGFR, we used any of the following labs we had observed between 2015/1/1 to 2016/1/1 : Glomerular filtration rate/1.73 sq M.predicted [Volume Rate/Area] in Serum or Plasma (MDRD or Schwartz method) which included any of LOINC codes 33914-3, 48642-3, 48643-1, 50210-4, 50384-7, 62238-1, 69405-9.</p><p>For ACR, we used any of the lab measurements corresponding to Albumin/Creatinine [Ratio] in Urine, LOINC codes 32294-1, 14585-4, 30000-4, 30001-2, 32294-1, 59159-4, 76401-9, 77253-3, 77254-1, 9318-7, 44292-1, 14959-1, 14958-3, 13705-9, 9318-7, 58447-4. The unit of these labs are taken into account (either mg/L or molar). If we have multiple labs for either eGFR or ACR, as long as the labs were in comparable unit, we take the maximum value of all of them.</p><p>Once we selected the age, gender, eGFR and ACR, we used the following formula to compute the probability of kidney failure according to original 4-variable Tangri score <ref type="bibr" target="#b9">[10]</ref>:</p><formula xml:id="formula_0">P T angri (RenalF ailure) = 1 -0.9751 S</formula><p>where S = exp(-0.2201 × (age/10 -7.036) + 0.2467 × (male -0.5642) -0.5567 × (eGF R/5 -7.222) + 0.4510 × (logACR -5.137))</p><p>If a patient does not have eGFR or ACR, they will not get a Tangri score. This is the basis for our analysis to understand how many patients qualify for measuring Tangri, and how many patients (even if high-risk) will not be able to have a Tangri score.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Results</head><p>Table <ref type="table" target="#tab_0">1</ref> includes the statistics of the total number of patients under various sub-populations, who qualified or did not qualify for Tangri, as well as how many of them proceeded to have renal failure. All the patients qualified for our model. Results are reported on the validation set. We note that overall, significantly more patients who did progress to Renal Failure, did not have the lab measurements needed (eGFR and ACR) to allow them to be scored by Tangri method. This could be due to them having the tests done elsewhere, or not being managed by a nephrologist. All high-risk patients under the age of 60 in our cohort would have been missed if Tangri scoring were to be applied to EHR data retrospectively and automatically. In Table 2: Performance of our proposed model(M) in predicting Renal Failure compared with Tangri model on different sub-populations. N/A indicates that there were not enough Tangri-eligible patients to evaluate the AUC. All AUCs are measured on the validation set.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Cohort</head><p>of Tangri and our model for each sub-population. We observe that our model has above a 0.84 AUC in all sub-populations, except the younger cohort (age &lt; 40) which both Tangri and our model performed poorly on. We also observe that both models severely under-perform for the subset of female patients who had eGFR and ACR, although for the broader female cohort, including patients who did not participate in these tests, we see that our model achieves a 0.89 AUC. In addition, the Tangri model under-performs for the African American sub cohort, whereas our proposed model achieves an AUC of 0.787 on African American patients who had eGFR and ACR, and 0.885 for the general African American cohort.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Discussions and Conclusion</head><p>Renal failure is devastating. Treatment options for renal failure include dialysis, a procedure that is required indefinitely three times a week, or kidney transplant, which is extremely invasive. Preventing renal failure brings years of quality life to patients and early intervention often increases the probability of successful treatments. Currently, to screen for high-risk patients, Tangri, which needs eGFR (a blood test) and ACR (a Urine test) is recommended to predict the risk of renal failure within 2 years. As we saw in Result section Table <ref type="table" target="#tab_0">1</ref>, these tests are not available for over 95% of patients who truly progressed to Renal failure. In a general patient cohort, the percentage of patients who already had these tests measured were even lower: 2.3%. Further still, we saw that this ratio becomes even lower in younger populations like women and several other sub-cohorts. If we were to screen all patients based on the traditional Tangri score, the measurement of eGFR and ACR alone would incur significant financial and resource costs. On the other hand we showed that by using readily available electronic health records instead of two very specific, but often unavailable tests, we can scale screening to all populations. As we saw in Table <ref type="table" target="#tab_1">2</ref>, the performance of the new model in predicting renal failure remains high for sub-cohorts that the Tangri risk score proved to be very precise (i.e Male, white, old). However, our model increases the performance of risk prediction for rest of the sub-cohorts (women, African American, Asian, and younger patients). Several available techniques can further improve the quality and fairness of the model across all sub-cohorts, which is part of our ongoing and future work.</p><p>In conclusion, in this paper, we focused on a well-established regression model <ref type="bibr">(Tangri)</ref> and compared it with a modernized and larger model trained on EHR data. Our results indicated that (1) A model such as Tangri is already heavily biased and should be significantly scrutinized for large-scale screening due to its lack of inclusively, and (2) Machine learning models trained on a diverse cohort with access to more variables improve prediction performance for all sub-populations. This preliminary analysis is a step towards understanding and quantifying bias of status quo prediction methods, compared to stronger machine learning models.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 1 :</head><label>1</label><figDesc>Patients with or without Renal Failure (RF) who did or did not qualified for Tangri scoring</figDesc><table><row><cell></cell><cell>Patients</cell><cell cols="3">Tangri Eligibles Tangri-Eligible Tangri non-Elig</cell></row><row><cell></cell><cell>(had RF)</cell><cell>(had RF)</cell><cell>Percentage</cell><cell>(had RF)</cell></row><row><cell>Full validation set</cell><cell cols="2">324685 (166) 7681 (8)</cell><cell>2.4%</cell><cell>317004 (158)</cell></row><row><cell>Gender: Female</cell><cell>198362 (64)</cell><cell>4116 (2)</cell><cell>2.1%</cell><cell>194246 (62)</cell></row><row><cell>Gender: Male</cell><cell cols="2">126305 (102) 3565 (6)</cell><cell>2.8%</cell><cell>122740 (96)</cell></row><row><cell cols="2">Race: African American 30348 (33)</cell><cell>1220 (2)</cell><cell>4.0%</cell><cell>29128 (31)</cell></row><row><cell>Race: Asian</cell><cell>4621 (8)</cell><cell>118 (0)</cell><cell>2.6%</cell><cell>4503 (8)</cell></row><row><cell>Race: White</cell><cell>199665 (71)</cell><cell>4103 (3)</cell><cell>2.1%</cell><cell>195562 (68)</cell></row><row><cell>Age: 20-30</cell><cell>29220 (3)</cell><cell>164 (0)</cell><cell>0.6%</cell><cell>29056 (3)</cell></row><row><cell>Age: 30-40</cell><cell>39068 (13)</cell><cell>444 (0)</cell><cell>1.1%</cell><cell>38624 (13)</cell></row><row><cell>Age: 40-50</cell><cell>44836 (20)</cell><cell>956 (0)</cell><cell>2.1%</cell><cell>43880 (20)</cell></row><row><cell>Age: 50-60</cell><cell>57845 (27)</cell><cell>1805 (0)</cell><cell>3.1%</cell><cell>56040 (27)</cell></row><row><cell>Age: 60-70</cell><cell>57780 (57)</cell><cell>2150 (5)</cell><cell>3.7%</cell><cell>55630 (52)</cell></row><row><cell>Age: 70-80</cell><cell>36951 (26)</cell><cell>1473 (2)</cell><cell>4.0%</cell><cell>35478 (24)</cell></row><row><cell>Age: 80-90</cell><cell>17000 (18)</cell><cell>603 (1)</cell><cell>3.5%</cell><cell>16397 (17)</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>Table 2 ,</head><label>2</label><figDesc>we show the performance</figDesc><table><row><cell>Cohort</cell><cell cols="3">AUC AUC of Tangri on AUC of M on</cell><cell>AUC of M on</cell></row><row><cell></cell><cell>of</cell><cell>Tangri-eligible</cell><cell cols="2">Tangri-eligible Tangri-non</cell></row><row><cell></cell><cell>M</cell><cell>patients</cell><cell>patients</cell><cell>-eligible patients</cell></row><row><cell>Full validation set</cell><cell>0.88</cell><cell>0.86</cell><cell>0.836</cell><cell>0.886</cell></row><row><cell>Gender: Female</cell><cell cols="2">0.877 0.48</cell><cell>0.55</cell><cell>0.893</cell></row><row><cell>Gender: Male</cell><cell cols="2">0.871 0.992</cell><cell>0.929</cell><cell>0.872</cell></row><row><cell cols="3">Race: African American 0.885 0.554</cell><cell>0.787</cell><cell>0.909</cell></row><row><cell>Race: Asian</cell><cell cols="2">0.876 N/A</cell><cell>N/A</cell><cell>0.874</cell></row><row><cell>Race: White</cell><cell cols="2">0.848 0.995</cell><cell>0.939</cell><cell>0.848</cell></row><row><cell>Age: 20-30</cell><cell>0.55</cell><cell>N/A</cell><cell>N/A</cell><cell>0.549</cell></row><row><cell>Age: 30-40</cell><cell cols="2">0.788 N/A</cell><cell>N/A</cell><cell>0.787</cell></row><row><cell>Age: 40-50</cell><cell cols="2">0.922 N/A</cell><cell>N/A</cell><cell>0.92</cell></row><row><cell>Age: 50-60</cell><cell cols="2">0.944 N/A</cell><cell>N/A</cell><cell>0.943</cell></row><row><cell>Age: 60-70</cell><cell cols="2">0.846 0.756</cell><cell>0.719</cell><cell>0.876</cell></row><row><cell>Age: 70-80</cell><cell cols="2">0.853 0.993</cell><cell>0.968</cell><cell>0.842</cell></row><row><cell>Age: 80-90</cell><cell cols="2">0.891 0.992</cell><cell>0.997</cell><cell>0.883</cell></row></table></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title level="m" type="main">Should prison sentences be based on crimes that haven&apos;t been committed yet? Criminal Justice, fivethirtyeight</title>
+		<author>
+			<persName><forename type="first">Ben</forename><surname>Casselman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Anna</forename><forename type="middle">Maria</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Barry-Jester</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dana</forename><surname>Goldstein</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Race/ethnic differences in the associations of the framingham risk factors with carotid imt and cardiovascular events</title>
+		<author>
+			<persName><surname>Crystel M Gijsberts</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Imo</forename><forename type="middle">E</forename><surname>Karlijn A Groenewegen</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Hoefer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">C</forename><surname>Marinus</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Folkert</forename><forename type="middle">W</forename><surname>Eijkemans</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Todd</forename><forename type="middle">J</forename><surname>Asselbergs</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Annie</forename><forename type="middle">R</forename><surname>Anderson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jacqueline</forename><forename type="middle">M</forename><surname>Britton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gunnar</forename><surname>Dekker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Greg</forename><forename type="middle">W</forename><surname>Engström</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Evans</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">PLoS One</title>
+		<imprint>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="issue">7</biblScope>
+			<biblScope unit="page">132321</biblScope>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Deep patient: an unsupervised representation to predict the future of patients from the electronic health records</title>
+		<author>
+			<persName><forename type="first">Riccardo</forename><surname>Miotto</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Li</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Brian</forename><forename type="middle">A</forename><surname>Kidd</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joel</forename><forename type="middle">T</forename><surname>Dudley</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Scientific reports</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="page">26094</biblScope>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Educating patients about ckd: the path to self-management and patient-centered care</title>
+		<author>
+			<persName><forename type="first">Jenna</forename><forename type="middle">M</forename><surname>Andrew S Narva</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ebony</forename><surname>Norton</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Boulware</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Clinical Journal of the American Society of Nephrology</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="694" to="703" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Scikit-learn: Machine learning in Python</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Pedregosa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Varoquaux</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gramfort</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Michel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Thirion</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Grisel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Blondel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Prettenhofer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Weiss</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Dubourg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Vanderplas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Passos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Cournapeau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Brucher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Perrot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Duchesnay</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page" from="2825" to="2830" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Evaluating the added predictive ability of a new marker: from area under the roc curve to reclassification and beyond</title>
+		<author>
+			<persName><surname>Michael J Pencina</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B D'agostino</forename><surname>Ralph</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Sr</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B D'</forename><surname>Ralph</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Agostino</surname><genName>Jr</genName></persName>
+		</author>
+		<author>
+			<persName><surname>Ramachandran S Vasan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Statistics in medicine</title>
+		<imprint>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="157" to="172" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Ensuring fairness in machine learning to advance health equity</title>
+		<author>
+			<persName><forename type="first">Alvin</forename><surname>Rajkomar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michaela</forename><surname>Hardt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Michael</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Greg</forename><surname>Howell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Marshall</forename><forename type="middle">H</forename><surname>Corrado</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Chin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Annals of internal medicine</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Multi-task prediction of disease onsets from longitudinal laboratory tests</title>
+		<author>
+			<persName><forename type="first">Jake</forename><surname>Narges Razavian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David</forename><surname>Marcus</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Sontag</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning for Healthcare Conference</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="73" to="100" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Multinational assessment of accuracy of equations for predicting risk of kidney failure: a meta-analysis</title>
+		<author>
+			<persName><forename type="first">Navdeep</forename><surname>Tangri</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Morgan</forename><forename type="middle">E</forename><surname>Grams</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><forename type="middle">S</forename><surname>Levey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Josef</forename><surname>Coresh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lawrence</forename><forename type="middle">J</forename><surname>Appel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Brad</forename><forename type="middle">C</forename><surname>Astor</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gabriel</forename><surname>Chodick</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Allan</forename><forename type="middle">J</forename><surname>Collins</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ognjenka</forename><surname>Djurdjev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Raina</forename><surname>Elley</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Jama</title>
+		<imprint>
+			<biblScope unit="volume">315</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="164" to="174" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">A predictive model for progression of chronic kidney disease to kidney failure</title>
+		<author>
+			<persName><forename type="first">Navdeep</forename><surname>Tangri</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lesley</forename><forename type="middle">A</forename><surname>Stevens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">John</forename><surname>Griffith</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hocine</forename><surname>Tighiouart</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ognjenka</forename><surname>Djurdjev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David</forename><surname>Naimark</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Adeera</forename><surname>Levin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><forename type="middle">S</forename><surname>Levey</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Jama</title>
+		<imprint>
+			<biblScope unit="volume">305</biblScope>
+			<biblScope unit="issue">15</biblScope>
+			<biblScope unit="page" from="1553" to="1559" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">A clinically applicable approach to continuous prediction of future acute kidney injury</title>
+		<author>
+			<persName><forename type="first">Nenad</forename><surname>Tomašev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xavier</forename><surname>Glorot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michal</forename><surname>Jack W Rae</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Harry</forename><surname>Zielinski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andre</forename><surname>Askham</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Anne</forename><surname>Saraiva</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Clemens</forename><surname>Mottram</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Suman</forename><surname>Meyer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ivan</forename><surname>Ravuri</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Protsyuk</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<biblScope unit="volume">572</biblScope>
+			<biblScope unit="issue">7767</biblScope>
+			<biblScope unit="page">116</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

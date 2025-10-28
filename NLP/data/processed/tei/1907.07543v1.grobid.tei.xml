@@ -1,0 +1,704 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Low-Shot Classification: A Comparison of Classical and Deep Transfer Machine Learning Approaches</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2019-07-18">July 18, 2019</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Peter</forename><surname>Usherwood</surname></persName>
+							<email>peter.usherwood@kantar.com</email>
+						</author>
+						<author>
+							<persName><forename type="first">Steven</forename><surname>Smit</surname></persName>
+							<email>steven.smit@kantar.com</email>
+						</author>
+						<title level="a" type="main">Low-Shot Classification: A Comparison of Classical and Deep Transfer Machine Learning Approaches</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2019-07-18">July 18, 2019</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">A30E160376A6E97496C5FC08F9759A78</idno>
+					<idno type="arXiv">arXiv:1907.07543v1[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Despite the recent success of deep transfer learning approaches in NLP, there is a lack of quantitative studies demonstrating the gains these models offer in low-shot text classification tasks over existing paradigms. Deep transfer learning approaches such as BERT and ULMFiT demonstrate that they can beat state-of-the-art results on larger datasets, however when one has only 100-1000 labelled examples per class, the choice of approach is less clear, with classical machine learning and deep transfer learning representing valid options. This paper compares the current best transfer learning approach with top classical machine learning approaches on a trinary sentiment classification task to assess the best paradigm. We find that BERT, representing the best of deep transfer learning, is the best performing approach, outperforming top classical machine learning algorithms by 9.7% on average when trained with 100 examples per class, narrowing to 1.8% at 1000 labels per class. We also show the robustness of deep transfer learning in moving across domains, where the maximum loss in accuracy is only 0.7% in similar domain tasks and 3.2% cross domain, compared to classical machine learning which loses up to 20.6%.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Transfer learning in the Natural Language Processing (NLP) field has advanced significantly in the last two years, introducing fine-tuning approaches akin to those seen in computer vision some years earlier <ref type="bibr" target="#b11">(Donahue et al., 2013)</ref>. This growth originated from feature-based transfer learning, which in the form of word embeddings has been in use for some years, particularly driven by <ref type="bibr" target="#b17">(Mikolov, Chen, Corrado, &amp; Dean, 2013)</ref>. As part of this new wave, we have seen advancements in feature-based transfer learning in the form of ELMo <ref type="bibr" target="#b21">(Peters et al., 2018)</ref>. In addition a characteristic trend in this wave of transfer learning models is a class of algorithms that primarily focus on a finetuning approach, where a base language model <ref type="bibr" target="#b5">(Bengio, Ducharme, Vincent, &amp; Jauvin, 2003)</ref> is trained and then fine-tuned on a target task. This base language model is typically very large (100M + parameters) and takes a relatively long time to train. However, the fine-tuning task is usually much quicker to train as only a few parameters are added to the model, typically a single dense layer to the end of a multilayer LSTM or Transformer <ref type="bibr" target="#b24">(Vaswani et al., 2017)</ref>. The model continues training either all, or part, of the network, but this is typically on much less data and for much less time, as only the task specific information is being learned and the general "understanding" of the language is transferred.</p><p>These approaches have, on multiple occasions, broken the state-of-the-art records (SO-TAs) across the board on a range of NLP tasks and datasets <ref type="bibr" target="#b9">(Devlin, Chang, Lee, &amp; Toutanova, 2018)</ref>  <ref type="bibr" target="#b14">(Howard &amp; Ruder, 2018)</ref>. However, all of these datasets are designed for deep learning: they are typically large enough that they warrant the use of deep learning (5000+ examples per class), without the necessity of transfer learning. It is our view that what transfer learning does, in these cases, is push the boundaries of performance.</p><p>The prevalence of deep learning algorithms in surpassing SOTA records suggests quite clearly that, for the datasets assessed, deep learning surpasses the limits of classical machine learning algorithms in NLP tasks.</p><p>Low-shot transfer learning is another usecase for transfer learning in NLP, one of particular interest to companies working with real-world data. Low-shot transfer learning (also referred to as "few-shot") is the use of transfer learning in training models where we have little training data available. This is important as many potential real-world applications of machine learning NLP do not have access to sufficiently large datasets to train deep learning algorithms, and obtaining such a dataset can often be too expensive or time consuming.</p><p>Howard &amp; Ruder (2018) note, <ref type="bibr" target="#b9">and Devlin et. al. (2018)</ref> hypothesize that their respective approaches can be used with low quantities of data to give good results. However, in sources such as <ref type="bibr" target="#b14">(Howard &amp; Ruder, 2018)</ref>, results on low-shot learning are presented relative to training deep models from scratch, but as mentioned in <ref type="bibr" target="#b12">(Goodfellow, Bengio, &amp; Courville, 2016)</ref>, deep learning generally only achieves reasonable performance at about 5000 examples per class and is therefore not necessarily the best paradigm at these scales. This is shown quantitatively in <ref type="bibr" target="#b6">(Chen, Mckeever, &amp; Delany, 2018)</ref> where, at scales of 2000+ labels per class, an SVM outperforms several deep learning approaches on text classification tasks. As such, we propose that to evaluate the low-shot learning benefits of deep transfer learning models, we should in fact look at performance against the strongest classical machine learning methods. However, we have yet to find a comprehensive quantitative study performing this analysis and show that low-shot transfer learning in NLP is actually the optimal approach when dealing with small quantities of data.</p><p>In this paper we attempt to answer this question in the context of classification tasks. What is the best paradigm to use in the case where we have 100 -1000 labelled training examples per class -classical machine learning or deep transfer learning? We seek to compare the best-in-class approaches from both deep transfer learning and classical machine learning by training a variety of models and evaluating by analysing intra-domain and inter-domain performance (details in section 2).</p><p>The choice of 100 -1000 is motivated by the amount of data feasible for companies and researchers to tag in-house, as well as the scale of data occurring organically through other means.</p><p>For example, in marketing these figures typically represent the base sizes of surveys that can be used as training data. The rest of this paper is laid out as follows. Section 2 details the datasets we use. Section 3 looks at the methodology used to evaluate the optimal paradigm. In section 4 we present the algorithms we use to test, along with related work influencing our choices in selecting those models. Section 5 details our experiments including choosing the optimal configuration of hyperparameters and preprocessing for each algorithm. In section 6 we present the results followed by our comments and conclusions. Finally, we highlight a few key points and considerations worthy of mention for the two paradigms in 7.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Datasets</head><p>We have sourced a range of publicly available datasets for classification tasks in an attempt to remove any potentially unknown biases of one particular set. However, to aid in our goal of viewing cross-dataset and cross-domain performance, we have focused on sentiment based classification. This is one of the more popular classification problems as well as being one of critical importance for many companies in areas such as chatbots and social media marketing. Potential biases include the ability for a certain task to be predictable based off of a few low level features (making the task more trivial), or similar data having been used in the pre-training of the deep transfer learning approach, tainting the test set.</p><p>The datasets we consider fall into two domains: Amazon reviews (A), and Twitter (T ). The first category consists of 3 Amazon datasets, one consisting of movie reviews, and two of product reviews from different product categories. Whilst these are very "real world" datasets, we describe this domain as clean data. These datasets typically have similar medium-length documents of 100 -300 words, and are the kinds of datasets typically used in evaluating the performance of deep transfer learning: Pang, Lee % Vaithyanathan (2002) use IMDB and <ref type="bibr" target="#b14">Howard &amp; Ruder (2018)</ref> use SST-2 movie reviews.</p><p>The second domain has datasets sourced from Twitter, a social data source that differs in a few key properties from the Amazon sets. The vocabulary is much broader given the amount of slang, abbreviations, and the unique way in which hashtags are used grammatically. In addition, Twitter datasets typically will have a stronger prevalence of emoji than in other domains, although in these datasets emoji were already removed. These can make Tweets much harder to classify, particularly for deep transfer learning models that have pre-defined vocabularies. BERT relies on WordPiece embeddings which makes it more robust to new vocabularies <ref type="bibr" target="#b25">(Wu et al., 2016)</ref>, although it still can not handle emoji. On the other hand, approaches similar to ULMFiT rely on a set word-token vocabulary defined by the training set used in pre-training, which for ULMFiT is wikitext-103 (a wikipedia based text) by default, so this will struggle both with new vocabulary and emoji. We hypothesise these models will suffer a greater loss in accuracy on these Twitter datasets than the classical algorithms because of this fixed vocabulary limitation.</p><p>Below we introduce the five datasets we use. Three from the Amazon reviews domain: Amazon Movie Reviews, Amazon Book Reviews, Amazon Health and Personal Care Product Reviews which we will refer to later in the paper as A1, A2, and A3 respectively. The two datasets from the Twitter domain are both from SemEval 2017, we use subtask a and subtask ce, which we will refer to as T 1 and T 2 respectively.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">Amazon Movies A1</head><p>The Amazon movies dataset sourced from <ref type="bibr" target="#b15">(Leskovec &amp; Krevl, 2014</ref>) is a huge collection of movie reviews from Amazon, including reviews made up to October 2012. We use a random subset of this for our purposes. All reviews are on a five point scale which we re-sample to a three point scale by binning 2 star with 1 star and 4 star with 5 star reviews. This is a procedure we use throughout this work to align all of our datasets onto a three point sentiment scale of negative, neutral and positive. In this dataset we also have knowledge of which product each review belongs to, so the train, validation, and test sets are split out so that no product appears in two or more sets.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">Amazon Books A2</head><p>The second dataset we consider is from the Amazon product review database <ref type="bibr" target="#b13">(He &amp; McAuley, 2016)</ref>, and contains reviews of books. This dataset was chosen as it is fairly similar to that of the Amazon movies, whilst still being in a different domain. This makes it ideal in helping us avoid biases relating to the specificity of one dataset while training a very similar task. Its similarity also makes it a perfect candidate to test how well classifiers perform cross-domain in a best case scenario.</p><p>The dataset is structured similar to that of the movies, with a star rating from 1 to 5 giving us a five point sentiment scale which we resample to three point. The review text also contains medium-length documents similar to that of A1. It also contains information about which product is being reviewed, so to ensure there is no information leakage into the test set, we ensure every book in each set is exclusive.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3">Amazon Health and Personal</head><p>Care A3</p><p>This dataset is almost equivalent to the above in terms of set-up with the reviews instead focusing on health and beauty products.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.4">SemEval 2017 Subtask A T 1</head><p>For our Twitter dataset we use SemEval <ref type="bibr" target="#b23">(Rosenthal, Farra, &amp; Nakov, 2017)</ref>. SemEval 2017 Task A comes pre-tagged into negative, positive, and neutral classes so no binning is necessary. This is the only dataset we use that does not contain "product" information so we simply randomly divide the Tweets between the train, validation, and test sets.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.5">SemEval 2017 Subtask CE T 2</head><p>Again looking at SemEval 2017 we use their subtask CE datasets to produce this set. The data here comes pre-split although as we have a slightly unusual case here wanting only a specific amount of training data and more test data we shuffle everything and re-split. Here we have product information as all tweets are labelled with a topic, so we divide on that variable. Tweets here are also on a five point scale but again we bin to three point by grouping "very negative" and "negative", and "very positive" and "positive".</p><p>3 Methodology</p><p>To answer the question as to what is the optimal paradigm to use in a low-shot classification task, we will compare the performance of the best in class approach from classical machine learning and deep transfer learning on various low shot datasets.</p><p>The metrics we consider will be the accuracy on a held out test set for each model. In addition we shall also test the models' robustness by examining how they perform making predictions across datasets within a domain (intra-domain), and across domains (inter-domain). Here we define a domain as a set of datasets that share similar properties, in this paper we consider two domains: Twitter (T), and Amazon reviews (A).</p><p>In the academic literature it is rare to see interdomain accuracy reported except in the case of specifically designed inter-domain algorithms <ref type="bibr" target="#b19">(Pan, Ni, Sun, Yang, &amp; Chen, 2010</ref>). However, we see this as a common practice in business: train a single classifier and use it inter-domain.</p><p>As such we feel it should be evaluated since our end use-case is informing the opinion of which approaches to take when building real-world classifiers. Our intention is that the range of datasets will minimise any bias and make the study as relevant to industry use-cases as possible.</p><p>We shall also consider several levels of lowshot transfer learning, taking: 100, 300 and 1000 labelled examples per class (henceforth referred to as t 100 , t 300 , and t 1000 respectively) in an attempt to guard against the potential of missing the point at which deep learning/classical machine learning surpasses the other in the low-shot context.</p><p>For every dataset, we set aside controlled test and validation sets. For A datasets we have 5000 examples per class in the test and validation sets, 3000 for T 1 and 1000 for T 2. All fine-tuning and hyperparameter selection is done on the validation set, and all values displayed in this paper in section 5 are from the held-out test sets. The test sets comprise products that are independent of the train and validation sets where the definition of a product is specific to each dataset. For example, in the A1 dataset, a product is a specific film. We do this to keep the test as fair as possible, and ensure that if classifiers overfit and learn features such as the name of the film as a defining feature, that it is not rewarded in the evaluation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Metrics</head><p>As our end goal is to simply compare classical machine learning to deep transfer learning we aggregate a lot of the metrics when presenting the results as the individual model-dataset combination is not of key interest. Instead we investigate how well the paradigm does when evaluated on a set task of a set domain. We present six metrics to compare performance, each of these were run per model, per tier, totalling 72 results. The exact metrics and how they are defined from the underlying datasets are given below.</p><p>A Self : Average of the three different A trained classifiers accuracies as returned on the same datasets held out test set.</p><p>A Cross A: Average of the three different A trained classifiers accuracies as returned on the other two A datasets corresponding held out test set.</p><p>A Cross T : Average of the three different A trained classifiers accuracies as returned on the two T datasets held out test sets.</p><p>T Self : Average of the two different T trained classifiers accuracies as returned on the same datasets held out test set.</p><p>T Cross T : Average of the two different T trained classifiers accuracies as returned on the other T datasets corresponding held out test set.</p><p>T Cross A: Average of the two different T trained classifiers accuracies as returned on the two A datasets corresponding held out test set.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Models and Related Work</head><p>We are trying to compare the best in class approach from classical machine learning and finetuning transfer learning, as such we have considered popular high performing models used in other well referenced work, as these represent the types of approaches practitioners will look to. The ones considered in this paper are introduced below.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Classical Machine Learning</head><p>It is well established that there is no single classical machine learning classifier that consistently achieves the best classification performance.</p><p>For example between the works in <ref type="bibr" target="#b8">(Davidson, Warmsley, Macy, &amp; Weber, 2017)</ref>  <ref type="bibr" target="#b7">(Dadvar, Trieschnigg, &amp; de Jong, 2014</ref>) <ref type="bibr" target="#b10">(Dinakar, Reichart, &amp; Lieberman, 2011)</ref> they showed that various classical machine learning approaches all slightly out performed each other. This is a long known phenomenon that all of these models have different strengths depending on the specific task and dataset. As such we have considered two of these (Naïve Bayes and SVM) to give a fair representation and alleviate the bias of a single classifier.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1.1">Naïve Bayes</head><p>The Naïve Bayes classifier is a probabilistic classical machine learning classification algorithm that has a long history of being used in text classification tasks including sentiment analysis. It is well suited to this task given its speed to run and ability to easily incorporate many features which often occurs with classical NLP approaches.</p><p>However as with most algorithms from classical machine learning they are not competitive on large datasets compared to deep learning models as such we struggled to find an undisputed best in class Naïve Bayes approach. We decided to try the approaches outlined in <ref type="bibr" target="#b18">(Narayanan, Arora, &amp; Bhatia, 2013)</ref> as in the paper the authors clearly show the benefits of each modification they make which we are able to verify for our data in section 5, they also ran their classifier on a very similar dataset to the ones used in this paper (movie sentiment classification).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1.2">SVM</head><p>Support Vector Machines (SVMs) attempt to separate the data by finding the hyperplane in n-dimensional space that maximizes the distance between the closest (support) vectors in the dataset. SVMs also have long been used in text classification problems given they perform well when our number of features is large compared to the number of training examples as is the case in our classical paradigm.</p><p>Indeed we see in <ref type="bibr" target="#b6">(Chen et al., 2018)</ref> the authors compare an approach using SVM with an n-gram approach to word vector deep learning approaches on datasets that are larger than the smallest dataset considered in this work, and in all balanced cases the SVM n-gram models outperform the deep learning approaches.</p><p>As such we consider the n-gram approach with SVMs however given the results gained in <ref type="bibr" target="#b18">(Narayanan et al., 2013)</ref> we also try all of the same additions to the architecture for SVMs that we trial for Naïve Bayes to further improve performance, the results of this analysis are shown in section 5.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Transfer Learning</head><p>In the deep transfer learning paradigm we have seen a quick succession of models, as discussion in section 1, released in the last two years each of which has surpassed the previous in terms of performance on deep learning tasks. Recently, the leading approach has been BERT <ref type="bibr" target="#b9">(Devlin et al., 2018)</ref> and hence this will be the principle approach we consider here. Additionally we also look at ULMFiT <ref type="bibr" target="#b14">(Howard &amp; Ruder, 2018)</ref>, as this was one of the first major breakthrough approaches in NLP transfer learning and is widely used through their dedicated pytorch-based library. We also look to quantify the claims in <ref type="bibr" target="#b14">Howard &amp; Ruder (2018)</ref> that it performs well on low-shot tasks. At the time of writing, it appears that <ref type="bibr" target="#b26">Yang et. al. (2019)</ref> is the current SOTA, surpassing BERT. However, this is very recent and we leave evaluation of this as a future area of research to build on the work documented here. Indeed this raises a key point: transfer learning approaches are still not fully developed and with time we expect these approaches to further improve relative to classical machine learning.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2.1">ULMFiT</head><p>ULMFiT was introduced by <ref type="bibr" target="#b14">Howard &amp; Ruder (2018)</ref> and was one of the first popular applications of fine-tuning transfer learning in NLP. They achieved SOTAs on various classification datasets: AG, DBpedia, Yelp-bi, and Yelp-full.</p><p>Their approach is to use an AWD-LSTM, an architecture originating in the work of <ref type="bibr" target="#b16">(Merity, Keskar, &amp; Socher, 2017)</ref> as the language model at the core of the model. The model is then trained in 3 stages, first (Stage 1) the core language model is trained on a large general purpose corpus. This is the pre-training step which is ideally done only once per language. Stage 2 is the fine-tuning step where the same core language model continues to be trained but now on the target dataset, this aids the model in learning the nuances of the target task language which ultimately improves results on the final classification. The training of the classification task is the third stage, in which two dense layers are appended to the final hidden layer of the language model and the whole model is trained on the supervised classification task. Advanced techniques such as slanted triangular learning rates and gradual unfreezing are used to negate the problem of catastrophic forgetting, enabling the model to better retain earlier learned information.</p><p>Although the model is pre-training dataset agnostic, the current published model was built on wikitext-103. The potential issue with this is choice of pre-training dataset is that it is not very general purpose for many real world applications, such as social datasets. The model is also built using a fixed vocabulary which further limits its generalizability.</p><p>We use this pre-trained AWD-LSTM based model and follow the recommended fine-tuning stages in this paper, whilst verify the choice of all hyperparameters on held out validation sets in section 5.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2.2">BERT</head><p>BERT (Bidirectional Encoder Representations from Transformers) was introduced in late 2018 by <ref type="bibr" target="#b9">Devlin et. al. (2018)</ref>. We chose this algorithm for its performance (breaking various SO-TAs on NLP tasks, both in classification and other challenges such as question answering) and popularity. Conceptually it is similar to that of ULMFiT, a core language model trained on a large general purpose corpus followed by a stage of task specific fine-tuning to learn a supervised task. BERT has the generalizability to work with classification or sequence based target tasks which gives it further utility, however in this paper we focus on its ability in classification tasks. One important distinction between the two approaches for our purposes is that feature representation in BERT is based on word pieces <ref type="bibr" target="#b25">(Wu et al., 2016)</ref> which may afford the model better generalizability than ULMFiT.</p><p>On release BERT was published with two models: BERT-base which uses 12 transformer layers and has 110M parameters, and BERTlarge with 24 layers and 340M parameters. In this paper we use BERT-base and follow the suggestions of fine-tuning as given in the original paper. We verify our model in section 5 on our validation sets.</p><p>The second and final stage of training BERT for classification tasks is to append a single dense layer to the final hidden layer of the language model and continue training.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Experiments</head><p>We initially setup the models based on the referenced papers and fine-tuning on the validation sets. Given the volume of models and datasets in this work it is unfeasible to fine-tune the hyperparameters for every model to be trained. Instead we originally intended to optimize only one set of hyperparameters and pre-processing stages for each model, and then train all models on this configuration. However when we looked at the A1 and T 1: 100 and 1000 to optimize the hyperparameters we saw significant deviation in the optimal configuration across these sets for the classical machine learning approaches, particu-larly on the SVM. As such we proceeded having up to four configurations per approach: A t 100t 300 , A t 1000 , T t 100 -t 300 , T t 1000 .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1">Naïve Bayes Hyperparameter Search</head><p>We mainly followed the approach laid out in <ref type="bibr" target="#b18">Narayanan et. al (2013)</ref> for our Naïve Bayes approach, where negation was handled by merging any tokens that were preceded by any in a set of pre-defined negation terms, with "not " as a prefix and removing the original negation term. We also <ref type="bibr">followed Narayanan et. al's (2013)</ref> suggestion of using a Bernoulli term frequency matrix and including bi-grams and tri-grams, as we found all of these methods independently boosted the accuracy on the validation sets for A1. However on T 1 none of the approaches led to any increase in performance. We also experimented with reducing the number of features n f eatures = f • tier as a hyperparameter, where the grid search begins at the maximum number of features and f is tuned to reduce the number of features downwards, selecting for a more parsimonious model. We present our search on the validation sets in table 1, also included were the papers original gains on binary sentiment classification. We also tried other approaches such as stemming and feature selection with Part of Speech (PoS) tagging although these showed no benefit on any dataset, although perhaps with more manual feature selections gains could be made.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2">SVM Hyperparameter Search</head><p>Looking at SVMs we try to apply a similar approach as we do for Naïve Bayes. Here we add the extra hyperparameters of C (the SVM regularization hyperparameter), and the kernel type.</p><p>We initially select values of f = max and C = 1 which showed good performance to trial the various additions to the architecture. Once we evaluated the best architecture we then fine-tuned C and f . Finally we verified all of the architectures again to check there were no changes in top performance. The final results chosen were f = max, 50, 10, 10, C = 1, 1, .5, 1, and linear A1-100 A1-1000 T 1-100 T 1-1000 IMDb <ref type="bibr" target="#b20">(Pang et al., 2002)</ref>  </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.3">ULMFiT Hyperparameter Search</head><p>One of the immediate benefits of fine-tuned transfer learning approaches is that complex features representations are transferred, this means that a lot of the effort in preprocessing and feature selecting is not required (or even possible) in these cases. Furthermore an additional benefit is that the models are designed to need minimal task specific architecture adjustments again reducing the amount of parameter selection needed on a validation set. In our experiments we use the pre-trained AWD-LSTM weights published with the original paper, and continue with the proposed methodological approach for the classification task, as implemented in the fastai python package (Fast.ai are behind the ULMFiT methodology). This leaves us with six choices of hyperparameters: the number of epochs for fine-tuning and classification training, and the corresponding base learning rates and dropout scaling rate. By dropout scaling rates, we mean a scale applied to the packages preset dropout rates. We present the results found on our four searches in the validation sets in table <ref type="table" target="#tab_3">3</ref>.</p><p>[t] It should be noted that in stage two of training a ULMFiT we can train on more domain data than we have labelled. We chose not to do this to give the worse case scenario for practitioners using these models.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.4">BERT Hyperparameter Search</head><p>As noted, one of the benefits of transfer learning is that minimal task specific hyperparameters are needed and we do not need to select features. As such we go with the standard approach used in the original paper, of attaching a single dense layer to the end of the BERT model. We are using the pre-trained BERT-base model: in the original paper, significantly better results were obtained with the larger model. Due to the use of consumer-grade hardware for this investigation, we will be making use of BERT-base (which already requires 12GB of VRAM). It is suggested that any results here would only be improved upon by practitioners capable of running BERTlarge. We use the uncased version.</p><p>Similar to ULMFiT, we are left only choosing the learning rate and number of epochs for the classification phase, however in BERT only one phase is run, so we only need to select two hyperparameters.</p><p>In the original BERT paper the authors comment that often hyperparameter tuning on BERT is unnecessary, particularly for larger datasets, and that an ideal search area is with 3 epochs and learning rates between 5 • 10 -5 and 1 • 10 -5 . We followed this recommendation testing learning rates of 1 • 10 -4 , 5 • 10 -5 , 3 • 10 -5 , 3 • 10 -5 , and 1 • 10 -5 and 3, 4, 5, and 10 epochs and found largely the same results. Our best results are shown in table 4. However as even our bigger datasets are still low-shot and as such this step was still necessary as in the given range we can still see gains of 3%+ accuracy.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">Results</head><p>Referring to the results in tables 5, 6 &amp; 7, there are a few immediately notable results. As mentioned there is no consistently best performing classical machine learning algorithm, in this case we see that Naïve Bayes outperforms SVM by</p><p>A1-100 A1-1000 T 1-100 T 1-1000 Original 46.63 54.76 44.63 52.82 Negation 46.48 55.03 43.67 52.98 Bernoulli 47.51 55.08 45.71 52.82 N-grams Bernoulli 50.30 58.10 43.13 52.82 Bernoulli Negation 47.47 56.01 45.04 52.76 N-grams Bernoulli Negation 49.59 58.62 42.23 51.93 N-grams Bernoulli Negation Stopped 48.67 57.80 43.96 51.39 Tf-idf 48.88 59.84 48.84 56.97 N-grams Tf-idf 44.23 46.66 45.01 43.86 Tf-idf Negation 48.80 60.13 48.39 56.56 N-grams Tf-idf Negation 47.92 61.41 46.76 55.69 N-grams Tf-idf Negation Stopped 46.45 60.14 47.72 55.41  Table 4: Final results for the best hyperparameters in BERT after running a grid search across the number of epochs and learning rates.</p><p>is that ULMFiT does not perform adequately at these scales, performing 14.02 ± 6.18% worse than BERT, and worse than both classical approaches. As such all of our results and conclusions take the results of BERT as representing the best in class approach from deep transfer learning.</p><p>An interesting result is the finding that deep transfer learning is clearly the strongest performing paradigm for A self &amp; T self at low scales (t 100 ). It gains +10.4% accuracy on A datasets and +8.9% on T datasets. However, this gain tapers off as one moves to higher training set sizes, and at the t 1000 level, this gain has fallen away to +1.9% and 1.7% on A and T respectively. We would expect this trend to swing back in favour of deep transfer learning at a certain point, as the number of examples continues to climb, given that classical machine learning performance is known to plateau with increased data sizes.</p><p>In the authors' opinion, perhaps the key finding here is how robust the transfer learning performance is inter-domain. We can see that at all tiers, transfer learning exhibits practically no loss in performance (max -0.7%) for intradomain tasks (A cross A and T cross T ). On the other hand, classical machine learning loses significant performance in A cross A (max -16.5%), although it should be noted that classical machine learning does not generally lose performance in T cross T .</p><p>This robustness is further exemplified when considering inter-domain performance. Comparing A cross T to T self and T cross A to A self, Table <ref type="table">7</ref>: Final results for t 1000 . the biggest loss in performance the best transfer learning approach is 3.2% on t 100 and on higher tiers this drops to 0.1%, compared to the best classical approach which drops on average 11.4% for t 100 and 21.1% at t 1000 , not managing to show much improvement over baseline accuracy.</p><p>These results suggest that the deep transfer learning approaches are capable of much deeper and more complex representations, such that they can utilize previously learned features for newer documents, even when the type of document differs significantly in key properties such as length and vocabulary. On the other hand, the classical machine learning approaches are able to perform reasonably well on the target task, but perhaps by learning more superficial patterns that don't transfer to different domains well. This result is particularly useful in industry where one classifier is used on a range of domains (sentiment classifiers being a noteworthy example). When doing so using classical approaches, one must be very careful and understand exactly how, and on what dataset, the accuracy of the classifier was assessed. With transfer learning, this inter-domain usage appears to be a much safer practice.</p><p>We do notice that across the tiers for T self we see a slightly better relative performance for classical machine learning than in the case of A, even though it still generally performs worse than transfer learning. As mentioned in section 2, our main hypothesis for this is the unique language (be that slang, misspellings, niche topics) used in T causes the predetermined vocabularies of the language models to miss a lot of the nuance in the text, to varying degrees (BERTs Wordpiece embeddings should make it slightly more adaptable and we see that in the results). We would expect further relative losses in performance should the target domain have even more out of vocabulary tokens such as emoji on these base models. However this potential limitation could be overcome with a different tokenization method and more diverse datasets during the pre-training stage for deep transfer learning.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7">Discussion</head><p>Based on the conclusion in section 6, we would suggest that deep transfer learning is generally the better paradigm in low-shot classification tasks. It is worth noting however that the accuracies achieved are still on the low-end, and may not be at a high enough quality for some applications.</p><p>A core focus in this research is to aid practitioners in choosing which paradigm to use when trying to solve real-world problems, as such particular consideration needs to be paid to the availability of a core language model for the language of the task in question. The original authors of both the ULMFiT and BERT papers only made English models available upon release. Since then, BERT has released a multi-language model, however no dedicated single language core models exist for either BERT or ULMFiT outside of English. This can be a problem as training the core models is time-consuming and expensive, and may not be feasible in many companies. As a corollary point, the base language model must have been pre-trained on a suitably wide dataset, or one that is similar to the target task's, as the vocabulary limitation mentioned in section 6 could play a significant role. This could mean even publicly available base models in the required language are unsuitable if the target task is significantly dissimilar.</p><p>Production resource requirements are another area of concern. The BERT-base model requires 12GB of VRAM to fine-tune and run -at the time of writing this is considered highend consumer hardware. Other models such as BERT-large or OpenAI GPT-2 <ref type="bibr" target="#b22">(Radford et al., 2019)</ref>, are much too big to fit on consumer hardware. This makes it out of reach for many researchers and undesirable for companies who are trying to minimize costs and are often reluctant to build pipelines that rely on expensive GPU compute instances. Contrary to this, classical ML models are typically small and can be trained and run on any modern laptop.</p><p>Despite these issues, deep transfer learning does offer cost saving benefits. It saves a lot of human time in two key areas: feature creation and hyperparameter selection. When con-sidering the scalability in application of models throughout a company, these two benefits coupled with the robustness of using models in cross domain applications, can represent much bigger gains in return on investment than what is spent on hardware costs. Furthermore, the hidden representations of deep transfer learning models can also be used in sequence to sequence tasks, further broadening their applicability to a range of tasks faced in practice.</p><p>In conclusion, the evidence presented in this work suggests that deep transfer learning is the best approach to use in low-shot learning tasks, owing to the ability to effectively transfer models into different domains, the quick and easy implementation of these freely available models, as well as no longer needing to conduct expensive and time-consuming hyperparameter searches and training schedules. However, the performance achieved on low-shot tasks suggests there is still much work to be done in obtaining high quality classifiers for low-shot task settings.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 1 :</head><label>1</label><figDesc>Hyperparameter search of the best architecture to use for the Naïve Bayes approach, with the four models chosen shown in bold. kernels on A1-t 100 , A1-t 1000 , T 1-t 100 , T 1-t 1000 respectively as shown in table 2.</figDesc><table><row><cell>% binary gain</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_2"><head>Table 2 :</head><label>2</label><figDesc>Hyperparameter search of the best architecture to use for the SVM approach, with the four models chosen shown in bold.</figDesc><table><row><cell>Dataset</cell><cell>Epochs</cell><cell>Learning Rate</cell><cell>Dropout Scaling</cell><cell>Loss</cell></row><row><cell></cell><cell></cell><cell>Stage 2</cell><cell></cell><cell></cell></row><row><cell>A1-t100</cell><cell>13</cell><cell>0.0025</cell><cell>0.5</cell><cell>3.55</cell></row><row><cell cols="2">A1-t1000 29</cell><cell>0.0003</cell><cell>0.5</cell><cell>3.79</cell></row><row><cell>T 1-t100</cell><cell>115</cell><cell>0.001</cell><cell>1</cell><cell>3.01</cell></row><row><cell cols="2">T 1-t1000 40</cell><cell>0.001</cell><cell>1</cell><cell>3.57</cell></row><row><cell></cell><cell></cell><cell>Stage 3</cell><cell></cell><cell></cell></row><row><cell>A1-t100</cell><cell>12</cell><cell>0.0015</cell><cell>0.5</cell><cell>0.99</cell></row><row><cell cols="2">A1-t1000 23</cell><cell>0.0003</cell><cell>0.6</cell><cell>0.86</cell></row><row><cell>T 1-t100</cell><cell>5</cell><cell>0.0015</cell><cell>0</cell><cell>1.02</cell></row><row><cell cols="2">T 1-t1000 17</cell><cell>0.0005</cell><cell>0.5</cell><cell>0.86</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_3"><head>Table 3 :</head><label>3</label><figDesc>Results of the hyperparameter search for Stage 2 &amp; 3 of the ULMFiT approach.</figDesc><table><row><cell cols="4">a small margin on most metrics and as such in</cell></row><row><cell cols="4">this study it represents the best in class metrics</cell></row><row><cell cols="4">for classical machine learning in most cases. It's</cell></row><row><cell cols="4">margin over SVM is typically small and an ex-</cell></row><row><cell cols="2">pected discrepancy.</cell><cell></cell><cell></cell></row><row><cell cols="4">In the case of deep transfer learning we</cell></row><row><cell cols="4">can see a huge difference in the performance of</cell></row><row><cell cols="4">BERT and ULMFiT, our first major conclusion</cell></row><row><cell>Dataset</cell><cell cols="3">Epochs Learning Rate Accuracy</cell></row><row><cell>A1-t100</cell><cell>4</cell><cell>2 • 10 -5</cell><cell>59.04</cell></row><row><cell>A1-t1000</cell><cell>3</cell><cell>2 • 10 -5</cell><cell>64.95</cell></row><row><cell>T 1-t100</cell><cell>5</cell><cell>2 • 10 -5</cell><cell>66.57</cell></row><row><cell>T 1-t1000</cell><cell>3</cell><cell>1 • 10 -5</cell><cell>70.33</cell></row></table></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<idno>45.0</idno>
+		<title level="m">A Self A Cross A A Cross T T Self T Cross T T Cross A ULMFiT</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m">Table 5: Final results for t 100</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">A</forename><surname>Self</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A A</forename><surname>Cross</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T T</forename><surname>Cross</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Self</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T T</forename><surname>Cross</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Cross</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ulmfit</surname></persName>
+		</author>
+		<idno>51.0 48.2 41.2 44.1 44.5 37.7 BERT 62.1 61.9 55.0 55.7 55.6 63.3 Naïve Bayes 55.8</idno>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">Table 6: Final results for t 300</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">A</forename><surname>Self</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A A</forename><surname>Cross</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T T</forename><surname>Cross</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Self</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T T</forename><surname>Cross</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Cross</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ulmfit</surname></persName>
+		</author>
+		<idno>56.6 52.0 42.2 51.3 51.5 39.0 BERT 63.3 63.3 55.6 55.7 55.8</idno>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">A neural probabilistic language model</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Ducharme</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Vincent</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Jauvin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of machine learning research</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="page" from="1137" to="1155" />
+			<date type="published" when="2003-02">2003. Feb</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">A comparison of classical versus deep learning techniques for abusive content detection on social media sites</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Mckeever</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Delany</surname></persName>
+		</author>
+		<idno type="DOI">10.1007/978-3-030-01129-1\8</idno>
+		<imprint>
+			<date type="published" when="2018-09">2018, 09</date>
+			<biblScope unit="page" from="117" to="133" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Experts and machines against bullies: A hybrid approach to detect cyberbullies</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Dadvar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Trieschnigg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>De Jong</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Canadian conference on artificial intelligence</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="275" to="281" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<title level="m" type="main">Automated hate speech detection and the problem of offensive language</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Davidson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Warmsley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Macy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Weber</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<title level="m" type="main">Bert: Pre-training of deep bidirectional transformers for language understanding</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Devlin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M.-W</forename><surname>Chang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Toutanova</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Modeling the detection of textual cyberbullying</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Dinakar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Reichart</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Lieberman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">fifth international aaai conference on weblogs and social media</title>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<monogr>
+		<title level="m" type="main">Decaf: A deep convolutional activation feature for generic visual recognition</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Donahue</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Jia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Vinyals</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Hoffman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Tzeng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Darrell</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Courville</surname></persName>
+		</author>
+		<title level="m">Deep learning</title>
+		<imprint>
+			<publisher>The MIT Press</publisher>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Ups and downs: Modeling the visual evolution of fashion trends with one-class collaborative filtering</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Mcauley</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">proceedings of the 25th international conference on world wide web</title>
+		<meeting>the 25th international conference on world wide web</meeting>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="507" to="517" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title level="m" type="main">Universal language model fine-tuning for text classification</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Howard</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ruder</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<author>
+			<persName><forename type="first">J</forename><surname>Leskovec</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Krevl</surname></persName>
+		</author>
+		<ptr target="http://snap.stanford.edu/data" />
+		<title level="m">SNAP Datasets: Stanford large network dataset collection</title>
+		<imprint>
+			<date type="published" when="2014-06">2014. June</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<monogr>
+		<title level="m" type="main">Regularizing and optimizing lstm language models</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Merity</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">S</forename><surname>Keskar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Socher</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<title level="m" type="main">Efficient estimation of word representations in vector space</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Mikolov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Corrado</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Dean</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Fast and accurate sentiment classification using an enhanced naive bayes model</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Narayanan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Arora</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Bhatia</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International conference on intelligent data engineering and automated learning</title>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="page" from="194" to="201" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Cross-domain sentiment classification via spectral feature alignment</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Pan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Ni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J.-T</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Chen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 19th international conference on world wide web</title>
+		<meeting>the 19th international conference on world wide web</meeting>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+			<biblScope unit="page" from="751" to="760" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Thumbs up?: sentiment classification using machine learning techniques</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Pang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Vaithyanathan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the acl-02 conference on empirical methods in natural language processing</title>
+		<meeting>the acl-02 conference on empirical methods in natural language processing</meeting>
+		<imprint>
+			<date type="published" when="2002">2002</date>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="page" from="79" to="86" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Deep contextualized word representations</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Peters</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Neumann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Iyyer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Gardner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Clark</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Zettlemoyer</surname></persName>
+		</author>
+		<idno type="DOI">10.18653/v1/N18-1202</idno>
+		<idno>doi: 10.18653/v1/n18-1202</idno>
+		<ptr target="http://dx.doi.org/10.18653/v1/N18-1202" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies</title>
+		<title level="s">Long Papers</title>
+		<meeting>the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies</meeting>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="volume">1</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Language models are unsupervised multitask learners</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Radford</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Child</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Luan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Amodei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Sutskever</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">OpenAI Blog</title>
+		<imprint>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page">1</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Semeval-2017 task 4: Sentiment analysis in twitter</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Rosenthal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Farra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Nakov</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 11th international workshop on semantic evaluation</title>
+		<meeting>the 11th international workshop on semantic evaluation</meeting>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="502" to="518" />
+		</imprint>
+	</monogr>
+	<note>semeval-2017</note>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<monogr>
+		<title level="m" type="main">Polosukhin, I</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Vaswani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Shazeer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Parmar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Uszkoreit</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Jones</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">N</forename><surname>Gomez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">.</forename></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note>Attention is all you need</note>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<monogr>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Schuster</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><forename type="middle">V</forename><surname>Le</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Norouzi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Macherey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">.</forename><forename type="middle">.</forename><surname>Dean</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename></persName>
+		</author>
+		<title level="m">Google&apos;s neural machine translation system: Bridging the gap between human and machine translation</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<monogr>
+		<title level="m" type="main">Xlnet: Generalized autoregressive pretraining for language understanding</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Dai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Carbonell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Salakhutdinov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><forename type="middle">V</forename><surname>Le</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

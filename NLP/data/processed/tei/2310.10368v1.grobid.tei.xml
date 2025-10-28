@@ -1,0 +1,1703 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Machine learning in physics: a short guide</title>
+				<funder ref="#_eh67hnm">
+					<orgName type="full">CNPq</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Francisco</forename><forename type="middle">A</forename><surname>Rodrigues</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution" key="instit1">Instituto de Ciências Matemáticas e de Computação</orgName>
+								<orgName type="institution" key="instit2">Universidade de São Paulo</orgName>
+								<address>
+									<settlement>São São Paulo</settlement>
+									<region>Carlos</region>
+									<country key="BR">Brazil</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Machine learning in physics: a short guide</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">6D2FB1A2E9F517D01DE6C66945A034E7</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:07+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>42.30.Sy -Pattern recognition 07.05.Mh -Neural networks</term>
+					<term>fuzzy logic</term>
+					<term>artificial intelligence</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Machine learning is a rapidly growing field with the potential to revolutionize many areas of science, including physics. This review provides a brief overview of machine learning in physics, covering the main concepts of supervised, unsupervised, and reinforcement learning, as well as more specialized topics such as causal inference, symbolic regression, and deep learning. We present some of the principal applications of machine learning in physics and discuss the associated challenges and perspectives.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Ernest Rutherford once declared: "if your experiment needs statistics, you ought to have done a better experiment" <ref type="bibr" target="#b0">[1]</ref>. His remark reflects his belief in the significance of well-controlled experiments and the need for experimental designs that minimize uncertainties and sources of errors. However, while Rutherford's statement may have merit in his time, it no longer applies in the modern scientific landscape. The growing complexity of experiments, the necessity to quantify uncertainty, the pivotal role of hypothesis testing and inference, the incorporation of statistical analysis in experimental design and power analysis, and the emergence of advanced data analysis techniques have rendered statistics an indispensable tool in contemporary scientific research <ref type="bibr" target="#b1">[2,</ref><ref type="bibr" target="#b2">3]</ref>. During the last decades, statistics have empowered researchers to navigate complex data, derive valid conclusions, and make evidence-based decisions, playing an instrumental role in advancing scientific understanding <ref type="bibr" target="#b0">[1,</ref><ref type="bibr" target="#b3">4,</ref><ref type="bibr" target="#b4">5]</ref>.</p><p>In the last decade, machine learning (ML) methods have complemented the statistical analysis in Physics <ref type="bibr" target="#b1">[2,</ref><ref type="bibr" target="#b5">[6]</ref><ref type="bibr" target="#b6">[7]</ref><ref type="bibr" target="#b7">[8]</ref><ref type="bibr" target="#b8">[9]</ref>. ML has been used in processing satellite data in atmospheric physics <ref type="bibr" target="#b9">[10]</ref>, in weather forecasts <ref type="bibr" target="#b10">[11]</ref>, predicting the behaviour of systems of many particles <ref type="bibr" target="#b5">[6]</ref>, discovering functional materials <ref type="bibr" target="#b11">[12]</ref> and generating new organic molecules <ref type="bibr" target="#b12">[13]</ref>. Indeed, recent works have shown that deep learning techniques outperform human-designed statistics <ref type="bibr" target="#b13">[14]</ref>, providing evidence of the power of ML for analysing experimental data. Moreover, ML can discover new physical laws and equations. For example, symbolic regression <ref type="bibr" target="#b14">[15,</ref><ref type="bibr" target="#b15">16]</ref> and sparse identification methods <ref type="bibr" target="#b16">[17]</ref> have been used to derive physics equations from data. Also, generative modelling offers a way to discern the most credible theory from various explanations for observational data. This is achieved solely through the data, without any predetermined understanding of the potential physical mechanisms operating within the studied system <ref type="bibr" target="#b17">[18]</ref>. Therefore, the possibilities for using ML algorithms in physics range from experiments to theoretical analysis, opening up many opportunities.</p><p>Although ML can help to address fundamental problems in physics <ref type="bibr" target="#b8">[9]</ref>, most physicists still do not recognise the importance of these methods and how they can help to discover functional patterns in data. ML has roots in Statistics and Computer Science <ref type="bibr" target="#b18">[19]</ref><ref type="bibr" target="#b19">[20]</ref><ref type="bibr" target="#b20">[21]</ref>, with applications from image segmentation to medical diagnosis <ref type="bibr" target="#b21">[22]</ref>. Only recently, with new methods, such as deep learning <ref type="bibr" target="#b20">[21,</ref><ref type="bibr" target="#b22">23]</ref>, the area has increased its potential, allowing it to work with massive data. These improvements have made ML fundamental for physics discoveries, mainly where data is present <ref type="bibr" target="#b1">[2]</ref>. Also, many works have shown that Physics has the potential to develop new ML methods and help understand the "black boxes" algorithms, such as neural networks <ref type="bibr" target="#b23">[24]</ref>. Despite its potential, it is hard for physicists to grasp the immense literature available. Also, machine learning methods must be used carefully since wrong modelling choices or assumptions can result in misleading or unreliable conclusions <ref type="bibr" target="#b2">[3]</ref>. Machine learning and statistical models should always be interpreted cautiously, considering the limitations of the data and potential pitfalls of the algorithms to avoid drawing erroneous or misleading inferences. For example, the p-value has been a subject of debate and criticism in scientific research due to several p-1 arXiv:2310.10368v1 [cs.LG] 16 Oct 2023 problems associated with its interpretation and use <ref type="bibr" target="#b24">[25]</ref>. The primary objective of this review is to introduce machine learning methods to physicists, presenting both the fundamental concepts and concrete examples of their application.</p><p>This review delves into the fundamental concepts of ML, offers primary references, and outlines the steps to employ ML methods for physics discovery. We present the fundamental concepts, research papers, applications, and tools for utilizing ML in the field of physics while also exploring how physics can contribute to the development of ML.</p><p>Basic concepts: The main goal of ML is to find useful patterns in data <ref type="bibr" target="#b18">[19,</ref><ref type="bibr" target="#b19">20]</ref>. In Physics, ML has been used when we have complex problems and lots of data <ref type="bibr" target="#b2">[3]</ref>. For example, in the Large Hadron Collider (LHC) experiments at CERN, the collisions of protons or ions in several places around the circular collider generate tens of thousands of PetaBytes per year <ref type="bibr" target="#b25">[26]</ref>. However, since collisions are rare, it is necessary to classify the actual collisions as either interesting or uninteresting. Thus, ML methods filter the signal from the noise and help to search for new fundamental physics <ref type="bibr" target="#b8">[9]</ref>.</p><p>ML can be divided into three main categories <ref type="bibr" target="#b18">[19,</ref><ref type="bibr" target="#b19">20]</ref>, namely: (i) supervised learning, (ii) unsupervised learning and (iii) reinforcement learning. Supervised learning involves learning from labelled data to make predictions or classifications <ref type="bibr" target="#b18">[19]</ref>, unsupervised learning discovers patterns and structures in unlabeled data <ref type="bibr" target="#b19">[20]</ref>, and reinforcement learning focuses on an agent learning optimal behaviours through interactions with an environment and rewards <ref type="bibr" target="#b26">[27]</ref>.</p><p>Supervised learning: Supervised learning involves training a model based on a given set of examples <ref type="bibr" target="#b2">[3,</ref><ref type="bibr" target="#b19">20]</ref>. Initially, we split the data set into two disjoint parts, one for training and another for testing. The training set is used to train a ML algorithm, which will learn the patterns in the data and then will be used to predict new observations on the test set. The data is composed of a set of examples, which are represented by the vectors {x i , y i }, i = 1, 2, . . . , n, where x i is the set of attributes of the example i and y i is the target variable we want to predict, which can be a single value or a vector. For example, to predict the ordered phase in the Ising model, x i , i = 1, 2, . . . , n, can represent the spin configuration in a 2D lattice and y i is the phase, i.e., y i = 1 represents an ordered phase and y i = 0 a disordered one <ref type="bibr" target="#b27">[28]</ref>. When the target variable y ∈ R, it indicates a regression problem. Conversely, if y represents a class or label (y ∈ {C 1 , C 2 . . . , C k }, where C j is a class), it becomes a classification problem. Predicting the ordered phase in the Ising model involves classification while estimating the time required to reach the ordered phase corresponds to a regression. Figure <ref type="figure">1</ref> summarizes the supervised learning process.</p><p>ML algorithms aim to fit a model f that maps the attributes to the target variable <ref type="bibr" target="#b28">[29]</ref>. To elaborate, it is possible to fine-tune the function f using input attributes denoted as x along with the target variable y. This finetuning process, performed during training, enables the derivation of the model's parameter set θ, thus facilitating accurate predictions of y. Mathematically,</p><formula xml:id="formula_0">y = f (x, θ) + ϵ,<label>(1)</label></formula><p>where ϵ is the random error (⟨ϵ⟩ = 0 and ⟨ϵ i ϵ j ⟩ = 0, i, j = 1, 2, . . . , n, where n is the number of observations in the training set). We can refer to f (x, θ) as the function that generates the data, and the goal of the ML algorithm is to estimate its set of parameters θ so that we can predict new observations as accurately as possible.</p><p>Generally, optimization methods are used to adjust a supervised learning model <ref type="bibr" target="#b29">[30]</ref>. In this case, we have to define a training loss function that will be minimized. This function can have different forms and depend on the type of learning process <ref type="bibr" target="#b21">[22]</ref>. In general, the loss function L compares the values of the target variable y and the respective predictions ŷ. The average loss of the predictor on the training set is called the cost function, or empirical risk in decision theory <ref type="bibr" target="#b21">[22]</ref>,</p><formula xml:id="formula_1">C(ŷ, y) = 1 n n i=1 L(y i , ŷi ).<label>(2)</label></formula><p>In the case of classification, the choice of cost functions depends on the specific algorithm and objective <ref type="bibr" target="#b18">[19,</ref><ref type="bibr" target="#b21">22,</ref><ref type="bibr" target="#b30">31,</ref><ref type="bibr" target="#b31">32]</ref>. Typical examples include the 0-1 loss function and cross-entropy <ref type="bibr" target="#b21">[22]</ref>. The 0-1 loss function measures the misclassification rate on the training set,</p><formula xml:id="formula_2">C(ŷ, y) = 1 n n i=1 I(ŷ i ̸ = y i ), (<label>3</label></formula><formula xml:id="formula_3">)</formula><p>where I is the indicator function which returns one if and only if y = ŷ.</p><p>In the case of regression, typical cost functions use the mean squared error loss <ref type="bibr" target="#b21">[22]</ref>:</p><formula xml:id="formula_4">MSE(y, ŷ) = 1 n n i=1 (y i -ŷi ) 2 ,<label>(4)</label></formula><p>or the mean absolute error loss <ref type="bibr" target="#b21">[22]</ref>. Other functions are also possible (e.g. <ref type="bibr" target="#b21">[22,</ref><ref type="bibr" target="#b31">32]</ref>). Thus, the model training process aims to discover a configuration of model parameters denoted as θ, which serves to minimize the cost function when applied to the training dataset, i.e.,</p><formula xml:id="formula_5">θ = argmin θ 1 n n i=1 L(y i , ŷi ). (<label>5</label></formula><formula xml:id="formula_6">)</formula><p>Different algorithms can be applied to minimize the loss function, and their effectiveness depends on the problem and the algorithm's characteristics <ref type="bibr" target="#b32">[33]</ref>. Indeed, the "No Free Lunch" theorem states that, on average, no algorithm Fig. <ref type="figure">1:</ref> The supervised learning pipeline. Typically, the data is divided into two sets. About 80% of the data is allocated to the training set, where the model learns patterns and relationships from the data. The remaining 20% forms the test set, which is an independent evaluation to gauge the model's performance and generalization abilities.</p><p>performs better than any other when considering all possible problems <ref type="bibr" target="#b33">[34]</ref>. It implies that the effectiveness of an algorithm is highly dependent on the specific characteristics of the problem at hand <ref type="bibr" target="#b33">[34]</ref>. These algorithms are based on different concepts <ref type="bibr" target="#b19">[20]</ref>, such as probability theory (e.g. naive Bayes and logistic regression), decision trees, optimization techniques (e.g. support vector machines), neural networks and ensemble methods (e.g. random forests). All these methods can be used both for classification and regression.</p><p>Naive Bayes is a probabilistic classification algorithm based on Bayes' theorem <ref type="bibr" target="#b34">[35]</ref>. Given the class label, it assumes that the features are conditionally independent, hence the "naive assumption". It is computationally efficient and works well with high-dimensional data. On the other hand, logistic regression is a linear classification algorithm that models the relationship between the input variables and the probability of belonging to a specific class <ref type="bibr" target="#b35">[36]</ref>. It is commonly used when the target variable is binary or categorical. Logistic regression can handle both numerical and categorical input features, and it provides interpretable coefficients that indicate the influence of each feature on the prediction <ref type="bibr" target="#b21">[22]</ref>. Support Vector Machines (SVMs) are a powerful supervised learning algorithm for classification and regression tasks <ref type="bibr" target="#b36">[37,</ref><ref type="bibr" target="#b37">38]</ref>. SVMs aim to find an optimal hyperplane that separates the data points of different classes with the largest margin <ref type="bibr" target="#b36">[37,</ref><ref type="bibr" target="#b37">38]</ref>. They can handle both linear and non-linear relationships using different kernel functions. Also based on optimization, neural networks, inspired by the structure and function of biological neural networks, are versatile models capable of learning complex patterns and relationships from data <ref type="bibr" target="#b38">[39]</ref>. They consist of interconnected layers of artificial neurons that process information. Hebbian learning is used in neural networks to strengthen the connections between activated neurons, allowing the network to learn patterns from data <ref type="bibr" target="#b39">[40]</ref>. Deep neural networks with many hidden layers have led to breakthroughs in various domains, including computer vision, natural language processing, and speech recognition <ref type="bibr" target="#b20">[21,</ref><ref type="bibr" target="#b22">23]</ref>.</p><p>Finally, random forests (RF) are an ensemble learning method that combines multiple decision trees to make predictions <ref type="bibr" target="#b40">[41]</ref>. Using a random subset of the data and features, RF reduces overfitting, which occurs when a model becomes excessively fine-tuned to the training data, capturing noise and anomalies rather than the underlying pat-terns, leading to poor performance on unseen data. Random forests handle complex relationships, missing values, and identifying essential features, acting as a feature ranking algorithm <ref type="bibr" target="#b19">[20]</ref>.</p><p>We can employ various metrics to evaluate the performance of machine learning algorithms <ref type="bibr" target="#b31">[32]</ref>. While accuracy, which returns the fraction of correct predictions, is a commonly used measure for classification, caution is needed when dealing with unbalanced data as it can be misleading <ref type="bibr" target="#b41">[42,</ref><ref type="bibr" target="#b42">43]</ref>. Additional vital metrics for binary classification include precision (proportion of true positive predictions out of all positive predictions), recall (proportion of true positive predictions out of all actual positive instances), F1 score (harmonic mean of precision and recall), and the area under the ROC (Receiver Operating Characteristic) curve <ref type="bibr" target="#b31">[32]</ref>. In regression tasks, commonly used metrics include mean squared error (equation ( <ref type="formula" target="#formula_4">4</ref>)), mean absolute error, and the coefficient of determination (R 2 ) <ref type="bibr" target="#b34">[35]</ref>, which measures the proportion of the variance in the target variable explained by the model. It is calculated as the square of the Pearson correlation coefficient between the actual and predicted values <ref type="bibr" target="#b34">[35]</ref>.</p><p>Unlike traditional methods used in Physics to analyze data, ML does not use curve fitting <ref type="bibr" target="#b34">[35]</ref>. Curve fitting aims to find the best fit for the existing data points, focusing on data approximation. However, minimizing the error in the training data is not the goal of ML algorithms. Training in machine learning refers to optimizing a model's parameters to predict unseen data by learning from labelled training examples. Curve fitting is related to overfitting <ref type="bibr" target="#b18">[19]</ref>, which occurs when a model excessively performs well on the training data but fails to generalize to unseen data. On the other hand, when the model is too simple and lacks the flexibility to capture the underlying patterns in the data, we have an underfitting <ref type="bibr" target="#b38">[39]</ref>. The goal of machine learning algorithms is to find the balance between underfitting (high bias) and overfitting (high variance) in modelling data <ref type="bibr" target="#b34">[35]</ref>. Bias refers to the error introduced by approximating a real-world problem with a simplified model. Variance, on the other hand, represents the variability of model predictions for different training datasets. The bias-variance tradeoff arises because reducing bias often increases variance, and vice versa <ref type="bibr" target="#b34">[35]</ref>. Finding the optimal tradeoff is crucial for building models that generalize well to new data. The objective is to strike a balance where the model is complex enough to capture the un-derlying patterns but not overly complex to fit noise or irrelevant details.</p><p>There are many techniques to avoid overfitting <ref type="bibr" target="#b43">[44]</ref>. Cross-validation is a resampling technique that can decrease variance and assist in model selection and adjustment of hyperparameters <ref type="bibr" target="#b31">[32]</ref>. Many ML models present several hyperparameters, which are values provided by the user. For instance, the number of layers in a neural network or the number of trees in the random forest algorithm are examples of hyperparameters. One common approach is the k-fold cross-validation. This method divides the dataset into k subsets or folds of approximately equal size. The model is then trained and evaluated k times, using a different fold as the validation set and the remaining folds as the training set. The performance metrics, such as accuracy or mean squared error, are recorded for each fold. The final performance measure is usually computed by averaging the results across the k iterations. Crossvalidation helps decrease variance by providing a more robust estimate of the model's performance. It reduces the dependency on a single training-test split, which can be biased due to the randomness present in the data. By training and evaluating the model on multiple subsets of the data, cross-validation provides a more representative evaluation of the model's performance on unseen data.</p><p>Regularization techniques, such as L1 (Lasso) and L2 (Ridge) regression, can also avoid overfitting <ref type="bibr" target="#b21">[22]</ref>, which adds a penalty term to the loss function during model training. This penalty discourages excessive complexity in the model by shrinking the magnitude of the coefficients. Regularization helps prevent overfitting by promoting simpler models that generalize well to unseen data. Dropout is a regularization technique commonly used in neural networks <ref type="bibr" target="#b20">[21]</ref>. It involves randomly disabling a fraction of the neurons during each training iteration. This helps prevent the network from relying too heavily on specific neurons or memorizing noise in the training data, reducing overfitting and promoting more robust generalization. Other methods to avoid overfitting include dropout in neural networks, early stopping, feature selection and dimensionality reduction, ensemble methods and data augmentation, which are techniques to artificially expand the training dataset by applying transformations, such as rotation, scaling, or flipping, to the existing data. By addressing overfitting, machine learning models can achieve better performance, improve robustness, and provide more accurate predictions in real-world applications.</p><p>Supervised learning methods in Physics are mainly used in problems that involve classification, regression and time series forecasting <ref type="bibr" target="#b5">[6]</ref>. For example, supervised learning algorithms have been used to classify particles in particle physics experiments, predict the Higgs boson's mass, and weather and climate forecasting <ref type="bibr" target="#b2">[3,</ref><ref type="bibr" target="#b5">6,</ref><ref type="bibr" target="#b8">9]</ref>.</p><p>Unsupervised learning: Unlike supervised learning, unsupervised learning is a type of machine learning where the algorithm learns patterns or structures from unlabeled data without any explicit target variable <ref type="bibr" target="#b18">[19,</ref><ref type="bibr" target="#b19">20]</ref>. The goal is to discover hidden patterns, relationships, or clusters within the data. Examples of unsupervised learning methods include (i) clustering algorithms like k-means and hierarchical clustering; (ii) dimensionality reduction techniques, such as principal component analysis (PCA) and t-SNE; (iii) anomaly detection approaches, like one-class SVM and Isolation Forest; (iv) association rule learning, which are used to discover associations or patterns in large datasets, often applied to market basket analysis or recommendation systems; (v) generative models, like Gaussian Mixture Models (GMM) and Variational Autoencoders (VAEs), which learn the underlying data distribution and can generate new samples similar to the training data; (vi) topic modelling, which can be used to discover hidden topics or themes within a collection of documents; and (vii) density estimation, which can estimate the underlying probability distribution of a dataset.</p><p>Unsupervised learning methods can be applied in various ways in physics. Principal component and clustering analysis can be used to identify phases and phase transitions of many-body systems <ref type="bibr" target="#b44">[45]</ref>. Dimensionality reduction methods can assist in visualizing and understanding high-dimensional experimental or simulation data <ref type="bibr" target="#b2">[3]</ref>. Anomaly detection algorithms can identify rare or unexpected events, outliers, or anomalies in experimental data, helping physicists to find potential errors, instrument malfunctions, or novel phenomena <ref type="bibr" target="#b5">[6]</ref>. Generative models can generate synthetic data that matches the statistical properties of experimental observations, enabling model validation and exploration of new scenarios <ref type="bibr" target="#b17">[18]</ref>.</p><p>Although with great potential to be applied in physics, data clustering presents several challenges <ref type="bibr" target="#b45">[46]</ref>. Firstly, the absence of ground truth labels makes evaluating clustering results subjective and dependent on heuristic measures. Secondly, determining the optimal number of clusters and selecting appropriate algorithms can be subjective and context-dependent <ref type="bibr" target="#b45">[46]</ref>. Additionally, the curse of dimensionality poses difficulties as higher-dimensional spaces make it harder to distinguish meaningful clusters <ref type="bibr" target="#b45">[46]</ref>. Complex and irregular data structures, scalability issues, and the interpretation of clustering results further contribute to the challenges.</p><p>Overcoming these hurdles requires careful consideration of dataset characteristics, algorithm selection, parameter tuning, and the incorporation of domain knowledge <ref type="bibr" target="#b45">[46]</ref>. Ongoing research focuses on developing robust and scalable clustering methods to address the complexities of real-world data. The evaluation is also problematic since metrics like cluster purity, silhouette coefficient or adjusted rand index struggle to capture complex cluster structures, such as overlapping clusters, varying cluster densities, or non-spherical shapes <ref type="bibr" target="#b19">[20]</ref>. Also, different clustering metrics may yield inconsistent results, making it challenging to compare and interpret the performance of different algorithms. Developing more robust and versatile clustering evaluation metrics is an ongoing research area, also for physicists <ref type="bibr" target="#b23">[24]</ref>.</p><p>Semi-supervised learning (SSL): Unlike traditional supervised learning, where a large labelled dataset is required for training, semi-supervised learning leverages a combination of labelled and unlabeled data. SSL can be a powerful tool for improving the accuracy of machine learning models. This is because the unlabeled data can be used to regularize the model, preventing overfitting. In Physics, SSL has been used, for example, to classify materials synthesis procedures <ref type="bibr" target="#b46">[47]</ref> and detect distinct events in a large dataset of in tokamak discharges <ref type="bibr" target="#b47">[48]</ref>. The main algorithms for SSL <ref type="bibr" target="#b48">[49]</ref> are (i) self-training, which can take any supervised method for classification or regression and modify it to work in a semi-supervised manner, taking advantage of labeled and unlabeled data; (ii) transductive SVM, which is a variation of support vector machines (SVMs) that is specifically designed for semi-supervised learning; (iii) label propagation, which assigns labels to unlabeled data by propagating labels from labeled data points to unlabeled data points that are similar to them; and (iv) ensemble methods, which combines multiple semisupervised learning algorithms on different subsets of the data, and then their predictions are combined to make a final prediction.</p><p>Reinforcement learning (RL): In contrast to conventional machine learning techniques, reinforcement learning (RL) enables the extraction of knowledge from real-world experiences, surpassing the limitations of training data alone <ref type="bibr" target="#b26">[27]</ref>. RL focuses on training agents to make sequential decisions in an interactive environment. Through trial and error, agents explore and exploit the environment, receiving rewards or penalties based on their actions. The goal is to learn an optimal policy that maximizes cumulative rewards. RL is used in scenarios without labelled training data and has applications in robotics, game-playing, and recommendation systems. For example, a RL system can master the game of chess solely from its rules, devoid of any preceding knowledge. By engaging in matches against adversaries or even self-play, the system progressively learns and hones its skills <ref type="bibr" target="#b26">[27]</ref>.</p><p>The main elements in RL are an agent and an environment it interacts with <ref type="bibr" target="#b48">[49]</ref>. The environment provides the agent with information and feedback according to the agent's actions. The agent's primary goal is to maximize the obtained rewards the environment provides. Thus, the RL algorithms aim to learn an optimal policy maximising rewards. Given the observations, this policy defines the actions to take, thereby defining the agent's strategy. In this case, Markov Decision Process is a mathematical framework used to solve these decision-making problems <ref type="bibr" target="#b26">[27,</ref><ref type="bibr" target="#b49">50]</ref>. The main RL algorithms use Q-learning, which continuously learns the optimal action-value function regardless of the policy followed during the training. This algorithm has many versions and can be implemented in neural networks <ref type="bibr" target="#b49">[50]</ref>. In physics, reinforcement learning is utilized for tasks such as control of quantum systems <ref type="bibr" target="#b50">[51]</ref>, create new experiments <ref type="bibr" target="#b51">[52]</ref> , and discovering novel materials <ref type="bibr" target="#b52">[53]</ref>.</p><p>Deep Learning: While classic supervised learning relies on manual feature engineering and simpler models, deep learning leverages deep neural networks to automatically learn representations from the data, making it capable of capturing complex patterns and achieving state-ofthe-art performance in various domains <ref type="bibr" target="#b20">[21,</ref><ref type="bibr" target="#b22">23]</ref>. A neural network is a computational model composed of interconnected nodes, called neurons, organized into layers. Each neuron processes incoming information and produces an output, which becomes the input for other neurons in subsequent layers <ref type="bibr" target="#b38">[39]</ref>. Through training, neural networks learn to adjust the weights of connections between neurons to recognize patterns and relationships in complex data effectively. This learning process enables them to make predictions, classify data, and solve various problems, such as image and speech recognition, natural language processing, and game playing <ref type="bibr" target="#b22">[23]</ref>.</p><p>With their ability to learn from examples and generalize from the data, neural networks have become a cornerstone of modern AI applications, driving remarkable advancements and innovations across numerous domains <ref type="bibr" target="#b22">[23]</ref>. Many libraries are available to use in deep learning, including (i) TensorFlow <ref type="bibr" target="#b53">[54]</ref>, which is an open-source software library powered by Google Brain, (ii) PyTorch <ref type="bibr" target="#b54">[55]</ref>, which Facebook originally developed; (iii) Scikit-learn <ref type="bibr" target="#b55">[56]</ref>, which provides a wide range of algorithms for supervised, unsupervised, and reinforcement learning. Deep learning methods can be used for all the tasks discussed previously.</p><p>Deep neural networks can also predict time series <ref type="bibr" target="#b56">[57]</ref>. The most popular approaches include (i) recurrent neural networks, (ii) convolutional neural networks and (iii) transformers. Mainly, transformers, although developed for natural language processing tasks, treat the time series data as a sequence of words or characters. These models have been used to predict dynamical systems representative of physical phenomena <ref type="bibr" target="#b57">[58]</ref>.</p><p>Physics informed machine learning: Deep neural networks have also been used to solve partial differential equations, which enable scientific prediction and discovery from incomplete models and incomplete data <ref type="bibr" target="#b58">[59]</ref>. In this approach, called physics-informed machine learning, models are trained on both data and physical principles. More specifically, the cost function is changed to include a term that penalizes the model for violating the physical principles <ref type="bibr" target="#b59">[60]</ref>. For example, if we are trying to model the behaviour of a fluid, we might add the Navier-Stokes equations as a constraint to the cost function. This ensures that the machine learning model is consistent with the known laws of physics, which can help to improve the accuracy of the model. Therefore, this approach combines deep learning with prior knowledge about the fundamental laws and principles of physics to create more accurate and reliable models of the physical world <ref type="bibr" target="#b58">[59,</ref><ref type="bibr" target="#b59">60]</ref>.</p><p>Physical discovery: Machine learning methods have also been used for physics discovery. Mainly, symbolic regression searches the space of mathematical expressions to find the model that best fits a given dataset <ref type="bibr" target="#b16">[17,</ref><ref type="bibr" target="#b60">61]</ref>. No particular model is provided as a starting point for symbolic regression. For example, when applied to 100 equations from the Feynman Lectures on Physics, symbolic regression discovered all of them <ref type="bibr" target="#b60">[61]</ref>. Most methods for symbolic regression are based on genetic algorithms <ref type="bibr" target="#b16">[17]</ref>.</p><p>Causal inference: Most machine learning methods do not consider the causal relationships between variables. Only recently, causal machine learning methods have been designed to identify the causal relationships between variables and to use this information to make better predictions (e.g. <ref type="bibr" target="#b61">[62]</ref>). Causal inference methods can make causal claims about the world, even with confounding variables. In physics, causality can be used to infer the connection between variables. For instance, in complex systems, causality methods have been used to infer the structure of the underlying system, like in the brain <ref type="bibr" target="#b62">[63]</ref> and climate systems <ref type="bibr" target="#b61">[62]</ref>.</p><p>Perspectives While ML has demonstrated successful applications in the realm of Physics, several challenges and adjustments still must be addressed <ref type="bibr" target="#b2">[3,</ref><ref type="bibr" target="#b5">6,</ref><ref type="bibr" target="#b49">50]</ref>. A recurring hurdle is the scarcity of data suitable for training ML models, often accompanied by the predicament of imbalanced data-where significant class imparities exist, hampering model accuracy. Furthermore, scalability emerges as a concern, given the computationally intensive nature of training and deploying ML models, particularly for vast datasets <ref type="bibr" target="#b2">[3]</ref>. The inherent opacity of ML model decisionmaking poses an additional obstacle in comprehending their predictions <ref type="bibr" target="#b23">[24]</ref>. In these scenarios, physicists can rise to the occasion, devising strategies to surmount these obstacles and tailoring approaches for enhanced knowledge extraction within physical systems <ref type="bibr" target="#b23">[24]</ref>. Particularly, statistical physics can shed some light on these problems, contributing to the development of ML <ref type="bibr" target="#b23">[24,</ref><ref type="bibr" target="#b63">64]</ref>.</p><p>Additional material: We made available a Jupyter notebook to put in practice most of the concepts presented here, mainly associated to supervised and unsupervised learning. The code can be used as a starting guide for analysing data in Python. The reader can access the code in the following link: <ref type="url" target="https://github.com/franciscorodrigues-usp/MLP">https://github.com/franciscorodrigues-usp/MLP</ref> * * *</p></div>		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><p><rs type="person">Francisco Rodrigues</rs> acknowledges <rs type="funder">CNPq</rs> (grant <rs type="grantNumber">309266/2019-0</rs>) for the financial support given for this research.</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_eh67hnm">
+					<idno type="grant-number">309266/2019-0</idno>
+				</org>
+			</listOrg>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Basic statistics in cell biology</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>David</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Vaux</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Annual review of cell and developmental biology</title>
+		<imprint>
+			<biblScope unit="volume">30</biblScope>
+			<biblScope unit="page" from="23" to="37" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">New tool in the box</title>
+		<author>
+			<persName><forename type="first">Lenka</forename><surname>Zdeborová</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature Physics</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="420" to="421" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">A high-bias, low-variance introduction to machine learning for physicists</title>
+		<author>
+			<persName><forename type="first">Pankaj</forename><surname>Mehta</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Marin</forename><surname>Bukov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ching-Hao</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexandre Gr</forename><surname>Day</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Clint</forename><surname>Richardson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Charles</forename><forename type="middle">K</forename><surname>Fisher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David</forename><forename type="middle">J</forename><surname>Schwab</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Physics Reports</title>
+		<imprint>
+			<biblScope unit="volume">810</biblScope>
+			<biblScope unit="page" from="1" to="124" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">Statistics: a guide to the use of statistical methods in the physical sciences</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Roger</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Barlow</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1993">1993</date>
+			<publisher>John Wiley &amp; Sons</publisher>
+			<biblScope unit="volume">29</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Why isn&apos;t every physicist a bayesian?</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Robert</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Cousins</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">American Journal of Physics</title>
+		<imprint>
+			<biblScope unit="volume">63</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="398" to="410" />
+			<date type="published" when="1995">1995</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Machine learning and the physical sciences</title>
+		<author>
+			<persName><forename type="first">Giuseppe</forename><surname>Carleo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ignacio</forename><surname>Cirac</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kyle</forename><surname>Cranmer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Laurent</forename><surname>Daudet</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Maria</forename><surname>Schuld</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Naftali</forename><surname>Tishby</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Leslie</forename><surname>Vogt-Maranto</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lenka</forename><surname>Zdeborová</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Reviews of Modern Physics</title>
+		<imprint>
+			<biblScope unit="volume">91</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page">45002</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">A bayesian machine scientist to aid in the solution of challenging scientific problems</title>
+		<author>
+			<persName><forename type="first">Roger</forename><surname>Guimerà</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ignasi</forename><surname>Reichardt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Antoni</forename><surname>Aguilar-Mogas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Francesco</forename><forename type="middle">A</forename><surname>Massucci</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Manuel</forename><surname>Miranda</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jordi</forename><surname>Pallarès</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Marta</forename><surname>Sales-Pardo</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Science advances</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page">6971</biblScope>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Machine learning and statistical physics: preface</title>
+		<author>
+			<persName><forename type="first">Elena</forename><surname>Agliari</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Adriano</forename><surname>Barra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Peter</forename><surname>Sollich</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lenka</forename><surname>Zdeborová</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Physics A: Mathematical and Theoretical</title>
+		<imprint>
+			<biblScope unit="volume">53</biblScope>
+			<biblScope unit="page">500401</biblScope>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Machine learning in the search for new fundamental physics</title>
+		<author>
+			<persName><forename type="first">Georgia</forename><surname>Karagiorgi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gregor</forename><surname>Kasieczka</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Scott</forename><surname>Kravitz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Benjamin</forename><surname>Nachman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David</forename><surname>Shih</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature Reviews Physics</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="399" to="412" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Machine learning for the geosciences: Challenges and opportunities</title>
+		<author>
+			<persName><forename type="first">Anuj</forename><surname>Karpatne</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Imme</forename><surname>Ebert-Uphoff</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sai</forename><surname>Ravela</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hassan</forename><surname>Ali Babaie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vipin</forename><surname>Kumar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Knowledge and Data Engineering</title>
+		<imprint>
+			<biblScope unit="volume">31</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="1544" to="1554" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">How machine learning could help to improve climate forecasts</title>
+		<author>
+			<persName><forename type="first">Nicola</forename><surname>Jones</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<biblScope unit="volume">548</biblScope>
+			<biblScope unit="issue">7668</biblScope>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Machine learning guided design of functional materials with targeted properties</title>
+		<author>
+			<persName><surname>Prasanna V Balachandran</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computational Materials Science</title>
+		<imprint>
+			<biblScope unit="volume">164</biblScope>
+			<biblScope unit="page" from="82" to="90" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Machine learning for molecular and materials science</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Keith</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Daniel</forename><forename type="middle">W</forename><surname>Butler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hugh</forename><surname>Davies</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Olexandr</forename><surname>Cartwright</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aron</forename><surname>Isayev</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Walsh</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<biblScope unit="volume">559</biblScope>
+			<biblScope unit="issue">7715</biblScope>
+			<biblScope unit="page" from="547" to="555" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Learning from the machine</title>
+		<author>
+			<persName><forename type="first">Zoltán</forename><surname>Haiman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature Astronomy</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="18" to="19" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Ai feynman: A physics-inspired method for symbolic regression</title>
+		<author>
+			<persName><forename type="first">Marian</forename><surname>Silviu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Max</forename><surname>Udrescu</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Tegmark</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Science Advances</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="issue">16</biblScope>
+			<biblScope unit="page">2631</biblScope>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Machine learning conservation laws from trajectories</title>
+		<author>
+			<persName><forename type="first">Ziming</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Max</forename><surname>Tegmark</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Physical Review Letters</title>
+		<imprint>
+			<biblScope unit="volume">126</biblScope>
+			<biblScope unit="issue">18</biblScope>
+			<biblScope unit="page">180604</biblScope>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Discovering governing equations from data by sparse identification of nonlinear dynamical systems</title>
+		<author>
+			<persName><forename type="first">Joshua</forename><forename type="middle">L</forename><surname>Steven L Brunton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nathan</forename><surname>Proctor</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Kutz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the National Academy of Sciences</title>
+		<imprint>
+			<biblScope unit="volume">113</biblScope>
+			<biblScope unit="issue">15</biblScope>
+			<biblScope unit="page" from="3932" to="3937" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Exploring galaxy evolution with generative models</title>
+		<author>
+			<persName><forename type="first">Kevin</forename><surname>Schawinski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Dennis Turp</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ce</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Astronomy &amp; Astrophysics</title>
+		<imprint>
+			<biblScope unit="volume">616</biblScope>
+			<biblScope unit="issue">16</biblScope>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title level="m" type="main">Pattern recognition and machine learning</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Christopher</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Bishop</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Nasser</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Nasrabadi</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+			<publisher>Springer</publisher>
+			<biblScope unit="volume">4</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<monogr>
+		<title level="m" type="main">Machine learning: a probabilistic perspective</title>
+		<author>
+			<persName><forename type="first">Kevin P</forename><surname>Murphy</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<publisher>MIT Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<title level="m" type="main">Deep learning</title>
+		<author>
+			<persName><forename type="first">Ian</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yoshua</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aaron</forename><surname>Courville</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>MIT press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<monogr>
+		<title level="m" type="main">Probabilistic machine learning: an introduction</title>
+		<author>
+			<persName><forename type="first">Kevin P</forename><surname>Murphy</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+			<publisher>MIT press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Deep learning</title>
+		<author>
+			<persName><forename type="first">Yann</forename><surname>Lecun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yoshua</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Geoffrey</forename><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<biblScope unit="volume">521</biblScope>
+			<biblScope unit="issue">7553</biblScope>
+			<biblScope unit="page" from="436" to="444" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Understanding deep learning is also a job for physicists</title>
+		<author>
+			<persName><forename type="first">Lenka</forename><surname>Zdeborová</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature Physics</title>
+		<imprint>
+			<biblScope unit="volume">16</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="602" to="604" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Statistics: P values are just the tip of the iceberg</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Jeffrey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Roger</forename><forename type="middle">D</forename><surname>Leek</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Peng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<biblScope unit="volume">520</biblScope>
+			<biblScope unit="issue">7549</biblScope>
+			<biblScope unit="page" from="612" to="612" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Fast supersymmetry phenomenology at the large hadron collider using machine learning techniques</title>
+		<author>
+			<persName><forename type="first">Andy</forename><surname>Buckley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alistair</forename><surname>Shilton</surname></persName>
+		</author>
+		<author>
+			<persName><surname>White</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computer Physics Communications</title>
+		<imprint>
+			<biblScope unit="volume">183</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="960" to="970" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<monogr>
+		<title level="m" type="main">Reinforcement learning: An introduction</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Richard</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><forename type="middle">G</forename><surname>Sutton</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Barto</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<publisher>MIT press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Machine learning phases of matter</title>
+		<author>
+			<persName><forename type="first">Juan</forename><surname>Carrasquilla</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Roger</forename><forename type="middle">G</forename><surname>Melko</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature Physics</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="431" to="434" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">A few useful things to know about machine learning</title>
+		<author>
+			<persName><forename type="first">Pedro</forename><surname>Domingos</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Communications of the ACM</title>
+		<imprint>
+			<biblScope unit="volume">55</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page" from="78" to="87" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Review of deep learning algorithms and architectures</title>
+		<author>
+			<persName><forename type="first">Ajay</forename><surname>Shrestha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ausif</forename><surname>Mahmood</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE access</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="page" from="53040" to="53065" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Are loss functions all the same?</title>
+		<author>
+			<persName><forename type="first">Lorenzo</forename><surname>Rosasco</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ernesto</forename><forename type="middle">De</forename><surname>Vito</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrea</forename><surname>Caponnetto</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michele</forename><surname>Piana</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alessandro</forename><surname>Verri</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural computation</title>
+		<imprint>
+			<biblScope unit="volume">16</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="1063" to="1076" />
+			<date type="published" when="2004">2004</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<monogr>
+		<title level="m" type="main">Model evaluation, model selection, and algorithm selection in machine learning</title>
+		<author>
+			<persName><forename type="first">Sebastian</forename><surname>Raschka</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1811.12808</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<monogr>
+		<title level="m" type="main">Optimization for deep learning: theory and algorithms</title>
+		<author>
+			<persName><forename type="first">Ruoyu</forename><surname>Sun</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1912.08957</idno>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">ArXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<monogr>
+		<title level="m" type="main">No free lunch theorem: A review. Approximation and Optimization: Algorithms, Complexity and Applications</title>
+		<author>
+			<persName><forename type="first">Stavros P</forename><surname>Adam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stamatios-Aggelos N</forename><surname>Alexandropoulos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Panos</forename><forename type="middle">M</forename><surname>Pardalos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><forename type="middle">N</forename><surname>Vrahatis</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="57" to="82" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<monogr>
+		<title level="m" type="main">An introduction to statistical learning: with applications in R</title>
+		<author>
+			<persName><forename type="first">James</forename><surname>Gareth</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Witten</forename><surname>Daniela</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Trevor</forename><surname>Hastie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tibshirani</forename><surname>Robert</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<publisher>Spinger</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Understanding logistic regression analysis</title>
+		<author>
+			<persName><forename type="first">Sandro</forename><surname>Sperandei</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Biochemia medica</title>
+		<imprint>
+			<biblScope unit="volume">24</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="12" to="18" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<analytic>
+		<title level="a" type="main">Support-vector networks</title>
+		<author>
+			<persName><forename type="first">Corinna</forename><surname>Cortes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vladimir</forename><surname>Vapnik</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Machine learning</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="page" from="273" to="297" />
+			<date type="published" when="1995">1995</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">What is a support vector machine?</title>
+		<author>
+			<persName><surname>William S Noble</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature biotechnology</title>
+		<imprint>
+			<biblScope unit="volume">24</biblScope>
+			<biblScope unit="issue">12</biblScope>
+			<biblScope unit="page" from="1565" to="1567" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<monogr>
+		<title level="m" type="main">Neural networks for pattern recognition</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Christopher</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Bishop</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1995">1995</date>
+			<publisher>Oxford university press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">Supervised hebbian learning</title>
+		<author>
+			<persName><forename type="first">Francesco</forename><surname>Alemanno</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Miriam</forename><surname>Aquaro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ido</forename><surname>Kanter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Adriano</forename><surname>Barra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Elena</forename><surname>Agliari</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Europhysics Letters</title>
+		<imprint>
+			<biblScope unit="volume">141</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page">11001</biblScope>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<analytic>
+		<title level="a" type="main">Random forests</title>
+		<author>
+			<persName><forename type="first">Leo</forename><surname>Breiman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Machine learning</title>
+		<imprint>
+			<biblScope unit="volume">45</biblScope>
+			<biblScope unit="page" from="5" to="32" />
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title level="a" type="main">Review of classification methods on unbalanced data sets</title>
+		<author>
+			<persName><forename type="first">Le</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Meng</forename><surname>Han</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xiaojuan</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ni</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Haodong</forename><surname>Cheng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Access</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="page" from="64606" to="64628" />
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b42">
+	<analytic>
+		<title level="a" type="main">Classification of imbalanced data: review of methods and applications</title>
+		<author>
+			<persName><forename type="first">Pradeep</forename><surname>Kumar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Roheet</forename><surname>Bhatnagar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kuntal</forename><surname>Gaur</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Anurag</forename><surname>Bhatnagar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IOP conference series: materials science and engineering</title>
+		<imprint>
+			<publisher>IOP Publishing</publisher>
+			<date type="published" when="2021">2021</date>
+			<biblScope unit="volume">1099</biblScope>
+			<biblScope unit="page">12077</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b43">
+	<analytic>
+		<title level="a" type="main">The problem of overfitting</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Douglas</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Hawkins</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of chemical information and computer sciences</title>
+		<imprint>
+			<biblScope unit="volume">44</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="12" />
+			<date type="published" when="2004">2004</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b44">
+	<analytic>
+		<title level="a" type="main">Discovering phase transitions with unsupervised learning</title>
+		<author>
+			<persName><forename type="first">Lei</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Physical Review B</title>
+		<imprint>
+			<biblScope unit="volume">94</biblScope>
+			<biblScope unit="issue">19</biblScope>
+			<biblScope unit="page">195105</biblScope>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b45">
+	<analytic>
+		<title level="a" type="main">Clustering algorithms: A comparative approach</title>
+		<author>
+			<persName><forename type="first">Mayra</forename><forename type="middle">Z</forename><surname>Rodriguez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cesar</forename><forename type="middle">H</forename><surname>Comin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dalcimar</forename><surname>Casanova</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Odemir</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Diego</forename><forename type="middle">R</forename><surname>Bruno</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Luciano</forename><surname>Amancio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Francisco</forename><forename type="middle">A</forename><surname>Da F Costa</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Rodrigues</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">PloS one</title>
+		<imprint>
+			<biblScope unit="volume">14</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page">210236</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b46">
+	<analytic>
+		<title level="a" type="main">Semi-supervised machine-learning classification of materials synthesis procedures</title>
+		<author>
+			<persName><forename type="first">Haoyan</forename><surname>Huo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ziqin</forename><surname>Rong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Olga</forename><surname>Kononova</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Wenhao</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tiago</forename><surname>Botari</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tanjin</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gerbrand</forename><surname>Vahe Tshitoyan</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ceder</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Npj Computational Materials</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page">62</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b47">
+	<analytic>
+		<title level="a" type="main">A semi-supervised machine learning detector for physics events in tokamak discharges</title>
+		<author>
+			<persName><forename type="first">Kevin</forename><forename type="middle">Joseph</forename><surname>Montes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cristina</forename><surname>Rea</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Roy</forename><surname>Alexander Tinguely</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ryan</forename><surname>Sweeney</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jinxiang</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Granetz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nuclear Fusion</title>
+		<imprint>
+			<biblScope unit="volume">61</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page">26022</biblScope>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b48">
+	<analytic>
+		<title level="a" type="main">Semi-supervised learning: a brief review</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Yca Padmanabha Reddy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B Eswara</forename><surname>Viswanath</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Reddy</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">International Journal of Engineering &amp; Technology</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="issue">1.8</biblScope>
+			<biblScope unit="page">81</biblScope>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b49">
+	<monogr>
+		<title level="m" type="main">Modern applications of machine learning in quantum sciences</title>
+		<author>
+			<persName><forename type="first">Anna</forename><surname>Dawid</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Julian</forename><surname>Arnold</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Borja</forename><surname>Requena</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexander</forename><surname>Gresch</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kaelan</forename><surname>Marcin P Lodzień</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kim</forename><forename type="middle">A</forename><surname>Donatella</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Paolo</forename><surname>Nicoli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rouven</forename><surname>Stornati</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Miriam</forename><surname>Koch</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Büttner</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2204.04198</idno>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b50">
+	<analytic>
+		<title level="a" type="main">Reinforcement learning with neural networks for quantum feedback</title>
+		<author>
+			<persName><forename type="first">Thomas</forename><surname>Fösel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Petru</forename><surname>Tighineanu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Talitha</forename><surname>Weiss</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Florian</forename><surname>Marquardt</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Physical Review X</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page">31084</biblScope>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b51">
+	<analytic>
+		<title level="a" type="main">Active learning machine learns to create new quantum experiments</title>
+		<author>
+			<persName><forename type="first">Hendrik</forename><forename type="middle">Poulsen</forename><surname>Alexey A Melnikov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mario</forename><surname>Nautrup</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vedran</forename><surname>Krenn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Markus</forename><surname>Dunjko</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Anton</forename><surname>Tiersch</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hans</forename><forename type="middle">J</forename><surname>Zeilinger</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Briegel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the National Academy of Sciences</title>
+		<meeting>the National Academy of Sciences</meeting>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="volume">115</biblScope>
+			<biblScope unit="page" from="1221" to="1226" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b52">
+	<analytic>
+		<title level="a" type="main">The role of machine learning in the understanding and design of materials</title>
+		<author>
+			<persName><forename type="first">Mohamad</forename><surname>Seyed</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kevin</forename><forename type="middle">Maik</forename><surname>Moosavi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Berend</forename><surname>Jablonka</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Smit</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the American Chemical Society</title>
+		<imprint>
+			<biblScope unit="volume">142</biblScope>
+			<biblScope unit="issue">48</biblScope>
+			<biblScope unit="page" from="20273" to="20287" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b53">
+	<analytic>
+		<title level="a" type="main">Deep learning with tensorflow: A review</title>
+		<author>
+			<persName><forename type="first">Bo</forename><surname>Pang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Erik</forename><surname>Nijkamp</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ying</forename><forename type="middle">Nian</forename><surname>Wu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Educational and Behavioral Statistics</title>
+		<imprint>
+			<biblScope unit="volume">45</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="227" to="248" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b54">
+	<analytic>
+		<title level="a" type="main">Pytorch: An imperative style, high-performance deep learning library</title>
+		<author>
+			<persName><forename type="first">Adam</forename><surname>Paszke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sam</forename><surname>Gross</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Francisco</forename><surname>Massa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Adam</forename><surname>Lerer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">James</forename><surname>Bradbury</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gregory</forename><surname>Chanan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Trevor</forename><surname>Killeen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zeming</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Natalia</forename><surname>Gimelshein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Luca</forename><surname>Antiga</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in neural information processing systems</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page">32</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b55">
+	<analytic>
+		<title level="a" type="main">Scikit-learn: Machine learning in python</title>
+		<author>
+			<persName><forename type="first">Fabian</forename><surname>Pedregosa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gaël</forename><surname>Varoquaux</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexandre</forename><surname>Gramfort</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vincent</forename><surname>Michel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bertrand</forename><surname>Thirion</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Olivier</forename><surname>Grisel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mathieu</forename><surname>Blondel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Peter</forename><surname>Prettenhofer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ron</forename><surname>Weiss</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vincent</forename><surname>Dubourg</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of machine Learning research</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page" from="2825" to="2830" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b56">
+	<analytic>
+		<title level="a" type="main">Time-series forecasting with deep learning: a survey</title>
+		<author>
+			<persName><forename type="first">Bryan</forename><surname>Lim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stefan</forename><surname>Zohren</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Philosophical Transactions of the Royal Society A</title>
+		<imprint>
+			<biblScope unit="volume">379</biblScope>
+			<biblScope unit="page">20200209</biblScope>
+			<date type="published" when="2021">2194. 2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b57">
+	<analytic>
+		<title level="a" type="main">Transformers for modeling physical systems</title>
+		<author>
+			<persName><forename type="first">Nicholas</forename><surname>Geneva</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nicholas</forename><surname>Zabaras</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural Networks</title>
+		<imprint>
+			<biblScope unit="volume">146</biblScope>
+			<biblScope unit="page" from="272" to="289" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b58">
+	<analytic>
+		<title level="a" type="main">Physics-informed neural networks: A deep learn-ing framework for solving forward and inverse problems involving nonlinear partial differential equations</title>
+		<author>
+			<persName><forename type="first">Maziar</forename><surname>Raissi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Paris</forename><surname>Perdikaris</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">George</forename><forename type="middle">E</forename><surname>Karniadakis</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Computational physics</title>
+		<imprint>
+			<biblScope unit="volume">378</biblScope>
+			<biblScope unit="page" from="686" to="707" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b59">
+	<analytic>
+		<title level="a" type="main">Physicsinformed machine learning</title>
+		<author>
+			<persName><forename type="first">George</forename><surname>Em Karniadakis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Ioannis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lu</forename><surname>Kevrekidis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Paris</forename><surname>Lu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sifan</forename><surname>Perdikaris</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Liu</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Yang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature Reviews Physics</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="422" to="440" />
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b60">
+	<analytic>
+		<title level="a" type="main">Ai feynman: A physics-inspired method for symbolic regression</title>
+		<author>
+			<persName><forename type="first">Marian</forename><surname>Silviu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Max</forename><surname>Udrescu</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Tegmark</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Science Advances</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="issue">16</biblScope>
+			<biblScope unit="page">2631</biblScope>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b61">
+	<analytic>
+		<title level="a" type="main">Identifying causal gateways and mediators in complex spatio-temporal systems</title>
+		<author>
+			<persName><forename type="first">Jakob</forename><surname>Runge</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vladimir</forename><surname>Petoukhov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jonathan</forename><forename type="middle">F</forename><surname>Donges</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jaroslav</forename><surname>Hlinka</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nikola</forename><surname>Jajcay</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Martin</forename><surname>Vejmelka</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David</forename><surname>Hartman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Norbert</forename><surname>Marwan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Milan</forename><surname>Paluš</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jürgen</forename><surname>Kurths</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature Communications</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page">8502</biblScope>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b62">
+	<analytic>
+		<title level="a" type="main">Diagnosis of autism spectrum disorder based on functional brain networks and machine learning</title>
+		<author>
+			<persName><forename type="first">Caroline</forename><forename type="middle">L</forename><surname>Alves</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">L</forename><surname>Thaise</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Patricia</forename><surname>De O Toutain</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aruane</forename><forename type="middle">M</forename><surname>De Carvalho Aguiar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kirstin</forename><surname>Pineda</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Christiane</forename><surname>Roster</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joel</forename><surname>Thielemann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Augusto</forename><forename type="middle">Moura</forename><surname>Porto</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Francisco</forename><forename type="middle">A</forename><surname>Rodrigues</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Scientific Reports</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page">8072</biblScope>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b63">
+	<analytic>
+		<title level="a" type="main">Replica symmetry breaking in neural networks: a few toward rigorous results</title>
+		<author>
+			<persName><forename type="first">Elena</forename><surname>Agliari</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Linda</forename><surname>Albanese</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Adriano</forename><surname>Barra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gabriele</forename><surname>Ottaviani</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Physics A: Mathematical and Theoretical</title>
+		<imprint>
+			<biblScope unit="volume">53</biblScope>
+			<biblScope unit="issue">41</biblScope>
+			<biblScope unit="page">415005</biblScope>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

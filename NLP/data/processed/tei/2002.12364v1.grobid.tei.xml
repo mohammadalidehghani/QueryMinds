@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Theoretical Models of Learning to Learn *</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2020-02-27">27 Feb 2020</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Jonathan</forename><surname>Baxter</surname></persName>
+							<email>jon@syseng.anu.edu.au</email>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Systems Engineering Research School of Information Science and Engineering</orgName>
+								<orgName type="institution">Australian National University</orgName>
+								<address>
+									<postCode>0200</postCode>
+									<settlement>Canberra</settlement>
+									<country key="AU">Australia</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Theoretical Models of Learning to Learn *</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2020-02-27">27 Feb 2020</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">9082F5817C4E0557C8E1D103FA6CE21B</idno>
+					<idno type="arXiv">arXiv:2002.12364v1[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>Learning to Learn</term>
+					<term>Bias Learning</term>
+					<term>Empirical Processes</term>
+					<term>Hierarchical Bayes</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>A Machine can only learn if it is biased in some way. Typically the bias is supplied by hand, for example through the choice of an appropriate set of features. However, if the learning machine is embedded within an environment of related tasks, then it can learn its own bias by learning sufficiently many tasks from the environment <ref type="bibr" target="#b3">[4,</ref><ref type="bibr" target="#b5">6]</ref>. In this paper two models of bias learning (or equivalently, learning to learn) are introduced and the main theoretical results presented. The first model is a PAC-type model based on empirical process theory, while the second is a hierarchical Bayes model.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.">Introduction</head><p>Hume's analysis <ref type="bibr" target="#b9">[10]</ref> shows that there is no a priori basis for induction. In a machine learning context, this means that a learner must be biased in some way for it to generalise well <ref type="bibr" target="#b10">[11]</ref>. Typically such bias is introduced by hand through the skill and insights of experts, but despite many notable successes, this process is limited by the experts' abilities. Hence a desirable goal is to find ways of automatically learning the bias. Bias learning is a form of learning to learn, and the two expressions will be used interchangeably throughout this document.</p><p>The purpose of this chapter is to present an overview of two models of supervised bias learning. The first <ref type="bibr" target="#b3">[4,</ref><ref type="bibr" target="#b2">3]</ref> is based on Empirical Process theory (henceforth the EP model) and the second <ref type="bibr" target="#b5">[6]</ref> is based on Bayesian inference and information theory (henceforth the Bayes model). Empirical process theory is a general theory that includes the analysis of pattern classification first introduced by Vapnik and Chervonenkis <ref type="bibr" target="#b12">[13,</ref><ref type="bibr" target="#b11">12]</ref>. Note that these are models of supervised bias learning and as such have little to say about learning to learn in a reinforcement learning setting.</p><p>In this introduction a high level overview of the features common to both models will be presented, and then in later sections the details and main results of each model will be discussed.</p><p>In ordinary models of machine learning the learner is presented with a single task. Learning the "right bias" in such a model does not really make sense, because the ultimate bias is one which completely solves the task. Thus in single-task learning, bias learning or learning to learn is the same as learning.</p><p>In order to learn bias one has introduce extra assumptions about the learning process. The central assumption of both the Bayes model and the EP model of bias learning is that the learner is embedded within an environment of related problems. The learner's task is to find a bias that is appropriate for the entire environment, not just for a single task.</p><p>A simple example of an environment of learning problems with a common bias is handwritten character recognition. A preprocessing stage that identifies and removes any (small) rotations, dilations and translations of an image of a character will be advantageous for recognising all characters. If the set of all individual character recognition problems is viewed as an environment of learning tasks, this preprocessor represents a bias that is appropriate to all tasks in the environment.</p><p>Preprocessing can also be viewed as feature extraction, and there are many classes of learning problems that possess common feature sets. For example, one can view face recognition as a collection of related learning problems, one for each possible face classifier, and it is likely that there exists sets of features that are good for learning all faces. A similar conclusion applies to other domains such as speech recognition (all the individual word classifiers may be viewed as separate learning problems possessing a common feature set), fingerprint recognition, and so on. The classical approach to statistical pattern recognition in these domains is to first guess a set of features and then to learn each problem by estimating a simple (say linear) function of the features. The choice of features represents the learner's bias, thus in bias learning the goal is to get the learner to learn the features instead of guessing them.</p><p>In order to perform a theoretical analysis of bias learning, we assume the tasks in the environment are generated according to some underlying probability distribution. For example, if the learner is operating in an environment where it must learn to recognise faces, the distribution over learning tasks will have its support restricted to face recognition type problems. The learner acquires information about the environment by sampling from this distribution to generate multiple learning problems, and then sampling from each learning problem to generate multiple training sets. The learner can then search for bias that is appropriate for learning all the tasks.</p><p>In the EP model, the learner is provided with a family of hypothesis spaces and it searches for an hypothesis space that contains good solutions to all the training sets. Such a hypothesis space can then be used to learn novel tasks drawn from the same environment. The key result of the EP model (theorem 2 in section 3) gives a bound on the number of tasks and number of examples of each task required to ensure that a hypothesis space containing good solutions to all training sets will, with high probability, contain good solutions to novel tasks drawn from the same environment. This ability to learn novel tasks after seeing sufficiently many examples of sufficiently many tasks is the formal definition of learning to learn under the EP model.</p><p>The Bayes model is the same as the EP model in that the learner is assumed to be embedded within an environment of related tasks and can sample from the environment to generate multiple training sets corresponding to different tasks. However, the Bayes bias learner differs in the way it uses the information from the multiple training sets. In the Bayes model, the distribution over learning tasks in the environment is interpreted as an objective prior distribution. The learner does not know this distribution, but does have some idea of a set Π of possible prior distributions to which the true distribution belongs. The learner starts out with a hyper-prior distribution on Π and based on the data in the training sets, updates the hyper-prior to a hyper-posterior using Bayes' rule. The hyper-posterior is then used as a prior distribution when learning novel tasks. In section 4 results will be presented showing how the information needed to learn each task (in a Shannon sense) decays to the minimum possible for the environment as the number of tasks and number of examples of each tasks seen already grows. Within the Bayes model, this is the formal definition of learning to learn.</p><p>Before moving on to the details of these models, it is worth pausing to assess what bias learning solves, and what it doesn't-and in a sense can never-solve. On face value, being able to learn the right bias appears to violate Hume's conclusion that there can be no a priori basis for induction. However this is not the case, for the bias learner learner is still fundamentally limited by the possible choices of bias available. For example, if a learner is learning a set of features for an environment in which there are in fact no small feature sets, then any bias it comes up with (i.e. any feature set) will be a very poor bias for that environment. Thus, there is still guesswork involved in determining the appropriate way to hyper-bias the learner. The main advantage of bias learning is that this hyper-bias can be much weaker than the bias: the right hyper-bias for many environments is just that there exists a set of features, whereas specifying the right bias means actually finding the features.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.">Statistical Models of Ordinary Learning</head><p>To understand how bias learning can be modeled from a statistical perspective, it is necessary to first understand how ordinary learning is modeled from a statistical perspective. The empirical process (EP) process approach and the Bayes approach will be discussed in turn.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1.">The empirical process (EP) approach</head><p>The empirical process (EP) approach to modeling ordinary (single-task) learning has the following essential ingredients:</p><p>• An input space X and an output space Y ,</p><p>• a probability distribution P on X × Y ,</p><p>• a loss function l: Y × Y → R, and • a hypothesis space H which is a set of hypotheses or functions h: X → Y .</p><p>As an example, if the problem is to learn to recognize images of Mary's face using a neural network, then X would be the set of all images (typically represented as a subset of R d where each component is a pixel intensity), Y would be the set {0, 1}, and the distribution P would be peaked over images of different faces and the correct class labels. The learner's hypothesis space H would be a class of neural networks mapping the input space (R d ) to {0, 1}.</p><formula xml:id="formula_0">l(y, y ′ ) := 1 if y = y ′ 0 if y = y ′<label>(1)</label></formula><p>Using the loss function allows us to present a unified treatment of both concept learning (Y = {0, 1}, l as above), and real-valued function learning (e.g. regression) in which Y = R and l(y, y ′ ) = (y -y ′ ) 2 . The goal of the learner is to select a hypothesis h ∈ H with minimum expected loss:</p><formula xml:id="formula_1">er P (h) := X×Y l(h(x), y) dP (x, y).<label>(2)</label></formula><p>For classifying Mary's face, the h ∈ H with minimum value of er P (h) is the one that makes the fewest number of mistakes on average. Of course, the learner does not know P and so it cannot search through H for an h minimizing er P (h). In practice, the learner samples repeatedly from the distribution P to generate a training set z := {(x 1 , y 1 ), . . . , (x m , y m )},</p><p>and instead of minimizing er P (h), the learner searches for an h ∈ H minimizing the empirical loss on sample z:</p><formula xml:id="formula_3">êr z (h) := 1 m m i=1 l(h(x i ), y i ).<label>(4)</label></formula><p>Of course, there are more intelligent things to do with the data than simply minimizing empirical error-for example one can add regularisation terms to avoid over-fitting. However we do not consider those issues here as they do not substantially alter the discussion. Minimizing êr z (h) is only a sensible thing to do if there is some guarantee that êr z (h) is close to expected loss er P (h). This will in turn depend on the "richness" of the class H and the size of the training set (m). If H contains every possible function then clearly there can never be any guarantee that êr z (h) is close to er P (h). The conditions ensuring convergence between êr z (h) and er P (h) are by now well understood; in the case Boolean function learning (Y = {0, 1}), convergence is controlled by VCdim(H)-the VC-dimension of H (see e.g. <ref type="bibr" target="#b0">[1,</ref><ref type="bibr" target="#b11">12]</ref>). The following is typical of the theorems in this area.</p><p>Theorem 1 Let P be any probability distribution on X × {0, 1} and suppose z = {(x 1 , y 1 ), . . . , (x m , y m )} is generated by sampling m times from X ×{0, 1} according to P . Let d := VCdim(H). Then with probability at least 1 -δ (over the choice of the training set z), all h ∈ H will satisfy</p><formula xml:id="formula_4">er P (h) ≤ êr z (h) + 32 m d ln 2em d + ln 4 δ 1/2<label>(5)</label></formula><p>There are a number of key points about this theorem:</p><p>1. We can never say for certain that er P (h) and êr z (h) are close, only that they are close with high probability (1 -δ). This is because no matter how large the training set, there is always a chance that we will get unlucky and generate a highly unrepresentative sample z.</p><p>2. Keeping the confidence parameter δ fixed, and ignoring log factors, <ref type="bibr" target="#b4">(5)</ref> shows that the difference between the empirical estimate êr z (h) and the true loss er P (h) decays like d/m, uniformly for all h ∈ H. Thus, for sufficiently large training sets z and if d = VCdim(H) is finite, we can be confident that an h with small empirical error will generalise well.</p><p>3. If H contains an h with zero error, and the learner always chooses an h consistent with the training set, then the rate of convergence of êr z (h) and er P (h) can be improved to d/m.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>4.</head><p>Often results such as theorem 1 are called uniform convergence results, because they provide bounds for all h ∈ H.</p><p>Theorem 1 only provides conditions under which the deviation between er P (h) and êr z is small, it does not guarantee that the true error er P (h) will actually be small. This is governed by the choice of H. If H contains a solution with small error and the learner minimizes error on the training set, then with high probability er P (h) will be small. However, a bad choice of H will mean there is no hope of achieving small error. Thus, the bias of the learner in the EP model is represented by the choice of H.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2.">The Bayes approach</head><p>The Bayes approach and the EP approach are not all that different. In fact, the EP approach can be understood as a maximum likelihood approximation to the Bayes solution. The essential ingredients of the Bayes approach to modeling ordinary (single-task) learning are:</p><p>• An input space X and an output space Y ,</p><p>• a set of probability distributions P θ on X × Y , parameterised by θ ∈ Θ, and</p><formula xml:id="formula_5">• a prior distribution p(θ) on Θ.</formula><p>The hypothesis space H of the EP model has been replaced with a set of distributions {P θ : θ ∈ Θ}. As with the EP model, the learning task is represented by a distribution P θ * on X × Y , only this time we assume realizability, i.e. that θ * ∈ Θ. The prior distribution p(θ) represents the learner's initial beliefs about the relative plausibility of each P θ . The richness of the set {P θ : θ ∈ Θ} and the prior p(θ) represent the bias of the learner. Again the learner does not know θ * , but has access to a training set z = {(x 1 , y 1 ), . . . , (x m , y m )} of pairs (x i , y i ) sampled according to P θ * . Upon receipt of the data z, the learner updates its prior distribution p(θ) to a posterior distribution p(θ|z) using Bayes rule:</p><formula xml:id="formula_6">p(θ|z) := p(z|θ)p(θ) p(z) (6) = m i=1 p(x i , y i |θ)p(θ) Θ p(z|θ)p(θ) dθ .</formula><p>Often we are not interested in modeling the input distribution, only the conditional distribution on Y given X. In that case, p(x, y|θ) will factor into p(x)p(y|x; θ). The posterior distribution p(θ|z) can be used to predict the output y of a novel input x * by averaging:</p><formula xml:id="formula_7">p(y|x * ; z) := Θ p(y|x * ; θ)p(θ|z) dθ.<label>(7)</label></formula><p>One would hope that as the data increases, predictions made in this way would become increasingly accurate. There are many ways to measure what we mean by "accurate" in this setting. The one considered here is the Kullback-Liebler (KL) divergence between the true distribution P θ * on X × Y , and the posterior distribution P m on X × Y with density</p><formula xml:id="formula_8">p(x, y|z) := Θ p(x, y|θ)p(θ|z) dθ.<label>(8)</label></formula><p>The KL divergence between P θ * and P m is defined to be</p><formula xml:id="formula_9">D K (P * θ P m ) := X×Y p(x, y|θ * ) log p(x, y|θ * ) p(x, y|z) dx dy<label>(9)</label></formula><p>Note that if p(x, y|θ) = p(x)p(y|θ) as above then</p><formula xml:id="formula_10">D K (P * θ P m ) = X×Y p(x)p(y|x; θ * ) log p(y|x; θ * ) p(y|x; z) dx dy. (<label>10</label></formula><formula xml:id="formula_11">)</formula><p>This form of the KL divergence has a natural interpretation: it is (within one bit) the expected extra number of bits needed to encode the output y using a code generated by the posterior p(y|x; z), over and above what would be required using an optimal code (one generated from p(y|x; θ * )). The expectation is over all pairs (x, y) drawn according to the true distribution P θ * . This quantity is only zero if the posterior is equal to the true distribution.</p><p>In <ref type="bibr" target="#b7">[8,</ref><ref type="bibr" target="#b1">2]</ref> an analysis of D K (P θ * P m ) was given for the limit of large training set size (m). They showed that if Θ is a compact subset of R d , and under certain extra restrictions which we won't discuss here:</p><formula xml:id="formula_12">D K (P θ * P m ) = d m + o 1 m<label>(11)</label></formula><p>where o(1/m) stands for a function f (m) for which mf (m) → 0 as m → ∞.</p><p>There is a strong similarity between this result and theorem 1 in the zero error case (see note 3 after the theorem). D K (P θ * P m ) is the analogue of |er z (h)-er P (h)| in this case, but because we have assumed realizability, er z (h) = 0. So theorem 1 says that choosing any hypothesis consistent with the data will guarantee you an error of no more than d/m, where d is the VC dimension of the learner's hypothesis space. Although the error measure is different, equation <ref type="bibr" target="#b10">(11)</ref> says essentially the same thing: if you classify novel data using a posterior generated according to Bayes rule, you will suffer an error of no more than d/m, where now d is the dimension of the Θ.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">The empirical process (EP) model of learning to learn</head><p>Recall from the introduction that the main extra assumption of both the Bayes and EP models of bias learning is that the learner is embedded in an environment of related tasks, and can sample from the environment to generate multiple training sets belonging to multiple different tasks. In the EP model of ordinary (single-task) learning, the learning problem is represented by a distribution P on X × Y . So in the EP model of bias learning, an environment of learning problems is represented by a pair (P, Q) where P is the set of all probability distributions on X ×Y (i.e. P is the set of all possible learning problems), and Q is a distribution on P 1 . Q controls which learning problems the learner is likely to see. For example, if the learner is in a face recognition environment, Q will be highly peaked over face-recognition-type problems, whereas if the learner is in a character recognition environment Q will be peaked over character-recognition-type problems.</p><p>Recall from the end of section 2.1 that the learner's bias is represented by its choice of hypothesis space H. So to enable the learner to learn the bias, it is supplied with a family or set of hypothesis spaces H := {H}. As each H is itself a set of functions h: X → Y , H is a set of sets of functions.</p><p>Putting this together, formally a learning to learn or bias learning problem consists of:</p><p>• an input space X and an output space Y ,</p><formula xml:id="formula_13">• a loss function l: Y × Y → R,</formula><p>• an environment (P, Q) where P is the set of all probability distributions on X × Y and Q is a distribution on P,</p><p>• a hypothesis space family H = {H} where each H ∈ H is a set of functions h: X → Y .</p><p>The goal of a bias learner is to find a hypothesis space H ∈ H minimizing the loss (recall equation ( <ref type="formula" target="#formula_1">2</ref>))</p><formula xml:id="formula_14">er Q (H) := P inf h∈H er P (h) dQ(P ) (12) = P inf h∈H X×Y l(h(x), y) dP (x, y) dQ(P ).</formula><p>The only way er Q (H) can be small is if, with high Q-probability, H contains a good solution to any problem P drawn at random according to Q. In this sense er Q (H) measures how appropriate the bias embodied by H is for the environment (P, Q).</p><p>In general the learner will not know Q, so it will not be able to find an H minimizing er Q (H) directly. However, the learner can sample from the environment in the following way:</p><p>• Sample n times from P according to Q to yield: P 1 , . . . , P n .</p><p>• Sample m times from X × Y according to each P i to yield: z i = {(x i1 , y i1 ) . . . , (x im , y im )}.</p><p>• The learner receives the (n, m)-sample:</p><formula xml:id="formula_15">(x 11 , y 11 ) • • • (x 1m , y 1m ) = z 1 z := . . . . . . . . . . . . (x n1 , y n1 ) • • • (x nm , y nm ) = z n<label>(13)</label></formula><p>Note that an (n, m)-sample is simply n training sets z 1 , . . . , z n sampled from n different learning tasks P 1 , . . . , P n , where each task is selected according to the environmental probability distribution Q. Instead of minimizing er Q (H), the learner searches for an H ∈ H minimizing the empirical loss on the sample z, where this is defined by:</p><formula xml:id="formula_16">êr z (H) := 1 n n i=1 inf h∈H er zi (h) (14) = 1 n n i=1 inf h∈H 1 m m j=1 l (h i (x ij ), y ij )</formula><p>(recall equation ( <ref type="formula" target="#formula_3">4</ref>)). Note that êr z (H) is a biased estimate of er Q (H).</p><p>The question of generalisation within this framework now becomes: How many tasks (n) and how many examples of each task (m) do we need to ensure that êr z (H) and er Q (H) are close with high probability?</p><p>Or, informally, how many tasks and how many examples of each task are required to ensure that a hypothesis space with good solutions to all the training tasks will contain good solutions to novel tasks drawn from the same environment?</p><p>In order to present the main theorem answering this question, some extra definitions must be introduced.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Definition 1 For any hypothesis</head><formula xml:id="formula_17">h: X → Y , define h l : X × Y → R by h l (x, y) := l(h(x), y)<label>(15)</label></formula><p>For any hypothesis space H in the hypothesis space family H, define</p><formula xml:id="formula_18">H l := {h l : h ∈ H}.<label>(16)</label></formula><p>For any sequence of n hypotheses</p><formula xml:id="formula_19">(h 1 , . . . , h n ), define (h 1 , . . . , h n ) l : (X × Y ) n → R by (h 1 , . . . , h n ) l (x 1 , y 1 , . . . , x n , y n ) := 1 n n i=1 l(h i (x i ), y i ). (<label>17</label></formula><formula xml:id="formula_20">)</formula><p>We will also use h l to denote (h 1 , . . . , h n ) l . For any H in the hypothesis space family H, define</p><formula xml:id="formula_21">H n l := {(h 1 , . . . , h n ) l : h 1 , . . . , h n ∈ H}. (<label>18</label></formula><formula xml:id="formula_22">)</formula><p>Define</p><formula xml:id="formula_23">H n l := H∈H H n l .<label>(19)</label></formula><p>In the first part of the definition above, hypotheses h: X → Y are turned into functions h l mapping X × Y → R using the loss function. H l is then just the collection of all such functions where the original hypotheses come from H. H l is often called a loss-function class. In our case we are interested in the average loss across n tasks, where each of the n hypotheses is chosen from a fixed hypothesis space H. This motivates the definition of h l and H n l . Finally, H n l is the collection of all (h 1 , . . . , h n ) l , with the restriction that all h 1 , . . . , h n belong to a single hypothesis space H ∈ H. (20)</p><p>For the hypothesis space family H, define</p><formula xml:id="formula_24">H * := {H * : H ∈ H}.<label>(21)</label></formula><p>It is the "size" of H n l and H * that controls how large the (n, m)-sample z must be to ensure er z (H) and er Q (H) are close uniformly over all H ∈ H. Their size will be defined in terms of certain covering numbers, and in order to define the covering numbers, we need first to define how to measure the distance between elements of H n l and also between elements of H * .</p><p>Definition 3 Let P = (P 1 , . . . , P n ) be any sequence of n probability distributions on X × Y . For any h l , h ′ l ∈ H n l , define</p><formula xml:id="formula_25">d P (h l , h ′ l ) := (X×Y ) n |h l (x 1 , y 1 , . . . , x n , y n )-h ′ l (x 1 , y 1 , . . . , x n , y n )| dP 1 (x 1 , y 1 ) . . . dP n (x n , y n ) (<label>22</label></formula><formula xml:id="formula_26">)</formula><p>For any</p><formula xml:id="formula_27">H * 1 , H * 2 ∈ H * , define d Q (H * 1 , H * 2 ) := P |H * 1 (P ) -H * 2 (P )| dQ(P )<label>(23)</label></formula><p>It is easily verified that d P is a pseudo-metric on H n l , and similarly that d Q is a pseudo-metric on H * . A pseudo-metric is simply a metric without the condition that ρ(x, y) = 0 ⇒ x = y. For example, d Q (H * 1 , H * 2 ) could equal 0 simply because the distribution Q puts mass one on some distribution P for which H * 1 (P ) = H * 2 (P ), and not because</p><formula xml:id="formula_28">H * 1 = H * 2 . Definition 4 An ε-cover of (H * , d Q ) is a set {H * 1 , . . . , H * N } such that for all H * ∈ H * , d Q (H * , H i ) ≤ ε for some i = 1 . . . N . Let N (ε, H * , d Q ) denote the size of the smallest such cover. Set C(ε, H * ) := sup Q N (ε, H * , d Q ). (<label>24</label></formula><formula xml:id="formula_29">)</formula><p>We can define N (ε, H n l , d P ) in a similar way, using d P in place of d Q . Again, set:</p><formula xml:id="formula_30">C(ε, H n l ) := sup P N (ε, H n l , d P ). (<label>25</label></formula><formula xml:id="formula_31">)</formula><p>Now we have enough machinery to state the main theorem.</p><p>Theorem 2 Let Q be any probability distribution on P, the set of all distributions on X × Y . Suppose z is an (n, m)-sample generated by sampling n times from P according to Q to give P 1 , . . . , P n , and then sampling m times from each P i to generate z i = {(x i1 , y i1 ), . . . , (x im , y im )}, i = 1, . . . , n. Suppose the loss function l: Y × Y → R has range [0, 1] (any bounded loss function can be rescaled so this is true). Let H = {H} be any hypothesis space family. If the number of tasks n satisfies</p><formula xml:id="formula_32">n ≥ 288 ε 2 ln 8C ε 48 , H * δ ,<label>(26)</label></formula><p>and the number of examples m of each task satisfies</p><formula xml:id="formula_33">m ≥ max 288 nε 2 ln 8C( ε 48 , H n l ) δ , 18 ε 2 (27)</formula><p>then with probability at least 1 -δ (over the (n, m)-sample z), all H ∈ H will satisfy</p><formula xml:id="formula_34">er Q (H) ≤ êr z (H) + ε (28)</formula><p>For a proof of a similar theorem to this one, see the proof of theorem 7 in <ref type="bibr" target="#b2">[3]</ref>. Note that the constants in this theorem have not been heavily optimized.</p><p>There are several important points to note about theorem 2:</p><p>1. In order to learn to learn (in the sense that er Q (H) and êr z (H) are close uniformly over all H ∈ H), both the number of tasks n and the number of examples of each task m must be sufficiently large.</p><p>2. We can never say for certain that er Q (H) and êr z (H) are close, only that they are close with high probability (1 -δ). Regardless of the size of the (n, m) sample z, we still might get unlucky and generate unrepresentative learning problems P 1 , . . . , P n or unrepresentative examples of those learning problems, although the chance of being unlucky diminishes as m and n grow.</p><p>3. Once the learner has found an H ∈ H with a small value of êr z (H), it will then use H to learn novel tasks P drawn according to Q. Assuming that the learner is always able to find an h ∈ H minimizing er P (h), theorem 2 tells us that with probability at least 1 -δ, the expected value of er P (h) on a novel task P will be less than êr z (H) + ε. Of course, this does not rule out really bad performance on some tasks P . However, the probability of generating such "bad" tasks can be bounded. In particular, note that er Q (H) is just the expected value of the function H * over P, and so by Markov's inequality, for γ &gt; 0, Pr P : inf</p><formula xml:id="formula_35">h∈H er P (h) ≥ γ = Pr {P : H * (P ) ≥ γ} ≤ E Q H * γ = er Q (H) γ ≤ êr z (H) + ε γ (with probability 1 -δ)</formula><p>4. Keeping the accuracy and confidence parameters ε, δ fixed, note that the number of examples of each task required for good generalisation obeys</p><formula xml:id="formula_36">m = O 1 n ln C (ε, H n l ) .<label>(29)</label></formula><p>So provided ln C (ε, H n l ) increases sublinearly with n, the upper bound on the number of examples required of each task will decrease as the number of tasks increases. This is discussed further after theorem 3 below.</p><p>Theorem 2 only provides conditions under which êr z (H) and er Q (H) are close, it does not guarantee that er Q (H) is actually small. This is governed by the choice of H. If H contains a hypothesis space H with a small value of er Q (H), and the learner minimizes error on the (n, m) sample z, then with high probability er Q (H) will be small. However, a bad choice of H will mean there is no hope of finding an H with small error. In this sense the choice of H represents the hyper-bias of the learner.</p><p>It may seem that we have simply replaced the problem of selecting the right bias (i.e. selecting the right hypothesis space H) with the equally difficult problem of selecting the right hyper-bias (i.e. the right hypothesis space family H). However, in many cases selecting the right hyper-bias is far easier than selecting the right bias. For example, in section 3.2 we will see how the feature selection problem may be viewed as a bias selection problem. Selecting the right features can be extremely difficult if one knows little about the environment, but specifying only that a set of features should exist and then learning those features is far simpler.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1.">Learning multiple tasks</head><p>It may be that the learner is not interested in learning to learn, but simply wants to learn n tasks from the environment (P, Q). As in the previous section, we assume the learner starts out with a hypothesis space family H, and also that it receives an (n, m)-sample z generated from the n distributions P 1 , . . . , P n . This time, however, the learner is simply looking for n hypotheses (h 1 , . . . , h n ), all contained in the same hypothesis space H, such that the average training set error of the n hypotheses is minimal. Denoting (h 1 , . . . , h n ) by h, this error is defined by</p><formula xml:id="formula_37">êr z (h) := 1 n n i=1 êr zi (h i ) (30) = 1 n n i=1 1 m m j=1 l(h i (x ij ), y ij )</formula><p>For any hypothesis space H, let</p><formula xml:id="formula_38">H n := {(h 1 , . . . , h n ): h i ∈ H, i = 1, . . . , n}. Let H n := ∪ H∈H H n .</formula><p>H n is simply the set of all possible sequences (h 1 , . . . , h n ) where all the h ′ i s come from the same hypothesis space H (recall the definition of H n l for a similar concept). Writing P = (P 1 , . . . , P n ), the learner's generalisation error in this context is measured by the average generalisation error across the n tasks:</p><formula xml:id="formula_39">er P (h) := 1 n n i=1 er Pi (h i ) (31) = 1 n n i=1 X×Y l(h i (x), y) dP i (x, y)</formula><p>Recall definition 4 for the meaning of C(ε, H n l ). Theorem 3 Let P = (P 1 , . . . , P n ) be n probability distributions on X × Y and let z be an (n, m)-sample generated by sampling m times from X × Y according to each P i . Suppose the loss function l: Y × Y → R has range [0, 1] (any bounded loss function can be rescaled so this is true). Let H = {H} be any hypothesis space family. If the number of examples m of each task satisfies</p><formula xml:id="formula_40">m ≥ max 72 nε 2 ln 4C( ε 24 , H n l ) δ , 18 ε 2 (32)</formula><p>then with probability at least 1 -δ (over the choice of z), any h ∈ H n will satisfy</p><formula xml:id="formula_41">er P (h) ≤ êr z (h) + ε<label>(33)</label></formula><p>Notes:</p><p>1. Note that the bound on m in theorem 3 is virtually identical to the bound on m in theorem 2.</p><p>2. The important thing about the bound on m is that it depends inversely on the number of tasks n (assuming that the first part of the "max" expression is the dominate one). In fact, it is easy to show that for any hypothesis space family H,</p><formula xml:id="formula_42">C ε, H 1 l ≤ C (ε, H n l ) ≤ C ε, H 1 l n . (<label>34</label></formula><formula xml:id="formula_43">) Thus ln C ε, H 1 l ≤ ln C (ε, H n l ) ≤ n ln C ε, H 1 l . (<label>35</label></formula><formula xml:id="formula_44">)</formula><p>So keeping the accuracy parameters ε and δ fixed, and plugging (35) into (32), we see that the upper bound on the number of examples required of each task never increases with the number of tasks, and at best decreases as O 1 n . Although only an upper bound, this provides a strong hint that learning multiple related tasks should be advantageuos on a "number of examples required per task" basis. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2.">Feature learning with neural networks</head><p>Consider the following quote:</p><p>The classical approach to estimating multidimensional functional dependencies is based on the following belief:</p><p>Real-life problems are such that there exists a small number of "strong features," simple functions of which (say linear combinations) approximate well the unknown function. Therefore, it is necessary to carefully choose a low-dimensional feature space and then to use regular statistical techniques to construct an approximation.</p><p>(from "The Nature of Statistical Learning Theory", <ref type="bibr">Vapnik 1996</ref>.) It must be pointed out that Vapnik advocates an alternative approach in his book: that of using an extremely large number of simple features but choosing a hypothesis with maximum classification margin. However his approach cannot be viewed as a form of bias learning or learning to learn, whereas the strong feature approach can, so here we will concentrate on the latter.</p><p>The aim of this section is to use the ideas of the previous section to show how neural-network feature sets can be learnt for an environment of related tasks.</p><p>In general, a set of features may be viewed as a map from the (typically highdimensional) input space R d to a much smaller dimensional space R k (k ≪ d). Any such bounded feature map can be approximated to arbitrarily high accuracy by a one-hidden-layer neural network with k output nodes. This is illustrated in Figure <ref type="figure" target="#fig_1">1</ref>. Fixing the number of nodes in the first hidden layer, let Φ w : R d → R k denote the feature map computed by the the neural network with weights w. The set of all such feature maps is {Φ w : w ∈ R W } where W is the number of weights in the first two layers.</p><p>For argument's sake, assume the "simple functions" of the features (mentioned in the above quote) are squashed linear maps. Denoting the k components of the feature map Φ w by φ w,1 , . . . , φ w,k , each setting of the feature map weights generates a hypothesis space H w by</p><formula xml:id="formula_45">H w := σ k i=1 α i φ w,i : (α 1 , . . . , α k ) ∈ R k ,<label>(36)</label></formula><p>where σ: R → R is the squashing function. H w is simply the set of all squashed linear functions of the features Φ w . The set of all such hypothesis spaces,</p><formula xml:id="formula_46">H := {H w : w ∈ R W }<label>(37)</label></formula><p>is a hypothesis space family.</p><p>Finding the right set of features for the environment (P, Q) is equivalent to finding the right hypothesis space H w ∈ H.</p><p>As in the previous section, the correct set of features may be learnt by finding a hypothesis space with small error on a sufficiently large (n, m)-sample z (recall that an (n, m)-sample is simply n training sets corresponding to n different learning tasks). Specializing to squared loss, in the present framework the error of H w on z (equation ( <ref type="formula">14</ref>)) is given by</p><formula xml:id="formula_47">êr z (H w ) = 1 n n i=1 inf (α1,...,α k )∈R k 1 m m j=1 σ k l=1 α l φ w,l (x ij ) -y ij 2<label>(38)</label></formula><p>Using gradient descent and an n output node network as in figure <ref type="figure" target="#fig_1">1</ref>, output weights (α 1 , . . . , α k ) and feature weights w minimizing (38) can be found. For details see <ref type="bibr" target="#b3">[4]</ref>. The size of z ensuring that the resulting features will be good for learning novel tasks from the same environment is given by theorem 2. All we have to do is compute the logarithm of the covering numbers C(ε, H n l ) and C(ε, H * ). If the feature weights w and the output weights α 1 , . . . , α k are bounded, and the squashing function σ is Lipschitz 2 , then there exist constants κ, κ ′ (independent of ε, W and k) such that for all ε &gt; 0,</p><formula xml:id="formula_48">ln C(ε, H n l ) ≤ 2 (kn + W ) ln κ ε ln C(ε, H * ) ≤ 2W ln κ ′ ε</formula><p>(see <ref type="bibr" target="#b4">[5]</ref> for a proof). Plugging these expressions into theorem 2 gives the following theorem.</p><p>Theorem 4 Let H = {H w } be a hypothesis space family where each hypothesis space H w is a set of squashed linear maps composed with a neural network feature map, as above. Suppose the number of features is k, and the total number of feature weights is W. Assume all feature weights and output weights are bounded, and the squashing function σ is Lipschitz. Let z be an (n, m)-sample generated from the environment (P, Q).</p><formula xml:id="formula_49">If n ≥ O 1 ε 2 W + log 1 δ ,<label>(39)</label></formula><p>and</p><formula xml:id="formula_50">m ≥ O 1 ε 2 k + 1 n W + log 1 δ<label>(40)</label></formula><p>then with probability at least 1 -δ any H w will satisfy</p><formula xml:id="formula_51">er Q (H w ) ≤ er z (H w ) + ε.<label>(41) Notes:</label></formula><p>1. Keeping the accuracy paramters ε and δ fixed, the upper bound on the number of examples required of each task behaves like O(k + W/n). The same upper bound also applies in theorem 3.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>2.</head><p>Once the feature map is learnt, only the output weights have to be estimated to learn a novel task. Again keeping the accuracy parameters fixed, this requires no more that O(k) examples.</p><p>3. Thus, as the number of tasks learnt increseas, the upper bound on the number of examples required of each task decays to the minimum possible, O(k).</p><p>4. If the "small number of strong features" assumption is correct, then k will be small. However, typically we will have very little idea of what the features are, so the size of the feature network will have to be huge, so W ≫ k.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>5.</head><p>O(k + W/n) decreases most rapidly with increasing n when W ≫ k, so at least in terms of the upper bound on the number of examples required per task, learning small feature sets is an ideal application for learning to learn.</p><p>6. Note that if we do away with the feature map altogether then W = 0 and the upper bound on m becomes O(k), independent of n. So in terms of the upper bound, learning n tasks becomes just as hard as learning one task. At the other extreme, if we fix the output weights then effctively k = 0 and the number of examples required of each task decreases as O(W/n). Thus a range of behaviour in the number of examples required of each task is possible: from no improvement at all to an O(1/n) decrease as the number of tasks n increases. 7. To rigorously conclude that learning n tasks is better than learning one, we would have to show a matching lower bound of Ω(k + W/n) on the number of examples required of each task. Rather than search for lower bounds within the EP model (which are difficult to prove), we discuss a Bayes model of learning to learn in the next section where simultaneous upper and lower bounds appear more naturally.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.">The Bayes model of learning to learn</head><p>Recall from section 2.2 that in Bayesian models of ordinary learning the learner's bias is represented by the space of possible distributions {P θ : θ ∈ Θ} along with the choice of prior p(θ). The learning task P is assumed to be equal to some P θ * where θ * ∈ Θ.</p><p>Observe that p(θ) is a subjective prior distribution over a set of distributions {P θ }. It is subjective because it simply reflects the prior beliefs of the learner, not some objective stochastic phenomenon. Now note that the environment (P, Q) consists of a set of distributions P, and a distribution Q on P, and furthermore that P can be sampled according to Q to generate multiple tasks P 1 , . . . , P n (recall the discussion in section 3). This makes Q an objective prior distribution. Objective in the sense that it can be sampled, i.e. it corresponds to some objective stochastic phenomenon.</p><p>If we assume P = {P θ : θ ∈ Θ} (so now P is a restricted subset of all possible distributions on X × Y ), the goal of a bias learner in this framework is to find the right prior distribution Q. To do this, the learner must have available a set of possible prior distributions {P π : π ∈ Π} from which to choose. Each P π is a distribution on Θ. We assume realizability, so that Q = P π * for some π * ∈ Π.</p><p>To summarize, the Bayes model of learning to learn consists of the following ingredients:</p><p>• An input space X and an output space Y ,</p><p>• a set of probability distributions P θ on X × Y , parameterised by θ ∈ Θ,</p><p>• a set of prior distributions P π on Θ, parameterised by π ∈ Π.</p><p>• an objective or environmental prior distribution P π * where π * ∈ Π.</p><p>• To complete the model, the learner also has a subjective hyper-prior distribution P Π on Π.</p><p>The two-tiered structure with a set of possible priors {P π : π ∈ Π} and a hyperprior p(π) on Π makes this model an example of a hierarchical Bayesian model <ref type="bibr" target="#b6">[7,</ref><ref type="bibr" target="#b8">9]</ref>.</p><p>As with the EP model, the learner receives an (n, m)-sample z, generated by first sampling n times from Θ according P π * to give θ 1 , . . . , θ n , and then sampling m times from each X × Y according to each P θi to generate z i = (x i1 , y i1 ), . . . , (x im , y im ). To simplify the notation in this section, let Z := X × Y and z ij := (x ij , y ij ). As it will be necessary to distinguish between (n, m -1) samples and (n, m) samples, this will be made explicit in the notation by writing z (n,m) instead of z:</p><formula xml:id="formula_52">z (n,m) = z 11 • • • z 1m . . . . . . . . . z n1 • • • z nm (42)</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1.">Loss as the extra information required to predict the next observation</head><p>Recall that in the Bayes model of single task learning (section 2.2), the learner's loss was measured by the amount of extra information needed to encode novel examples of the task. So one way to measure the advantage in learning n tasks together is by the rate at which the learner's loss in predicting novel examples decays for each task. This question is similar to that addressed by theorem 3. So fix the number of tasks n, sample n tasks θ n = θ 1 , . . . , θ n according to the true prior P π * , and then for each m = 1, 2, . . . the learner has already seen m -1 examples of each task:</p><formula xml:id="formula_53">z (n,m-1) = z 11 • • • z 1m-1 . . . . . . . . . z n1 • • • z nm-1<label>(43)</label></formula><p>where each row is drawn according to P m-1 θi (or equivalently, each column is drawn according to P θ n ). The learner then:</p><p>• generates the posterior distribution p(θ n |z (n,m-1) ) on the set of all n tasks, Θ n , according to Bayes' rule:</p><formula xml:id="formula_54">p(θ n |z (n,m-1) ) = p(z (n,m-1) |θ n )p(θ n ) p(z (n,m-1) ) = p(θ n ) n i=1 m-1 j=1 p(z ij |θ i ) p(z (n,m-1) ) (<label>44</label></formula><formula xml:id="formula_55">)</formula><p>where p(z (n,m-1)</p><formula xml:id="formula_56">) = Θ n p(θ n ) n i=1 m-1 j=1 p(z ij |θ i ) dθ n .</formula><p>• uses the posterior distribution to generate a predictive distribution on Z n ,</p><formula xml:id="formula_57">p(z n |z (n,m-1) ) = Θ n p(z n |θ n )p(θ n |z (n,m-1) ) dθ n ,<label>(45)</label></formula><p>• and suffers a loss, L n,m , equal to the expected amount of extra information needed per task to encode a novel example of each task using the predictive distribution p(z n |z (n,m-1) ), over and above the minimum amount of information, i.e. the information required using the true distribution, p(z n |θ n ):</p><formula xml:id="formula_58">L n,m := 1 n E Z n |θ n log p(z n |θ n ) p(z n |z (n,m-1) ) . (<label>46</label></formula><formula xml:id="formula_59">)</formula><p>Note that the loss at the first trial is:</p><formula xml:id="formula_60">L n,1 := E Z n |θ n log p(z n |θ n ) p(z n ) ,<label>(47)</label></formula><p>where p(z n ) is the learner's initial distribution on Z n before any data has arrived,</p><formula xml:id="formula_61">p(z n ) = Θ n p(z n |θ n )p(θ n ) dθ n = Π Θ n p(z n |θ n )p(θ n |π) dθ n p(π) dπ<label>(48)</label></formula><p>To understand better the meaning of L n,m , consider the loss associated with learning a single classification task. In this case Z = X × {0, 1}. If we assume that only the conditional distribution on class labels is affected by the model, then p(z|θ) = p(x)p(y|x, θ), and for the predictive distribution, p(z|z m ) = p(x)p(y|x, z m ). Let α(x) := p(y = 1|x, θ) and β(x) := p(y = 1|x, z m ). Substituting these expressions into (46) and simplifying yields</p><formula xml:id="formula_62">L 1,m = E X α(x) log α(x) β(x) + (1 -α(x)) log 1 -α(x) 1 -β(x) .<label>(49)</label></formula><p>The expression in square brackets is zero if α(x) = β(x), i.e. if the conditional distributions on class labels are the same for the true and predictive distributions. It increases slowly as α(x) and β(x) diverge. It turns out that L n,m is difficult to analyse, so instead we look at the cumulative loss over a sequence of trials:</p><formula xml:id="formula_63">C n,m,π * := m-1 k=0 E Θ n |π * E Z (n,k) |θ n L n,k+1 ,<label>(50)</label></formula><p>i.e. the expected total loss incurred by the learner after m steps of the above process. Note that the expectation is over all sequences of n tasks θ n drawn according to P π * and all (n, k)-samples drawn according to p(z n |θ n ).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2.">(a, b) models</head><p>In <ref type="bibr" target="#b5">[6]</ref>, the asymptotic behaviour of C n,m,π * as a function of m was analysed for general hierarchical models. To illustrate the results, and to show how they apply to the feature learning example of section 3.2, here we will restrict our attention to (a, b)-models. The concept of an (a, b)-model was formally defined in <ref type="bibr" target="#b5">[6]</ref> as follows:</p><p>Note that equation ( <ref type="formula">54</ref>) is an equality. In <ref type="bibr" target="#b5">[6]</ref> it was stated as a . = relation but in fact the stronger expression holds.</p><p>Comparing (53) and (54), we see that as the number of tasks n increases, the effect of lack of knowledge of the true prior can be made arbitrarily small. Also, learning multiple tasks is most advantageous when b ≫ a, i.e. when the true model is quite small but our uncertainty concerning the true model is large. This is a similar conclusion to the one reached in section 3.2 (see note 3 after theorem 3.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.3.">Learning features within the Bayes model</head><p>Consider the feature learning model of section 3.2 (recall figure <ref type="figure" target="#fig_1">1</ref>). In this case, Θ is the set of all possible neural networks implementable by fixing the feature weights and the weights of a single output node. As there are k output weights and W feature weights, Θ = R k+W . The realizability assumption means there exists a fixed set of features such that all tasks in the environment can be implemented by composing a squashed linear map with the feature set. Thus, the true prior distribution p(θ|π * ) is a delta-function over the correct feature weight setting, combined with an appropriate distribution over the k output weights (one that generates the tasks in the environment with the correct frequency). Assuming the output-weight distribution is continuous, the true prior is of the form (51), with a = k and b = W . The set of all such priors is simply the set of all distributions that are a delta function over some feature weight setting, combined with a continuous distribution over the output weights. To complete the model, suppose that for each θ ∈ R k+W , p(z|θ) is of the form p(y = 1, x|θ) = p(x)f θ (x) p(y = 0, x|θ) = p(x)(1 -f θ (x)) where f θ (x) is the output of the network with weights θ and input x, and p(x) is a continuous density on some compact subset of R d . Assume the sigmoid on the hidden nodes is σ(x) = tanh(x), and on the output node is σ(x) = (1 + tanh(x))/2.</p><p>With these assumptions, the neural network feature learning model is a (k, W )model in the sense of definition 5. Unfortunately, the neural network feature model does not satisfy the technical conditions mentioned after definition 5, so a straightforward application of theorem 5 is not possible. However, the difficulties are not insurmountable (see <ref type="bibr" target="#b5">[6]</ref> for the details) and so we obtain the following theorem: </p><p>Note the reappearance of the factor k + W/n (recall theorem 3 and the notes afterwards). Comparing equations ( <ref type="formula">55</ref>) and (56) we see again that the effect of ignorance of the true prior (in this case ignorance of the right features) can be made arbitrarily small by learning sufficiently many tasks. The improvement is greatest when the number of features (k) is small, but our uncertainty as to what the right feature set should be is large.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.">Conclusion</head><p>Two mathematical models of bias learning (or learning to learn) have been discussed: one based on Empirical process theory and the other a Hierarchical Bayesian model. Both models show that if a learning machine is embedded within an environment of related learning tasks, then it can learn its own bias for the environment by learning sufficiently many tasks. Bounds were given on the number of tasks and number of examples of each task needed to ensure good generalisation from a bias learner. Good generalisation in this case means that with high probability the learner's choice of hypothesis space will contain good solutions to novel tasks drawn from the same environment. The theory was specialised to the case of feature learning with neural networks. There are many pattern classification problems that can be viewed as consisting of large number of related tasks and that seem to possess small feature sets. Speech recognition, character recognition, face recognition and fingerprint recognition all fit this bill. Feature learning in these domains should be particularly successful.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Notes</head><p>1. Strictly speaking, in order for Q to be well defined we need to specify a σ-algebra of subsets of P. However, such considerations are beyond the scope of the present discussion. See <ref type="bibr" target="#b2">[3]</ref> for more details. 2. σ is Lipschitz if there exists a constant K such that σ(x, x ′ ) ≤ K|xx ′ | for all x, x ′ ∈ R.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Definition 2</head><label>2</label><figDesc>For each H ∈ H, define H * : P → R by H * (P ) := inf h∈H er P (h).</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 1 .</head><label>1</label><figDesc>Figure 1. Neural network for feature learning. The feature map is implemented by the first two hidden layers. The n output nodes correspond to the n different tasks in the (n, m)-sample z.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Theorem 6</head><label>6</label><figDesc>For the neural-network feature learning model as above, the cumulative risk (50) satisfiesC n,m,π * .If the true prior is known (i.e. the true feature weights are known), thenC n,m,π * = log m 2 (k) + o (log m) .</figDesc></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="3" xml:id="foot_0"><p>In section 3.2 it will be shown that all types of behaviour, from no advantage at all to O( 1 n ) decrease, are possible.</p></note>
+		</body>
+		<back>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Definition 5 An (a, b)-model is a hierarchical model in which Π = R b , Θ = R a × R b and the following conditions hold:</p><p>1. The priors p(θ|π) are of the form</p><p>where δ(•) is the b-dimensional Dirac delta function and g π is a continuous function on R a that also varies continuously with π.</p><p>2. The hyper-prior on Π, P Π has continuous density p(π) and the true prior π * has positive density p(π * ). The following definition is needed to state the main theorem.</p><p>Definition 6 Let (X, Σ, P ) be a measure space and f, g: N × X → R (N is the positive integeres) be two real-valued functions on N × X such that for all n ∈ N , f (n, •) and g(n, •) are measurable functions on X. Set X n := {x: f (n, x) = g(n, x)} for each n ∈ N . We say</p><p>if lim n→∞ P (X n ) = 1. This will be abbreviated to f (n, x) . = g(n, x) when X and P are clear from the context.</p><p>For the following theorem, fix n and take all limiting behaviour with respect to m. </p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title level="m" type="main">Computational Learning Theory</title>
+		<author>
+			<persName><forename type="first">Martin</forename><surname>Anthony</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Norman</forename><surname>Biggs</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1992">1992</date>
+			<publisher>Cambridge University Press</publisher>
+			<pubPlace>Cambridge</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Jeffreys&apos; Prior is Asymptotically Least Favourable under Entropy Risk</title>
+		<author>
+			<persName><forename type="first">Andrew</forename><surname>Barron</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bertrand</forename><surname>Clarke</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Statistical Planning and Inference</title>
+		<imprint>
+			<biblScope unit="volume">41</biblScope>
+			<biblScope unit="page" from="37" to="60" />
+			<date type="published" when="1994">1994</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<author>
+			<persName><forename type="first">Jonathan</forename><surname>Baxter</surname></persName>
+		</author>
+		<idno>LSE-MPS-97</idno>
+		<ptr target="http://keating.anu.edu.au/∼jon/papers/lse.ps.gz" />
+		<title level="m">London School of Economics, Centre for Discrete and Applicable Mathematics</title>
+		<imprint>
+			<date type="published" when="1995-11">November 1995</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">Technical Report</note>
+	<note>A Model of Bias Learning Submitted for publication</note>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Learning Internal Representations</title>
+		<author>
+			<persName><forename type="first">Jonathan</forename><surname>Baxter</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Eighth International Conference on Computational Learning Theory</title>
+		<meeting>the Eighth International Conference on Computational Learning Theory</meeting>
+		<imprint>
+			<publisher>ACM Press</publisher>
+			<date type="published" when="1995">1995</date>
+			<biblScope unit="page" from="311" to="320" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<title level="m" type="main">Learning Internal Representations</title>
+		<author>
+			<persName><forename type="first">Jonathan</forename><surname>Baxter</surname></persName>
+		</author>
+		<ptr target="http://keating.anu.edu.au/∼jon/papers/thesis.ps.gz" />
+		<imprint>
+			<date type="published" when="1995">1995</date>
+		</imprint>
+		<respStmt>
+			<orgName>Department of Mathematics and Statistics, The Flinders University of South Australia</orgName>
+		</respStmt>
+	</monogr>
+	<note type="report_type">PhD thesis</note>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">A Bayesian/Information Theoretic Model of Learning to Learn via Multiple Task Sampling</title>
+		<author>
+			<persName><forename type="first">Jonathan</forename><surname>Baxter</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning</title>
+		<imprint>
+			<date type="published" when="1997">1997</date>
+		</imprint>
+	</monogr>
+	<note>To Appear</note>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Multivariate Estimation: Bayes, Empirical Bayes, and Stein Approaches</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>James</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Berger</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">SIAM</title>
+		<imprint>
+			<date type="published" when="1986">1986</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Information-Theoretic Asymptotics of Bayes Methods</title>
+		<author>
+			<persName><forename type="first">Bertrand</forename><surname>Clarke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><surname>Barron</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Information Theory</title>
+		<imprint>
+			<biblScope unit="volume">36</biblScope>
+			<biblScope unit="page" from="453" to="471" />
+			<date type="published" when="1990">1990</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Some History of the Hierarchical Bayesian Methodology</title>
+		<author>
+			<persName><forename type="first">I J</forename><surname>Good</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">; J M</forename><surname>Bernado</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M H De</forename><surname>Groot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D V</forename><surname>Lindley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A F M</forename><surname>Smith</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Bayesian Statistics II</title>
+		<meeting><address><addrLine>Valencia</addrLine></address></meeting>
+		<imprint>
+			<publisher>University Press</publisher>
+			<date type="published" when="1980">1980</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<title level="m" type="main">A Treatise of Human Nature</title>
+		<author>
+			<persName><forename type="first">David</forename><surname>Hume</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1737">1737</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">The need for biases learning generalisations</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Tom</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Mitchell</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Readings in Machine Learning</title>
+		<editor>
+			<persName><forename type="first">G</forename><surname>Tom</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Jude</forename><surname>Dietterich</surname></persName>
+		</editor>
+		<editor>
+			<persName><surname>Shavlik</surname></persName>
+		</editor>
+		<imprint>
+			<publisher>Morgan Kaufmann</publisher>
+			<date type="published" when="1991">1991</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<monogr>
+		<title level="m" type="main">Estimation of Dependences based on Empirical Data</title>
+		<author>
+			<persName><forename type="first">V N</forename><surname>Vapnik</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1982">1982</date>
+			<publisher>Springer-Verlag</publisher>
+			<pubPlace>New York</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">On the uniform convergence of relative frequencies of events to their probabilities</title>
+		<author>
+			<persName><forename type="first">V N</forename><surname>Vapnik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Ya</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chervonenkis</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Theory Probab. Appl</title>
+		<imprint>
+			<biblScope unit="volume">16</biblScope>
+			<biblScope unit="page" from="264" to="280" />
+			<date type="published" when="1971">1971</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

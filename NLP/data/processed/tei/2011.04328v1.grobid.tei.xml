@@ -1,0 +1,693 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Risk Assessment for Machine Learning Models</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2020-11-10">November 10, 2020</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Paul</forename><surname>Schwerdtner</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Florens</forename><surname>Greßner</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Nikhil</forename><surname>Kapoor</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Felix</forename><surname>Assion</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">René</forename><surname>Sass</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Wiebke</forename><surname>Günther</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Fabian</forename><surname>Hüger</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Peter</forename><surname>Schlicht</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Neurocat</forename><surname>Gmbh</surname></persName>
+						</author>
+						<title level="a" type="main">Risk Assessment for Machine Learning Models</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2020-11-10">November 10, 2020</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">0A8536DACF9A6D3C3F72B48052565C34</idno>
+					<idno type="arXiv">arXiv:2011.04328v1[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>In this paper we propose a framework for assessing the risk associated with deploying a machine learning model in a specified environment. For that we carry over the risk definition from decision theory to machine learning. We develop and implement a method that allows to define deployment scenarios, test the machine learning model under the conditions specified in each scenario, and estimate the damage associated with the output of the machine learning model under test. Using the likelihood of each scenario together with the estimated damage we define key risk indicators of a machine learning model.</p><p>The definition of scenarios and weighting by their likelihood allows for standardized risk assessment in machine learning throughout multiple domains of application. In particular, in our framework, the robustness of a machine learning model to random input corruptions, distributional shifts caused by a changing environment, and adversarial perturbations can be assessed.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>With the deployment of machine learning (ML) models in safety and security critical environments, risk assessment becomes a pressing issue. Failure modes of a given ML model must be identified and the likelihood of occurrence and severity of the damage caused by failure must be assessed. In this work, we focus on failures that result from input perturbations and provide a framework that allows to integrate different sources of input perturbations and to compute general risk scores for a given network and operational environment. These key risk indicators (KRIs) can guide the decision on whether it is safe and secure to deploy a given ML model in a specified environment.</p><p>For the evaluation of ML risk, we consider adversarial input data and corrupted input data, which can be used to evaluate ML security and ML safety, respectively. In particular, to qualify as adversarial input data, we assume that a perturbation on the input is specifically crafted to maximize the difference between a ML model's output and the human interpretation of that same input. On the other hand, corrupted input data is usually generated ML model agnostic and follows a somewhat natural distribution of input data or naturally occurring noise.</p><p>In recent years, it has become a well-known fact that neural networks (NN), a subset of ML models, are susceptible to adversarial perturbations <ref type="bibr" target="#b7">Goodfellow, Shlens, and Szegedy (2015)</ref> and various algorithms have been proposed to compute such perturbations effectively (known as adversarial attacks). It is important to note that due to the transferability of attacks between NN that perform a similar task, an attacker does not need to have access to the attacked NN to successfully craft adversarial perturbations <ref type="bibr" target="#b11">Liu et al. (2017)</ref>. Furthermore, adversarial attacks are not merely a fragile phenomenon but can also be planted in the real world to fool NNs <ref type="bibr" target="#b10">Kurakin, Goodfellow, and Bengio (2017)</ref>.</p><p>Alongside adversarial attacks a large number of adversarial defenses that are designed to detect and/or mitigate the effect of adversarial noise have been proposed. However, typically a few months after a defense has been published, an attack that circumvents the detection and mitigation mechanism of that defense is found <ref type="bibr">Carlini and Wagner (2017b)</ref>; <ref type="bibr" target="#b0">Athalye, Carlini, and Wagner (2018)</ref>.</p><p>This attack and defense arms race has led to the introduction of formal verification algorithms of NNs such as the seminal work of <ref type="bibr" target="#b8">Katz et al. (2017)</ref>. These algorithms are used to verify that around a given set of input points the NN's output does not change for perturbations up to a certain size usually measured in either the ℓ 0 , ℓ 2 , or ℓ ∞ norm. However, such formal verification methods do not scale to larger, industry relevant tasks without sacrificing rigor. Further-</p><p>ML model Deployment Scenarios Severity Estimation Risk Tensor Computation Aggregation and Filtering Key Risk Indicators f c X j , D x L i R ρi Figure 1: Overview of the proposed key robustness indicator computation method, which is explained in Section 4 more, realistic attack scenarios or image corruptions which are usually not bounded in some ℓ p norm render the formal verification techniques inappropriate in these situations.</p><p>In <ref type="bibr" target="#b19">Tian et al. (2018)</ref> and <ref type="bibr" target="#b18">Pei et al. (2017)</ref> applicationoriented robustness evaluation procedures were proposed that explicitly take a more realistic attack and corruption scope into account. As an example, instead of simply limiting the ℓ 2 norm of a possible perturbation, the adversarial image transformation must be a rotation or change in brightness of the original image. The consideration of realistic image corruptions is key for risk assessment since a highly damaging perturbation that cannot occur in practice or, if at all, with vanishing probability, demands less action than a less problematic but still harmful perturbation that occurs regularly.</p><p>Therefore, we propose a framework that lets deployers of ML models define the possible perturbations and their respective magnitude and likelihood to set up realistic test scenarios. Then this scenario dependent robust performance is systematically evaluated by the introduction of KRIs. These indicators allow for comparability of ML models with respect to their robustness in different operational environments. This approach enables well-founded decisions on whether a ML model is fit for application. An overview of our method is given in Figure <ref type="figure">1</ref>. The input data consists of a ML model that is to be tested, previously designed deployment scenarios, and a severity estimation in the form of a loss function, that computes a damage associated with the ML model's output. From these inputs, we compute a risk tensor that is used as data-storage to be able to extract the required risk indicators by aggregation and filtering.</p><p>Next to estimating ML risk, our method can also be used to understand the failure modes of a ML model, or in par-ticular the reason for success of implemented adversarial defenses. Specifically, throughout this paper, we make the following contributions.</p><p>• We provide a framework in which the risk associated with deploying ML models in specified environments can be assessed in a standardized way.</p><p>• We provide a data-efficient tensor based method for storing robustness information on a given NN that can be queried and filtered to extract KRIs.</p><p>• We implement and test our framework on a set of image classifiers for the CIFAR10 dataset <ref type="bibr">Krizhevsky, Hinton, and others (2009)</ref> to identify robustifying features of the training process or NN topology.</p><p>Our paper is organized as follows. In the next section we describe our setting and compare risk and robustness definitions common in ML to the risk definition from statistical decision theory. After that, we explain how we can apply the latter in the context of ML. For that we present a light-weight data structure that allows for scenario-based risk assessment of a ML model. We illustrate our method in an image classification case study, in which we identify the safest model for classifying images under a set of sensor, weather induced, random, and adversarial perturbations.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Background</head><p>We restrict our presentation of the theoretical background to classification as this allows for a more concise notation. However, it is important to note that our considerations immediately carry over to more complex tasks such as semantic segmentation or object detection.</p><p>We denote a classifier as f c : R nx → R nc , where n x and n c are the length of the input vector (e.g. a vectorized input image) and the number of classes, respectively. Let X = (X, F, P) be the probability space of inputs and fc : R nx → R nc be the true classifier that maps each input x ∈ X to the correct class (in one-hot encoding).</p><p>The most common concept of (adversarial) ML robustness is based on the smallest perturbation necessary to provoke an incorrect classification <ref type="bibr" target="#b6">Fawzi, Fawzi, and Frossard (2018)</ref>, i.e.</p><formula xml:id="formula_0">ρ 1 (f c , X , fc ) := E x∼X (∆ adv (f c , fc , x)),</formula><p>where</p><formula xml:id="formula_1">∆ adv (f c , fc , x) = min r∈R nx r 2 s.t. arg max f c (x + r) = arg max fc (x).</formula><p>The value of ρ 1 is an important metric for the investigation of ML models <ref type="bibr" target="#b14">Mickisch et al. (2020)</ref>. However, it only provides the mean distance of x ∼ X to the decision boundary. Neither the severity of the misclassification on the application nor the likelihood of occurrence of the critical perturbation r are considered.</p><p>A related property is the so called cross Lipschitz extreme value for network robustness (CLEVER) score of a classifier introduced in <ref type="bibr" target="#b21">Weng et al. (2018)</ref>. For CLEVER, the maximum of the norm of the gradient in a ball around a test input value x is estimated because it can be used to predict the distance of x to the decision boundary. To arrive at the CLEVER score, the mean value over the maximal gradients in balls around x ∼ X is computed.</p><p>In <ref type="bibr" target="#b12">Madry et al. (2018)</ref> a loss function L is used which allows to quantify the effect of misclassification in the environment of the ML model under test. Using L, the authors define the adversarial risk</p><formula xml:id="formula_2">ρ 2 (f c , X , fc ) := E x∼X max r∈S L(f c (x + r), fc (x)) ,</formula><p>where S is a set of admissible perturbations. This definition works well when evaluating ML models in the adversarial setting to assess the mean of the maximal damages an adversary could potentially have on the deployed ML application in a specified environment. However, for general risk assessment this worst case definition does not apply. For that, we need a definition that also takes the probability of each perturbation into account.</p><p>To find such a definition, we turn to statistical decision theory and view the risk of deploying a ML model as the risk of a statistical decision making process.</p><p>Definition 1 Risk of a statistical procedure <ref type="bibr" target="#b1">Berger (1985)</ref> Let X be a probability space defined as above and let A be an action space. Furthermore, let d : X → A be a deterministic decision function. Then the risk of d with respect to a loss L in the setting of X is defined as</p><formula xml:id="formula_3">R(d) = E x∼X L(d(x)) = X L(d(x))dP(x).</formula><p>For a randomized decision function d * : X × D x → A with the parametric probability space D x = (N, G, P x ) we have that</p><formula xml:id="formula_4">R(d * ) = X N L(d * (x, δ))dP x (δ)dP(x)</formula><p>This definition of risk for a deterministic decision function is well-suited for risk assessment of a ML model on unperturbed (test) data. On the other hand, the double integral formula is a good starting point for general ML risk assessment since it allows to cover both the original data distribution and possible perturbations. In the following we explain how this definition of risk can be applied to evaluate ML models.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Risk Definition for Machine Learning Applications</head><p>To utilize the risk definition from decision theory in ML, we translate all terms from Definition 1 to the ML domain. Our starting point is the randomized setting with the decision function d * . First, we propose to decompose d * into a deterministic and a stochastic part, which represent the ML model and the input noise, respectively. Note that some ML models include randomization such as in some proposed adversarial defenses <ref type="bibr" target="#b22">(Xie et al. (2018)</ref> and <ref type="bibr" target="#b13">Meng and Chen (2017)</ref>). This additional randomization that is part of the ML model and that is not caused by input noise can be encompassed similarly by decomposing the ML model into a deterministic and a randomized part. Then for the evaluation of a randomized ML model a third integral is added.</p><p>After that decomposition, X and D x immediately carry over to the ML setting. X represents the underlying data distribution and D x represents natural and artificial noise. The interpretation of the loss and the decision function depend strongly on the specific use case. When the ML model is deployed to autonomously take actions, then the ML model is directly the decision function and the loss can simply rate the ML model's decisions. However, if the ML model is used for data analysis and only implies decisions within a more complex system we must either introduce a function that maps the ML model's output to a decision or incorporate the cost associated with worse decisions caused by faulty data analysis into the loss function. We propose to use the latter approach since this reduces the overall complexity of the evaluation.</p><p>Using the above considerations, we define the risk of deploying a classifier f c in an environment X with perturbations</p><formula xml:id="formula_5">D x by ρ(f c , X , D x ) = X N L(f c (x + δ))dP x (δ)dP(x), (1)</formula><p>where L is a loss function that maps the classification to the loss of the resulting decision. Note that a possible explicit dependence of L (an thus ρ) on fc and x is omitted in (1). Furthermore, in the adversarial setting, D x can also depend on f c .</p><p>Before explaining how (1) can be approximated, we give a few examples to roughly sketch the scope of our definition of risk.</p><p>The adversarial risk from <ref type="bibr" target="#b12">Madry et al. (2018)</ref> is encompassed by our framework. This can be seen by choosing L as training loss, and D x as space of adversarial perturbations computed as in <ref type="bibr" target="#b12">Madry et al. (2018)</ref> that occur for the given target image x with probability one.</p><p>When an adversarial defense is proposed, the robustness evaluation is normally performed by checking the decrease in accuracy for different perturbation budgets. In our framework, this translates to a computation of ρ with</p><formula xml:id="formula_6">L(f c (x + δ)) = 1 arg max fc(x+δ)=arg max fc(x) ,</formula><p>for different noise distributions D x , where 1 is the indicator function. Note that in this setting, to address different perturbation budgets, we can compute the risk multiple times for all different perturbation budgets.</p><p>We now describe the use case that is the main motivation for this work. When choosing a ML model as vision system for a self-driving car, it must be determined which model leads to the minimal risk when deployed. To assess the risk associated with deploying a ML model, the environment in which it is deployed is described using the natural distribution of input images X and the noise N . As an example, the model might be deployed in an urban area (which is described by X ), in which fog and rain occur regularly and, moreover, there is a 0.1% chance for an adversarial perturbation created with a transfer attack on one of the street signs (which is covered by an appropriate choice of N ).</p><p>Furthermore, a loss function that estimates the possible damage of a segmentation output is defined. A detailed description of such a loss function is beyond our scope. However, it is important to note that a simple measure such as the sum of misclassified pixels does not necessarily reflect the possible damage. A pedestrian not being detected on nondrivable area is less taxing than a pedestrian being missed on an area that is otherwise classified as drivable.</p><p>We emphasize the fact that our risk definition for ML applications via the double integral over the natural data distribution and the (possibly adversarial) noise allows a realistic description of the environment in which the ML model is deployed. On top of that, the loss function within the risk definition can be designed to weight each classification error based on its severity with respect to the given applications.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">The Key Risk Indicator Tensor</head><p>We now turn to the computation of ρ for given L, X , and D x .</p><p>For that, we propose to approximate the double integral (1) using a Monte Carlo simulation such that we have</p><formula xml:id="formula_7">ρ ≈ ρ = 1 n x n δ nx i=1 n δ j=1 L(f c (x i + δ j )),</formula><p>where x i and δ j are samples from X and D x , respectively. This straightforward approach works well for fixed L, X , and D x . However, when X or D x are changed (e.g. if new scenarios are added), all computations have to be carried out again which is computationally taxing. Therefore, we propose a light-weight data structure from which ρ can be extracted that allows for more flexibility.</p><p>The basis for reusing inference results of a classifier f c for different deployment scenarios in which ρ is evaluated is the composition of the scenarios from sets {X i } n X i=1 and</p><formula xml:id="formula_8">{D xi } n D i=1 . Then a set of risk values {ρ i } n X n D i=1</formula><p>can be computed and the final risk value ρ can be obtained as a convex combination of the elements ρi as</p><formula xml:id="formula_9">ρ = n X n D i=1 α i ρi , with n X n D i=1 α i = 1,<label>(2)</label></formula><p>where α i can be used to weight different scenario components from which the deployment scenarios are constructed. Note that all different ρi (and therefore X i and D xi ) need not be known at the same time. On the contrary, scenario components can be added later to further refine the description of the deployment scenario.</p><p>Another advantage of separating ρ into different components is a more detailed insight into failure modes of the ML model under test. When ρ is directly computed, we obtain no information on which parts of X or D x have caused the risk to increase. However, this information is invaluable for uncovering weaknesses and improving the ML model. As an example, when the evaluation shows that a given segmentation model misses pedestrians in images that contain noise that mimics rain, this can initiate an analysis of whether images of that type are underrepresented in the training set or whether the given ML architecture can in general not deal with that type of noise. For that, we propose to interpret the different ρi as KRIs of an ML model.</p><p>A KRI describes the risk in one particular situation (X i , D xi ) that may be part of the deployment scenario of the ML model. This can be obtained by modeling a part of the environment. Furthermore, in the adversarial setting, we can view a KRI as an indicator of the susceptibility of a given ML model to a particular adversarial attack. In this way, comparing different KRIs allows to analyze both the mode of action of different attacks as well as the failure modes of the ML model.</p><p>When computing ρi , our main objective is the reusability of the inference results of the ML model, since this is the computationally most expensive part. Therefore, we store the computation results in the risk tensor R which is defined by</p><formula xml:id="formula_10">R i,j,k,ℓ = L i (f c (x j + δ k,ℓ )).</formula><p>R is used to store the results for different loss functions L i , samples of the natural distribution x j , and different samples of a given noise distribution δ k,ℓ . The different elements are joined along the different natural distributions and noise types to form the complete risk tensor R.</p><p>Note that a risk tensor R adv can be defined for the adversarial robustness use case. Since samples of adversarial noise are typically created for one specific input, we can reduce the dimension of the risk tensor and obtain Here we have a one-to-one correspondence of the samples of the noise distribution to samples of the natural image distribution.</p><formula xml:id="formula_11">R adv i,j,k = L i (f c (x j + δ k,j )).</formula><p>Once R is computed, the different ρi can be obtained by filtering R for distributions relevant for the specific situation which is encompassed by ρi and aggregating the different tensor elements. When all ρi have been computed, ρ can be obtained as in (2).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Case Study</head><p>We demonstrate the feasibility and utility of our approach by computing the KRIs for a set of neural image classifiers. Note that the KRIs we use in this study are based on well-known and rather straightforward risk measures like the probability of class change to keep our results well-aligned with state-ofthe-art robustness investigations. In particular, we compare the KRIs of 20 residual neural networks (ResNets), trained on the CIFAR10 <ref type="bibr">Krizhevsky, Hinton, and others (2009)</ref> dataset to investigate their respective robustness with respect to image corruptions and adversarial attacks.</p><p>We use different robustifying measures alongside changes in the ResNet depth to vary the ResNets under study. In particular, we vary the training data augmentations by adding both Gaussian noise and standard image augmentations implemented in Keras <ref type="bibr" target="#b4">Chollet (2015)</ref>, adding a regularization proposed in <ref type="bibr" target="#b5">Cisse et al. (2017)</ref>, changing the training loss function to the robustifying guided complement entropy loss Chen et al. (2019). Furthermore, we obtain a few ResNets from defensive distillation as proposed in Papernot et al. NNet NNetLarge DistilledT10 DistilledT10Augm Gauss03 Gauss09 Gauss09Augm Gauss09Large ParsNet ParsNetImageAugm AdvTrainFGSM AdvTrainPGD AdvTrainFGSMLarge 0.0 0.2 0.4 0.6 0.8 Class Change Risk Sensor Corruptions Random Noise Weather Attacks Figure 3: Assessment of the impact of image data augmentation for different noise types (2016) performed at different distillation temperatures and by adversarial training (both ensemble adversarial training Tramèr et al. (2018), and projected gradient descent Madry et al. (2018) were tested). A description of the setup of each ResNet we study is provided in Table <ref type="table">1</ref>. We evaluate and compare the ResNets' capability to cope with image perturbations induced by sensor corruptions, random noise, weather phenomena, and adversarial attacks. For each image perturbation type, we set up several distributions that represent each corruption scenario. For sensor corruptions, we consider random changes in brightness and contrast. On top of that, we add shadows and rotations of varying magnitude to the test images. Random noise is considered by adding distributions of Gaussian, uniform and salt-andpepper noise. We incorporate weather phenomena by adding randomly generated layers of rain or fog to the test images. For the creation of adversarial perturbations, we use the adversarial robustness toolbox <ref type="bibr" target="#b16">Nicolae et al. (2019)</ref> to generate distributions that contain images created with the fast gradient sign method <ref type="bibr" target="#b7">Goodfellow, Shlens, and Szegedy (2015)</ref>, the CarliniL2 method <ref type="bibr">Carlini and Wagner (2017a)</ref>, and the Deep-Fool attack Moosavi-Dezfooli, <ref type="bibr" target="#b15">Fawzi, and Frossard (2016)</ref>, respectively.</p><p>A key feature of our approach is the hierarchical aggregation of the computed loss values. In our study, the loss values are the probability of class changes, which can be aggregated with a mean value function over the different noise types. As an example, in Figure <ref type="figure" target="#fig_0">2</ref> L cc (x i + δ br,ℓ ),</p><p>where L cc is the indicator for a class change, X is the set of test images, and δ br,ℓ is a sample from the distributions of brightness perturbations. The individual values ρbr for the different ResNets under study can be considered their brightness corruption KRIs. On the other hand, we can summarize the risk values for all sensor perturbations into a single sensor corruption KRI, by aggregating over all sensor corruption distributions. In this way, the sensor corruption KRIs are computed by</p><formula xml:id="formula_12">ρsc = 1 n samples xi∈X Di∈Dsc δ i,ℓ ∈Di L cc (x i + δ i,ℓ ),</formula><p>where D sc is the set of all considered sensor corruption distributions. At this stage it is possible to weight the different corruptions in order to mimic their given occurrence probability. In Figure <ref type="figure">3</ref> we use these higher level KRIs to understand the effect of data augmentation on the robustness of a ResNet. We can observe that by adding Gaussian noise and standard image augmentations or adversarial noise to the training images, we can increase the robustness of the ResNets with respect to random and adversarial noise by similar amounts.</p><p>On the other hand, when we compare the standard cross entropy loss to the guided complement entropy loss as in Figure <ref type="figure" target="#fig_2">4</ref>, we can observe that using the guided complement entropy loss, we can significantly increase the robustness with respect to adversarial noise. However, the vulnerability with respect to the other noise types stays approximately the same.</p><p>Finally, we can merge all KRIs into the final risk value. In our study, we simply compute the mean value over all KRIs. However, a more involved strategy to study a specific use case can also be implemented. The final risk values are displayed in Figure <ref type="figure">5</ref>. On the basis of these values, an informed choice of the ResNet associated with the minimal risk can be made.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">Conclusion and Outlook</head><p>In this work, we have applied the risk definition from statistical decision theory to ML. On the basis of this definition we have developed a framework that allows to specify different deployment scenarios and penalties associated with failures of the ML model. This allows practitioners to evaluate the risk of deploying a given ML model in a standardized way. Furthermore, the setup of deployment scenarios gives regulatory authorities the chance design certificates for ML models in specified environments. In our preliminary numerical case study we have provided another motivation for using KRIs to investigate ML model robustness, i.e. the investigation of the effect of different robustifying measures on perturbations of different types. As an example, while adding data augmentations increased the accuracy under random and adversarial perturbations, a change in loss function from cross entropy to guided complement entropy only increased robustness for adversarial perturbations.</p><p>The application of the risk definition and the proposal for its efficient tensor based evaluation provide the tools necessary for extensive analysis of ML models. It remains to create meaningful loss functions and data distributions for different applications in which such a detailed analysis is required.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: Comparison of class change risk for brightness perturbations</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><figDesc>, we compare the class change risk of test images with brightness perturbations for the ResNets we study. These values are computed by ρbr = 1 n samples xi∈X δ br,ℓ ∈Dbr</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 4 :</head><label>4</label><figDesc>Figure 4: Assessment of the impact of the loss function for different noise types</figDesc></figure>
+		</body>
+		<back>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0" />			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Obfuscated gradients give a false sense of security: Circumventing defenses to adversarial examples</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Athalye</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Carlini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wagner</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">80</biblScope>
+			<biblScope unit="page" from="274" to="283" />
+			<date type="published" when="2018">2018</date>
+			<publisher>PMLR</publisher>
+			<pubPlace>Stockholm Sweden</pubPlace>
+		</imprint>
+	</monogr>
+	<note>Stockholmsmässan</note>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Statistical Decision Theory and Bayesian Analysis</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">O</forename><surname>Berger</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1985">1985</date>
+			<publisher>Springer Science &amp; Business Media</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Towards evaluating the robustness of neural networks</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Carlini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wagner</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2017 IEEE Symposium on Security and Privacy (SP)</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="39" to="57" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Adversarial Examples Are Not Easily Detected: Bypassing Ten Detection Methods</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Carlini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wagner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Liang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Chang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Pan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Wei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Juan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 10th ACM Workshop on Artifi</title>
+		<meeting>the 10th ACM Workshop on Artifi</meeting>
+		<imprint>
+			<date type="published" when="2017">2017. 2019. 2019</date>
+			<biblScope unit="page" from="4880" to="4888" />
+		</imprint>
+	</monogr>
+	<note>Improving adversarial robustness via guided complement entropy</note>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<author>
+			<persName><forename type="first">F</forename><surname>Chollet</surname></persName>
+		</author>
+		<ptr target="https://keras.io" />
+		<title level="m">Keras</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Parseval networks: Improving robustness to adversarial examples</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Cisse</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Bojanowski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Grave</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Dauphin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Usunier</surname></persName>
+		</author>
+		<ptr target="JMLR.org" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 34th International Conference on Machine Learning</title>
+		<meeting>the 34th International Conference on Machine Learning</meeting>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="volume">70</biblScope>
+			<biblScope unit="page" from="854" to="863" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Analysis of classifiers&apos; robustness to adversarial perturbations</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Fawzi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Fawzi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Frossard</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Machine Learning</title>
+		<imprint>
+			<biblScope unit="volume">107</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="481" to="508" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">J</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Shlens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Szegedy</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1412.6572</idno>
+		<title level="m">Explaining and Harnessing Adversarial Examples</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+	<note>cs, stat</note>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Reluplex: An efficient smt solver for verifying deep neural networks</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Katz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Barrett</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">L</forename><surname>Dill</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Julian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">J</forename><surname>Kochenderfer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Computer Aided Verification</title>
+		<editor>
+			<persName><forename type="first">R</forename><surname>Majumdar</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">V</forename><surname>Kunčak</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Cham</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer International Publishing</publisher>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="97" to="117" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<title level="m" type="main">Learning multiple layers of features from tiny images</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Krizhevsky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Hinton</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">Adversarial examples in the physical world</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kurakin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Bengio</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1607.02533</idno>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note>cs, stat</note>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<monogr>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Song</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1611.02770</idno>
+		<title level="m">Delving into Transferable Adversarial Examples and Black-box Attacks</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note>cs</note>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Towards deep learning models resistant to adversarial attacks</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Madry</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Makelov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Schmidt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Tsipras</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Vladu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Learning Representations</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Magnet: A two-pronged defense against adversarial examples</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Meng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Chen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2017 ACM SIGSAC Conference on Computer and Communications Security, CCS &apos;17</title>
+		<meeting>the 2017 ACM SIGSAC Conference on Computer and Communications Security, CCS &apos;17<address><addrLine>New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>Association for Computing Machinery</publisher>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="135" to="147" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title level="m" type="main">Understanding the Decision Boundary of Deep Neural Networks: An Empirical Study</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Mickisch</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Assion</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Greßner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Günther</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Motta</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2002.01810</idno>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note>cs, stat</note>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Deepfool: A simple and accurate method to fool deep neural networks</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Moosavi-Dezfooli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Fawzi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Frossard</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR)</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="2574" to="2582" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<monogr>
+		<author>
+			<persName><forename type="first">M.-I</forename><surname>Nicolae</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Sinn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">N</forename><surname>Tran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Buesser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Rawat</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Wistuba</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Zantedeschi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Baracaldo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Ludwig</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">M</forename><surname>Molloy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Edwards</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1807.01069</idno>
+		<title level="m">Adversarial Robustness Toolbox v1.0.0</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note>cs, stat</note>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Distillation as a defense to adversarial perturbations against deep neural networks</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Papernot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Mcdaniel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Jha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Swami</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2016 IEEE Symposium on Security and Privacy (SP)</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="582" to="597" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title level="m" type="main">Towards Practical Verification of Machine Learning: The Case of Computer Vision Systems</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Pei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Cao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Jana</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1712.01785</idno>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note>cs</note>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Deeptest: Automated testing of deep-neural-network-driven autonomous cars</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Tian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Pei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Jana</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Ray</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 40th international conference on software engineering</title>
+		<meeting>the 40th international conference on software engineering</meeting>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="303" to="314" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Ensemble adversarial training: Attacks and defenses</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Tramèr</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kurakin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Papernot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Boneh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Mcdaniel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Learning Representations</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Evaluating the robustness of neural networks: An extreme value theory approach</title>
+		<author>
+			<persName><forename type="first">T.-W</forename><surname>Weng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P.-Y</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Yi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Su</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Gao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C.-J</forename><surname>Hsieh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Daniel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Learning Representations</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Mitigating adversarial effects through randomization</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Xie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Ren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Yuille</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Learning Representations</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

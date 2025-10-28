@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Augmented Q Imitation Learning (AQIL)</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Xiao</forename><forename type="middle">Lei</forename><surname>Zhang</surname></persName>
+							<email>zhang205@cse.yorku.ca</email>
+							<affiliation key="aff0">
+								<orgName type="institution">York University Toronto</orgName>
+								<address>
+									<country key="CA">Canada</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Anish</forename><surname>Agarwal</surname></persName>
+							<affiliation key="aff1">
+								<orgName type="institution">University of Waterloo Waterloo</orgName>
+								<address>
+									<country key="CA">Canada</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Augmented Q Imitation Learning (AQIL)</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">C15DAEF49E47062CAA143EE15681BF4E</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>Q-imitation-learning</term>
+					<term>Deep Reinforcement Learning</term>
+					<term>Deep Q-learning</term>
+					<term>Behavioral Cloning</term>
+					<term>SQIL</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>The study of unsupervised learning can be generally divided into two categories: imitation learning and reinforcement learning. In imitation learning the machine learns by mimicking the behavior of an expert system whereas in reinforcement learning the machine learns via direct environment feedback. Traditional deep reinforcement learning takes a significant time before the machine starts to converge to an optimal policy. This paper proposes Augmented Q-Imitation-Learning, a method by which deep reinforcement learning convergence can be accelerated by applying Qimitation-learning as the initial training process in traditional Deep Q-learning.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>I. INTRODUCTION</head><p>Imitation learning in deep learning systems is generally either focused on modeling the behavior of an expert system (behavioral cloning) or focused on modeling the reward function which best approximates the expert system's behavior (inverse reinforcement learning).</p><p>The performance of an imitation learning system alone is limited by the performance of the expert player. In the ideal sense we want systems which can increase the upper bound of performance by going beyond that of an expert system. To achieve this, imitation learning alone is not sufficient. We are bounded by the limits of supervision.</p><p>Current fully unsupervised deep learning systems which have performance beyond known expert systems have been designed using reinforcement learning, where machines are learning from direct environment interaction. Deep reinforcement learning <ref type="bibr" target="#b5">[6]</ref> (DQN) however requires quite a bit of training period till the model reaches expert level performance. This is exacerbated in increasingly complex environments.</p><p>It seems that there is a mutual advantage to merge reinforcement learning with imitation learning. A reinforcement learning model can accelerate its initial training time by imitating an expert system. An imitation learning model can increase its upper bound and go beyond the expert system by switching to direct environment interaction.</p><p>In this paper we consider this augmentation. We use traditional imitation learning approaches as a precursor to deep reinforcement learning. A deep neural network first imitates an expert system and then is allowed to reinforce directly through the environment. We first setup the framework of the experiment, followed by the implementation details and concluding with the experimental results.</p><p>The imitation learning framework we used is a custom Qimitation-learning protocol similar to SQIL <ref type="bibr" target="#b0">[1]</ref> . Whereas SQIL uses a soft Bellman equation <ref type="bibr" target="#b4">[5]</ref> , we use the Bellman equation with a hard argmax. Q imitation learning is the same as traditional Q-learning in all aspects except that the state-action reward is determined by adherence to an experts state-action rather than from direct environment feedback. This paper uses a Gaussian reward function proportional to difference between expert's action and agent's action.</p><p>We follow the Q-imitation-learning with a traditional Qlearning training sequence. In the Q-learning portion we use a Gaussian reward function proportional to the difference between the optimal state and the actual state.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>II. FRAMEWORK</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Markov Decision Processes</head><p>We define the MDP parameters as {S, A, P, R, I}, where:</p><p>• S is the set of states</p><p>• A is the finite set of actions • P = P(s, a, s') is the state transition probability which denotes the probability to transition to state s' given than the previous state was s and action a was taken.</p><p>• R = R(s, a) is the reward in state s given action a was taken</p><p>• I is the initial state distribution Additional parameters are specified as follows:</p><p>• N denotes the number of episodes </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Problem Definition</head><p>Given the above we can make the following conclusions:</p><formula xml:id="formula_0">• V (π)=T * E s∼d R( s , π (s ))</formula><p>denotes the total rewards of all trajectories given the initial state I</p><formula xml:id="formula_1">• V (π ' )-V ( π) denotes the imitation regret • V (π '' )-V (π) denotes the reinforcement regret • V (π '' )-V (π ' ) denotes the expert regret</formula><p>The goal of augmented reinforcement learning is to accelerate reduction of reinforcement regret to the point where it is below expert regret. That is using imitation learning to reach the point where</p><formula xml:id="formula_2">V (π '' )-V (π)≤V (π '' )-V (π ' )</formula><p>as fast as possible.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>III. IMPLEMENTATION</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Agent-Environment Interaction</head><p>We implement our experiment in CartPole-v1 Gym environment from the OpenAI gym. CartPole is a conventional controls problem and is suitable for imitation learning since an expert model is readily available in the form of a PID controller.</p><p>The mechanics of CartPole consist of a pole attached by a joint to a cart, which is controlled by applying a force of +1 or -1. The pole initially starts upright and the goal is to prevent the pole from falling over. Each episode ends, when the pole is more than theta degrees from the vertical or the cart moves more than 2.4 units away from the center. For this experiment, we set theta to 50 degrees to reduce learning time of each agent. We first train the model via Q-imitation-learning by modeling the PID. Then we train the model using deep reinforcement learning directly from the environment. We compare these results to a model trained via deep reinforcement learning alone and to a model trained via imitation learning alone.</p><p>In both Q-imitation-learning and deep reinforcement learning, we used the Q-learning methodology for training. During the imitation learning process, the Q-learning model optimizes the reward based on following the expert input.</p><p>The expert input was taken by implementing a simple PID controller to control the cart. The PID system was tuned to score much higher than an average human player. The proportional, integral and derivative parameters are as follows: P = 0.6, I = 0.00625, D = 0.8</p><p>The reward during Q imitation learning is a Gaussian function defined below. The reward depends on the difference between the expert action and the model action as well as the difference between the optimal and actual pole angles. The reward function is highest when the pole angle is optimal and the model action matches the expert action.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>R(θ , a</head><formula xml:id="formula_3">PID , a model )=0.2 e - 1 2 ( θ optimal -θ σ 1 ) 2 +0.8 e - 1 2 ( a PID -a model σ 2 ) 2 θ optimal =0∧σ 1 =10∧σ 2 =0.5</formula><p>For deep reinforcement learning the Gaussian reward function becomes</p><formula xml:id="formula_4">R(θ)=e - 1 2 ( θ optimal -θ σ 1 ) 2 θ optimal =0∧σ 1 =10</formula><p>This reward function is based on the difference between the target and actual pole angles</p><p>We define the loss function for the i th training step as the Bellman error.  </p><formula xml:id="formula_5">L i (θ i )=( y i -Q( s , a ; θ i ))</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. Imitation Training Methodology</head><p>For imitation training, we use the forward training methodology used by Ross and Bagnell (2010) <ref type="bibr" target="#b1">[2]</ref> modified to use a stationary policy. We use a stationary policy since the T is unbounded in the training environment.</p><p>The training methodology is summarized as follows:   B. Q-Imitation-Learning with Expert Player (PID)</p><p>The second and third model are trained by Q Imitation Learning via the expert PID system, referred as IL250 and IL500.     C. Augmented Q-Imitation-Learning We train the fourth model using Deep Q Learning with the imitation learning model from B. This model is referred to as IL250 + RL250. Model loss and reward plots are shown in Figure 8. As shown in Table 2, the model achieves an average reward of 2000 and a peak reward of 13000 after 250 episodes of training. Model weights are shown in Figure 9.  Table 2. Comparison of average reward and best reward for each learning method. Best reward measures the single best performing episode for each learning method.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>V. CONCLUSION</head><p>IL250+RL250 outperforms IL250, IL500 and RL500 by a large margin on both average and best score. This is given that the total number of episodes are equal. This shows that AQIL may indeed be an effective approach to accelerate Qlearning training in cases where an expert system is readily available and the Deep Q-learning methodology is relevant.</p><p>Future research should include characterizing performance of AQIL with changes in training configuration, model topology and environment complexity. It would be interesting to see the performance of AQIL on a variety of environments. Repeated bouts of imitation and reinforcement learning may also provide some insight. Lastly the effects of different reward functions and error functions should be characterized.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>•</head><figDesc>T denotes the time horizon• π denotes the policy that determines which action is taken at state s • π ' denotes the experts policy • π ' ' denotes the optimal policy</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 1 .</head><label>1</label><figDesc>Figure 1. View of Cartpole-v1 environment.</figDesc><graphic coords="2,44.70,470.96,244.10,162.30" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><figDesc>' , a ' ; θ i-1 )B. Model ArchitectureThe model architecture is shown in Figure1.We use a fully connected neural network model for the Deep Q-Learning and Imitation Learning agents. We use ReLU activation for the inner layers and linear activation for the output layer.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 1 .</head><label>1</label><figDesc>Figure 1. DQN Model Architecture. Dense layers are described by number of features (n).</figDesc><graphic coords="2,372.80,538.56,94.80,142.00" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Algorithm 1 : 2 : 3 : 5 :π 2 : 3 :Execute x trajectories using π ' 4 : 5 :</head><label>12352345</label><figDesc>Q Imitation Training 1: Initialize π For I = 1 to num_epochs do Execute x trajectories using π ' 4: Sample dataset D = {states, action} taken by expert Train π using DQN with Reward =R (θ , a PID , a model ) 6: End for 7: Return π D. Reinforcement Learning Methodology The reinforcement training is similar to imitation training except that the training classifier uses a reward function directly from the environment rather than the expert player.For I = 1 to num_epochs do Sample dataset D = {states, action} taken by expert Train π using DQN with Reward =R (θ) 6: End for 7: Return π IV. RESULTS A. Deep Q Learning The first model is trained using deep reinforcement learning alone, denoted as RL500. The model loss and reward curves are shown in Figure 2. The summary results are shown in Table 2. The model achieves an average score of 331.63 and a peak reward of 1949.39 after 500 episodes of training.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Figure 2 .</head><label>2</label><figDesc>Figure 2. Model Loss and Reward for CartPole-v1 with Deep Q Learning, denoted as RL500.</figDesc><graphic coords="3,308.40,158.86,240.40,151.50" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><head>Figure 3 .</head><label>3</label><figDesc>Figure 3. Model Weights for RL500 Model.</figDesc><graphic coords="3,329.20,357.46,198.30,226.80" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head>Figure 4</head><label>4</label><figDesc>and 6 shows the loss and reward of the expert. The model imitation loss after 250 episodes of training and 500 episodes of training are also shown in Figure 4 and 6. Table 2 shows the IL250 producing an average score of 593.1 and a peak score of 6082.91, while IL500 reaches an average score of 681.91 and peak score of 4652.33. Model weights are shown in Figure 5 and 7.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_8"><head>Figure 4 .</head><label>4</label><figDesc>Figure 4. Model Loss and Reward for Q Imitation Learning using PID expert player, denoted as IL250.</figDesc><graphic coords="4,45.20,245.86,228.60,150.70" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_9"><head>Figure 5 .</head><label>5</label><figDesc>Figure 5. Model Weights for IL250 Model.</figDesc><graphic coords="4,43.20,463.96,230.30,229.20" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_10"><head>Figure 6 .</head><label>6</label><figDesc>Figure 6. Model Loss and Reward for Q Imitation Learning using PID expert player, denoted as IL500.</figDesc><graphic coords="4,307.10,242.76,227.60,152.10" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_11"><head>Figure 7 .</head><label>7</label><figDesc>Figure 7. Model Weights for IL500 Model</figDesc><graphic coords="4,308.70,463.66,226.80,226.80" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_12"><head>Figure 8 .</head><label>8</label><figDesc>Figure 8. Model Loss and Reward for CartPole-v1 with Deep Q Learning after Q Imitation Learning, denoted as IL250 + RL250.</figDesc><graphic coords="5,41.50,292.16,246.40,150.80" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_13"><head>Figure 9 .</head><label>9</label><figDesc>Figure 9. Model Weights for IL250 + RL250 Model.</figDesc><graphic coords="5,55.20,495.06,226.80,226.80" type="bitmap" /></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title level="m" type="main">SQIL: Imitation Learning via Regularized Behavioral Cloning</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Reddy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">D</forename><surname>Dragan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Levine</surname></persName>
+		</author>
+		<idno>ArXiv, abs/1905.11108</idno>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Global overview of Imitation Learning</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Attia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Dayan</surname></persName>
+		</author>
+		<idno>ArXiv, abs/1801.06503</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Active lmitation learning: formal and practical reductions to I.I.D. learning</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Judah</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Fern</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">G</forename><surname>Dietterich</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Tadepalli</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Mach. Learn. Res</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="page" from="3925" to="3963" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">Y</forename><surname>Ng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Russell</surname></persName>
+		</author>
+		<title level="m">Algorithms for Inverse Reinforcement Learning. ICML</title>
+		<imprint>
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<author>
+			<persName><forename type="first">T</forename><surname>Haarnoja</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Tang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Abbeel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Levine</surname></persName>
+		</author>
+		<title level="m">Reinforcement Learning with Deep Energy-Based Policies. ICML</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<title level="m" type="main">Playing Atari with Deep Reinforcement Learning</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Mnih</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Kavukcuoglu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Silver</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Graves</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Antonoglou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wierstra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A</forename><surname>Riedmiller</surname></persName>
+		</author>
+		<idno>ArXiv, abs/1312.5602</idno>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

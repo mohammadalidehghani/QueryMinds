@@ -1,0 +1,2840 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Deep Learning and Its Applications to Machine Health Monitoring: A Survey</title>
+				<funder ref="#_DQB4YHt">
+					<orgName type="full">National Natural Science Foundation of China</orgName>
+				</funder>
+				<funder ref="#_94XxZ7P #_pyavM9d #_483y8j2 #_x8BKzGe">
+					<orgName type="full">unknown</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Rui</forename><surname>Zhao</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Ruqiang</forename><surname>Yan</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Zhenghua</forename><surname>Chen</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Kezhi</forename><surname>Mao</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Peng</forename><surname>Wang</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Robert</forename><forename type="middle">X</forename><surname>Gao</surname></persName>
+						</author>
+						<title level="a" type="main">Deep Learning and Its Applications to Machine Health Monitoring: A Survey</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">CB11D0F6581B3A2B784B6A7EF0E304EA</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>Deep learning</term>
+					<term>machine health monitoring</term>
+					<term>big data</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Since 2006, deep learning (DL) has become a rapidly growing research direction, redefining state-of-the-art performances in a wide range of areas such as object recognition, image segmentation, speech recognition and machine translation. In modern manufacturing systems, data-driven machine health monitoring is gaining in popularity due to the widespread deployment of low-cost sensors and their connection to the Internet. Meanwhile, deep learning provides useful tools for processing and analyzing these big machinery data. The main purpose of this paper is to review and summarize the emerging research work of deep learning on machine health monitoring. After the brief introduction of deep learning techniques, the applications of deep learning in machine health monitoring systems are reviewed mainly from the following aspects: Autoencoder (AE) and its variants, Restricted Boltzmann Machines and its variants including Deep Belief Network (DBN) and Deep Boltzmann Machines (DBM), Convolutional Neural Networks (CNN) and Recurrent Neural Networks (RNN). Finally, some new trends of DL-based machine health monitoring methods are discussed.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>I. INTRODUCTION</head><p>I NDUSTRIAL Internet of Things (IoT) and data-driven techniques have been revolutionizing manufacturing by enabling computer networks to gather the huge amount of data from connected machines and turn the big machinery data into actionable information <ref type="bibr" target="#b0">[1]</ref>, <ref type="bibr" target="#b1">[2]</ref>, <ref type="bibr" target="#b2">[3]</ref>. As a key component in modern manufacturing system, machine health monitoring has fully embraced the big data revolution. Compared to top-down modeling provided by the traditional physics-based models <ref type="bibr" target="#b3">[4]</ref>, <ref type="bibr" target="#b4">[5]</ref>, <ref type="bibr" target="#b5">[6]</ref> , data-driven machine health monitoring systems offer a new paradigm of bottom-up solution for detection of faults after the occurrence of certain failures (diagnosis) and predictions of the future working conditions and the remaining useful life (prognosis) <ref type="bibr" target="#b0">[1]</ref>, <ref type="bibr" target="#b6">[7]</ref>. As we know, the complexity and noisy working condition hinder the construction of physical models. And most of these physicsbased models are unable to be updated with on-line measured data, which limits their effectiveness and flexibility. On the other hand, with significant development of sensors, sensor networks and computing systems, data-driven machine health monitoring models have become more and more attractive. To extract useful knowledge and make appropriate decisions from big data, machine learning techniques have been regarded as a powerful solution. As the hottest subfield of machine R. Yan is the corresponding author. E-mail: ruqiang@seu.edu.cn This manuscript has been submitted to IEEE Transactions on Neural Networks and Learning Systems learning, deep learning is able to act as a bridge connecting big machinery data and intelligent machine health monitoring.</p><p>As a branch of machine learning, deep learning attempts to model high level representations behind data and classify(predict) patterns via stacking multiple layers of information processing modules in hierarchical architectures. Recently, deep learning has been successfully adopted in various areas such as computer vision, automatic speech recognition, natural language processing, audio recognition and bioinformatics <ref type="bibr" target="#b7">[8]</ref>, <ref type="bibr" target="#b8">[9]</ref>, <ref type="bibr" target="#b9">[10]</ref>, <ref type="bibr" target="#b10">[11]</ref>. In fact, deep learning is not a new idea, which even dates back to the 1940s <ref type="bibr" target="#b11">[12]</ref>, <ref type="bibr" target="#b12">[13]</ref>. The popularity of deep learning today can be contributed to the following points: * Increasing Computing Power: the advent of graphics processor unit (GPU), the lowered cost of hardware, the better software infrastructure and the faster network connectivity all reduce the required running time of deep learning algorithms significantly. For example, as reported in <ref type="bibr" target="#b13">[14]</ref>, the time required to learn a four-layer DBN with 100 million free parameters can be reduced from several weeks to around a single day. * Increasing Data Size: there is no doubt that the era of Big Data is coming. Our activities are almost all digitized, recorded by computers and sensors, connected to Internet, and stored in cloud. As pointed out in <ref type="bibr" target="#b0">[1]</ref> that in industry-related applications such as industrial informatics and electronics, almost 1000 exabytes are generated per year and a 20-fold increase can be expected in the next ten years. The study in <ref type="bibr" target="#b2">[3]</ref> predicts that 30 billion devices will be connected by 2020. Therefore, the huge amount of data is able to offset the complexity increase behind deep learning and improve its generalization capability. * Advanced Deep Learning Research: the first breakthrough of deep learning is the pre-training method in an unsupervised way <ref type="bibr" target="#b14">[15]</ref>, where Hinton proposed to pre-train one layer at a time via restricted Boltzmann machine (RBM) and then fine-tune using backpropagation. This has been proven to be effective to train multilayer neural networks.</p><p>Considering the capability of deep learning to address largescale data and learn high-level representation, deep learning can be a powerful and effective solution for machine health monitoring systems (MHMS). Conventional data-driven MHMS usually consists of the following key parts: handcrafted feature design, feature extraction/selection and model training. The right set of features are designed, and then provided to some shallow machine learning algorithms including arXiv:1612.07640v1 [cs.LG] 16 Dec 2016</p><p>Support Vector Machines (SVM), Naive Bayes (NB), logistic regression <ref type="bibr" target="#b15">[16]</ref>, <ref type="bibr" target="#b16">[17]</ref>, <ref type="bibr" target="#b17">[18]</ref>. It is shown that the representation defines the upper-bound performances of machine learning algorithms <ref type="bibr" target="#b18">[19]</ref>. However, it is difficult to know and determine what kind of good features should be designed. To alleviate this issue, feature extraction/selection methods, which can be regarded as a kind of information fusion, are performed between hand-crafted feature design and classification/regression models <ref type="bibr" target="#b19">[20]</ref>, <ref type="bibr" target="#b20">[21]</ref>, <ref type="bibr" target="#b21">[22]</ref>. However, manually designing features for a complex domain requires a great deal of human labor and can not be updated on-line.</p><p>At the same time, feature extraction/selection is another tricky problem, which involves prior selection of hyperparameters such as latent dimension. At last, the above three modules including feature design, feature extraction/selection and model training can not be jointly optimized which may hinder the final performance of the whole system. Deep learning based MHMS (DL-based MHMS) aim to extract hierarchical representations from input data by building deep neural networks with multiple layers of non-linear transformations. Intuitively, one layer operation can be regarded as a transformation from input values to output values. Therefore, the application of one layer can learn a new representation of the input data and then, the stacking structure of multiple layers can enable MHMS to learn complex concepts out of simpler concepts that can be constructed from raw input. In addition, DL-based MHMS achieve an end-to-end system, which can automatically learn internal representations from raw input and predict targets. Compared to conventional data driven MHMS, DL-based MHMS do not require extensive human labor and knowledge for handcrafted feature design. All model parameters including feature module and pattern classification/regression module can be trained jointly. Therefore, DL-based models can be applied to addressing machine health monitoring in a very general way. For example, it is possible that the model trained for fault diagnosis problem can be used for prognosis by only replacing the top softmax layer with a linear regression layer.</p><p>The comparison between conventional data-driven MHMS and DL-based MHMS is given in Table <ref type="table">I</ref>. A high-level illustration of the principles behind these three kinds of MHMS discussed above is shown in Figure <ref type="figure" target="#fig_0">1</ref>.</p><p>Deep learning models have several variants such as Auto-Dncoders <ref type="bibr" target="#b22">[23]</ref>, Deep Belief Network <ref type="bibr" target="#b23">[24]</ref>, Deep Boltzmann Machines <ref type="bibr" target="#b24">[25]</ref>, Convolutional Neural Networks <ref type="bibr" target="#b25">[26]</ref> and Recurrent Neural Networks <ref type="bibr" target="#b26">[27]</ref>. During recent years, various researchers have demonstrated success of these deep learning models in the application of machine health monitoring. This paper attempts to provide a wide overview on these latest DL-based MHMS works that impact the state-of-the art technologies. Compared to these frontiers of deep learning including Computer Vision and Natural Language Processing, machine health monitoring community is catching up and has witnessed an emerging research. Therefore, the purpose of this survey article is to present researchers and engineers in the area of machine health monitoring system, a global view of this hot and active topic, and help them to acquire basic knowledge, quickly apply deep learning models and develop novel DL-based MHMS. The remainder of this paper is organized as follows. The basic information on these above deep learning models are given in section II. Then, section III reviews applications of deep learning models on machine health monitoring. Finally, section IV gives a brief summary of the recent achievements of DL-based MHMS and discusses some potential trends of deep learning in machine health monitoring.</p><p>II. DEEP LEARNING Originated from artificial neural network, deep learning is a branch of machine learning which is featured by multiple nonlinear processing layers. Deep learning aims to learn hierarchy representations of data. Up to date, there are various deep learning architectures and this research topic is fast-growing, in which new models are being developed even per week. And the community is quite open and there are a number of deep learning tutorials and books of good-quality <ref type="bibr" target="#b27">[28]</ref>, <ref type="bibr" target="#b28">[29]</ref>. Therefore, only a brief introduction to some major deep learning techniques that have been applied in machine health monitoring is given. In the following, four deep architectures including Auto-encoders, RBM, CNN and RNN and their corresponding variants are reviewed, respectively.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Auto-encoders (AE) and its variants</head><p>As a feed-forward neural network, auto-encoder consists of two phases including encoder and decoder. Encoder takes an input x and transforms it to a hidden representation h via a non-linear mapping as follows:</p><formula xml:id="formula_0">h = ϕ(Wx + b)<label>(1)</label></formula><p>where ϕ is a non-linear activation function. Then, decoder maps the hidden representation back to the original representation in a similar way as follows:</p><formula xml:id="formula_1">z = ϕ(W h + b )<label>(2)</label></formula><p>Model parameters including θ = [W, b, W , b ] are optimized to minimize the reconstruction error between z = f θ (x) and x. One commonly adopted measure for the average reconstruction error over a collection of N data samples is squared error and the corresponding optimization problem can be written as follows:</p><formula xml:id="formula_2">min θ 1 N N i (x i -f θ (x i )) 2<label>(3)</label></formula><p>where x i is the i-th sample. It is clearly shown that AE can be trained in an unsupervised way. And the hidden representation h can be regarded as a more abstract and meaningful representation for data sample x. Usually, the hidden size should be set to be larger than the input size in AE, which is verified empirically <ref type="bibr" target="#b29">[30]</ref>.</p><p>Addition of Sparsity: To prevent the learned transformation is the identity one and regularize auto-encoders, the sparsity constraint is imposed on the hidden units <ref type="bibr" target="#b30">[31]</ref>. The corrsponding optimization function is updated as:</p><formula xml:id="formula_3">min θ 1 N N i (x i -f θ (x i )) 2 + m j KL(p||p j )<label>(4)</label></formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Monitored Machines Hand-designed Features Data Acquisition</head><p>Model Training TABLE I SUMMARY ON COMPARISON BETWEEN CONVENTIONAL DATA-DRIVEN MHMS AND DL-BASED MHMS. MHMS Conventional Data-driven Methods Deep Learning Methods Expert knowledge and extensive human labor required for Hand-crafted features End-to-end structure without hand-crafted features Individual modules are trained step-by-step All parameters are trained jointly Unable to model large-scale data Suitable for large-scale data</p><p>where m is the hidden layer size and the second term is the summation of the KL-divergence over the hidden units. The KL-divergence on j-th hidden neuron is given as:</p><formula xml:id="formula_4">KL(p||p j ) = plog( p p j ) + (1 -p)log( 1 -p 1 -p j ) (<label>5</label></formula><formula xml:id="formula_5">)</formula><p>where p is the predefined mean activation target and p j is the average activation of the j-th hidden neuron over the whole datasets. Given a small p, the addition of sparsity constraint can lead the learned hidden representation to be a sparse representation. Therefore, the variant of AE is named sparse auto-encoder. Addition of Denoising: Different from conventional AE, denoising AE takes a corrupted version of data as input and is trained to reconstruct/denoise the clean input x from its corrupted sample x. The most common adopted noise is dropout noise/binary masking noise, which randomly sets a fraction of the input features to be zero <ref type="bibr" target="#b22">[23]</ref>. The variant of AE is denoising auto-encoder (DA), which can learn more robust representation and prevent it from learning the identity transformation.</p><p>Stacking Structure: Several DA can be stacked together to form a deep network and learn high-level representations by feeding the outputs of the l-th layer as inputs to the (l + 1)-th layer <ref type="bibr" target="#b22">[23]</ref>. And the training is done one layer greedily at a time.</p><p>Since auto-encoder can be trained in an unsupervised way, auto-encoder, especially stacked denoising auto-encoder (SDA), can provide an effective pre-training solution via initializing the weights of deep neural network (DNN) to train the model. After layer-wise pre-training of SDA, the parameters of auto-encoders can be set to the initialization for all the hidden layers of DNN. And then, the supervised finetuning is performed to minimize prediction error on a labeled training data. Usually, a softmax/regression layer is added on top of the network to map the output of the last layer in AE to targets. The whole process is shown in Figure <ref type="figure" target="#fig_1">2</ref>. The pretraining protocol based on SDA can make DNN models have better convergence capability compared to arbitrary random initialization.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. RBM and its variants</head><p>As a special type of Markov random field, restricted Boltzmann machine (RBM) is a two-layer neural network forming a bipartite graph that consists of two groups of units including visible units v and hidden units h under the constrain that there exists a symmetric connection between visible units and hidden units and there are no connections between nodes with a group.</p><p>Given the model parameters θ = [W, b, a], the energy function can be given as:</p><formula xml:id="formula_6">E(v, h; θ) = - I i=1 J j=1 w ij v i h j - I i=1 b i v i - J j=1 a j h j (6)</formula><p>that w ij is the connecting weight between visible unit v i , whose total number is I and hidden unit h j whose total number is J, b i and a j denote the bias terms for visible units and hidden units, respectively. The joint distribution over all the units is calculated based on the energy function E(v, h; θ) as:</p><formula xml:id="formula_7">p(v, h; θ) = exp(-E(v, h; θ)) Z<label>(7)</label></formula><p>where Z = h;v exp(-E(v, h; θ)) is the partition function or normalization factor. Then, the conditional probabilities of hidden and visible units h and v can be calculated as:</p><formula xml:id="formula_8">p(h j = 1|v; θ) = δ( I i=1 w ij v i + a j )<label>(8)</label></formula><formula xml:id="formula_9">p(v i = 1|v; θ) = δ( J j=1 w ij h j + b i ) (<label>9</label></formula><formula xml:id="formula_10">)</formula><p>where δ is defined as a logistic function i.e., δ(x) = layer. And following the RMB's connectivity constraint, there is only full connectivity between subsequent layers and no connections within layers or between non-neighbouring layers are allowed. The main difference between DBN and DBM lies that DBM is fully undirected graphical model, while DBN is mixed directed/undirected one. Different from DBN that can be trained layer-wisely, DBM is trained as a joint model. Therefore, the training of DBM is more computationally expensive than that of DBN.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. Convolutioanl Neural Network</head><p>Convolutional neural networks (CNNs) were firstly proposed by LeCun <ref type="bibr" target="#b31">[32]</ref> for image processing, which is featured by two key properties: spatially shared weights and spatial pooling. CNN models have shown their success in various computer vision applications <ref type="bibr" target="#b31">[32]</ref>, <ref type="bibr" target="#b32">[33]</ref>, <ref type="bibr" target="#b33">[34]</ref> where input data are usually 2D data. CNN has also been introduced to address sequential data including Natural Language Processing and Speech Recognition <ref type="bibr" target="#b34">[35]</ref>, <ref type="bibr" target="#b35">[36]</ref>.</p><p>CNN aims to learn abstract features by alternating and stacking convolutional kernels and pooling operation. In CNN, the convolutional layers (convolutional kernels) convolve multiple local filters with raw input data and generate invariant local features and the subsequent pooling layers extract most significant features with a fixed-length over sliding windows of the raw input data. Considering 2D-CNN have been illustrated extensively in previous research compared to 1D-CNN, here, only the mathematical details behind 1D-CNN is given as follows:</p><p>Firstly, we assume that the input sequential data is x = [x 1 , . . . , x T ] that T is the length of the sequence and x i ∈ R d at each time step. Convolution: the dot product between a filter vector u ∈ R md and an concatenation vector representation x i:i+m-1 defines the convolution operation as follows:</p><formula xml:id="formula_11">c i = ϕ(u T x i:i+m-1 + b)<label>(10)</label></formula><p>where * T represents the transpose of a matrix * , b and ϕ denotes bias term and non-linear activation function, respectively. x i:i+m-1 is a m-length window starting from the i-th time step, which is described as:</p><formula xml:id="formula_12">x i:i+m-1 = x i ⊕ x i+1 ⊕ • • • ⊕ x i+m-1<label>(11)</label></formula><p>As defined in Eq. ( <ref type="formula" target="#formula_11">10</ref>), the output scale c i can be regarded as the activation of the filter u on the corresponding subsequence x i:i+m-1 . By sliding the filtering window from the beginning time step to the ending time step, a feature map as a vector can be given as follows:</p><formula xml:id="formula_13">c j = [c 1 , c 2 , . . . , c l-m+1 ]<label>(12)</label></formula><p>where the index j represents the j-th filter. It corresponds to multi-windows as {x 1:m , x 2:m+1 , . . . , x l-m+1:l }. Max-pooling: Pooling layer is able to reduce the length of the feature map, which can further minimize the number of model parameters. The hyper-parameter of pooling layer is pooling length denoted as s. MAX operation is taking a max over the s consecutive values in feature map c j . Then, the compressed feature vector can be obtained as:</p><formula xml:id="formula_14">h = h 1 , h 2 , . . . , h l-m s +1<label>(13)</label></formula><p>where h j = max(c (j-1)s , c (j-1)s+1 , . . . , c js-1 ). Then, via alternating the above two layers: convolution and max-pooling ones, fully connected layers and a softmax layer are usually added as the top layers to make predictions. To give a clear illustration, the framework for a one-layer CNN has been displayed in Figure . 4.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>D. Recurrent Neural Network</head><p>As stated in <ref type="bibr" target="#b11">[12]</ref>, recurrent neural networks (RNN) are the deepest of all neural networks, which can generate and address memories of arbitrary-length sequences of input patterns. RNN is able to build connections between units from a directed cycle. Different from basic neural network: multi-layer perceptron that can only map from input data to target vectors, RNN is able to map from the entire history of previous inputs to target vectors in principal and allows a memory of previous inputs to be kept in the network's internal state. RNNs can be trained via backpropagation through time for supervised tasks with sequential input data and target outputs <ref type="bibr" target="#b36">[37]</ref>, <ref type="bibr" target="#b26">[27]</ref>, <ref type="bibr" target="#b37">[38]</ref>.</p><p>RNN can address the sequential data using its internal memory, as shown in Figure <ref type="figure" target="#fig_5">5</ref>. (a). The transition function defined in each time step t takes the current time information x t and the previous hidden output h t-1 and updates the current hidden output as follows:</p><formula xml:id="formula_15">h t = H(x t , h t-1 )<label>(14)</label></formula><p>where H defines a nonlinear and differentiable transformation function. After processing the whole sequence, the hidden output at the last time step i.e. h T is the learned representation of the input sequential data whose length is T . A conventional Multilayer perceptron (MLP) is added on top to map the obtained representation h T to targets.</p><p>Various transition functions can lead to various RNN models. The most simple one is vanilla RNN that is given as follows:</p><formula xml:id="formula_16">h t = ϕ(Wx t + Hh t-1 + b)<label>(15)</label></formula><p>where W and H denote transformation matrices and b is the bias vector. And ϕ denote the nonlinear activation function such as sigmoid and tanh functions. Due to the vanishing gradient problem during backpropagation for model training, vanilla RNN may not capture long-term dependencies. Therefore, Long-short term memory (LSTM) and gated recurrent neural networks (GRU) were presented to prevent backpropagated errors from vanishing or exploding <ref type="bibr" target="#b38">[39]</ref>, <ref type="bibr" target="#b39">[40]</ref>, <ref type="bibr" target="#b40">[41]</ref>, <ref type="bibr" target="#b41">[42]</ref>, <ref type="bibr" target="#b42">[43]</ref>. The core idea behind these advanced RNN variants is that gates are introduced to avoid the long-term dependency problem and enable each recurrent unit to adaptively capture dependencies of different time scales. Besides these proposed advanced transition functions such as LSTMs and GRUs, multi-layer and bi-directional recurrent structure can increase the model capacity and flexibility. As shown in Figure <ref type="figure" target="#fig_5">5</ref>.(b), multi-layer structure can enable the hidden output of one recurrent layer to be propagated through time and used as the input data to the next recurrent layer. And the bidirectional recurrent structure is able to process the sequence data in two directions including forward and backward ways with two separate hidden layers, which is illustrated in Figure <ref type="figure" target="#fig_5">5</ref>.(c). The following equations define the corresponding hidden layer function and the → and ← denote forward and backward process, respectively.</p><formula xml:id="formula_17">- → h t = - → H (x t , - → h t-1 ), ← - h t = ← - H (x t , ← - h t+1 ).<label>(16)</label></formula><p>Then, the final vector h T is the concatenated vector of the outputs of forward and backward processes as follows:</p><formula xml:id="formula_18">h T = - → h T ⊕ ← - h 1 (<label>17</label></formula><formula xml:id="formula_19">)</formula><p>Convolutional Layer   </p><formula xml:id="formula_20">X 2 X 3 X 1 T X  T X T h Time Series 1 X 2 X 3 X 1 T X  T X 3 T h Time Series 2 1 h 1 1 h 1 T h 1 2 h 2 2 h 2 T h (a) Basic RNN (b) Stacked RNN (c) Bidirectional RNN 1 X 2 X 3 X 1 T X  T X T h Concatenated T h Time Series</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>III. APPLICATIONS OF DEEP LEARNING IN MACHINE HEALTH MONITORING</head><p>The conventional multilayer perceptron (MLP) has been applied in the field of machine health monitoring for many years <ref type="bibr" target="#b43">[44]</ref>, <ref type="bibr" target="#b44">[45]</ref>, <ref type="bibr" target="#b45">[46]</ref>, <ref type="bibr" target="#b46">[47]</ref>. The deep learning techniques have recently been applied to a large number of machine health monitoring systems. The layer-by-layer pretraining of deep neural network (DNN) based on Auto-encoder or RBM can facilitate the training of DNN and improve its discriminative power to characterize machinery data. Convolution neural network and recurrent neural networks provide more advanced and complex compositions mechanism to learn representation from machinery data. In these DL-based MHMS systems, the top layer normally represents the targets. For diagnosis where targets are discrete values, softmax layer is applied. For prognosis with continuous targets, liner regression layer is added. What is more, the end-to-end structure enables DLbased MHMS to be constructed with less human labor and expert knowledge, therefore these models are not limited to specific machine specific or domain. In the following, a brief survey of DL-based MHMS are presented in these above four DL architectures: AE, RBM, CNN and RNN.</p><p>A. AE and its variants for machine health monitoring AE models, especially stacked DA, can learn high-level representations from machinery data in an automatic way. Sun et al. proposed a one layer AE-based neural network to classify induction motor faults <ref type="bibr" target="#b47">[48]</ref>. Due to the limited size of training data, they focused on how to prevent overfiting. Not only the number of hidden layer was set to 1, but also dropout technique that masks portions of output neurons randomly was applied on the hidden layer. However, most of proposed models are based on deep architectures by stacking multiple auto-encoders. Lu et al. presented a detailed empirical study of stacked denoising autoencoders with three hidden layers for fault diagnosis of rotary machinery components <ref type="bibr" target="#b48">[49]</ref>. Specifically, in their experiments including single working condition and cross working conditions, the effectiveness of the receptive input size, deep architecture, sparsity constraint and denosing operation in the SDA model were evaluated. In <ref type="bibr" target="#b49">[50]</ref>, different structures of a two-layer SAE-based DNN were designed by varying hidden layer size and its masking probability, and evaluated for their performances in fault diagnosis.</p><p>In these above works, the input features to AE models are raw sensory time-series. Therefore, the input dimensionality is always over even one thousand. The possible high dimensionality may lead to some potential concerns such as heavy computation cost and overfiting caused huge model parameters. Therefore, some researchers focused on AE models built upon features extracted from raw input. Jia et al. fed the frequency spectra of time-series data into SAE for rotating machinery diagnosis <ref type="bibr" target="#b50">[51]</ref>, considering the frequency spectra is able to demonstrate how their constitutive components are distributed with discrete frequencies and may be more discriminative over the health conditions of rotating machinery. The corresponding framework proposed by Jia et al. is shown in Figure <ref type="figure">6</ref>. Tan et al. used digital wavelet frame and nonlinear soft threshold method to process the vibration signal and built a SAE on the preprocessed signal for roller bearing fault diagnosis <ref type="bibr" target="#b51">[52]</ref>. Zhu et al. proposed a SAEbased DNN for hydraulic pump fault diagnosis with input as frequency domain features after Fourier transform <ref type="bibr" target="#b52">[53]</ref>. In experiments, ReLU activation and dropout technique were analyzed and experimental results have shown to be effective in preventing gradient vanishing and overfiting. In the work presented in <ref type="bibr" target="#b53">[54]</ref>, the normalized spectrogram generated by STFT of sound signal was fed into two-layers SAE-based DNN for rolling bearing fault diagnosis. Galloway et al. built a two layer SAE-based DNN on spectrograms generated from raw vibration data for tidal turbine vibration fault diagnosis <ref type="bibr" target="#b54">[55]</ref>. A SAE-based DNN with input as principal components of data extracted by principal component analysis was proposed for spacecraft fault diagnosis in <ref type="bibr" target="#b55">[56]</ref>. Multi-domain statistical features including time domain features, frequency domain features and time-frequency domain features were fed into the SAE framework, which can be regarded as one kind of feature fusion <ref type="bibr" target="#b56">[57]</ref>. Similarly, Verma et al. also used these three domains features to fed into a SAE-based DNN for fault diagnosis of air compressors <ref type="bibr" target="#b57">[58]</ref>.</p><p>Except that these applied multi-domain features, multisensory data are also addressed by SAE models. Reddy utilized SAE to learn representation on raw time series data from multiple sensors for anomaly detection and fault disambiguation in flight data. To address multi-sensory data, synchronized windows were firstly traversed over multi-modal time series with overlap, and then windows from each sensor were concatenated as the input to the following SAE <ref type="bibr" target="#b58">[59]</ref>. In <ref type="bibr" target="#b59">[60]</ref>, SAE was leveraged for multi-sensory data fusion and the followed DBN was adopted for bearing fault diagnosis, which achieved promising results. The statistical features in time domain and frequency domain extracted from the vibration signals of different sensors were adopted as input to a twolayer SAE with sparsity constraint neural networks. And the learned representation were fed into a deep belief network for pattern classification.</p><p>In addition, some variants of the conventional SAE were proposed or introduced for machine health monitoring. In <ref type="bibr" target="#b60">[61]</ref>, Thirukovalluru et al. proposed a two-phase framework that SAE only learn representation and other standard classifiers such as SVM and random forest perform classification. Specifically, in SAE module, handcrafted features based on FFT and WPT were fed into SAE-based DNN. After pretraining and supervised fine-tuning which includes two sepa-rated procedures: softmax-based and Median-based fine-tuning methods, the extensive experiments on five datasets including air compressor monitoring, drill bit monitoring, bearing fault monitoring and steel plate monitoring have demonstrated the generalization capability of DL-based machine health monitoring systems. Wang et al. proposed a novel continuous sparse auto-encoder (CSAE) as an unsupervised feature learning for transformer fault recognition <ref type="bibr" target="#b61">[62]</ref>. Different from conventional sparse AE, their proposed CSAE added the stochastic unit into activation function of each visible unit as:</p><formula xml:id="formula_21">s j = ϕ j ( i w ij xi + a i + σN j (0, 1)) (<label>18</label></formula><formula xml:id="formula_22">)</formula><p>where s j is the output corresponding to the input x i , w ij and a i denote model parameters, ϕ j represents the activation function and the last term σN j (0, 1)) is the added stochastic unit, which is a zero-mean Gaussian with variance σ 2 . The incorporation of stochastic unit is able to change the gradient direction and prevent over-fitting. Mao et al. adopted a variant of AE named Extreme Learning Machine-based auto-encoder for bearing fault diagnosis, which is more efficient than conventional SAE models without sacrificing accuracies in fault diagnosis <ref type="bibr" target="#b62">[63]</ref>. Different from AE that is trained via back-propagation, the transformation in encoder phase is randomly generated and the one in decoder phase is learned in a single step via leastsquares fit <ref type="bibr" target="#b63">[64]</ref>.</p><p>In addition, Lu et al. focused on the visualization of learned representation by a two-layer SAE-based DNN, which provides a novel view to evaluate the DL-based MHMS <ref type="bibr" target="#b64">[65]</ref>. In their paper, the discriminative power of learned representation can be improved with the increasing of layers.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. RBM and its variants for machine health monitoring</head><p>In the section, some work focused on developing RBM and DBM to learn representation from machinery data. Most of works introduced here are based on deep belief networks (DBN) that can pretrain a deep neural network (DNN).</p><p>In <ref type="bibr" target="#b65">[66]</ref>, a RBM based method for bearing remaining useful life (RUL) prediction was proposed. Linear regression layer was added at the top of RBM after pretraining to predict the future root mean square (RMS) based on a lagged time series of RMS values. Then, RUL was calculated by using the predicted RMS and the total time of the bearing's life. Liao et al. proposed a new RBM for representation learning to predict RUL of machines <ref type="bibr" target="#b66">[67]</ref>. In their work, a new regularization term modeling the trendability of the hidden nodes was added into the training objective function of RBM. Then, unsupervised self-organizing map algorithm (SOM) was applied to transforming the representation learned by the enhanced RBM to one scale named health value. Finally, the health value was used to predict RUL via a similarity-based life prediction algorithm. In <ref type="bibr" target="#b67">[68]</ref>, a multi-modal deep support vector classification approach was proposed for fault diagnosis of gearboxes. Firstly, three modalities features including time, frequency and time-frequency ones were extracted from vibration signals. Then, three Gaussian-Bernoulli deep Boltzmann machines (GDBMS) were applied to addressing the above three modalities, respectively. In each GDBMS, the softmax Fig. <ref type="figure">6</ref>.</p><p>Illustrations the proposed SAE-DNN for rotating machinery diagnosis in <ref type="bibr" target="#b50">[51]</ref>.</p><p>layer was used at the top. After the pretraining and the finetuning processes, the probabilistic of the softmax layers from these three GDBMS were fused by a support vector classification (SVC) framework to make the final prediction. Li et al. applied one GDBMS directly on the concatenation feature consisting of three modalities features including time, frequency and time-frequency ones and stacked one softmax layer on top of GDBMS to recognize fault categories <ref type="bibr" target="#b68">[69]</ref>. Li et al. adopted a two-layers DBM to learn deep representations of the statistical parameters of the wavelet packet transform (WPT) of raw sensory signal for gearbox fault diagnosis <ref type="bibr" target="#b69">[70]</ref>. In this work focusing on data fusion, two DBMs were applied on acoustic and vibratory signals and random forest was applied to fusing the representations learned by these two DBMs.</p><p>Making use of DBN-based DNN, Ma et al. presented this framework for degradation assessment under a bearing accelerated life test <ref type="bibr" target="#b70">[71]</ref>. The statistical feature, root mean square (RMS) fitted by Weibull distribution that can avoid areas of fluctuation of the statistical parameter and the frequency domain features were extracted as raw input. To give a clear illustration, the framework in <ref type="bibr" target="#b70">[71]</ref> is shown in Figure <ref type="figure">7</ref>. Shao et al. proposed DBN for induction motor fault diagnosis with the direct usage of vibration signals as input <ref type="bibr" target="#b71">[72]</ref>. Beside the evaluation of the final classification accuracies, t-SNE algorithm was adopted to visualize the learned representation of DBN and outputs of each layer in DBN. They found the addition of hidden layer can increase the discriminative power in the learned representation. Fu et al. employed deep belief networks for cutting states monitoring <ref type="bibr" target="#b72">[73]</ref>. In the presented work, three different feature sets including raw vibration signal, Mel-frequency cepstrum coefficient (MFCC) and wavelet features were fed into DBN as three corresponding different inputs, which were able to achieve robust comparative performance on the raw vibration signal without too much feature engineering. Tamilselvan et al. proposed a multi-sensory DBN-based health state classification model. The model was verified in benchmark classification problems and two health diagnosis applications including aircraft engine health diagnosis and electric power transformer health diagnosis <ref type="bibr" target="#b73">[74]</ref>, <ref type="bibr" target="#b74">[75]</ref>. Tao et al. proposed DBN based multisensor information fusion scheme for bearing fault diagnosis <ref type="bibr" target="#b75">[76]</ref>. Firstly, 14 time-domain statistical features extracted from three vibration signals acquired by three sensors were concatenated together as an input vector to DBM model. During pre-training, a predefined threshold value was introduced to determine its iteration number. In <ref type="bibr" target="#b76">[77]</ref>, a feature vector consisting of load and speed measure, time domain features and frequency domain features was fed into DBN-based DNN for gearbox fault diagnosis. In the work of <ref type="bibr" target="#b77">[78]</ref>, Gan et al. built a hierarchical diagnosis network for fault pattern recognition of rolling element bearings consisting of two consecutive phases where the four different fault locations (including one health state) were firstly identified and then discrete fault severities in each fault condition were classified. In each phases, the frequency-band energy features generated by WPT were fed into DBN-based DNN for pattern classification. In <ref type="bibr" target="#b78">[79]</ref>, raw vibration signals were pre-processed to generate 2D image based on omnidirectional regeneration (ODR) techniques and then, histogram of original gradients (HOG) descriptor was applied on the generated image and the learned vector was fed into DBN for automatic diagnosis of journal bearing rotor systems. Chen et al. proposed an ensemble of DBNs with multi-objective evolutionary optimization on decomposition algorithm (MOEA/D) for fault diagnosis with multivariate sensory data <ref type="bibr" target="#b79">[80]</ref>. DBNs with different architectures can be regarded as base classifiers and MOEA/D was introduced to adjust the ensemble weights to achieve a trade-off between accuracy and diversity. Chen et al. then extended this above framework for one specific prognostics task: the RUL estimation of the mechanical system <ref type="bibr" target="#b80">[81]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. CNN for machine health monitoring</head><p>In some scenarios, machinery data can be presented in a 2D format such as time-frequency spectrum, while in some scenarios, they are in a 1D format, i.e., time-series. Therefore, CNNs models are able to learn complex and robust representation via its convolutional layer. Intuitively, filters in convolutional layers can extract local patterns in raw data and stacking these convolutional layers can further build complex patterns. Janssens et al. utilized a 2D-CNN model for four categories rotating machinery conditions recognition, whose input is DFT of two accelerometer signals from two sensors that are placed perpendicular to each other. Therefore, the Fig. <ref type="figure">7</ref>. Illustrations the proposed DBN-DNN for assessment of bearing degration in <ref type="bibr" target="#b70">[71]</ref>. height of input is the number of sensors. The adopted CNN contains one convolutional layer and a fully connected layer. Then, the top softmax layer is adopted for classification <ref type="bibr" target="#b81">[82]</ref>. In <ref type="bibr" target="#b82">[83]</ref>, Babu et al. built a 2D deep convolution neural network to predict the RUL of system based on normalizedvariate time series from sensor signals, in which one dimension of the 2D input is number of sensors as the setting reported in <ref type="bibr" target="#b81">[82]</ref>. In their model, average pooling is adopted instead of max pooling. Since RUL is a continuous value, the top layer was linear regression layer. Ding et al. proposed a deep Convolutional Network (ConvNet) where wavelet packet energy (WPE) image were used as input for spindle bearing fault diagnosis <ref type="bibr" target="#b83">[84]</ref>. To fully discover the hierarchical representation, a multiscale layer was added after the last convolutional layer, which concatenates the outputs of the last convolutional layer and the ones of the previous pooling layer. <ref type="bibr">Guo et al.</ref> proposed a hierarchical adaptive deep convolution neural network (ADCNN) <ref type="bibr" target="#b84">[85]</ref>. Firstly, the input time series data as a signal-vector was transformed into a 32 × 32 matrix, which follows the typical input format adopted by LeNet <ref type="bibr" target="#b85">[86]</ref>. In addition, they designed a hierarchical framework to recognize fault patterns and fault size. In the fault pattern decision module, the first ADCNN was adopted to recognize fault type. In the fault size evaluation layer, based on each fault type, ADCNN with the same structure was used to predict fault size. Here, the classification mechanism is still used. The predicted value f is defined as the probability summation of the typical fault sizes as follows:</p><formula xml:id="formula_23">f = c j=1 a j p j<label>(19)</label></formula><p>where [p 1 , . . . , p c ] is produced by the top softmax layer, which denote the probability score that each sample belongs to each class size and a j is the fault size corresponding to the j-th fault size. In <ref type="bibr" target="#b86">[87]</ref>, an enhanced CNN was proposed for machinery fault diagnosis.</p><p>To pre-process vibration data, morlet wavelet was used to decompose the vibration signal and obtain wavelet scaleogram. Then, bilinear interpolation was used to rescale the scaleogram into a grayscale image with a size of 32 × 32. In addition, the adaptation of ReLU and dropout both boost the model's diagnosis performance. Chen et al. adopted a 2D-CNN for gearbox fault diagnosis, in which the input matrix with a size of 16 × 16 for CNN is reshaped by a vector containing 256 statistic features including RMS values, standard deviation, skewness, kurtosis, rotation frequency, and applied load [88]. In addition, 11 different structures of CNN were evaluated empirically in their experiments. Weimer et al. did a comprehensive study of various design configurations of deep CNN for visual defect detection <ref type="bibr" target="#b88">[89]</ref>. In one specific application: industrial optical inspection, two directions of model configurations including depth (addition of conv-layer) and width (increase of number filters) were investigated. The optimal configuration verified empirically has been presented in Table <ref type="table">II</ref>. In <ref type="bibr" target="#b89">[90]</ref>, CNN was applied in the field of diagnosing the early small faults of front-end controlled wind generator (FSCWG) that the 784×784 input matrix consists of vibration data of generator input shaft (horizontal) and vibration data of generator output shaft (vertical) in time scale. As reviewed in our above section II-C, CNN can also be applied to 1D time series signal and the corresponding operations have been elaborated. In <ref type="bibr" target="#b90">[91]</ref>, the 1D CNN was successfully developed on raw time series data for motor fault detection, in which feature extraction and classification were integrated together. The corresponding framework has been shown in Figure <ref type="figure" target="#fig_6">8</ref>. Abdeljaber et al. proposed 1D CNN on normalized vibration signal, which can perform vibrationbased damage detection and localization of the structural damage in real-time. The advantage of this approach is its ability to extract optimal damage-sensitive features automatically from the raw acceleration signals, which does not need any additional preporcessing or signal processing approaches <ref type="bibr" target="#b91">[92]</ref>.</p><p>To present an overview about all these above CNN models that have been successfully applied in the area of MHMS, their architectures have been summarized in Table <ref type="table">II</ref>. To explain the used abbreviation, the structure of CNN applied in Weimer's work <ref type="bibr" target="#b88">[89]</ref> is denoted as Input</p><formula xml:id="formula_24">[32×32]-64C[3×3]2-64P[2× 2] -128C[3 × 3]3 -128P[2 × 2] -FC[1024 -1024]2.</formula><p>It means the input 2D data is 32 × 32 and the CNN firstly applied 2 convolutional layers with the same design that the filter number is 64 and the filter size is 3 × 3, then stacked one max-pooling layer whose pooling size is 2 × 2, then applied 3 convolutional layers with the same design that the filter number is 128 and the filer size is 3×3, then applied a pooling layer whose pooling size is 2 × 2, and finally adopted two fully-connected layers whose hidden neuron numbers are both 1024. It should be noted that the size of output layer is not given here, considering it is task-specific and usually set to be the number of categories.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>D. RNN for machine health monitoring</head><p>The majority of machinery data belong to sensor data, which are in nature time series. RNN models including LSTM and</p><p>TABLE II ON CONFIGURATIONS OF CNN-BASED MHMS. THE SYMBOL Input, C, P AND FC DENOTE THE RAW INPUT, CONVOLUTIONAL LAYER, POOLING LAYER AND FULLY-CONNECTED LAYER, RESPECTIVELY. Proposed Configurations of CNN Structures GRU have emerged as one kind of popular architectures to handle sequential data with its ability to encode temporal information. These advanced RNN models have been proposed to relief the difficulty of training in vanilla RNN and applied in machine health monitoring recently. In [93], Yuan et al. investigated three RNN models including vanilla RNN, LSTM and GRU models for fault diagnosis and prognostics of aero engine. They found these advanced RNN models LSTM and GRU models outperformed vanilla RNN. Another interesting observation was the ensemble model of the above three RNN variants did not boost the performance of LSTM. Zhao et al. presented an empirical evaluation of LSTMs-based machine health monitoring system in the tool wear test [94]. The applied LSTM model encoded the raw sensory data into embeddings and predicted the corresponding tool wear. Zhao et al. further designed a more complex deep learning model combining CNN and LSTM named Convolutional Bidirectional Long Short-Term Memory Networks (CBLSTM) <ref type="bibr" target="#b94">[95]</ref>. As shown in Figure <ref type="figure" target="#fig_7">9</ref>, CNN was used to extract robust local features from the sequential input, and then bi-directional LSTM was adopted to encode temporal information on the sequential output of CNN. Stacked fully-connected layers and linear regression layer were finally added to predict the target value. In tool wear test, the proposed model was able to outperform several state-of-the-art baseline methods including conventional LSTM models. In <ref type="bibr" target="#b95">[96]</ref>, Malhotra proposed a very interesting structure for RUL prediction. They designed a LSTM-based encoder-decoder structure, which LSTM-based encoder firstly transforms a multivariate input sequence to a fixed-length vector and then, LSTM decoder uses the vector to produce the target sequence. When it comes to RUL prediction, their assumptions lies that the model can be firstly trained in raw signal corresponding to normal behavior in an unsupervised way. Then, the reconstruction error can be used to compute health index (HI), which is then used for RUL estimation. It is intuitive that the large reconstruction error corresponds to a more unhealthy machine condition.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>IV. SUMMARY AND FUTURE DIRECTIONS</head><p>In this paper, we have provided a systematic overview of the state-of-the-art DL-based MHMS. Deep learning, as a subfield of machine learning, is serving as a bridge between big machinery data and data-driven MHMS. Therefore, within the past four years, they have been applied in various machine health monitoring tasks. These proposed DL-based MHMS are summarized according to four categories of DL architecture as: Auto-encoder models, Restricted Boltzmann Machines models, Convolutional Neural Networks and Recurrent Neural Networks. Since the momentum of the research of DL-based MHMS is growing fast, we hope the messages about the capabilities of these DL techniques, especially representation learning for complex machinery data and target prediction for various machine health monitoring tasks, can be conveyed to readers. Through these previous works, it can be found that DL-based MHMS do not require extensive human labor and expert knowledge, i.e., the end-to-end structure is able to map raw machinery data to targets. Therefore, the application of deep learning models are not restricted to specific kinds of machines, which can be a general solution to address the machine health monitoring problems. Besides, some research trends and potential future research directions are given as follows:</p><p>* be the model initialization for the following specific task/dataset. Therefore, it is meaningful to design and publish large-scale machinery datasets. * Utilization of Domain Knowledge: deep learning is not a skeleton key to all machine health monitoring problems. Domain knowledge can contribute to the success of applying DL models on machine health monitoring. For example, extracting discriminative features can reduce the size of the followed DL models and appropriate task-specific regularization term can boost the final performance <ref type="bibr" target="#b66">[67]</ref>. * Model and Data Visualization: deep learning techniques, especially deep neural networks, have been regarded as black boxes models, i.e., their inner computation mechanisms are unexplainable. Visualization of the learned representation and the applied model can offer some insights into these DL models, and then these insights achieved by this kind of interaction can facilitate the building and configuration of DL models for complex machine health monitoring problems. Some visualization techniques have been proposed including t-SNE model for high dimensional data visualization <ref type="bibr" target="#b98">[99]</ref> and visualization of the activations produced by each layer and features at each layer of a DNN via regularized optimization <ref type="bibr" target="#b99">[100]</ref>. * Transferred Deep Learning: Transfer learning tries to apply knowledge learned in one domain to a different but related domain <ref type="bibr" target="#b100">[101]</ref>. This research direction is meaningful in machine health monitoring, since some machine health monitoring problems have sufficient training data while other areas lack training data. The machine learning models including DL models trained in one domain can be transferred to the other domain. Some previous works focusing on transferred feature extraction/dimensionality reduction have been done <ref type="bibr" target="#b101">[102]</ref>, <ref type="bibr" target="#b102">[103]</ref>. In <ref type="bibr" target="#b103">[104]</ref>, a Maximum Mean Discrepancy (MMD) measure evaluating the discrepancy between source and target domains was added into the target function of deep neural networks. * Imbalanced Class: The class distribution of machinery data in real life normally follows a highly-skewed one, in which most data samples belong to few categories. For example, the number of fault data is much less than the one of health data in fault diagnosis. Some enhanced machine learning models including SVM and ELM have been proposed to address this imbalanced issue in machine health monitoring <ref type="bibr" target="#b104">[105]</ref>, <ref type="bibr" target="#b105">[106]</ref>. Recently, some interesting methods investigating the application of deep learning in imbalanced class problems have been developed, including CNN models with class resampling or cost-sensitive training <ref type="bibr" target="#b106">[107]</ref> and the integration of boot strapping methods and CNN model <ref type="bibr" target="#b107">[108]</ref>. It is believed that deep learning will have a more and more prospective future impacting machine health monitoring, especially in the age of big machinery data.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Fig. 1 .</head><label>1</label><figDesc>Fig. 1. Frameworks showing three different MHMS including Physical Model, Conventional Data-driven Model and Deep Learning Models. Shaded boxes denote data-driven components.</figDesc><graphic coords="3,157.56,196.44,54.82,54.82" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Fig. 2 .</head><label>2</label><figDesc>Fig. 2. Illustrations for Unsupervised Pre-training and Supervised Fine-tuning of SAE-DNN (a) and DBN-DNN (b).</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>1 1+expFig. 3 .</head><label>13</label><figDesc>Fig. 3. Frameworks showing RBM, DBN and DBM. Shaded boxes denote hidden untis.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Fig. 4 .</head><label>4</label><figDesc>Fig. 4. Illustrations for one-layer CNN that contains one convolutional layer, one pooling layer, one fully-connected layer, and one softmax layer.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>1</head><label>1</label></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Fig. 5 .</head><label>5</label><figDesc>Fig. 5. Illustrations of normal RNN, stacked RNN and bidirectional RNN.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><head>Fig. 8 .</head><label>8</label><figDesc>Fig. 8. Illustrations of the proposed 1D-CNN for real-time motor Fault Detection in [91].</figDesc><graphic coords="10,49.51,210.62,256.33,130.22" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head>Fig. 9 .</head><label>9</label><figDesc>Fig. 9. Illustrations of the proposed Convolutional Bi-directional Long Short-Term Memory Networks in [95].</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="8,72.26,53.14,204.76,312.52" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="9,49.71,53.14,255.74,205.38" type="bitmap" /></figure>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>2D CNN</head><p>Janssens's work <ref type="bibr" target="#b81">[82]</ref> Input[5120 × 2] -32C[64 × 2] -FC[200] Babu's work <ref type="bibr" target="#b82">[83]</ref> Input <ref type="bibr" target="#b89">[90]</ref> Input[784 × 784] -12C[10 × 10] -12P[2 × 2] -24C[10 × 10] -24P[2 × 2] -FC[200] <rs type="grantNumber">1D</rs> <rs type="projectName">CNN Ince</rs>'s work [<rs type="grantNumber">91] Input[240] -60C[9] -60P[4] -40C[9] -40P[4] -40C[9] -40P[4] -FC[20] Abdeljaber's work [92] Input[128] -64C[41] -64P[2] -32C[41] -32P[2] -FC[10 -10</rs>] ACKNOWLEDGMENT This work has been supported in part by the <rs type="funder">National Natural Science Foundation of China</rs> (<rs type="grantNumber">51575102</rs>).</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_94XxZ7P">
+					<idno type="grant-number">82] Input[5120 × 2] -32C</idno>
+				</org>
+				<org type="funding" xml:id="_pyavM9d">
+					<idno type="grant-number">64 × 2] -FC[200] Babu&apos;s work [83] Input [90] Input[784 × 784] -12C[10 × 10] -12P[2 × 2] -24C[10 × 10] -24P[2 × 2] -FC[200</idno>
+				</org>
+				<org type="funded-project" xml:id="_483y8j2">
+					<idno type="grant-number">1D</idno>
+					<orgName type="project" subtype="full">CNN Ince</orgName>
+				</org>
+				<org type="funding" xml:id="_DQB4YHt">
+					<idno type="grant-number">91] Input[240] -60C[9] -60P[4] -40C[9] -40P[4] -40C[9] -40P[4] -FC[20] Abdeljaber&apos;s work [92] Input[128] -64C[41] -64P[2] -32C[41] -32P[2] -FC[10 -10</idno>
+				</org>
+				<org type="funding" xml:id="_x8BKzGe">
+					<idno type="grant-number">51575102</idno>
+				</org>
+			</listOrg>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Data-based techniques focused on modern industry: An overview</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Yin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Gao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Kaynak</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Industrial Electronics</title>
+		<imprint>
+			<biblScope unit="volume">62</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="657" to="667" />
+			<date type="published" when="2015-01">Jan 2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<author>
+			<persName><forename type="first">S</forename><surname>Jeschke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Brecher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Song</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">B</forename><surname>Rawat</surname></persName>
+		</author>
+		<title level="m">Industrial internet of things</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<title level="m" type="main">Worldwide and regional internet of things (iot) 2014-2020 forecast: A virtuous circle of proven value and demand</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Lund</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Macgillivray</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Turner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Morales</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<publisher>International Data Corporation (IDC), Tech. Rep</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Stochastic prognostics for rolling element bearings</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Kurfess</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Liang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Mechanical Systems and Signal Processing</title>
+		<imprint>
+			<date type="published" when="2000">2000</date>
+			<biblScope unit="volume">14</biblScope>
+			<biblScope unit="page" from="747" to="762" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Physically based diagnosis and prognosis of cracked rotor shafts</title>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">H</forename><surname>Oppenheimer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">A</forename><surname>Loparo</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">AeroSense 2002. International Society for Optics and Photonics</title>
+		<imprint>
+			<date type="published" when="2002">2002</date>
+			<biblScope unit="page" from="122" to="132" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Model-based prognosis for hybrid systems with mode-dependent degradation behaviors</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Luo</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on</title>
+		<imprint>
+			<biblScope unit="volume">61</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="546" to="554" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note>Industrial Electronics</note>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">A review on machinery diagnostics and prognostics implementing condition-based maintenance</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">K</forename><surname>Jardine</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Banjevic</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Mechanical systems and signal processing</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">7</biblScope>
+			<biblScope unit="page" from="1483" to="1510" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Faster r-cnn: Towards realtime object detection with region proposal networks</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Girshick</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Sun</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in neural information processing systems</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="page" from="91" to="99" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">A unified architecture for natural language processing: Deep neural networks with multitask learning</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Collobert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Weston</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 25th international conference on Machine learning</title>
+		<meeting>the 25th international conference on Machine learning</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2008">2008</date>
+			<biblScope unit="page" from="160" to="167" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Deep neural networks for acoustic modeling in speech recognition: The shared views of four research groups</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Hinton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Deng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Dahl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>-R. Mohamed</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Jaitly</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Senior</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Vanhoucke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">N</forename><surname>Sainath</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Signal Processing Magazine</title>
+		<imprint>
+			<biblScope unit="volume">29</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="82" to="97" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Deep learning of the tissue-regulated splicing code</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">K</forename><surname>Leung</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">Y</forename><surname>Xiong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">J</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">J</forename><surname>Frey</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Bioinformatics</title>
+		<imprint>
+			<biblScope unit="volume">30</biblScope>
+			<biblScope unit="issue">12</biblScope>
+			<biblScope unit="page" from="121" to="129" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Deep learning in neural networks: An overview</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Schmidhuber</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural Networks</title>
+		<imprint>
+			<biblScope unit="volume">61</biblScope>
+			<biblScope unit="page" from="85" to="117" />
+			<date type="published" when="2014">2015. 2014</date>
+		</imprint>
+	</monogr>
+	<note>based on TR arXiv:1404.7828 [cs.NE</note>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Deep learning</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lecun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<biblScope unit="volume">521</biblScope>
+			<biblScope unit="issue">7553</biblScope>
+			<biblScope unit="page" from="436" to="444" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Large-scale deep unsupervised learning using graphics processors</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Raina</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Madhavan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">Y</forename><surname>Ng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 26th annual international conference on machine learning</title>
+		<meeting>the 26th annual international conference on machine learning</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2009">2009</date>
+			<biblScope unit="page" from="873" to="880" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Learning multiple layers of representation</title>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Trends in cognitive sciences</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page" from="428" to="434" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Support vector machine in machine condition monitoring and fault diagnosis</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Widodo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B.-S</forename><surname>Yang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Mechanical systems and signal processing</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="2560" to="2574" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Degradation assessment and fault modes classification using logistic regression</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Yan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Lee</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of manufacturing Science and Engineering</title>
+		<imprint>
+			<biblScope unit="volume">127</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="912" to="914" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">A comparative study of naïve bayes classifier and bayes net classifier for fault diagnosis of monoblock centrifugal pump using wavelet analysis</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Muralidharan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Sugumaran</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Applied Soft Computing</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="2023" to="2029" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Representation learning: A review and new perspectives</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Courville</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Vincent</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE transactions on pattern analysis and machine intelligence</title>
+		<imprint>
+			<biblScope unit="volume">35</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="1798" to="1828" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Pca-based feature selection scheme for machine defect classification</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Malhi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">X</forename><surname>Gao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Instrumentation and Measurement</title>
+		<imprint>
+			<biblScope unit="volume">53</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="1517" to="1525" />
+			<date type="published" when="2004">2004</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<title level="m" type="main">Multisensory fusion based virtual tool wear sensing for ubiquitous manufacturing</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Xie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Duan</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+		<respStmt>
+			<orgName>Robotics and Computer-Integrated Manufacturing</orgName>
+		</respStmt>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">A new probabilistic kernel factor analysis for multisensory data fusion: Application to tool condition monitoring</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Xie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Mao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Instrumentation and Measurement</title>
+		<imprint>
+			<biblScope unit="volume">65</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<biblScope unit="page" from="2527" to="2537" />
+			<date type="published" when="2016-11">Nov 2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Extracting and composing robust features with denoising autoencoders</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Vincent</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Larochelle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P.-A</forename><surname>Manzagol</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 25th international conference on Machine learning</title>
+		<meeting>the 25th international conference on Machine learning</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2008">2008</date>
+			<biblScope unit="page" from="1096" to="1103" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">A fast learning algorithm for deep belief nets</title>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Hinton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Osindero</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y.-W</forename><surname>Teh</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural computation</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="issue">7</biblScope>
+			<biblScope unit="page" from="1527" to="1554" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Deep boltzmann machines</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Salakhutdinov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">AISTATS</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="page">3</biblScope>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Convolutional neural networks applied to house numbers digit classification</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Sermanet</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Chintala</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lecun</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Pattern Recognition (ICPR), 2012 21st International Conference on</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="3288" to="3291" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Approximation of dynamical systems by continuous time recurrent neural networks</title>
+		<author>
+			<persName><forename type="first">K.-I</forename><surname>Funahashi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Nakamura</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural networks</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="801" to="806" />
+			<date type="published" when="1993">1993</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Deep learning: Methods and applications</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Deng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Yu</surname></persName>
+		</author>
+		<idno type="DOI">10.1561/2000000039</idno>
+		<ptr target="http://dx.doi.org/10.1561/2000000039" />
+	</analytic>
+	<monogr>
+		<title level="j">Found. Trends Signal Process</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="issue">3&amp;#8211</biblScope>
+			<biblScope unit="page" from="197" to="387" />
+			<date type="published" when="2014-06">Jun. 2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<monogr>
+		<title level="m" type="main">Deep learning</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Courville</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2015">2015. 2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Greedy layer-wise training of deep networks</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Lamblin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Popovici</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Larochelle</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in neural information processing systems</title>
+		<imprint>
+			<date type="published" when="2007">2007</date>
+			<biblScope unit="volume">19</biblScope>
+			<biblScope unit="page">153</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Sparse autoencoder</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Ng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="s">CS294A Lecture notes</title>
+		<imprint>
+			<biblScope unit="volume">72</biblScope>
+			<biblScope unit="page" from="1" to="19" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Handwritten digit recognition with a backpropagation network</title>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">B</forename><surname>Le Cun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">S</forename><surname>Denker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Henderson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">E</forename><surname>Howard</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Hubbard</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">D</forename><surname>Jackel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in neural information processing systems</title>
+		<imprint>
+			<publisher>Citeseer</publisher>
+			<date type="published" when="1990">1990</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">What is the best multi-stage architecture for object recognition</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Jarrett</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Kavukcuoglu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lecun</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE</title>
+		<imprint>
+			<biblScope unit="page" from="2146" to="2153" />
+			<date type="published" when="2009">2009. 2009</date>
+			<publisher>IEEE</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Imagenet classification with deep convolutional neural networks</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Krizhevsky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Sutskever</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in neural information processing systems</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="1097" to="1105" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">Applying convolutional neural networks concepts to hybrid nn-hmm model for speech recognition</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Abdel-Hamid</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>-R. Mohamed</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Jiang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Penn</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2012 IEEE international conference on Acoustics, speech and signal processing (ICASSP)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="4277" to="4280" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<monogr>
+		<title level="m" type="main">Convolutional neural networks for sentence classification</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Kim</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1408.5882</idno>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<monogr>
+		<title level="m" type="main">Tutorial on training recurrent neural networks, covering BPPT, RTRL, EKF and the&quot; echo state network&quot; approach</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Jaeger</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2002">2002</date>
+			<publisher>GMD-Forschungszentrum Informationstechnik</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">Learning and extracting finite state automata with second-order recurrent neural networks</title>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">L</forename><surname>Giles</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">B</forename><surname>Miller</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H.-H</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G.-Z</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y.-C</forename><surname>Lee</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural Computation</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="393" to="405" />
+			<date type="published" when="1992">1992</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<analytic>
+		<title level="a" type="main">Long short-term memory</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Hochreiter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Schmidhuber</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural computation</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="1735" to="1780" />
+			<date type="published" when="1997">1997</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">Learning to forget: Continual prediction with lstm</title>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">A</forename><surname>Gers</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Schmidhuber</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Cummins</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural computation</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page" from="2451" to="2471" />
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<analytic>
+		<title level="a" type="main">Learning precise timing with lstm recurrent networks</title>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">A</forename><surname>Gers</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">N</forename><surname>Schraudolph</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Schmidhuber</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of machine learning research</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="page" from="115" to="143" />
+			<date type="published" when="2002-08">Aug. 2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<monogr>
+		<title level="m" type="main">Learning phrase representations using rnn encoder-decoder for statistical machine translation</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Cho</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Van Merriënboer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Gulcehre</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Bahdanau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Bougares</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Schwenk</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1406.1078</idno>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b42">
+	<monogr>
+		<title level="m" type="main">Empirical evaluation of gated recurrent neural networks on sequence modeling</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Chung</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Gulcehre</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Cho</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1412.3555</idno>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b43">
+	<analytic>
+		<title level="a" type="main">Induction machine condition monitoring using neural network modeling</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Su</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">T</forename><surname>Chong</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Industrial Electronics</title>
+		<imprint>
+			<biblScope unit="volume">54</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="241" to="249" />
+			<date type="published" when="2007-02">Feb 2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b44">
+	<analytic>
+		<title level="a" type="main">Neural-networkbased motor rolling bearing fault diagnosis</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M.-Y</forename><surname>Chow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Tipsuwan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">C</forename><surname>Hung</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE transactions on industrial electronics</title>
+		<imprint>
+			<biblScope unit="volume">47</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="1060" to="1069" />
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b45">
+	<analytic>
+		<title level="a" type="main">Artificial neural network based fault diagnostics of rolling element bearings using time-domain features</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Samanta</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Al-Balushi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Mechanical systems and signal processing</title>
+		<imprint>
+			<biblScope unit="volume">17</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="317" to="328" />
+			<date type="published" when="2003">2003</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b46">
+	<analytic>
+		<title level="a" type="main">Neural-network based analog-circuit fault diagnosis using wavelet transform as preprocessor</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Aminian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Aminian</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Circuits and Systems II: Analog and Digital Signal Processing</title>
+		<imprint>
+			<biblScope unit="volume">47</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="151" to="156" />
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b47">
+	<analytic>
+		<title level="a" type="main">A sparse auto-encoder-based deep neural network approach for induction motor faults classification</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Shao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Yan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Chen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Measurement</title>
+		<imprint>
+			<biblScope unit="volume">89</biblScope>
+			<biblScope unit="page" from="171" to="178" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b48">
+	<analytic>
+		<title level="a" type="main">Fault diagnosis of rotary machinery components using a stacked denoising autoencoder-based health state identification</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Lu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z.-Y</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W.-L</forename><surname>Qin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Ma</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Signal Processing</title>
+		<imprint>
+			<biblScope unit="volume">130</biblScope>
+			<biblScope unit="page" from="377" to="388" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b49">
+	<analytic>
+		<title level="a" type="main">Bearing fault diagnosis method based on stacked autoencoder and softmax regression</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Tao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Lu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Control Conference (CCC), 2015 34th Chinese</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="page" from="6331" to="6335" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b50">
+	<analytic>
+		<title level="a" type="main">Deep neural networks: A promising tool for fault characteristic mining and intelligent diagnosis of rotating machinery with massive data</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Jia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Lu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="s">Mechanical Systems and Signal Processing</title>
+		<imprint>
+			<biblScope unit="volume">72</biblScope>
+			<biblScope unit="page" from="303" to="315" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b51">
+	<analytic>
+		<title level="a" type="main">Fault diagnosis method study in roller bearing based on wavelet transform and stacked auto-encoder</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Junbo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Weining</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Juneng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Xueqian</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">The 27th Chinese Control and Decision Conference</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2015">2015. 2015</date>
+			<biblScope unit="page" from="4608" to="4613" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b52">
+	<analytic>
+		<title level="a" type="main">Fault diagnosis of hydraulic pump based on stacked autoencoders</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Huijie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Ting</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Xinqing</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>You</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Husheng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2015 12th IEEE International Conference on Electronic Measurement Instruments (ICEMI)</title>
+		<imprint>
+			<date type="published" when="2015-07">July 2015</date>
+			<biblScope unit="volume">01</biblScope>
+			<biblScope unit="page" from="58" to="62" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b53">
+	<analytic>
+		<title level="a" type="main">Rolling bearing fault diagnosis based on stft-deep learning and sound signals</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Ma</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Shock and Vibration</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="volume">2016</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b54">
+	<monogr>
+		<title level="m" type="main">Diagnosis of tidal turbine vibration data through deep neural networks</title>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">S</forename><surname>Galloway</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">M</forename><surname>Catterson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Fay</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Robb</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Love</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b55">
+	<analytic>
+		<title level="a" type="main">Study on signal recognition and diagnosis for spacecraft based on deep learning method</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Prognostics and System Health Management Conference (PHM)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2015">2015. 2015</date>
+			<biblScope unit="page" from="1" to="5" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b56">
+	<analytic>
+		<title level="a" type="main">Multifeatures fusion and nonlinear dimension reduction for intelligent bearing condition monitoring</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Guo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Gao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Li</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Shock and Vibration</title>
+		<imprint>
+			<biblScope unit="volume">2016</biblScope>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b57">
+	<analytic>
+		<title level="a" type="main">Intelligent condition based monitoring of rotating machines using sparse autoencoders</title>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">K</forename><surname>Verma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">K</forename><surname>Gupta</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Sharma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">K</forename><surname>Sevakula</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Prognostics and Health Management (PHM), 2013 IEEE Conference</title>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="page" from="1" to="7" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b58">
+	<analytic>
+		<title level="a" type="main">Anomaly detection and fault disambiguation in large flight data: A multi-modal deep auto-encoder approach</title>
+	</analytic>
+	<monogr>
+		<title level="m">Annual conference of the prognostics and health management society</title>
+		<meeting><address><addrLine>Denver, Colorado</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note>kishore k. reddy, soumalya sarkar and michael giering</note>
+</biblStruct>
+
+<biblStruct xml:id="b59">
+	<analytic>
+		<title level="a" type="main">Multi-sensor feature fusion for bearing fault diagnosis using sparse auto encoder and deep belief network</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Li</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on IM</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b60">
+	<analytic>
+		<title level="a" type="main">Generating feature sets for fault diagnosis using denoising stacked auto-encoder</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Thirukovalluru</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Dixit</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">K</forename><surname>Sevakula</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">K</forename><surname>Verma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Salour</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Prognostics and Health Management (ICPHM)</title>
+		<imprint>
+			<date type="published" when="2016">2016. 2016</date>
+			<biblScope unit="page" from="1" to="7" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b61">
+	<analytic>
+		<title level="a" type="main">Transformer fault diagnosis using continuous sparse autoencoder</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Pei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Tang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">SpringerPlus</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page">1</biblScope>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b62">
+	<analytic>
+		<title level="a" type="main">Bearing fault diagnosis with autoencoder extreme learning machine: A comparative study</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Mao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Yan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the Institution of Mechanical Engineers, Part C: Journal of Mechanical Engineering Science</title>
+		<imprint>
+			<biblScope unit="page" from="1" to="19" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b63">
+	<analytic>
+		<title level="a" type="main">Extreme learning machines [trends controversies]</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Cambria</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">B</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">L C</forename><surname>Kasun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">M</forename><surname>Vong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Yin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Cai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">C M</forename><surname>Leung</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Feng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><forename type="middle">S</forename><surname>Ong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">H</forename><surname>Lim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Akusok</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Lendasse</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Corona</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Nian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Miche</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Gastaldo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Zunino</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Decherchi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Mao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">S</forename><surname>Oh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Jeon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">A</forename><surname>Toh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">B J</forename><surname>Teoh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Liu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Intelligent Systems</title>
+		<imprint>
+			<biblScope unit="volume">28</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="30" to="59" />
+			<date type="published" when="2013-11">Nov 2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b64">
+	<analytic>
+		<title level="a" type="main">A novel feature extraction method using deep neural network for rolling bearing fault diagnosis</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Lu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">The 27th Chinese Control and Decision Conference</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2015">2015. 2015</date>
+			<biblScope unit="page" from="2427" to="2431" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b65">
+	<monogr>
+		<title level="m" type="main">Using deep learning based approaches for bearing remaining useful life prediction</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Deutsch</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>He</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b66">
+	<analytic>
+		<title level="a" type="main">Enhanced restricted boltzmann machine with prognosability regularization for prognostics and health assessment</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Liao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Jin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Pavel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Industrial Electronics</title>
+		<imprint>
+			<biblScope unit="volume">63</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b67">
+	<analytic>
+		<title level="a" type="main">Multimodal deep support vector classification with homologous features and its application to gearbox fault diagnosis</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R.-V</forename><surname>Sanchez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Zurita</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Cerrada</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Cabrera</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">E</forename><surname>Vásquez</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neurocomputing</title>
+		<imprint>
+			<biblScope unit="volume">168</biblScope>
+			<biblScope unit="page" from="119" to="127" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b68">
+	<analytic>
+		<title level="a" type="main">Fault diagnosis for rotating machinery using vibration measurement deep statistical feature learning</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R.-V</forename><surname>Sánchez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Zurita</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Cerrada</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Cabrera</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Sensors</title>
+		<imprint>
+			<biblScope unit="volume">16</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page">895</biblScope>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b69">
+	<analytic>
+		<title level="a" type="main">Gearbox fault diagnosis based on deep random forest fusion of acoustic and vibratory signals</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R.-V</forename><surname>Sanchez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Zurita</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Cerrada</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Cabrera</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">E</forename><surname>Vásquez</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="s">Mechanical Systems and Signal Processing</title>
+		<imprint>
+			<biblScope unit="volume">76</biblScope>
+			<biblScope unit="page" from="283" to="293" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b70">
+	<analytic>
+		<title level="a" type="main">Bearing degradation assessment based on weibull distribution and deep belief network</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Li</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of 2016 International Symposium of Flexible Automation</title>
+		<meeting>2016 International Symposium of Flexible Automation</meeting>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="1" to="4" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b71">
+	<analytic>
+		<title level="a" type="main">Learning features from vibration signals for induction motor fault diagnosis</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Shao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">X</forename><surname>Gao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Yan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of 2016 International Symposium of Flexible Automation</title>
+		<meeting>2016 International Symposium of Flexible Automation</meeting>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="1" to="6" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b72">
+	<analytic>
+		<title level="a" type="main">Analysis of feature extracting ability for cutting state monitoring using deep belief networks</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Fu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Qiao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Leopold</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Procedia CIRP</title>
+		<imprint>
+			<biblScope unit="volume">31</biblScope>
+			<biblScope unit="page" from="29" to="34" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b73">
+	<analytic>
+		<title level="a" type="main">Failure diagnosis using deep belief learning based health state classification</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Tamilselvan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Reliability Engineering &amp; System Safety</title>
+		<imprint>
+			<biblScope unit="volume">115</biblScope>
+			<biblScope unit="page" from="124" to="135" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b74">
+	<analytic>
+		<title level="a" type="main">Deep belief network based state classification for structural health diagnosis</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Tamilselvan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Aerospace Conference</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2012">2012. 2012</date>
+			<biblScope unit="page" from="1" to="11" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b75">
+	<analytic>
+		<title level="a" type="main">Bearing fault diagnosis based on deep belief network and multisensor information fusion</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Tao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Yang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Shock and Vibration</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="volume">2016</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b76">
+	<analytic>
+		<title level="a" type="main">Multi-layer neural network with deep belief network for gearbox fault diagnosis</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R.-V</forename><surname>Sánchez</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Vibroengineering</title>
+		<imprint>
+			<biblScope unit="volume">17</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b77">
+	<analytic>
+		<title level="a" type="main">Construction of hierarchical diagnosis network based on deep learning and its application in the fault pattern recognition of rolling element bearings</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Gan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="s">Mechanical Systems and Signal Processing</title>
+		<imprint>
+			<biblScope unit="volume">72</biblScope>
+			<biblScope unit="page" from="92" to="104" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b78">
+	<monogr>
+		<title level="m" type="main">Smart diagnosis of journal bearing rotor systems: Unsupervised feature extraction scheme by deep learning</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Oh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">C</forename><surname>Jeon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">H</forename><surname>Jung</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">D</forename><surname>Youn</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b79">
+	<analytic>
+		<title level="a" type="main">Deep belief networks ensemble with multi-objective optimization for failure diagnosis</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">H</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">C</forename><surname>Tan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Systems, Man, and Cybernetics (SMC), 2015 IEEE International Conference on</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="page" from="32" to="37" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b80">
+	<analytic>
+		<title level="a" type="main">Multiobjective deep belief networks ensemble for remaining useful life estimation in prognostics</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Lim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Qin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">C</forename><surname>Tan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Neural Networks and Learning Systems</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b81">
+	<analytic>
+		<title level="a" type="main">Convolutional neural network based fault detection for rotating machinery</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Janssens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Slavkovikj</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Vervisch</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Stockman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Loccufier</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Verstockt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Van De Walle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Van Hoecke</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Sound and Vibration</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b82">
+	<analytic>
+		<title level="a" type="main">Deep convolutional neural network based regression approach for estimation of remaining useful life</title>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">S</forename><surname>Babu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X.-L</forename><surname>Li</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Database Systems for Advanced Applications</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="214" to="228" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b83">
+	<analytic>
+		<title level="a" type="main">Energy-fluctuated multiscale feature learning with deep convnet for intelligent spindle bearing fault diagnosis</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Ding</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>He</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on IM</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b84">
+	<analytic>
+		<title level="a" type="main">Hierarchical adaptive deep convolution neural network and its application to bearing fault diagnosis</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Guo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Shen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Measurement</title>
+		<imprint>
+			<biblScope unit="volume">93</biblScope>
+			<biblScope unit="page" from="490" to="502" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b85">
+	<analytic>
+		<title level="a" type="main">Gradient-based learning applied to document recognition</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lecun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Bottou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Haffner</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the IEEE</title>
+		<imprint>
+			<biblScope unit="volume">86</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<biblScope unit="page" from="2278" to="2324" />
+			<date type="published" when="1998">1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b86">
+	<analytic>
+		<title level="a" type="main">A multi-scale convolution neural network for featureless fault diagnosis</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Zhuang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Duan</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Cheng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of 2016 International Symposium of Flexible Automation</title>
+		<meeting>2016 International Symposium of Flexible Automation</meeting>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="1" to="6" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b87">
+	<analytic>
+		<title level="a" type="main">Gearbox fault identification and classification with convolutional neural networks</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R.-V</forename><surname>Sanchez</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Shock and Vibration</title>
+		<imprint>
+			<date type="published" when="2015">2015. 2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b88">
+	<analytic>
+		<title level="a" type="main">Design of deep convolutional neural network architectures for automated feature extraction in industrial inspection</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Weimer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Scholz-Reiter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Shpitalni</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">CIRP Annals-Manufacturing Technology</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b89">
+	<monogr>
+		<title level="m" type="main">Small fault diagnosis of front-end speed controlled wind generator based on deep learning</title>
+		<author>
+			<persName><forename type="first">H.-Y</forename><surname>Dong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L.-X</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H.-W</forename><surname>Li</surname></persName>
+		</author>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b90">
+	<analytic>
+		<title level="a" type="main">Real-time motor fault detection by 1-d convolutional neural networks</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Ince</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Kiranyaz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Eren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Askar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Gabbouj</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Industrial Electronics</title>
+		<imprint>
+			<biblScope unit="volume">63</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<biblScope unit="page" from="7067" to="7075" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b91">
+	<analytic>
+		<title level="a" type="main">Real-time vibration-based structural damage detection using onedimensional convolutional neural networks</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Abdeljaber</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Avci</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Kiranyaz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Gabbouj</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">J</forename><surname>Inman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Sound and Vibration</title>
+		<imprint>
+			<biblScope unit="volume">388</biblScope>
+			<biblScope unit="page" from="154" to="170" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b92">
+	<analytic>
+		<title level="a" type="main">Fault diagnosis and remaining useful life estimation of aero engine using lstm neural network</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Yuan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Lin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2016 IEEE International Conference on Aircraft Utility Systems (AUS)</title>
+		<imprint>
+			<date type="published" when="2016-10">Oct 2016</date>
+			<biblScope unit="page" from="135" to="140" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b93">
+	<analytic>
+		<title level="a" type="main">Machine helath monitoring with lstm networks</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Yan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Mao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2016 10th International Conference on Sensing Technology</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="1" to="6" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b94">
+	<analytic>
+		<title level="a" type="main">Learning to monitor machine health with convolutional bi-directional lstm networks</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Yan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Mao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Sensors</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b95">
+	<monogr>
+		<title level="m" type="main">Multi-sensor prognostics using an unsupervised health index based on lstm encoder-decoder</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Malhotra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Ramakrishnan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Anand</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Vig</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Agarwal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Shroff</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1608.06154</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b96">
+	<monogr>
+		<title level="m" type="main">Deep residual learning for image recognition</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Sun</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1512.03385</idno>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b97">
+	<monogr>
+		<title level="m" type="main">ImageNet: A Large-Scale Hierarchical Image Database</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Deng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Dong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Socher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L.-J</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Fei-Fei</surname></persName>
+		</author>
+		<idno>CVPR09</idno>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b98">
+	<analytic>
+		<title level="a" type="main">Visualizing data using t-sne</title>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">V D</forename><surname>Maaten</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="page" from="2579" to="2605" />
+			<date type="published" when="2008-11">Nov. 2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b99">
+	<monogr>
+		<title level="m" type="main">Understanding neural networks through deep visualization</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Yosinski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Clune</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Fuchs</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Lipson</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1506.06579</idno>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b100">
+	<analytic>
+		<title level="a" type="main">A survey on transfer learning</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Pan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Yang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on knowledge and data engineering</title>
+		<imprint>
+			<biblScope unit="volume">22</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page" from="1345" to="1359" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b101">
+	<analytic>
+		<title level="a" type="main">Bearing fault diagnosis based on svd feature extraction and transfer learning classification</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Shen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Yan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">X</forename><surname>Gao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Prognostics and System Health Management Conference (PHM)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2015">2015. 2015</date>
+			<biblScope unit="page" from="1" to="6" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b102">
+	<analytic>
+		<title level="a" type="main">On cross-domain feature fusion in gearbox fault diagnosis under various operating conditions based on transfer component analysis</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Xie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Duan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2016 IEEE International Conference on Prognostics and Health Management (ICPHM)</title>
+		<imprint>
+			<date type="published" when="2016-06">June 2016</date>
+			<biblScope unit="page" from="1" to="6" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b103">
+	<analytic>
+		<title level="a" type="main">Deep model based domain adaptation for fault diagnosis</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Lu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Liang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Cheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Meng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Industrial Electronics</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b104">
+	<analytic>
+		<title level="a" type="main">Online sequential prediction of bearings imbalanced fault diagnosis by extreme learning machine</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Mao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Yan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="s">Mechanical Systems and Signal Processing</title>
+		<imprint>
+			<biblScope unit="volume">83</biblScope>
+			<biblScope unit="page" from="450" to="473" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b105">
+	<analytic>
+		<title level="a" type="main">A new support vector data description method for machinery fault diagnosis with unbalanced datasets</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Duan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Xie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Bai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Expert Systems with Applications</title>
+		<imprint>
+			<biblScope unit="volume">64</biblScope>
+			<biblScope unit="page" from="239" to="246" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b106">
+	<analytic>
+		<title level="a" type="main">Learning deep representation for imbalanced classification</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">Change</forename><surname>Loy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Tang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition</title>
+		<meeting>the IEEE Conference on Computer Vision and Pattern Recognition</meeting>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="5375" to="5384" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b107">
+	<analytic>
+		<title level="a" type="main">Deep learning for imbalanced multimedia data classification</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Yan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M.-L</forename><surname>Shyu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S.-C</forename><surname>Chen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2015 IEEE International Symposium on Multimedia (ISM)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="page" from="483" to="488" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

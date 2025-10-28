@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">DriveML: An R Package for Driverless Machine Learning</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Sayan</forename><surname>Putatunda</surname></persName>
+							<email>sayanp@iima.ac.in</email>
+						</author>
+						<author>
+							<persName><forename type="first">Dayananda</forename><surname>Ubrangala</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Ravi</forename><forename type="middle">Prasad</forename><surname>Kondapalli</surname></persName>
+							<email>rpkondapalli@yahoo.com</email>
+						</author>
+						<author>
+							<affiliation key="aff0">
+								<orgName type="department">Senior Manager-AA &amp; DS Enterprise Data and Analytics (EDA)</orgName>
+								<orgName type="institution">VMware Software India Pvt. Ltd. Bangalore</orgName>
+								<address>
+									<country key="IN">India</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<affiliation key="aff1">
+								<orgName type="department">&amp; DS Enterprise Data and Analytics (EDA)</orgName>
+								<orgName type="institution">VMware Software India Pvt. Ltd. Bangalore</orgName>
+								<address>
+									<country key="IN">India</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<affiliation key="aff2">
+								<orgName type="department">Senior Manager-AA &amp; DS Enterprise Data and Analytics (EDA)</orgName>
+								<orgName type="institution">VMware Software India Pvt. Ltd. Bangalore</orgName>
+								<address>
+									<country key="IN">India</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<affiliation key="aff3">
+								<orgName type="institution">VMware Software India Pvt. Ltd. Bangalore</orgName>
+								<address>
+									<country key="IN">India</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">DriveML: An R Package for Driverless Machine Learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">F40BDC57569C5195BAA8E9EB143DDB11</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>AutoML</term>
+					<term>Feature Engineering</term>
+					<term>Machine Learning</term>
+					<term>R</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>In recent years, the concept of automated machine learning has become very popular. Automated Machine Learning (AutoML) mainly refers to the automated methods for model selection and hyper-parameter optimization of various algorithms such as random forests, gradient boosting, neural networks, etc. In this paper, we introduce a new package i.e. DriveML for automated machine learning. DriveML helps in implementing some of the pillars of an automated machine learning pipeline such as automated data preparation, feature engineering, model building and model explanation by running the function instead of writing lengthy R codes. The DriveML package is available in CRAN. We compare the DriveML package with other relevant packages in CRAN/Github by applying them on multiple datasets of different dimensions. We find that DriveML performs the best taking into consideration both the prediction accuracy and the execution time. We also provide an illustration by applying the DriveML package with default configuration on a real world dataset. Overall, the main benefits of DriveML are in development time savings, reduce developer's errors, optimal tuning of machine learning models and reproducibility.</p><p>CCS Concepts: • Computing methodologies → Supervised learning by classification.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Machine learning has disrupted almost every industry around us such as social media, transportation, agriculture, retail, software development, marketing, sales, finance, manufacturing and more. Machine learning (ML) is the phenomenon by which computers learn things by themselves and recognize * Corresponding author different patterns <ref type="bibr" target="#b2">[3,</ref><ref type="bibr" target="#b12">13]</ref>. Thomas M. Mitchell defined the machine learning problem as, "A computer program is said to learn from experience E with respect to some class of tasks T and performance measure P, if its performance at tasks in T, as measured by P, improves with experience E" <ref type="bibr" target="#b11">[12]</ref>.</p><p>In recent years, the concept of automated machine learning has gained traction. Many of the top tech companies such as Google, Amazon, Facebook, H2O and more (including some tech startups) are focusing on this. Automated Machine Learning (AutoML) mainly refers to the automated methods for model selection and hyper-parameter optimization of various algorithms such as random forests, gradient boosting, neural networks and more <ref type="bibr" target="#b17">[18]</ref>. The four pillars of building an automated machine learning pipeline are: (a) Data Preparation, (b) Feature Engineering, (c) Model development and (d) Model evaluation. Any AutoML pipeline would focus on automating these four pillars <ref type="bibr" target="#b6">[7]</ref>. Please see Elshawi et al. <ref type="bibr" target="#b4">[5]</ref> for a detailed overview of some of the recent works reported in the literature for automated machine learning.</p><p>In this paper, we introduce the DriveML package for automated machine learning especially in the classification context. DriveML saves a lot of effort required for data preparation, feature engineering, model selection and writing lengthy codes in a programming environment such as R <ref type="bibr" target="#b14">[15]</ref>. Thus, the DriveML package saves time and leads to more efficiency. In the following sections, we discuss the key functionality of the package, provide an illustration by applying the DriveML package with default configuration on a real world dataset, and compare DriveML with other relevant R packages across multiple datasets.  DriveML can call the SmartEDA <ref type="bibr" target="#b13">[14]</ref> package for performing automated exploratory data analysis (EDA). The "autoMLmodel" function in DriveML performs the various tasks for automated machine learning such as creating model test and train datasets and then run multiple classification models such as (i) glmnet-Regularised regression from glmnet R package <ref type="bibr" target="#b5">[6]</ref>, (ii) logreg-logistic regression from stats R package <ref type="bibr" target="#b14">[15]</ref>, (iii) randomForest-Random forests using the randomForest R <ref type="bibr" target="#b9">[10]</ref>, (iv) ranger-Random forests using the ranger R package <ref type="bibr" target="#b18">[19]</ref>, (v) xgboost-Extreme Gradient boosting using xgboost R package <ref type="bibr" target="#b1">[2]</ref> and (vi) rpart-decision tree classification using rpart R package <ref type="bibr" target="#b15">[16]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Key Functionality</head><p>The other features of the autoMLmodel function are (a) Hyper-parameter Tuning-using Random search (default option) or by applying the irace (Iterated Racing for Automatic Algorithm Configuration) package <ref type="bibr" target="#b10">[11]</ref> , (b) performs model validation using Receiver Operating Characteristics Area Under the Curve (ROC AUC), (c) Model scoring and (d) Variable importance chart for the best model (i.e. the one having the highest ROC AUC in the validation dataset).</p><p>The autoMLmodel function will also output the lift chart for the best model and will also provide the Partial dependency plot (PDP plots) for the top five variables from the best model. If the user wants to get the PDP plots for some specific variables, then they can user the function "autoPDP" for the same. The "autoMAR" function is used to identify and generate the Missing at Random features (MAR). The following steps explain the way it works. (1) For every feature X1 in a dataset with missing values, we create a new variable Y1, which will have value of 1 if X1 has a missing value or 0 otherwise, (2) We then fit a classification model with Y1 as dependent variable and all other features other than X1 as independent variables, (3) If the AUC is high, it means that there is a pattern to the missing values( i.e. they are not missing at random), in this case we retain Y1 as an additional independent variable in the original dataset, (4) If the AUC is low, then the missing values in X1 are missing at random, then Y1 is dropped, (5) Repeat steps 1 to 4 for all the independent variables in the original dataset and ( <ref type="formula">6</ref>) Publish a report with the findings for each independent variable X and additional variables added to the dataset.</p><p>Finally, DriveML will provide an HTML slide/vignette report containing the data descriptive statistics, model results, AUC plots, lift charts and PDP plots.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Illustration</head><p>In this section, we provide an illustration by applying the DriveML package with default configuration on a real world dataset. The goal is to make an user of the DriveML package familiar with the various functions (please see Section 2) of the package in R. We use the Heart disease dataset that is publicly available in the UCI machine learning repository <ref type="bibr" target="#b3">[4]</ref>. The dataset has 303 observations and 14 variables. The target variable is a binary categorical variable that indicates whether a patient has heart disease or not. The independent variables are age, gender, presence of chest pain, cholesterol, resting blood pressure, maximum heart rate and more. We apply the DriveML package and it splits the dataset into 243 observations in train and 60 observations in test datasets. The results for the various methods are shown below in Table <ref type="table" target="#tab_0">1</ref>. We find that the ranger method gives the best result in terms of the Test AUC. We consider the Test AUC as the default evaluation metric in this package. However, the user is free to choose any other evaluation metrics such as (F1 score, Precision, Recall and Accuracy) as well. We also record the model fitting time and the scoring time as shown in Table <ref type="table" target="#tab_0">1</ref>. Figure <ref type="figure" target="#fig_4">2</ref> shows the test AUC plot. The modus-operandi of applying DriveML in R is described in the code snippet below.</p><p>We first load the dataset and perform data preparation using the "autoDataprep" function. Now, we will perform automated training, tuning, and validation of the different machine learning models using the "autoMLmodel" function. This function includes six binary classification techniques that were mentioned earlier. We then generate the model summary results as shown in Table <ref type="table" target="#tab_0">1</ref> and plot the Test ROC AUC plot. Finally, we can use the "autoMLReport" function to generate a report in the html format for the output of "autoDataprep" and "autoMLmodel" DriveML functions.</p><p>&gt; autoMLReport(mlobject = mymodel, mldata = heart, op_file = "driveML_ouput_heart_data.html")</p><p>Figures <ref type="figure" target="#fig_5">3</ref> and <ref type="figure" target="#fig_6">4</ref> show the lift chart for all the methods (along with the lift tables) and the partial dependency plots (PDP) for some of the independent variables respectively.</p><p>Moreover, we applied the DriveML package on much larger datasets and we got some encouraging results taking into account both the prediction accuracy and the time taken (we will discuss these in more details in Section 4). However, the    </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Comparison of DriveML with other relevant R Packages</head><p>In this section, we compare the DriveML package with other similar packages available in CRAN/Github for automated machine learning namely, OneR <ref type="bibr" target="#b7">[8]</ref>, H2O <ref type="bibr" target="#b8">[9]</ref>, and AutoXG-Boost <ref type="bibr" target="#b16">[17]</ref>. We will apply these packages on four different datasets of different dimensions in the context of binary classification. The metrics for evaluation would be prediction accuracy (i.e. the Test AUC in this case) and the total execution time in seconds (this includes features engineering and model training). However, please note that there are some limitations that some of these competing packages have when compared to that of DriveML. For example, the AutoXGBoost function only used the Extreme Gradient Boosting (XGBoost) method for automated machine learning. Also, both OneR and Au-toXGBoost don't possess the capability for automated feature engineering, missing value treatment, and more. So, to ensure an apples to apples comparison, we will only use Boosting algorithms for both DriveML and H2O autoML functions. And we will also include the dataset preparation time in the total execution time metric for both OneR and AutoXGBoost in the experiments conducted by us.</p><p>We use datasets of different dimensions/sizes and categorize them into four different categories such as Extra large, Large, Medium, and Small. The extra large one is the rain in Australia dataset (source: <ref type="url" target="https://www.kaggle.com/jsphyg/weather-dataset-rattle-package">https://www.kaggle.com/jsphyg/  weather-dataset-rattle-package</ref>). This dataset contains about 10 years of daily weather observations from many locations across Australia. It contains the target variable "RainTomorrow", which signifies whether it will rain tomorrow or not. The total number of observations in the training dataset are 116, 368. We will refer to this dataset as "Weather Australia" for the rest of this paper. Moreover, this dataset also contains missing values.</p><p>The next dataset is the "Adult data" and we classify this into the Large dataset size category. This is a census data and is publicly available in the UCI machine learning repository <ref type="bibr" target="#b3">[4]</ref>. The binary target variable indicates if an individual's income exceeds 50, 000 USD per year. The dataset that we consider in the medium size category is the "HR Analytics" dataset that is available in Kaggle (source: <ref type="url" target="https://www.kaggle.com/arashnic/hr-analytics-job-change-of-data-scientists">https://www.kaggle.com/  arashnic/hr-analytics-job-change-of-data-scientists</ref>). This dataset is designed by HR researchers to understand the factors that lead a person to leave a current job. And finally, we use the Heart disease dataset that is classified as a small dataset size category. It is publicly available in the UCI machine learning repository <ref type="bibr" target="#b3">[4]</ref>. All the information regarding number of attributes, if there are missing values, number of training and test dataset observations for each of these four datasets are provided in Table <ref type="table" target="#tab_1">2</ref>.</p><p>Table <ref type="table" target="#tab_1">2</ref> describes the results of the experiments conducted by us to compare the performance of DriveML against other R packages across different datasets as mentioned earlier. All the experiments were conducted on a machine with configuration: 32 GB RAM, 64-bit Windows OS, intel i7 processor, and CPU @ 2.60GHz. In Table <ref type="table" target="#tab_1">2</ref>, we can see that for a small dataset i.e. the Heart disease dataset, the DriveML is claerly the best performer taking into account both test AUC and the time taken. However, for the other datasets, the test AUC scores for both DriveML and H2O autoML are very close. But DriveML is much faster than H2o autoML. Thus, we find that DriveML is the best performer taking into consideration both prediction accuracy and total execution time taken. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Conclusion</head><p>The contribution of this paper is in the development of a new package in R i.e., DriveML for automated machine learning. DriveML helps in implementing some of the pillars of an automated machine learning pipeline such as automated data preparation, feature engineering, model building (techniques such as Random forest, XGBoost, logistic regression and more) and model explanation (using lift chart and PDP plots) by running the function instead of writing lengthy R codes. DriveML also provides some additional features such as model ensembling, lift charts and automated exploratory data analysis when compared to other R packages. Moreover, DriveML also exports the model results with the required plots in an HTML vignette report format that follows the best practices of the industry and the academia. Overall, the main benefits of the DriveML package are in development time savings, reduce developer's errors, optimal tuning of machine learning models and reproducibility.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1</head><label>1</label><figDesc>Figure1shows the various functionalities of the DriveML package. DriveML has a single function i.e. "autoDataprep" that performs automatic data preparation steps on the raw</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 1 .</head><label>1</label><figDesc>Figure 1. The various functionalities of DriveML.</figDesc><graphic coords="2,54.00,219.93,252.00,134.10" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>&gt;</head><figDesc>library("DriveML") &gt; library("SmartEDA") ## Load the dataset &gt; heart = DriveML::heart #Now, let us perform data preparation using DriveML. &gt; dateprep &lt;-autoDataprep(data = heart, target = 'target_var',</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>#</head><figDesc>&gt; mymodel &lt;-autoMLmodel( train = heart, test = NULL, target = 'target_var', testSplit = Plot the Test ROC AUC &gt; TestROC &lt;mymodel$trainedModels$randomForest$modelPlots$TestROC &gt; TestROC</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Figure 2 .</head><label>2</label><figDesc>Figure 2. Test AUC plot for the ranger method.</figDesc><graphic coords="3,317.96,282.36,252.00,215.98" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Figure 3 .</head><label>3</label><figDesc>Figure 3. Lift chart and lift table for all the six methods.</figDesc><graphic coords="3,317.96,530.22,252.00,141.56" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><head>Figure 4 .</head><label>4</label><figDesc>Figure 4. Partial Dependency plots (PDP) for variables-age, thalach, chol and exang.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 1 .</head><label>1</label><figDesc>Performance comparison of different techniques on the Heart disease dataset</figDesc><table><row><cell>Model</cell><cell>Fitting time (secs)</cell><cell>Scoring time (secs)</cell><cell cols="6">Train AUC Test AUC Accuracy Precision Recall F1_score</cell></row><row><cell>ranger</cell><cell>3.148</cell><cell>0.017</cell><cell>0.997</cell><cell>0.953</cell><cell>0.867</cell><cell>0.816</cell><cell>0.969</cell><cell>0.886</cell></row><row><cell>glmnet</cell><cell>3.377</cell><cell>0.009</cell><cell>0.915</cell><cell>0.941</cell><cell>0.867</cell><cell>0.833</cell><cell>0.938</cell><cell>0.882</cell></row><row><cell>logreg</cell><cell>4.384</cell><cell>0.005</cell><cell>0.915</cell><cell>0.940</cell><cell>0.867</cell><cell>0.833</cell><cell>0.938</cell><cell>0.882</cell></row><row><cell>randomForest</cell><cell>3.155</cell><cell>0.011</cell><cell>0.997</cell><cell>0.937</cell><cell>0.850</cell><cell>0.811</cell><cell>0.938</cell><cell>0.870</cell></row><row><cell>xgboost</cell><cell>3.56</cell><cell>0.005</cell><cell>0.996</cell><cell>0.930</cell><cell>0.867</cell><cell>0.816</cell><cell>0.969</cell><cell>0.886</cell></row><row><cell>rpart</cell><cell>2.799</cell><cell>0.005</cell><cell>0.908</cell><cell>0.859</cell><cell>0.833</cell><cell>0.806</cell><cell>0.906</cell><cell>0.853</cell></row><row><cell cols="4">html format reports for each of these experiments that demon-</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell></row><row><cell cols="4">strates the output of the DriveML functions are available in</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell></row><row><cell cols="4">the "Articles" section of the Github webpage of the DriveML</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell></row><row><cell cols="3">package: https://daya6489.github.io/DriveML/.</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>Table 2 .</head><label>2</label><figDesc>Comparison of DriveML with other available R packages</figDesc><table><row><cell>Sl no.</cell><cell>Dataset name</cell><cell>Dataset size category</cell><cell>R package</cell><cell>No. of Attributes</cell><cell>Missing values?</cell><cell>No. of Train instances</cell><cell>No. of Test instances</cell><cell>Total Execution time (in secs)</cell><cell>Test AUC</cell></row><row><cell>1</cell><cell></cell><cell></cell><cell>DriveML</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell>263.29</cell><cell>0.89</cell></row><row><cell>2 3</cell><cell>Weather Australia</cell><cell>Extra Large</cell><cell>H2O automl OneR</cell><cell>23</cell><cell>yes</cell><cell>116368</cell><cell>29092</cell><cell>1176.91 1.19</cell><cell>0.89 0.77</cell></row><row><cell>4</cell><cell></cell><cell></cell><cell>autoxgboost</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell>139.16</cell><cell>0.88</cell></row><row><cell>5</cell><cell></cell><cell></cell><cell>DriveML</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell>29.90</cell><cell>0.92</cell></row><row><cell>6 7</cell><cell>Adult data</cell><cell>Large</cell><cell>H2O automl OneR</cell><cell>14</cell><cell>No</cell><cell>32561</cell><cell>16281</cell><cell>47.84 0.13</cell><cell>0.92 0.71</cell></row><row><cell>8</cell><cell></cell><cell></cell><cell>autoxgboost</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell>40.70</cell><cell>0.92</cell></row><row><cell>9</cell><cell></cell><cell></cell><cell>DriveML</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell>35.13</cell><cell>0.79</cell></row><row><cell>10 11</cell><cell>HR Analytics</cell><cell>Medium</cell><cell>H2O automl OneR</cell><cell>14</cell><cell>yes</cell><cell>15327</cell><cell>3831</cell><cell>60.87 0.11</cell><cell>0.80 0.71</cell></row><row><cell>12</cell><cell></cell><cell></cell><cell>autoxgboost</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell>13.55</cell><cell>0.64</cell></row><row><cell>13</cell><cell></cell><cell></cell><cell>DriveML</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell>6.07</cell><cell>0.91</cell></row><row><cell>14 15</cell><cell>Heart Disease</cell><cell>Small</cell><cell>H2O automl OneR</cell><cell>14</cell><cell>No</cell><cell>243</cell><cell>60</cell><cell>32.07 0.05</cell><cell>0.90 0.68</cell></row><row><cell>16</cell><cell></cell><cell></cell><cell>autoxgboost</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell>10.29</cell><cell>0.90</cell></row></table></figure>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>Acknowledgments</head><p>We would like to thank <rs type="institution">VMware</rs> and the Enterprise &amp; Data Analytics (EDA) leadership for giving us the required infrastructure and support for this work. We are grateful to the <rs type="institution">R community</rs> for their acceptance and feedback to improve our package further.</p></div>
+			</div>
+			<div type="availability">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Availability</head><p>The software is distributed under an MIT + file LICENSE (Repository: CRAN) and is available from <ref type="url" target="https://github.com/daya6489/DriveML">https://github.  com/daya6489/DriveML</ref>.</p></div>
+			</div>
+
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">mlr: Machine Learning in R</title>
+		<author>
+			<persName><forename type="first">Bernd</forename><surname>Bischl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michel</forename><surname>Lang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lars</forename><surname>Kotthoff</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Julia</forename><surname>Schiffner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jakob</forename><surname>Richter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Erich</forename><surname>Studerus</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Giuseppe</forename><surname>Casalicchio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zachary</forename><forename type="middle">M</forename><surname>Jones</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">17</biblScope>
+			<biblScope unit="page" from="1" to="5" />
+			<date type="published" when="2016">2016. 2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">xgboost: Extreme Gradient Boosting</title>
+		<author>
+			<persName><forename type="first">Chen</forename></persName>
+		</author>
+		<ptr target="https://CRAN.R-project.org/package=xgboostRpackageversion1.0.0.2" />
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">A few useful things to know about machine learning</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Domingos</surname></persName>
+		</author>
+		<idno type="DOI">10.1145/2347736.2347755</idno>
+		<ptr target="https://doi.org/10.1145/2347736.2347755" />
+	</analytic>
+	<monogr>
+		<title level="j">Commun. ACM</title>
+		<imprint>
+			<biblScope unit="volume">55</biblScope>
+			<biblScope unit="page" from="78" to="87" />
+			<date type="published" when="2012">2012. 2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<author>
+			<persName><forename type="first">Dheeru</forename><surname>Dua</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Casey</forename><surname>Graff</surname></persName>
+		</author>
+		<ptr target="http://archive.ics.uci.edu/ml" />
+		<title level="m">UCI Machine Learning Repository</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<title level="m" type="main">Automated Machine Learning: State-of-The-Art and Open Challenges</title>
+		<author>
+			<persName><forename type="first">Radwa</forename><surname>Elshawi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mohamed</forename><surname>Maher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sherif</forename><surname>Sakr</surname></persName>
+		</author>
+		<idno>CoRR abs/1906.02287</idno>
+		<ptr target="http://arxiv.org/abs/1906.02287" />
+		<imprint>
+			<date type="published" when="2019">2019. 2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Regularization Paths for Generalized Linear Models via Coordinate Descent</title>
+		<author>
+			<persName><forename type="first">Jerome</forename><surname>Friedman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Trevor</forename><surname>Hastie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Robert</forename><surname>Tibshirani</surname></persName>
+		</author>
+		<idno type="DOI">10.18637/jss.v033.i01</idno>
+		<ptr target="https://doi.org/10.18637/jss.v033.i01" />
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Statistical Software</title>
+		<imprint>
+			<biblScope unit="volume">33</biblScope>
+			<biblScope unit="page" from="1" to="22" />
+			<date type="published" when="2010">2010. 2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">AutoML: A Survey of the State-of-the-Art</title>
+		<author>
+			<persName><surname>He</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1908.00709v4</idno>
+		<ptr target="https://arxiv.org/pdf/1908.00709.pdf" />
+		<imprint>
+			<date type="published" when="2020">2020. 2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<author>
+			<persName><forename type="first">Jouanne-Diedrich</forename><surname>Holger Von</surname></persName>
+		</author>
+		<ptr target="https://CRAN.R-project.org/package=OneRRpackageversion2.2" />
+		<title level="m">OneR: One Rule Machine Learning Classification Algorithm with Enhancements</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<author>
+			<persName><forename type="first">Erin</forename><surname>Ledell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Navdeep</forename><surname>Gill</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Spencer</forename><surname>Aiello</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Anqi</forename><surname>Fu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Arno</forename><surname>Candel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cliff</forename><surname>Click</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tom</forename><surname>Kraljevic</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tomas</forename><surname>Nykodym</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Patrick</forename><surname>Aboyoun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michal</forename><surname>Kurka</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michal</forename><surname>Malohlava</surname></persName>
+		</author>
+		<ptr target="https://CRAN.R-project.org/" />
+		<title level="m">Interface</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note>package=h2o R package version 3.26.0.2</note>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Classification and Regression by randomForest</title>
+		<author>
+			<persName><forename type="first">Andy</forename><surname>Liaw</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Matthew</forename><surname>Wiener</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">R News</title>
+		<idno type="ISSN">1609-3631</idno>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="page" from="18" to="22" />
+			<date type="published" when="2002">2002. 2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">The irace package: Iterated Racing for Automatic Algorithm Configuration</title>
+		<author>
+			<persName><surname>López-Ibáñez</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.orp.2016.09.002</idno>
+		<ptr target="https://doi.org/10.1016/j.orp.2016.09.002" />
+	</analytic>
+	<monogr>
+		<title level="j">Operations Research Perspectives</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="page" from="43" to="58" />
+			<date type="published" when="2016">2016. 2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<monogr>
+		<author>
+			<persName><forename type="first">Thomas</forename><forename type="middle">M</forename><surname>Mitchell</surname></persName>
+		</author>
+		<title level="m">Machine Learning</title>
+		<imprint>
+			<publisher>McGraw-Hill, Inc</publisher>
+			<date type="published" when="1997">1997</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Advances in Analytics and Applications</title>
+		<author>
+			<persName><forename type="first">Sayan</forename><surname>Putatunda</surname></persName>
+		</author>
+		<idno type="DOI">10.1007/978-981-13-1208-3_1</idno>
+		<ptr target="https://doi.org/10.1007/978-981-13-1208-3_1" />
+	</analytic>
+	<monogr>
+		<title level="m">Springer Proceedings in Business and Economics, Chapter Machine Learning: An Introduction</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">SmartEDA: An R Package for Automated Exploratory Data Analysis</title>
+		<author>
+			<persName><surname>Putatunda</surname></persName>
+		</author>
+		<idno type="DOI">10.21105/joss.01509</idno>
+		<ptr target="https://doi.org/10.21105/joss.01509" />
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Open Source Software</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="page">41</biblScope>
+			<date type="published" when="2019">2019. 2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">R: A Language and Environment for Statistical Computing</title>
+		<author>
+			<persName><forename type="first">Team</forename><surname>Core</surname></persName>
+		</author>
+		<ptr target="https://www.R-project.org/" />
+	</analytic>
+	<monogr>
+		<title level="m">R Foundation for Statistical Computing</title>
+		<meeting><address><addrLine>Vienna, Austria</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<author>
+			<persName><forename type="first">Terry</forename><surname>Therneau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Beth</forename><surname>Atkinson</surname></persName>
+		</author>
+		<ptr target="https://CRAN.R-project.org/package=rpart" />
+		<title level="m">rpart: Recursive Partitioning and Regression Trees</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="page" from="1" to="15" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Automatic Gradient Boosting</title>
+		<author>
+			<persName><forename type="first">Janek</forename><surname>Thomas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stefan</forename><surname>Coors</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bernd</forename><surname>Bischl</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Workshop on Automatic Machine Learning at ICML</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">From Conventional Machine Learning to AutoML</title>
+		<author>
+			<persName><forename type="first">Ziqiao</forename><surname>Weng</surname></persName>
+		</author>
+		<idno type="DOI">10.1088/1742-6596/1207/1/012015</idno>
+		<ptr target="https://doi.org/doi:10.1088/1742-6596/1207/1/012015" />
+	</analytic>
+	<monogr>
+		<title level="s">IOP Conf. Series: Journal of Physics: Conf. Series</title>
+		<imprint>
+			<biblScope unit="volume">1207</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">ranger: A Fast Implementation of Random Forests for High Dimensional Data in C++ and R</title>
+		<author>
+			<persName><forename type="first">Marvin</forename><forename type="middle">N</forename><surname>Wright</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andreas</forename><surname>Ziegler</surname></persName>
+		</author>
+		<idno type="DOI">10.18637/jss.v077.i01</idno>
+		<ptr target="https://doi.org/10.18637/jss.v077.i01" />
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Statistical Software</title>
+		<imprint>
+			<biblScope unit="volume">77</biblScope>
+			<biblScope unit="page" from="1" to="17" />
+			<date type="published" when="2017">2017. 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

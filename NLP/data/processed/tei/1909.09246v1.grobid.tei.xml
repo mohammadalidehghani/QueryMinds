@@ -1,0 +1,1492 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Machine Learning for Clinical Predictive Analytics</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Wei-Hung</forename><surname>Weng</surname></persName>
+						</author>
+						<title level="a" type="main">Machine Learning for Clinical Predictive Analytics</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">BDDDA68B71352367460A1CC4AC8E3BCA</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Learning Objectives</head><p>• Understand the basics of machine learning techniques and the reasons behind why they are useful for solving clinical prediction problems.</p><p>• Understand the intuition behind some machine learning models, including regression, decision trees, and support vector machines. • Understand how to apply these models to clinical prediction problems using publicly available datasets via case studies.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.">Machine Learning for Healthcare</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.1.">Introduction</head><p>In this chapter, we provide a brief overview of applying machine learning techniques for clinical prediction tasks. We begin with a quick introduction to the concepts of machine learning, and outline some of the most common machine learning algorithms. Next, we demonstrate how to apply the algorithms with appropriate toolkits to conduct machine learning experiments for clinical prediction tasks. This chapter is composed of five sections. First, we will explain why machine learning techniques are helpful for researchers in solving clinical prediction problems (section 1). Understanding the motivations behind machine learning approaches in healthcare are essential, since precision and accuracy are often critical in healthcare problems, and everything from diagnostic decisions to predictive clinical analytics could dramatically benefit from data-based processes with improved efficiency and reliability. In the second section, we will introduce several important concepts in machine learning in a colloquial manner, such as learning scenarios, objective/target function, error and loss function and metrics, optimization and model validation, and finally a summary of model selection methods (section 2). These topics will help us utilize machine learning algorithms in an appropriate way. Following that, we will introduce some 1 MIT CSAIL, Cambridge, MA, USA. Correspondence to: Wei-Hung Weng &lt;ckbjimmy@mit.edu&gt;. popular machine learning algorithms for prediction problems (section 3). For example, logistic regression, decision tree and support vector machine. Then, we will discuss some limitations and pitfalls of using the machine learning approach (section 4). Lastly, we will provide case studies using real intensive care unit (ICU) data from a publicly available dataset, PhysioNet Challenge 2012, as well as the breast tumor data from Breast Cancer Wisconsin (Diagnostic) Database, and summarize what we have mentioned in the chapter (section 5).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.2.">Why machine learning?</head><p>Machine learning is an interdisciplinary field which consists of computer science, mathematics, and statistics. It is also an approach toward building intelligent machines for artificial intelligence (AI). Different from rule-based symbolic AI, the idea of utilizing machine learning for AI is to learn from data (examples and experiences). Instead of explicitly programming hand-crafted rules, we construct a model for prediction by feeding data into a machine learning algorithm, and the algorithm will learn an optimized function based on the data and the specific task. Such data-driven methodology is now the state-of-the-art approach of various research domains, such as computer vision <ref type="bibr" target="#b31">(Krizhevsky et al., 2012)</ref>, natural language processing (NLP) <ref type="bibr" target="#b49">(Yala et al., 2017)</ref>, and speech to text translation <ref type="bibr" target="#b47">(Wu et al., 2016;</ref><ref type="bibr" target="#b9">Chung et al., 2018;</ref><ref type="bibr">2019)</ref>, for many complex real-world applications.</p><p>Due to the increased popularity of the electronic health record (EHR) system in recent years, massive quantities of healthcare data have been generated <ref type="bibr" target="#b24">(Henry et al., 2016)</ref>. Machine learning for healthcare therefore becomes an emerging applied domain. Recently, researchers and clinicians have started applying machine learning algorithms to solve the problems of clinical outcome prediction <ref type="bibr" target="#b19">(Ghassemi et al., 2014)</ref>, diagnosis <ref type="bibr" target="#b23">(Gulshan et al., 2016;</ref><ref type="bibr" target="#b14">Esteva et al., 2017;</ref><ref type="bibr" target="#b34">Liu et al., 2017;</ref><ref type="bibr" target="#b8">Chung &amp; Weng, 2017;</ref><ref type="bibr" target="#b36">Nagpal et al., 2018)</ref>, treatment and optimal decision making <ref type="bibr" target="#b38">(Raghu et al., 2017;</ref><ref type="bibr">Weng et al., 2017a;</ref><ref type="bibr" target="#b30">Komorowski et al., 2018)</ref> using data in different modalities, such as structured lab measurements <ref type="bibr" target="#b37">(Pivovarov et al., 2015)</ref>, claims data <ref type="bibr" target="#b13">(Doshi-Velez et al., 2014;</ref><ref type="bibr" target="#b37">Pivovarov et al., 2015;</ref><ref type="bibr" target="#b7">Choi et al., 2016)</ref>, free texts <ref type="bibr" target="#b37">(Pivovarov et al., 2015;</ref><ref type="bibr">Weng &amp; Szolovits, 2018;</ref><ref type="bibr">Weng et al., 2019b)</ref>, images <ref type="bibr" target="#b23">(Gulshan et al., 2016;</ref><ref type="bibr" target="#b14">Esteva et al., 2017;</ref><ref type="bibr" target="#b1">Bejnordi et al., 2017;</ref><ref type="bibr">Chen et al., 2019a)</ref>, physi-ological signals <ref type="bibr" target="#b32">(Lehman et al., 2018)</ref>, and even cross-modal information <ref type="bibr" target="#b28">(Hsu et al., 2018;</ref><ref type="bibr" target="#b33">Liu et al., 2019)</ref>.</p><p>Instead of traditional ad-hoc healthcare data analytics, which usually requires expert-intensive efforts for collecting data and designing limited hand-crafted features, machine learning-based approaches help us recognize patterns inside the data and allow us to perform personalized clinical prediction with more generalizable prediction models <ref type="bibr">(Gehrmann et al., 2018)</ref>. They help us maximize the utilization of massive but complex EHR data. In this chapter, we will focus on how to tackle clinical prediction problems using a machine learning-based approach.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.">General Concepts of Learning</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1.">Learning scenario for clinical prediction</head><p>We start with how to frame your clinical problem into a machine learning prediction problem with a simple example. Assuming that you want to build a model for predicting the mortality of ICU patients with continuous renal replacement therapy and you have a large ICU database, which includes hundreds of variables such as vital signs, lab data, demographics, medications, and even clinical notes and reports, the clinical problem can be reframed as a task: "Given data with hundreds of input variables, I want to learn a model from the data that can correctly make a prediction given a new datapoint." That is, the output of the function (model) should be as close as possible to the outcome of what exactly happened (the ground truth). Machine learning algorithm is here to help you to find the best function from a set of functions. This is a typical machine learning scenario, which is termed supervised learning. In such a case, you may do the following steps:</p><p>• Define the outcome of your task</p><p>• Consult with domain experts to identify important features/variables</p><p>• Select an appropriate algorithm (or design a new machine learning algorithm) with a suitable parameter selection</p><p>• Find an optimized model with a subset of data (training data) with the algorithm</p><p>• Evaluate the model with another subset of data (testing data) with appropriate metrics</p><p>• Deploy the prediction model on real-world data At the end of the chapter, we will show an exercise notebook that will help you go through the concepts mentioned above.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2.">Machine learning scenarios</head><p>There are many machine learning scenarios, such as supervised learning, unsupervised learning, semi-supervised learning, reinforcement learning, and transfer learning. We will only focus on the first two main categories, supervised learning and unsupervised learning. Both of the scenarios expect to learn from the underlying data distribution, or to put it simply, find patterns inside data. The difference between them is that you have annotated data under the supervised scenario but only unlabelled data under unsupervised learning scenario.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2.1.">SUPERVISED LEARNING</head><p>Supervised learning is the most common scenario for practical machine learning tasks if the outcome is well-defined, or example, if you are predicting patient mortality, hospital length of stay, or drug response. In general, the supervised learning algorithm will try to learn how to build a classifier for predicting the outcome variable y given input x, which is a mapping function f where y = f (x). The classifier will be built by an algorithm along with a set of data {x 1 , ..., x n } with the corresponding outcome label {y 1 , ..., y n }.Supervised learning can be categorized by two criteria, either by type of prediction or by type of model. First, it can be separated into regression or classification problems. For predicting continuous outcomes, using regression methods such as linear regression is suitable. For class prediction, classification algorithms such as logistic regression, naive Bayes, decision trees or support vector machines (SVM) <ref type="bibr" target="#b11">(Cortes &amp; Vapnik, 1995)</ref> will be a better choice. For example, linear regression is suitable for children height prediction problem whereas SVM is better for binary mortality prediction.</p><p>Regarding the goal of the learning process, a discriminative model such as regression, trees and SVMs can learn the decision boundary within the data.However, a generative model like naive Bayes will learn the probability distributions of the data.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2.2.">UNSUPERVISED LEARNING</head><p>Without corresponding output variables (y), the unsupervised learning algorithms discover latent structures and patterns directly from the given unlabeled data {x 1 , ..., x n }.</p><p>There is no ground truth in the unsupervised learning, therefore, the machine will only find associations or clusters inside the data.For example, we may discover hidden subtypes in a disease using an unsupervised approach (Ghassemi et al., 2014).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2.3.">OTHER SCENARIO</head><p>Other scenarios such as reinforcement learning (RL) frame a decision making problem into a computer agent interaction with a dynamic environment <ref type="bibr" target="#b40">(Silver et al., 2016)</ref>, in which the agent attempts to reach the best reward based on feedback when it navigates the state and action space. Using a clinical scenario as an example, the agent (the RL algorithm) will try to improve the model parameters based on iteratively simulating the state (patient condition) and action (giving fluid or vasopressor for hypotension), obtain the feedback reward (mortality or not), and eventually converge to a model that may yield optimal decisions <ref type="bibr" target="#b38">(Raghu et al., 2017)</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3.">Find the best function</head><p>To estimate and find the best mapping function in the above scenarios, the process of optimization is needed. However, we do need to define some criteria to tell us how well the function (model) can predict the task. Therefore, we need a loss function and a cost function (objective function) for this purpose.</p><p>Loss function defines the difference between the output of model y and the real data value ŷ. Different machine learning algorithms may use different loss functions, for example, least squared error for linear regression, logistic loss for logistic regression, and hinge loss for SVM (Table <ref type="table" target="#tab_1">1</ref>).</p><p>Cost function is the summation of loss functions of each training data point. Using loss functions, we can define the cost function to evaluate model performance. Through loss and cost functions, we can compute the performance of functions on the whole dataset.</p><p>In unsupervised learning setting, the algorithms have no real data value to compute the loss function. In such case, we can use the input itself as the output and compute the difference between input and output. For example, we use reconstruction loss for autoencoder, a kind of unsupervised learning algorithms, to evaluate whether the model can well reconstruct the input from hidden states inside the model.</p><p>There is a mathematical proof for this learning problem to explain why machine learning is feasible even if the function space is infinite. Since our goal is not to explain the mathematics and mechanism of machine learning, further details on why there is a finite bound on the generalization error are not mentioned here. For readers who are interested in the theory of machine learning, such as Hoeffding's inequality that gives a probability upper bound, VapnikChervonenkis (VC) dimension and VC generalization bound, please refer to the textbooks <ref type="bibr" target="#b0">(Abu-Mostafa et al., 2012)</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.4.">Metrics</head><p>Choosing an appropriate numeric evaluation metric for optimization is crucial. Different evaluation metrics are applied to different scenarios and problems.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.4.1.">SUPERVISED LEARNING</head><p>In classification problems, accuracy, precision/positive predictive value (PPV), recall/sensitivity, specificity, and the F1 score are usually used. We use a confusion matrix to show the relation between these metrics 2.</p><p>The area under receiver operating curve (AUROC) is a very common metric, which sums up the area under the curve in the plot with x-axis of false positive rate (FPR, also known as 1-specificity), and y-axis of true positive rate (TPR) 1.</p><p>FPR and TPR values may change based on the threshold of your subjective choice. In a regression problem, the adjusted R-squared value is commonly used for evaluation. The R-squared value, also known as the coefficient of determination, follows the equation and is defined by the total sum of squares (SStot) and the residual sum of squares (SSres). The detailed equations are as follows:</p><formula xml:id="formula_0">R 2 = 1 - SS res SS tot = 1 - m i=1 (y i -f (x i )) 2 m i=1 (y i -ŷi ) 2 Adjusted R 2 = 1 - (1 -R 2 )(m -1) m -n -1</formula><p>There are also other metrics for regression, such as Akaike information criterion (AIC) and Bayesian information criterion (BIC), for different study purposes.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.4.2.">UNSUPERVISED LEARNING</head><p>Since there are no ground truth labels for unsupervised scenarios, evaluation metrics of unsupervised learning settings are relatively difficult to define and usually depend on the algorithms in question. For example, the Calinski-Harabaz index and silhouette coefficient have been used to evaluate k-means clustering. Reconstruction error is used for autoen-</p><p>Task Error type Loss function Note Regression Mean-squared error 1 n n i=1 (y i -ŷi ) 2 Easy to learn but sensitive to outliers (MSE, L2 loss) Mean absolute error 1 n n i=1 |y i -ŷi | Robust to outliers but not differentiable (MAE, L1 loss) Classification Cross entropy = Log loss</p><formula xml:id="formula_1">-1 n n i=1 [y i log( ŷi ) + (1 -y i ) log(1 -ŷi )] = -1 n n i=1 p i log q i</formula><p>Quantify the difference between two probability distributions Hinge loss</p><formula xml:id="formula_2">1 n n i=1 max(0, 1 -y i ŷi )</formula><p>For support vector machine</p><formula xml:id="formula_3">KL divergence D KL (p||q) = i p i (log pi qi )</formula><p>Quantify the difference between two probability distributions Table 2. Commonly-used metrics in machine learning.</p><p>coder, a kind of neural network architecture for learning data representation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.5.">Model Validation</head><p>The next step after deciding the algorithm is to get your data ready for training a model for your task. In practice, we split the whole dataset into three pieces:</p><p>• Training set for model training. You will run the selected machine learning algorithm only on this subset.</p><p>• Development (a.k.a. dev, validation) set, also called hold-out, for parameter tuning and feature selection. This subset is only for optimization and model validation.</p><p>• Testing set for evaluating model performance. We only apply the model for prediction here, but wont change any content in the model at this moment.</p><p>There are a few things that we need to keep in mind:</p><p>• It is better to have your training, dev and testing sets all from the same data distribution instead of having them too different (e.g. training/dev on male patients but testing on female patients), otherwise you may face the problem of overfitting, in which your model will fit the data too well in training or dev sets but find it difficult to generalize to the test data. In this situation, the trained model will not be able to be applied to other cases.</p><p>• It is important to prevent using any data in the dev set or testing set for model training. Test data leakage, i.e. having part of testing data while training phase, may cause the overfitting of the model to your test data and erroneously gives you a high performance but a bad model.</p><p>There is no consensus on the relative proportions of the three subsets. However, people usually split out 20-30% of the whole dataset for their testing set. The proportion can be smaller if you have more data.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.5.1.">CROSS-VALIDATION</head><p>The other commonly used approach for model validation is k-fold cross validation (CV). The goal of k-fold CV is to reduce the overfitting of the initial training set by further training several models with the same algorithm but with different training/dev set splitting.</p><p>In k-fold CV, we split the whole dataset into k folds and train the model k times. In each training, we iteratively leave one different fold out for validation, and train on the remaining k -1 folds. The final error is the average of errors over k times of training 2. In practice, we usually use k=5 or 10. The extreme case for n cases is n-fold CV, which is also called leave-one-out CV (LOOCV). Please keep in mind that the testing set is completely excluded from the process of CV. Only training and dev sets are involved in this process.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.6.">Diagnostics</head><p>After the first iteration of model training and evaluation, you may find that the trained model does not perform well on the unseen testing data. To address the issue of error in machine learning, we need to conduct some diagnostics regarding bias and variance in the model in order to achieve a model with low bias and low variance.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.6.1.">BIAS AND VARIANCE</head><p>The bias of a model is the difference between the expected prediction and the correct model that we try to predict for given data points. That is, it is the algorithm's error rate on training set. This is an underfitting problem, which the model can't capture the trend of the data well due to excessively simple model, and one potential solution is to make the model more complex, which can be done by reducing regularization (section 2.6.2), or configuring and adding more input features. For example, stacking more layers if you are using a deep learning approach. However, it is possible that the outcome of complex model is high variance.</p><p>The variance of a model is the variability of the model prediction for given data points. It is the model error rate difference between training and dev sets. Problems of high variance are usually related to the issue of overfitting. i.e. hard to generalize to unseen data. The possible solution is to simplify the model, such as using regularization, reducing the number of features, or add more training data. Yet the simpler model may also suffer from the issue of high bias.</p><p>High bias and high variance can happen simultaneously with very bad models. To achieve the optimal error rate, a.k.a. Bayes error rate, which is an unavoidable bias from the most optimized model, we need to do iterative experiments to find the optimal bias and variance tradeoff.</p><p>Finally, a good practice of investigating bias and variance is to plot the informative learning curve with training and validation errors. In Figure <ref type="figure" target="#fig_2">3</ref> and Table <ref type="table">3</ref> we demonstrate a few cases of diagnostics as examples. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.6.2.">REGULARIZATION</head><p>The goal of regularization is to prevent model overfitting and high variance. The most common regularization techniques include Least absolute shrinkage and selection operator (LASSO regression, L1-regularization) <ref type="bibr" target="#b41">(Tibshirani, 1996)</ref>, ridge regression (L2-regression) <ref type="bibr" target="#b26">(Hoerl &amp; Kennard, 1970)</ref>, and elastic net regression (a linear combination of L1 and L2 regularization) <ref type="bibr" target="#b50">(Zou &amp; Hastie, 2005)</ref>.</p><p>In practice, we add a weighted penalty term λ to the cost function as a regularization. For L1-regularization, we add the absolute value of the magnitude of coefficient as penalty term, and in L2-regularization we add the squared value of magnitude instead (Table <ref type="table">4</ref>).</p><p>L1-regularization is also a good technique for feature selection since it can "shrink" the coefficients of less important features to zero and remove them. In contrast, L2regularization just makes the coefficients smaller, but not to zero.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.7.">Error analysis</head><p>It is an important practice to construct your first prediction pipeline as soon as possible and iteratively improve its performance by error analysis. Error analysis is a critical step to examine the performance between your model and the optimized one. To do the analysis, it is necessary to manually go through some erroneously predicted data from the dev set.</p><p>The error analysis can help you understand potential problems in the current algorithm setting. For example, the misclassified cases usually come from specific classes (e.g. patients with cardiovascular issues might get confused with those with renal problems since there are some shared patho-</p><p>Training error Validation error Approach High bias High Low Increase complexity High variance Low High Decrease complexity Add more data</p><p>Table 3. The characteristic of high bias and high variance.</p><p>Regularization Equation <ref type="table">4</ref>. L1 and L2-regularized logistic regression. logical features between two organ systems) or inputs with specific conditions <ref type="bibr">(Weng et al., 2017b)</ref>. Such misclassification can be prevented by changing to more complex model architecture (e.g. neural networks), or adding more features (e.g. combining word-and concept-level features), in order to help distinguish the classes.</p><formula xml:id="formula_4">L1 (LASSO) m i=1 (y i - n j=1 β j x ij ) 2 + λ n j=1 |β j | L2 (Ridge) m i=1 (y i - n j=1 β j x ij ) 2 + λ n j=1 β 2 j Table</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.8.">Ablation analysis</head><p>Ablation analysis is a critical step for identifying important factors in the model. Once you obtain an ideal model, it is necessary to compare it with some simple but robust models, such as linear or logistic regression model. This step is also essential for research projects, since the readers of your work will want to know what factors and methods are related to the improvement of model performance. For example, the deep learning approach of clinical document deidentification outperforms traditional natural language processing approach. In the paper of using neural network for deidentification <ref type="bibr" target="#b12">(Dernoncourt et al., 2017)</ref>, the authors demonstrate that the character-level token embedding technique had the greatest effect on model performance, and this became the critical factor of their study.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">Learning Algorithms</head><p>In this section, we briefly introduce the concepts of some algorithm families that can be used in the clinical prediction tasks. For supervised learning, we will discuss linear models, tree-based models and SVM. For unsupervised learning, we will discuss the concepts of clustering and dimensionality reduction algorithms. We will skip the neural network method in this chapter. Please refer to programming tutorial part 3 or deep learning textbook for further information <ref type="bibr" target="#b22">(Goodfellow et al., 2016)</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1.">Supervised learning</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1.1.">LINEAR MODELS</head><p>Linear models are commonly used not only in machine learning but also in statistical analysis. They are widely adopted in the clinical world and can usually be provided as baseline models for clinical machine learning tasks. In this class of algorithms, we usually use linear regression for regression problems and logistic regression for classification problems.</p><p>The pros of linear models include their interpretability, less computation, as well as less complexity comparing to other classical machine learning algorithms. The cons of them are their inferior performance. However, these are common trade-off features in model selection. It is still worthwhile to start from this simple but powerful family of algorithms.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1.2.">TREE-BASED MODELS</head><p>Tree-based models can be used for both regression and classification problems. Decision tree, also known as classification and regression trees (CART), is one of the most common tree-based models <ref type="bibr" target="#b3">(Breiman, 2017)</ref>. It follows the steps below to find the best tree:</p><p>• It looks across all possible thresholds across all possible features and picks the single feature split that best separates the data</p><p>• The data is split on that feature at a specific threshold that yields the highest performance</p><p>• It iteratively repeats the above two steps until reaching the maximal tree depth, or until all the leaves are pure</p><p>There are many parameters that should be considered while using the decision tree algorithm. The following are some important parameters:</p><p>• Splitting criteria: by Gini index or entropy</p><p>• Tree size: tree depth, tree pruning</p><p>• Number of samples: minimal samples in a leaf, or minimal sample to split a node</p><p>The biggest advantage of a decision tree is providing model interpretability and actionable decision. Since the tree is represented in a binary way, the trained tree model can be easily converted into a set of rules. For example, in the paper the authors utilized CART to create a series of clinical rules <ref type="bibr" target="#b15">(Fonarow et al., 2005)</ref>. However, decision trees may have the issue of high variance and yield an inferior performance.</p><p>Random forest is another tree-based algorithm that combines the idea of bagging and subsampling features <ref type="bibr" target="#b2">(Breiman, 2001)</ref>. In brief, it tries to ensemble the results and performances of a number of decision trees that were built by randomly selected sets of features. The algorithm can be explained as follows:</p><p>• Pick a random subset of features</p><p>• Create a bootstrap sample of data (randomly resample the data)</p><p>• Build a decision tree on this data</p><p>• Iteratively perform the above steps until termination Random forest is a robust classifier that usually works well on most of the supervised learning problems, but a main concern is model interpretability. There are also other treebased models such as adaptive boosting (Adaboost) and gradient boosting algorithms, which attempt to combine multiple weaker learners into a stronger model <ref type="bibr" target="#b16">(Freund et al., 1999;</ref><ref type="bibr" target="#b17">Friedman, 2001)</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1.3.">SUPPORT VECTOR MACHINE (SVM)</head><p>SVM is a very powerful family of machine learning algorithms <ref type="bibr" target="#b11">(Cortes &amp; Vapnik, 1995)</ref>. The goal of SVM is trying to find a hyperplane (e.g. a line in 2D, a plane in 3D, or a n-dimension structure in a n + 1 dimensions space) to separate data points into two sides, and the hyperplane has to maximize the minimal distance from the sentinel data points, support vectors, to the hyperplane 4.</p><p>SVM also works for non-linear separable data. It uses a technique called "kernel trick" that linearly splits the data in another vector space, then converts the space back to the original one later 5. The commonly used kernels include linear kernel, radial basis function (RBF) kernel and polynomial kernel.</p><p>Regarding the optimization, we used hinge loss to train SVM. The pros of using SVM is its superior performance,  yet the model's inferior interpretability limits its applications in the healthcare domain.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2.">Unsupervised learning</head><p>In the previous section, we mentioned that the goal of unsupervised learning is to discover hidden patterns inside data. We can use clustering algorithms to aggregate data points into several clusters and investigate the characteristics of each cluster. We can also use dimensionality reduction algorithms to transform a high-dimensional into a smallerdimensional vector space for further machine learning steps.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2.1.">CLUSTERING</head><p>K-means clustering, Expectation-Maximization (EM) algorithm, hierarchical clustering are all common clustering methods. In this section, we will just introduce k-means clustering. The goal of k-means clustering is to find latent groups in the data, with the number of groups represented by the variable k.</p><p>The simplified steps of k-means clustering are (Figure <ref type="figure" target="#fig_5">6</ref>):</p><p>• Randomly initializing k points as the centroids of the k clusters</p><p>• Assigning data points to the nearest centroid and forming clusters</p><p>• Recomputing and updating centroids based on the mean value of data points in the cluster</p><p>• Repeating step 2 and 3 until convergence The k-means algorithm is guaranteed to converge to a final result. However, this converged state may be local optimum and therefore need to experiment several times to explore the variability of results.</p><p>The obtained final k centroids, as well as the cluster labels of data points can all serve as new features for further machine learning tasks, as well be shown in Section 9 of the "Applied Statistical Learning in Python" chapter. Regarding choosing the cluster number k, there are several techniques for k value validation. The most common methods include elbow method, silhouette coefficient, also Calinski-Harabaz index. However, it is very useful to decide k if you already have some clinical domain insights about potential cluster number.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2.2.">DIMENSIONALITY REDUCTION</head><p>While dealing with clinical data, it is possible that you need to face with a very high-dimensional but sparse dataset. Such characteristics may decrease the model performance even if you use top performing machine algorithms such as SVM, random forest or even deep learning due to the risk of overfitting. A potential solution is to utilize the power of dimensionality reduction algorithms to convert the dataset into lower dimensional vector space.Principal component analysis (PCA) is a method that finds the principal components of the data by transforming data points into a new coordinate system <ref type="bibr" target="#b29">(Jolliffe, 2011)</ref>. The first axis of the new coordinate system corresponds to the first principal component (PC1), which explains the most variance in the data and can serve as the most important feature of the dataset.</p><p>PCA is a linear algorithm and therefore it is hard to interpret the complex polynomial relationship between features. Also, PCA may not be able to represent similar data points of highdimensional data that are close together since the linear algorithm does not consider non-linear manifolds.</p><p>The non-linear dimensionality reduction algorithm, t-Distributed Stochastic Neighbor Embedding (t-SNE), becomes an alternative when we want to explore or visualize the high-dimensional data <ref type="bibr" target="#b35">(Maaten &amp; Hinton, 2008)</ref>. t-SNE considers probability distributions with random walk on neighborhood graphs on the curved manifold to find the patterns of data. Autoencoder is another dimensionality reduction algorithm based on a neural network architecture that aims for learning data representation by minimizing the difference between the input and output of the network <ref type="bibr" target="#b39">(Rumelhart et al., 1988;</ref><ref type="bibr" target="#b25">Hinton &amp; Salakhutdinov, 2006)</ref>.</p><p>The dimensionality reduction algorithms are good at representing multi-dimensional data. Also, a smaller set of features learned from dimensionality reduction algorithms may not only reduce the complexity of the model, but also decrease model training time, as well as inference (classification/prediction) time.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.">Pitfalls and Limitations</head><p>Machine learning is a powerful technique for healthcare research. From a technical and algorithmic perspective, there are many directions that we can undertake to improve methodology, such as generalizability, less supervision, multimodal and multitask training <ref type="bibr">(Weng et al., 2019a)</ref>, or learning temporality and irregularity <ref type="bibr" target="#b48">(Xiao et al., 2018)</ref>.</p><p>However, there are some pitfalls and limitations about utilizing machine learning in healthcare that should be considered while model development <ref type="bibr">(Chen et al., 2019b)</ref>. For example, model biases and fairness is a critical issue since the training data we use are usually noisy and biased <ref type="bibr" target="#b4">(Caruana et al., 2015;</ref><ref type="bibr" target="#b20">Ghassemi et al., 2018)</ref>. We still need human expert to validate, interpret and adjust the models. Model interpretability is also an important topic from the aspects of (1) human-machine collaboration and (2) building a humanlike intelligent machine for medicine <ref type="bibr" target="#b21">(Girkar et al., 2018)</ref>. Causality is usually not being addressed in most of the clinical machine learning research, yet it is a key of clinical decision making. We may need more complicated causal inference algorithms to answer clinical causal questions.</p><p>We also need to think more about how to deploy the developed machine learning models into clinical workflow. How to utilize them to improve workflow <ref type="bibr" target="#b27">(Horng et al., 2017;</ref><ref type="bibr">Chen et al., 2019a)</ref>, as well as integrate all information acquired by human and machine, to transform them into clinical actions and improve health outcomes are the most important things that we should consider for future clinician-machine collaboration.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.">Programming Exercise</head><p>We provide three tutorials for readers to have some handson exercises of learning basic machine learning concepts, algorithms and toolkits for clinical prediction tasks. They can be accessed through Google colab and Python Jupyter notebook with two real-world datasets:</p><p>• Breast Cancer Wisconsin (Diagnostic) Database</p><p>• Preprocessed ICU data from PhysioNet Challenge 2012 Database</p><p>The learning objectives of these tutorial include:</p><p>• Learn how to use Google colab / Jupyter notebook</p><p>• Learn how to build and diagnose machine learning models for clinical classification and clustering tasks</p><p>In part 1, we will go through the basic of machine learning concepts through classification problems. In part 2, we will go deeper into unsupervised learning methods for clustering and visualization. In part 3, we will discuss more about deep neural networks. Please check the link of tutorials in the Appendix.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.">Conclusion</head><p>In summary, machine learning is an important and powerful technique for healthcare research. In this chapter, we have shown readers how to reframe a clinical problem into appropriate machine learning tasks, select and adjust an algorithm for model training, perform model diagnostics and error analysis, as well as model results and interpretation. The concepts and tools described in this chapter aim to allow the researcher to better understand how to conduct a machine learning project for clinical predictive analytics.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Programming Tutorial Appendix</head><p>The tutorials mentioned in this chapter available in the GitHub repository: <ref type="url" target="https://github.com/ckbjimmy/2018_mlw.git">https://github.com/  ckbjimmy/2018_mlw.git</ref>.</p><p>extraction based methods for patient phenotyping from clinical narratives. PLoS one, 13(2):e0192360, 2018.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 .</head><label>1</label><figDesc>Figure 1. Example of AUROC.</figDesc><graphic coords="3,375.22,290.67,95.96,93.59" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 2 .</head><label>2</label><figDesc>Figure 2. K-fold cross-validation.</figDesc><graphic coords="5,67.88,90.30,206.62,93.59" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 3 .</head><label>3</label><figDesc>Figure 3. Bias and variance.</figDesc><graphic coords="5,307.44,188.49,233.97,61.13" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 4 .</head><label>4</label><figDesc>Figure 4. Hyperplane of SVM to linearly separate samples.</figDesc><graphic coords="7,352.59,67.07,141.20,93.59" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Figure 5 .</head><label>5</label><figDesc>Figure 5. Kernel trick of SVM.</figDesc><graphic coords="7,307.44,196.34,233.98,77.99" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Figure 6 .</head><label>6</label><figDesc>Figure 6. Steps of k-means clustering.</figDesc><graphic coords="8,55.44,67.06,233.98,86.92" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>Table 1 .</head><label>1</label><figDesc>Examples of commonly-used loss functions in machine learning.</figDesc><table><row><cell></cell><cell></cell><cell cols="2">Predicted</cell><cell></cell></row><row><cell></cell><cell></cell><cell>True</cell><cell>False</cell><cell></cell></row><row><cell>Actual</cell><cell>True</cell><cell>True positive (TP)</cell><cell>False negative (FN) Type II error</cell><cell>Recall = Sensntivity = TP TP+FN</cell></row><row><cell></cell><cell>False</cell><cell>False positive (FP) Type I error</cell><cell>True negative (TN)</cell><cell>Specificity = TN TN+FP</cell></row><row><cell></cell><cell></cell><cell>Precision = TP TP+FP</cell><cell></cell><cell>TP+TN TP+TN+FP+FN F1 = 2×Precision×Recall Accuracy = Precision+Recall</cell></row></table></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Learning from data: a short course</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Abu-Mostafa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Magdon-Ismail</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">AMLbook</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Deep learning-based assessment of tumor-associated stroma for diagnosing breast cancer in histopathology images</title>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">E</forename><surname>Bejnordi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Glass</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Mullooly</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">L</forename><surname>Gierach</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">E</forename><surname>Sherman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Karssemeijer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Van Der Laak</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">H</forename><surname>Beck</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ISBI</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Random forests</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Breiman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Machine learning</title>
+		<imprint>
+			<biblScope unit="volume">45</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="5" to="32" />
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">Classification and regression trees</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Breiman</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<publisher>Routledge</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Intelligible models for healthcare: Predicting pneumonia risk and hospital 30-day readmission</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Caruana</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Gehrke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Koch</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Sturm</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Elhadad</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">KDD</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">An augmented reality microscope with real-time artificial intelligence integration for cancer diagnosis</title>
+		<author>
+			<persName><forename type="first">P.-H</forename><forename type="middle">C</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Gadepalli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Macdonald</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Kadowaki</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Nagpal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Kohlberger</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Dean</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">S</forename><surname>Corrado</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">D</forename><surname>Hipp</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature Medicine</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="issue">9</biblScope>
+			<biblScope unit="page">1453</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">How to develop machine learning models for healthcare</title>
+		<author>
+			<persName><forename type="first">P.-H</forename><forename type="middle">C</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Peng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature Materials</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page">410</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Learning lowdimensional representations of medical concepts</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Choi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">Y</forename><surname>Chiu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">-I</forename><surname>Sontag</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">AMIA CRI</title>
+		<imprint>
+			<biblScope unit="page">41</biblScope>
+			<date type="published" when="2016">2016. 2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Learning deep representations of medical images using siamese cnns with application to content-based image retrieval</title>
+		<author>
+			<persName><forename type="first">Y.-A</forename><surname>Chung</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W.-H</forename><surname>Weng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning for Health</title>
+		<imprint>
+			<date type="published" when="2017">2017. 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<title level="m" type="main">Unsupervised cross-modal alignment of speech and text embedding spaces</title>
+		<author>
+			<persName><forename type="first">Y.-A</forename><surname>Chung</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W.-H</forename><surname>Weng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Tong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Glass</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<publisher>NeurIPS</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Towards unsupervised speech-to-text translation</title>
+		<author>
+			<persName><forename type="first">Y.-A</forename><surname>Chung</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W.-H</forename><surname>Weng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Tong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Glass</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ICASSP</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Support-vector networks</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Cortes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Vapnik</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Machine learning</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="273" to="297" />
+			<date type="published" when="1995">1995</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">De-identification of patient notes with recurrent neural networks</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Dernoncourt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">Y</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Uzuner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Szolovits</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">JAMIA</title>
+		<imprint>
+			<biblScope unit="volume">24</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="596" to="606" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Comorbidity clusters in autism spectrum disorders: an electronic health record time-series analysis</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Doshi-Velez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Ge</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Kohane</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Pediatrics</title>
+		<imprint>
+			<biblScope unit="volume">133</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="54" to="e63" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Dermatologist-level classification of skin cancer with deep neural networks</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Esteva</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Kuprel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">A</forename><surname>Novoa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Ko</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">M</forename><surname>Swetter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">M</forename><surname>Blau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Thrun</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<biblScope unit="volume">542</biblScope>
+			<biblScope unit="issue">7639</biblScope>
+			<biblScope unit="page">115</biblScope>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Risk stratification for in-hospital mortality in acutely decompensated heart failure: classification and regression tree analysis</title>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">C</forename><surname>Fonarow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">F</forename><surname>Adams</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">T</forename><surname>Abraham</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">W</forename><surname>Yancy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">J</forename><surname>Boscardin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">S A</forename><surname>Committee</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">JAMA</title>
+		<imprint>
+			<biblScope unit="volume">293</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="572" to="580" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">A short introduction to boosting</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Freund</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Schapire</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Abe</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal-Japanese Society For Artificial Intelligence</title>
+		<imprint>
+			<biblScope unit="volume">14</biblScope>
+			<biblScope unit="page">1612</biblScope>
+			<date type="published" when="1999">1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Greedy function approximation: a gradient boosting machine</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">H</forename><surname>Friedman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Annals of statistics</title>
+		<imprint>
+			<biblScope unit="page" from="1189" to="1232" />
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title level="m" type="main">Comparing deep learning and concept</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Gehrmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Dernoncourt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">T</forename><surname>Carlson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">T</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Welt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Foote</surname><genName>Jr</genName></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">T</forename><surname>Moseley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">W</forename><surname>Grant</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">D</forename><surname>Tyler</surname></persName>
+		</author>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Unfolding physiological state: Mortality modelling in intensive care units</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Ghassemi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Naumann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Doshi-Velez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Brimmer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Joshi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Rumshisky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Szolovits</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">KDD</title>
+		<imprint>
+			<biblScope unit="page" from="75" to="84" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<author>
+			<persName><forename type="first">M</forename><surname>Ghassemi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Naumann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Schulam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">L</forename><surname>Beam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Ranganath</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1806.00388</idno>
+		<title level="m">Opportunities in machine learning for healthcare</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Predicting blood pressure response to fluid bolus therapy using attention-based neural networks for clinical interpretability</title>
+		<author>
+			<persName><forename type="first">U</forename><forename type="middle">M</forename><surname>Girkar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Uchimido</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L.-W</forename><forename type="middle">H</forename><surname>Lehman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Szolovits</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Celi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W.-H</forename><surname>Weng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning for Health</title>
+		<imprint>
+			<date type="published" when="2018">2018. 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<monogr>
+		<title level="m" type="main">Deep learning</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Courville</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>MIT press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Development and validation of a deep learning algorithm for detection of diabetic retinopathy in retinal fundus photographs</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Gulshan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Peng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Coram</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">C</forename><surname>Stumpe</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Narayanaswamy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Venugopalan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Widner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Madams</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Cuadros</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">JAMA</title>
+		<imprint>
+			<biblScope unit="volume">316</biblScope>
+			<biblScope unit="issue">22</biblScope>
+			<biblScope unit="page" from="2402" to="2410" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Adoption of electronic health record systems among us non-federal acute care hospitals: 2008-2015</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Henry</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Pylypchuk</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Searcy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Patel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ONC data brief</title>
+		<imprint>
+			<biblScope unit="volume">35</biblScope>
+			<biblScope unit="page" from="1" to="9" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Reducing the dimensionality of data with neural networks</title>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Hinton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">R</forename><surname>Salakhutdinov</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Science</title>
+		<imprint>
+			<biblScope unit="volume">313</biblScope>
+			<biblScope unit="issue">5786</biblScope>
+			<biblScope unit="page" from="504" to="507" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Ridge regression: Biased estimation for nonorthogonal problems</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">E</forename><surname>Hoerl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">W</forename><surname>Kennard</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Technometrics</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="55" to="67" />
+			<date type="published" when="1970">1970</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Creating an automated trigger for sepsis clinical decision support at emergency department triage using machine learning</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Horng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">A</forename><surname>Sontag</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Halpern</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Jernite</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">I</forename><surname>Shapiro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">A</forename><surname>Nathanson</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">PLoS one</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page">174708</biblScope>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Unsupervised multimodal representation learning across medical images and reports</title>
+		<author>
+			<persName><forename type="first">T.-M</forename><forename type="middle">H</forename><surname>Hsu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W.-H</forename><surname>Weng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Boag</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Mcdermott</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Szolovits</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning for Health (ML4H) Workshop at NeurIPS</title>
+		<imprint>
+			<date type="published" when="2018">2018. 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<monogr>
+		<title level="m" type="main">Principal component analysis</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Jolliffe</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+			<publisher>Springer</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">The artificial intelligence clinician learns optimal treatment strategies for sepsis in intensive care</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Komorowski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">A</forename><surname>Celi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Badawi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">C</forename><surname>Gordon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">A</forename><surname>Faisal</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature Medicine</title>
+		<imprint>
+			<biblScope unit="volume">24</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<biblScope unit="page">1716</biblScope>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Imagenet classification with deep convolutional neural networks</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Krizhevsky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Sutskever</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">NIPS</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Representation learning approaches to detect false arrhythmia alarms from ecg dynamics</title>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">P</forename><surname>Lehman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">G</forename><surname>Krishnan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">G</forename><surname>Mark</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Li-Wei</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">L</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">MLHC</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Clinically accurate chest x-ray report generation</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T.-M</forename><forename type="middle">H</forename><surname>Hsu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Mcdermott</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Boag</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W.-H</forename><surname>Weng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Szolovits</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Ghassemi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">MLHC</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<monogr>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Gadepalli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Norouzi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Dahl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Kohlberger</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Boyko</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Venugopalan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Timofeev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">Q</forename><surname>Nelson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">S</forename><surname>Corrado</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1703.02442</idno>
+		<title level="m">Detecting cancer metastases on gigapixel pathology images</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Visualizing data using t-sne</title>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">V D</forename><surname>Maaten</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">JMLR</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="page" from="2579" to="2605" />
+			<date type="published" when="2008-11">Nov. 2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<monogr>
+		<title level="m" type="main">Development and validation of a deep learning algorithm for improving gleason scoring of prostate cancer</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Nagpal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Foote</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Wulczyn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Tan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Olson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">L</forename><surname>Smith</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mohtashamian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">H</forename><surname>Wren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">S</forename><surname>Corrado</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1811.06497</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">Wiggins, C. H., and Elhadad, N. Learning probabilistic phenotypes from heterogeneous ehr data</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Pivovarov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">J</forename><surname>Perotte</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Grave</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Angiolillo</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">JBI</title>
+		<imprint>
+			<biblScope unit="volume">58</biblScope>
+			<biblScope unit="page" from="156" to="165" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<analytic>
+		<title level="a" type="main">Continuous state-space models for optimal sepsis treatment-a deep reinforcement learning approach</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Raghu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Komorowski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">A</forename><surname>Celi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Szolovits</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Ghassemi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">MLHC</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">Learning representations by back-propagating errors</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">E</forename><surname>Rumelhart</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Hinton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">J</forename><surname>Williams</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Cognitive modeling</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<date type="published" when="1988">1988</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<analytic>
+		<title level="a" type="main">Mastering the game of go with deep neural networks and tree search</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Silver</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">J</forename><surname>Maddison</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Guez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Sifre</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Van Den Driessche</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Schrittwieser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Antonoglou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Panneershelvam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lanctot</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<biblScope unit="volume">529</biblScope>
+			<biblScope unit="issue">7587</biblScope>
+			<biblScope unit="page">484</biblScope>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title level="a" type="main">Regression shrinkage and selection via the lasso</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Tibshirani</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the Royal Statistical Society: Series B (Methodological)</title>
+		<imprint>
+			<biblScope unit="volume">58</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="267" to="288" />
+			<date type="published" when="1996">1996</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b42">
+	<analytic>
+		<title level="a" type="main">Mapping unparalleled clinical professional and consumer languages with embedding alignment</title>
+		<author>
+			<persName><forename type="first">W.-H</forename><surname>Weng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Szolovits</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">KDD Workshop on Machine Learning for Medicine and Healthcare</title>
+		<imprint>
+			<date type="published" when="2018">2018. 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b43">
+	<analytic>
+		<title level="a" type="main">Representation and reinforcement learning for personalized glycemic control in septic patients</title>
+		<author>
+			<persName><forename type="first">W.-H</forename><surname>Weng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Gao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Yan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Szolovits</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning for Health</title>
+		<imprint>
+			<date type="published" when="2017">2017. 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b44">
+	<analytic>
+		<title level="a" type="main">Medical subdomain classification of clinical notes using a machine learning-based natural language processing approach</title>
+		<author>
+			<persName><forename type="first">W.-H</forename><surname>Weng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">B</forename><surname>Wagholikar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">T</forename><surname>Mccray</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Szolovits</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">C</forename><surname>Chueh</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">BMC medical informatics and decision making</title>
+		<imprint>
+			<biblScope unit="volume">17</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page">155</biblScope>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b45">
+	<monogr>
+		<title level="m" type="main">Multimodal multitask representation learning for pathology biobank metadata prediction</title>
+		<author>
+			<persName><forename type="first">W.-H</forename><surname>Weng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Cai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Tan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P.-H</forename><forename type="middle">C</forename><surname>Chen</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1909.07846</idno>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b46">
+	<analytic>
+		<title level="a" type="main">Unsupervised clinical language translation</title>
+		<author>
+			<persName><forename type="first">W.-H</forename><surname>Weng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y.-A</forename><surname>Chung</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Szolovits</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">KDD</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b47">
+	<monogr>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Schuster</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><forename type="middle">V</forename><surname>Le</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Norouzi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Macherey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Krikun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Cao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Gao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Macherey</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1609.08144</idno>
+		<title level="m">Google&apos;s neural machine translation system: Bridging the gap between human and machine translation</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b48">
+	<analytic>
+		<title level="a" type="main">Opportunities and challenges in developing deep learning models using electronic health records data: a systematic review</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Xiao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Choi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Sun</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">JAMIA</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page" from="1419" to="1428" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b49">
+	<analytic>
+		<title level="a" type="main">Using machine learning to parse breast pathology reports</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Yala</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Barzilay</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Salama</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Griffin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Sollender</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Bardia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Lehman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">M</forename><surname>Buckley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">B</forename><surname>Coopey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Polubriaginof</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Breast cancer research and treatment</title>
+		<imprint>
+			<biblScope unit="volume">161</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="203" to="211" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b50">
+	<monogr>
+		<title level="m" type="main">elasticnet: Elastic net regularization and variable selection</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Zou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Hastie</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+	<note>R package version</note>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

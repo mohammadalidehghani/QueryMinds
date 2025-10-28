@@ -1,0 +1,1003 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">On the computation of counterfactual explanations -A survey</title>
+				<funder ref="#_D72dcer">
+					<orgName type="full">VW-Foundation</orgName>
+				</funder>
+				<funder>
+					<orgName type="full">AI and its Implications for Future Society</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2019-11-15">15 Nov 2019</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">André</forename><surname>Artelt</surname></persName>
+							<email>aartelt@techfak.uni-bielefeld.de</email>
+							<affiliation key="aff0">
+								<orgName type="department">Faculty of Technology Inspiration 1</orgName>
+								<orgName type="institution">CITEC -Cognitive Interaction Technology Bielefeld University</orgName>
+								<address>
+									<postCode>33619</postCode>
+									<settlement>Bielefeld</settlement>
+									<country key="DE">Germany</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Barbara</forename><surname>Hammer</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Faculty of Technology Inspiration 1</orgName>
+								<orgName type="institution">CITEC -Cognitive Interaction Technology Bielefeld University</orgName>
+								<address>
+									<postCode>33619</postCode>
+									<settlement>Bielefeld</settlement>
+									<country key="DE">Germany</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">On the computation of counterfactual explanations -A survey</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2019-11-15">15 Nov 2019</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">86A7506668C486B2D1BFD29BB8309F07</idno>
+					<idno type="arXiv">arXiv:1911.07749v1[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Due to the increasing use of machine learning in practice it becomes more and more important to be able to explain the prediction and behavior of machine learning models. An instance of explanations are counterfactual explanations which provide an intuitive and useful explanations of machine learning models. In this survey we review model-specific methods for efficiently computing counterfactual explanations of many different machine learning models and propose methods for models that have not been considered in literature so far.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Due to recent advances in machine learning (ML), ML methods are increasingly use in real world scenarios <ref type="bibr" target="#b0">[1]</ref><ref type="bibr" target="#b1">[2]</ref><ref type="bibr" target="#b2">[3]</ref><ref type="bibr" target="#b3">[4]</ref>. Especially, ML technology is nowadays used in critical situations like predictive policing <ref type="bibr" target="#b4">[5]</ref> and loan approval <ref type="bibr" target="#b5">[6]</ref>. In order to increase trust and acceptance of these kind of technology, it is important to be able to explain the behaviour and prediction of these models <ref type="bibr" target="#b6">[7]</ref> -in particular answer questions like "Why did the model do that? And why not smth. else?". This becomes even more important in view to legal regulations like the EU regulation on GDPR <ref type="bibr" target="#b7">[8]</ref>, that grants the user a right to an explanation.</p><p>A popular method for explaining models <ref type="bibr" target="#b6">[7,</ref><ref type="bibr" target="#b8">[9]</ref><ref type="bibr" target="#b9">[10]</ref><ref type="bibr" target="#b10">[11]</ref> are counterfactual explanations (often just called counterfactuals) <ref type="bibr" target="#b11">[12]</ref>. A counterfactual explanation states changes to some features that lead to a different (specified) behaviour or prediction of the model. Thus, counterfactual explanation can be interpreted as a recommendation what to do in order to achieve a requested goal. This is why counterfactual explanations are that popular -they are intuitive and user-friendly <ref type="bibr" target="#b6">[7,</ref><ref type="bibr" target="#b11">12]</ref>.</p><p>Counterfactual explanations are an instance of model-agnostic methods. Therefore, counterfactuals are not tailored to a particular model but can be computed for all possible models (in theory). Other instances of model-agnostic methods are feature interaction methods <ref type="bibr" target="#b12">[13]</ref>, feature importance methods <ref type="bibr" target="#b13">[14]</ref>, partial dependency plots <ref type="bibr" target="#b14">[15]</ref> and local methods that approximates the model locally by an explainable model (e.g. a decisiontree) <ref type="bibr" target="#b15">[16,</ref><ref type="bibr" target="#b16">17]</ref>. The nice thing about model-agnostic methods is that they (in theory) do not need access to model internals and/or training data -it is sufficient to have an interface where we can pass data points to the model and observe the output/predictions of the model.</p><p>However, it turns out that efficiently computing high quality counterfactual explanations of black-box models can be very difficult <ref type="bibr" target="#b17">[18]</ref>. Therefore, it is beneficial to develop model-specific methods -that use model internals -for efficiently computing counterfactual explanations. Whenever we have access to model internals, we can use the model-specific method over the model-agnostic method for efficiently computing counterfactual explanations. In this work we focus on such model-specific methods.</p><p>In particular, our contributions are:</p><p>• We review model-specific methods for efficiently computing counterfactual explanations of different ML models.</p><p>• We propose model-specific methods for efficiently computing counterfactual explanations of models that have not been considered in literature so far.</p><p>The remainder of this paper is structured as follows: First, we briefly review counterfactual explanations (section 2). Then, in section 3 we review and propose model-specific methods for computing counterfactual explanations. Finally, section 5 summarizes this papers. All derivations and mathematical details can be found in the appendix (section 6).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Counterfactual explanations</head><p>Counterfactual explanations <ref type="bibr" target="#b11">[12]</ref> (often just called counterfactuals) are an instance of example-based explanations <ref type="bibr" target="#b18">[19]</ref>. Other instances of example-based explanations <ref type="bibr" target="#b6">[7]</ref> are influential instances <ref type="bibr" target="#b19">[20]</ref> and prototypes &amp; criticisms <ref type="bibr" target="#b20">[21]</ref>.</p><p>A counterfactual states a change to some features/dimensions of a given input such that the resulting data point (called counterfactual) has a different (specified) prediction than the original input. Using a counterfactual instance for explaining the prediction of the original input is considered to be fairly intuitive, human-friendly and useful because it tells people what to do in order to achieve a desired outcome <ref type="bibr" target="#b6">[7,</ref><ref type="bibr" target="#b11">12]</ref>.</p><p>A classical use case of counterfactual explanations is loan application <ref type="bibr" target="#b5">[6,</ref><ref type="bibr" target="#b6">7]</ref>: Imagine you applied for a credit at a bank. Unfortunately, the bank rejects your application. Now, you would like to know why. In particular, you would like to know what would have to be different so that your application would have been accepted. A possible explanation might be that you would have been accepted if you would earn 500$ more per month and if you would not have a second credit card.</p><p>Although counterfactuals constitute very intuitive explanation mechanisms, there do exist a couple of problems.</p><p>One problem is that there often exist more than one counterfactual -this is called Rashomon effect <ref type="bibr" target="#b6">[7]</ref>. If there are more than one possible explanation (counterfactual), it is not clear which one should be selected.</p><p>An alternative -but very similar in the spirit -to counterfactuals <ref type="bibr" target="#b11">[12]</ref> is the Growing Spheres method <ref type="bibr" target="#b21">[22]</ref>. However, this method suffers from the curse of dimensionality because it has to draw samples from the input space, which can become difficult if the input space is high-dimensional.</p><p>According to <ref type="bibr" target="#b11">[12]</ref>, we formally define the finding of a counterfactual as follows: Assume a prediction function h : X → Y is given. Computing a counterfactual x ′ ∈ R d of a given input x ∈ R d1 can be interpreted as an optimization problem: arg min</p><formula xml:id="formula_0">x ′ ∈ R d ℓ h( x ′ ), y ′ + C • θ( x ′ , x)<label>(1)</label></formula><p>where ℓ() denotes a loss function that penalizes deviation of the prediction h( x ′ ) from the requested prediction y ′ . θ() denotes a regularization that penalizes deviations from the original input x and the hyperparameter C denotes the regularization strength. Two common regularizations are the weighted Manhattan distance and the generalized L2 distance. The weighted Manhattan distance is defined as</p><formula xml:id="formula_1">θ( x ′ , x) = j α j • |( x) j -( x ′ ) j |<label>(2)</label></formula><p>where α j &gt; 0 denote the feature wise weights. A popular choice <ref type="bibr" target="#b11">[12]</ref> for α j is the inverse median absolute deviation of the j-th feature median in the training data set D:</p><formula xml:id="formula_2">α j = 1 MAD j where MAD j = median x ∈ D ( x) j -median x ∈ D ( x) j<label>(3)</label></formula><p>The weights α j compensate for the (potentially) different variability of the features. However, because we need access to the training data set D, this regularization is not a truly model-agnostic method -it is not usable if we only have access to a prediction interface of a black-box model.</p><p>Although counterfactual explanations are a model-agnostic method, the computation of a counterfactual becomes much more efficient when having access to the internals of the model. In this work we assume that we have access to all needed model internals as well as access to the training data set -we will only need the training data for computing the weights α j in the weighted Manhattan distance Eq. 2. We do not need access to the training data if we do not use the weighted Manhattan distance or if we use some other methods for computing the weights α j (e.g. setting all weights to 1).</p><p>A slightly modified version of Eq. 1 was proposed in <ref type="bibr" target="#b22">[23]</ref>. The authors claim that the original formalization in Eq. 1 does not take into account that the counterfactual should lie on the data manifold -the counterfactual should be a plausible data instance. To deal with this issue, the authors propose to add two additional terms to the original objective Eq. 1:</p><p>1. The distance/norm between the counterfactual x ′ and the reconstructed version of it that has been computed by using a pretrained autoencoder.</p><p>2. The distance/norm between the encoding of the counterfactual x ′ and the mean encoding of training samples that belong to the requested class y ′ .</p><p>The first term is supposed to make sure that the counterfactual x ′ lies on the data manifold and thus is a plausible data instance. The second term is supposed to accelerate the solver for computing the solution of the final optimization problem. Both claims have been evaluated empirically <ref type="bibr" target="#b22">[23]</ref>.</p><p>Recently, another approach for computing plausible/feasible counterfactual explanations was proposed <ref type="bibr" target="#b23">[24]</ref>. Instead of computing a single counterfactual, the authors propose to compute a path of intermediate counterfactuals that lead to the final counterfactual. The idea behind this path of intermediate counterfactuals is to provide the user with a set of intermediate goals that finally lead to the desired goal -it might be more feasible to "go into the direction" of the final goal step by step instead of accomplishing it in a single step. In order to compute such a path of intermediate counterfactuals, the authors propose different strategies for constructing a graph on the training data set -including the query point. In this graph, two samples are connected by a weighted edge if they are "sufficient close to each other" -the authors propose different measurements for closeness (e.g. based on density estimation). The path of intermediate counterfactuals is equal to the shortest path between the query point and a point that satisfies the desired goal -this is the final counterfactual. Therefore the final counterfactual as well as all intermediate counterfactuals are elements from the training data set.</p><p>Despite the highlighted issues <ref type="bibr" target="#b22">[23,</ref><ref type="bibr" target="#b23">24]</ref> of the original formalization Eq. 1, we stick to it and leave further investigations on the computation of feasible &amp; plausible counterfactuals as future research. However, many of the approaches for computing counterfactuals -that are discussed in this paper -can be augmented to restrict the space of potential counterfactuals. These restrictions provide an opportunity for encoding domain knowledge that lead to more plausible and feasible counterfactuals.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Computation of counterfactuals</head><p>In the subsequent sections we explore model-specific methods for efficiently computing counterfactual explanations of many different ML models. But before looking at model-specific methods, we first (section 3.1) discuss methods for dealing with arbitrary types of models -gradient based as well as gradient free methods.</p><p>Note that for the purpose of better readability and due to space constraints, we put all derivations in the appendix (section 6).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">The general case</head><p>We can compute a counterfactual explanation of any model we like by plugging the prediction function h of the model into Eq. 1 and choosing a loss (eq. 0-1 loss) and regularization (e.g. Manhattan distance) function. Depending on the model, loss and regularization function, the resulting optimization problem might be differentiable or not. If it is differentiable, we can use gradient-based methods like (L-)BFGS and conjugate gradients for solving the optimization problem. If Eq. 1 is not differentiable, we can use gradient-free methods like the Downhill-Simplex method or an evolutionary algorithm like CMA-ES or CERTIFAI <ref type="bibr" target="#b24">[25]</ref> -the nice thing about evolutionary algorithms is that they can easily deal with categorical features. Another approach, limited to linear classifiers, for handling contious and discrete features is to use mixed-integer programming (MIP) <ref type="bibr" target="#b25">[26]</ref>. Unfortuantely, solving a MIP is NP-hard. However, there exist solvers that can compute an approximate solution very efficiently. Popular methods are branchand-bound and branch-and-cut algorithms <ref type="bibr" target="#b26">[27]</ref>.</p><p>When developing model-specific methods for computing counterfactuals, we always consider untransformed inputs only -since a non-linear feature transformation usually makes the problem non-convex. Furthermore, we only consider the Euclidean distance and the weighted Manhattan distance as candidates for the regularization function θ(•).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Separating hyperplane models</head><p>A model whose prediction function h can be written as:</p><formula xml:id="formula_3">h( x) = sign( w ⊤ x + b)<label>(4)</label></formula><p>is called a separating hyperplane model. Popular instances of separating hyperplane models are SVM, LDA, perceptron and logistic regression. Without loss of generality, we assume Y = {-1, 1}. Then, the optimization problem for computing a counterfactual explanation Eq. 1 can be rewritten as: arg min</p><formula xml:id="formula_4">x ′ ∈ R d θ( x ′ , x) s.t. q ⊤ x ′ + c &lt; 0 (5) where q = -y ′ w (6) c = -by ′<label>(7)</label></formula><p>Depending on the regularization, the optimization problem Eq. 5 becomes either a linear program (LP) -if the weighted Manhattan distance is used -or a convex quadratic program (QP) with linear constraints -if the Euclidean distance is used. More details can be found in the appendix (section 6.2).</p><p>If we would have some discrete features instead of contious features only, we would obtain a MIP or MIQP as described in <ref type="bibr" target="#b25">[26]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Generalized linear model</head><p>In a generalized linear model we assume that the distribution of the response variable belongs to the exponential family. The expected value is connected to a linear combination of features by a link function, where different distributions have different link functions.</p><p>In the subsequent sections, we explore how to efficiently compute counterfactual explanations of popular instances of the generalized model.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3.1">Logistic regression</head><p>In logistic regression we model the response variable as a Bernoulli distribution. The prediction function h of a logistic regression model is given as</p><formula xml:id="formula_5">h( x) = 1 if p(y = 1 | x) ≥ t -1 otherwise (<label>8</label></formula><formula xml:id="formula_6">)</formula><p>where t is the discrimination threshold (often t = 0.5) and</p><formula xml:id="formula_7">p(y = 1 | x) = 1 1 + exp(-w ⊤ x -b)<label>(9)</label></formula><p>When ignoring all probabilities and setting t = 0.5, the prediction function h of a logistic regression model becomes a separating hyperplane:</p><formula xml:id="formula_8">h( x) = sign( w ⊤ x + b)<label>(10)</label></formula><p>Therefore, computing a counterfactual of a logistic regression model is exactly the same as for a separating hyperplane model (section 3.2).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3.2">Softmax regression</head><p>In softmax regression we model the distribution of the response variable as a generalized Bernoulli distribution. The prediction function h of a softmax regression model is given as:</p><formula xml:id="formula_9">h( x) = arg max i ∈ Y exp( w ⊤ i x + b i ) k exp( w ⊤ k x + b k )<label>(11)</label></formula><p>In this case, the optimization problem for computing a counterfactual explanation Eq. 1 can be rewritten as: arg min</p><formula xml:id="formula_10">x ′ ∈ R d θ( x ′ , x) s.t. q ⊤ ij x ′ + c ij &lt; 0 ∀ j ∈ Y, j = i = y ′<label>(12)</label></formula><p>where</p><formula xml:id="formula_11">q ij = w j -w i<label>(13)</label></formula><formula xml:id="formula_12">c ij = b j -b i<label>(14)</label></formula><p>Depending on the regularization, the optimization problem Eq. 12 becomes either a LP -if the weighted Manhattan distance is used -or a convex QP with linear constraints -if the Euclidean distance is used. More information can be found in the appendix (section 6.3.1).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3.3">Linear regression</head><p>In linear regression we model the distribution of the response variable as a Gaussian distribution. The prediction function f of a linear regression model is given as:</p><formula xml:id="formula_13">f ( x) = w ⊤ x + b<label>(15)</label></formula><p>The optimization problem for computing a counterfactual explanation Eq. 1 can be rewritten as:</p><p>arg min</p><formula xml:id="formula_14">x ′ ∈ R d θ( x ′ , x) s.t. w ⊤ x ′ + c ≤ ǫ -w ⊤ x ′ -c ≤ ǫ<label>(16)</label></formula><p>where</p><formula xml:id="formula_15">c = b -y ′<label>(17)</label></formula><p>and ǫ ≥ 0 denotes the tolerated deviation from the requested prediction y ′ . Depending on the regularization, the optimization problem Eq. 16 becomes either a LP (if the weighted Manhattan distance is used) or a convex QP with linear constraints (if the Euclidean distance is used). More information can be found in the appendix (section 6.3.2).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3.4">Poisson regression</head><p>In Poisson regression we model the distribution of the response variable as a Poisson distribution. The prediction function f of a Poisson regression model is given as:</p><formula xml:id="formula_16">f ( x) = exp( w ⊤ x + b)<label>(18)</label></formula><p>In this case, the optimization problem for computing a counterfactual explanation Eq. 1 can be rewritten as: arg min</p><formula xml:id="formula_17">x ′ ∈ R d θ( x ′ , x) s.t. w ⊤ x ′ + c ≤ ǫ -w ⊤ x ′ -c ≤ ǫ<label>(19)</label></formula><p>where</p><formula xml:id="formula_18">c = b -log(y ′ ) (<label>20</label></formula><formula xml:id="formula_19">)</formula><p>and ǫ ≥ 0 denotes the tolerated deviation from the requested prediction y ′ . Depending on the regularization, the optimization problem Eq. 19 becomes either a LP (if the weighted Manhattan distance is used) or a convex QP with linear constraints (if the Euclidean distance is used). More information can be found in the appendix (section 6.3.3).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3.5">Exponential regression</head><p>In exponential regression we model the distribution of the response variable as a exponential distribution. The prediction function f of an exponential regression model is given as:</p><formula xml:id="formula_20">f ( x) = - 1 w ⊤ x + b<label>(21)</label></formula><p>Then, the optimization problem for computing a counterfactual explanation Eq. 1 can be rewritten as:</p><p>arg min</p><formula xml:id="formula_21">x ′ ∈ R d θ( x ′ , x) s.t. w ⊤ x ′ + c ≤ ǫ -w ⊤ x ′ -c ≤ ǫ<label>(22)</label></formula><p>where</p><formula xml:id="formula_22">c = b + 1 y ′<label>(23)</label></formula><p>and ǫ ≥ 0 denotes the tolerated deviation from the requested prediction y ′ . Depending on the regularization, the optimization problem Eq. 22 becomes either a LP (if the weighted Manhattan distance is used) or a convex QP with linear constraints (if the Euclidean distance is used). More information can be found in the appendix (section 6.3.4).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.4">Gaussian naive Bayes</head><p>The Gaussian naive Bayes model makes the assumption that all features are independent of each other and follow a normal distribution. The prediction function h of a Gaussian naive Bayes model is given as:</p><formula xml:id="formula_23">h( x) = arg max i ∈ Y d k=1 N ( x | µ ik , σ 2 ik )π i (<label>24</label></formula><formula xml:id="formula_24">)</formula><p>where π i denotes the a-priori probability of the i-th class.</p><p>The optimization problem for computing a counterfactual explanation Eq. 1 can be rewritten as: arg min</p><formula xml:id="formula_25">x ′ ∈ R d θ( x ′ , x) s.t. x ′⊤ A ij x ′ + q ⊤ ij x ′ + c ij &lt; 0 ∀ j ∈ Y, j = i = y ′<label>(25)</label></formula><p>where</p><formula xml:id="formula_26">A ij = diag 1 2σ 2 ik - 1 2σ 2 jk (<label>26</label></formula><formula xml:id="formula_27">)</formula><formula xml:id="formula_28">q ij = µ j1 σ 2 j1 - µ i1 σ 2 i1 , . . . , µ jd σ 2 jd - µ id σ 2 id ⊤ (<label>27</label></formula><formula xml:id="formula_29">)</formula><formula xml:id="formula_30">c ij = log π j π i + d k=1 log   2πσ 2 ik 2πσ 2 jk   - µ 2 jk 2σ 2 jk + µ 2 ik 2σ 2 ik<label>(28)</label></formula><p>Because we can not make any statement about the definiteness of A ij , the quadratic constraints in Eq. 25 are non-convex. Therefore, the optimization problem Eq. 25 is a non-convex quadratically constrained quadratic program (QCQP).</p><p>We can approximately solve Eq. 25 by using an approximation method like the Suggest-Improve framework <ref type="bibr" target="#b27">[28]</ref>. Furthermore, if we have a binary classification problem, we can solve a semi-definite program (SDP) whose solution is equivalent to Eq. 25. More details can be found in the appendix (sections 6.4,6.9.1 and 6.9.2).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.5">Quadratic discriminant analysis</head><p>In quadratic discriminant analysis (QDA) we model each class distribution as an independent Gaussian distribution -note that in contrast to LDA each class distribution has its own covariance matrix. The prediction function h of a QDA model is given as:</p><formula xml:id="formula_31">h( x) = arg max i ∈ Y N ( x | µ i , Σ i )π i (<label>29</label></formula><formula xml:id="formula_32">)</formula><p>where π i denotes the a-priori probability of the i-th class.</p><p>In this case, the optimization problem for computing a counterfactual explanation Eq. 1 can be rewritten as: arg min</p><formula xml:id="formula_33">x ′ ∈ R d θ( x ′ , x) s.t. 1 2 x ′⊤ A ij x ′ + x ′⊤ q ij + c ij &lt; 0 ∀ j ∈ Y, j = i = y ′<label>(30)</label></formula><p>where</p><formula xml:id="formula_34">A ij = Σ -1 i -Σ -1 j (<label>31</label></formula><formula xml:id="formula_35">)</formula><formula xml:id="formula_36">q ij = Σ -1 j µ j -Σ -1 i µ i (<label>32</label></formula><formula xml:id="formula_37">)</formula><formula xml:id="formula_38">c ij = 1 2 µ ⊤ i Σ -1 i µ i -µ ⊤ j Σ -1 j µ j + 1 2 log det(Σ i ) det(Σ j ) + log π j π i<label>(33)</label></formula><p>Because we can not make any statement about the definiteness of A ij , the quadratic constraints in Eq. 30 are non-convex. Thus, like in Gaussian naive Bayes (section 3.4), the optimization problem Eq. 30 is a non-convex QCQP. Like in the case of the previous non-convex QCQPs, we can approximately solve Eq. 30 by using an approximation method. Furthermore, if we have a binary classification problem, we can solve a SDP whose solution is equivalent to Eq. 30. More details can be found in the appendix (sections 6.5,6.9.1 and 6.9.2).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.6">Learning vector quantization models</head><p>Learning vector quantization (LVQ) models <ref type="bibr" target="#b28">[29]</ref> compute a set of labeled prototypes {( p i , o i )} from a given training data set -we refer to the i-th prototype as p i and the corresponding label as o i . The prediction function h of a LVQ model is given as:</p><formula xml:id="formula_39">h( x) = o i s.t. min d( x, p i ) (<label>34</label></formula><formula xml:id="formula_40">)</formula><p>where d() denotes a function for computing the distance between a data point and a prototype -usually this is the Euclidean distance:</p><formula xml:id="formula_41">d( x, p) = ( x -p) ⊤ I( x -p)<label>(35)</label></formula><p>There exist LVQ models like (L)GMLVQ <ref type="bibr" target="#b29">[30]</ref> and (L)MRSLVQ <ref type="bibr" target="#b30">[31]</ref> that learn a custom (class or prototype specific) distance matrix Ω p that is used instead of the identity I when computing the distance between a data point and a prototype. This gives rise to the generalized L2 distance:</p><formula xml:id="formula_42">d( x, p) = ( x -p) ⊤ Ω p ( x -p)<label>(36)</label></formula><p>Because a LVQ model assigns the label of the nearest prototype to a given input, the nearest prototype of a counterfactual must be a prototype p i with o i = y ′ .</p><p>According to <ref type="bibr" target="#b17">[18]</ref>, for computing a counterfactual, it is sufficient to solve the following optimization problem for each prototype p i with o i = y ′ and select the counterfactual x ′ yielding the smallest value of θ( x ′ , x):</p><formula xml:id="formula_43">arg min x ′ ∈ R d θ( x ′ , x) s.t. d( x ′ , p i ) &lt; d( x ′ , p j ) ∀ p j ∈ P(y ′ )<label>(37)</label></formula><p>where P(y ′ ) denotes the set of all prototypes not labeled as y ′ . Note that the feasible region of Eq. 37 is always non-empty -the prototype p i is always a feasible solution.</p><p>In the subsequent sections we explore the type of constraints of Eq. 37 for different LVQ models.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.6.1">(Generalized matrix) LVQ</head><p>In case of a (generalized matrix) LVQ model -all prototypes use the same distance matrix Ω, the optimization problem Eq. 37 becomes <ref type="bibr" target="#b17">[18]</ref>:</p><formula xml:id="formula_44">arg min x ′ ∈ R d θ( x ′ , x) s.t.</formula><p>x ′⊤ q ij + c ij &lt; 0 ∀ p j ∈ P(y ′ ) <ref type="bibr" target="#b37">(38)</ref> where</p><formula xml:id="formula_45">q ij = 1 2 Ω( p j -p i )<label>(39)</label></formula><formula xml:id="formula_46">c ij = 1 2 p ⊤ i Ω p i -p ⊤ j Ω p j<label>(40)</label></formula><p>Depending on the regularization, the optimization problem Eq. 38 becomes either a LP (if the Euclidean distance is used) or a convex QP with linear constraints (if the weighted Manhattan distance is used). More information can be found in the appendix (section 6.6).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.6.2">(Localized generalized matrix) LVQ</head><p>In case of a (localiced generalized matrix) LVQ model -there are different, class or prototype specific, distance matrices Ω p , the optimization problem Eq. 37 becomes <ref type="bibr" target="#b17">[18]</ref>:</p><formula xml:id="formula_47">arg min x ′ ∈ R d θ( x ′ , x) 1 2 x ′⊤ A ij x ′ + x ′⊤ q ij + c ij &lt; 0 ∀ p j ∈ P(y ′ )<label>(41)</label></formula><p>where</p><formula xml:id="formula_48">A ij = Ω i -Ω j (<label>42</label></formula><formula xml:id="formula_49">)</formula><formula xml:id="formula_50">q ij = 1 2 Ω j p j -Ω i p i (43) c ij = 1 2 p ⊤ i Ω i p i -p ⊤ j Ω j p j<label>(44)</label></formula><p>Because we can not make any statement about the definiteness of A ij , the quadratic constraints in Eq. 41 are non-convex. Thus, like in Gaussian naive Bayes (section 3.4) and QDA (section 3.5), the optimization problem Eq. 41 is a non-convex QCQP.</p><p>Like the previous non-convex QCQPs, we can approximately solve Eq. 41 by using an approximation method. Furthermore, if we have a binary classification problem and each class is represented by a single prototype, we can solve a SDP whose solution is equivalent to Eq. 41. More details can be found in the appendix (sections 6.6,6.9.1 and 6.9.2).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.7">Tree based models</head><p>Tree based models are very popular in data science because they often achieve a high predictive-accuracy <ref type="bibr" target="#b31">[32]</ref>. In the subsequent sections we discuss how to compute counterfactual explanations of tree based models. In particular, we consider decision/regression trees and tree based ensembles like random forest models.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.7.1">Decision trees</head><p>In case of decision/regression tree models, we can compute a counterfactual by enumerating all possible paths that lead to the requested prediction <ref type="bibr" target="#b16">[17,</ref><ref type="bibr" target="#b32">33]</ref>. However, it might happen that some requested predictions are not possible because all possible predictions of the tree are encoded in the leafs. In this case one might define an interval of acceptable predictions so that a counterfactual exists.</p><p>The procedure for computing a counterfactual of a decision/regression tree is described in Algorithm 1.</p><p>Algorithm 1 Computing a counterfactual of a decision/regression tree Input: Original input x, requested prediction y ′ of the counterfactual, the tree model Output: Counterfactual x ′ 1: Enumerate all leafs with prediction y ′ 2: For each leaf, enumerate all paths reaching the leaf 3: For each path, compute the minimal change to x that yields the path 4: Sort all paths according to regularization of the change to x 5: Select the path and the corresponding change to x that minimizes the regularization</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.7.2">Tree based ensembles</head><p>Popular instances of tree based enesmbles are random forest and gradient boosting regression trees. It turns out that the problem of computing a counterfactual explanation of such models is NP-hard <ref type="bibr" target="#b32">[33]</ref>.</p><p>The following heuristic for computing a counterfactual explanation of a random forest model was proposed in <ref type="bibr" target="#b33">[34]</ref>: First, we compute a counterfactual of a model from the ensemble. Next, we use this counterfactual as a starting point for minimizing the number of trees that do not outpur the requested prediction by using a gradient-free optimization method like the Downhill-Simplex method. The idea behind this approach is that the counterfactual of a tree from the ensemble is close to the decision boundary of the ensemble so that computing a counterfactual of the ensemble becomes easier. By doing this for all trees in the ensemble, we get many counterfactuals and we can select the one that minimizes the regularization the most. This heuristic seems to work well in practice <ref type="bibr" target="#b33">[34]</ref>.</p><p>Another approach for computing counterfactual explanations of an ensemble of trees was propsed in <ref type="bibr" target="#b32">[33]</ref> -although the authors do not call it counterfactuals, they actually compute counterfactuals. Their algorithm works as follows: We iterate over all trees in the ensemble that do not yield the requested prediction. Next, we compute all possible counterfactuals of each of these trees (see section 3.7.1). If this counterfactual turns our to be counterfactual of the ensemble, we store it so that in the end we can select the counterfactual with the smallest deviation from the original input. However, it can not be guaranteed that a counterfactual of the ensemble is found because it might happen that by changing the data point so that it becomes a counterfactual of a particular tree, the prediction of other trees in the ensemble change as well. According to the authors, this algorithm/heuristic works well in practice. Unfortunately, the worst-case complexity is exponential in the number of features and thus it is not suitable for high dimensional data.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Implementation</head><p>The gradient-based and gradient free methods, as well as the model specific methods for tree based models are already implemented in CEML <ref type="bibr" target="#b33">[34]</ref>. The implementation of the LVQ specific methods are provided by the authors of <ref type="bibr" target="#b17">[18]</ref>. The Python <ref type="bibr" target="#b34">[35]</ref> implementation of our proposed methods is available on GitHub<ref type="foot" target="#foot_1">foot_1</ref> and is based on the Python packages scikit-learn <ref type="bibr" target="#b35">[36]</ref>, numpy <ref type="bibr" target="#b36">[37]</ref> and cvxpy <ref type="bibr" target="#b37">[38]</ref>.</p><p>We plan to add these model-specific methods to CEML <ref type="bibr" target="#b33">[34]</ref> in the near future.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Conclusion</head><p>In this survey we extensively studied how to compute counterfactual explanations of many different ML models. We reviewed known methods from literature and proposed methods (mostly LPs and (QC)QPs) for computing counterfactuals of ML models that have not been considered in literature so far.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.1">Relaxing strict inequalities</head><p>When modeling the problem of computing counterfactuals, we often obtain strict inequalities like g( x) &lt; 0 (45)</p><p>Strict inequalities are not allowed in convex programming because the feasible region would become an open set. However, we could turn the &lt; into a ≤ by adding a small number to the left side of the inequality:</p><formula xml:id="formula_51">g( x) + ǫ ≤ 0 (46)</formula><p>where ǫ &gt; 0 is a small number.</p><p>In practice, when implementing our methods, we found that we can often safely replace all &lt; by ≤ without changing anything else -this might be because of the numerics (like round-off errors) of fixed size floating-point numbers.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.2">Separating hyperplane</head><p>Recall that the prediction function h is given as:</p><formula xml:id="formula_52">h( x) = sign( w ⊤ x + b)<label>(47)</label></formula><p>If we multiply the projection w ⊤ x + b by the requested prediction y 3 , the result is positive if and only if the classification h( x) is equal to y. Therefore, the linear constraint for predicting class y is given as</p><formula xml:id="formula_53">y w ⊤ x + b &gt; 0 ⇔ q ⊤ x + c &lt; 0<label>(48)</label></formula><p>where q = -y w (49)</p><formula xml:id="formula_54">c = -by<label>(50)</label></formula><p>6.3 Generalized linear models</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.3.1">Softmax regression</head><p>Recall that the prediction function h is given as:</p><formula xml:id="formula_55">h( x) = arg max i ∈ Y exp( w ⊤ i x + b i ) k exp( w ⊤ k x + b k )<label>(51)</label></formula><p>Thus, the constraint for obtaining a specific prediction y ′ is given as:</p><formula xml:id="formula_56">exp( w ⊤ i x + b i ) k exp( w ⊤ k x + b k ) &gt; exp( w ⊤ j x + b j ) k exp( w ⊤ k x + b k ) ∀ j = i = y ′<label>(52)</label></formula><p>Holding i and j fixed, we can simplify Eq. 52:</p><formula xml:id="formula_57">exp( w ⊤ i x + b i ) k exp( w ⊤ k x + b k ) &gt; exp( w ⊤ j x + b j ) k exp( w ⊤ k x + b k ) ⇔ exp( w ⊤ i x + b i ) &gt; exp( w ⊤ j x + b j ) ⇔ w ⊤ i x + b i &gt; w ⊤ j x + b j ⇔ q ⊤ ij x ′ + c ij &lt; 0<label>(53)</label></formula><p>where</p><formula xml:id="formula_58">q ij = w j -w i<label>(54)</label></formula><formula xml:id="formula_59">c ij = b j -b i<label>(55)</label></formula><p>Therefore, we can rewrite Eq. 52 as a set of linear inequalities.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.3.2">Linear regression</head><p>Recall that the prediction function f is given as:</p><formula xml:id="formula_60">f ( x) = w ⊤ x + b<label>(56)</label></formula><p>By introducing the parameter ǫ ≥ 0 that specifies the maximum tolerated deviation from the requested prediction -we set ǫ = 0 if we do not allow any deviations -the constraint for obtaining the requested prediction y ′ is given as</p><formula xml:id="formula_61">|f ( x ′ ) -y ′ | ≤ ǫ ⇔ | w ⊤ x ′ + b -y ′ | ≤ ǫ ⇔ | w ⊤ x ′ + c| ≤ ǫ<label>(57)</label></formula><p>where</p><formula xml:id="formula_62">c = b -y ′<label>(58)</label></formula><p>Finally, we can rewrite Eq. 57 as two linear inequality constraints:</p><formula xml:id="formula_63">w ⊤ x ′ + c ≤ ǫ -w ⊤ x ′ -c ≤ ǫ<label>(59)</label></formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.3.3">Poisson regression</head><p>Recall that the prediction function f is given as</p><formula xml:id="formula_64">f ( x) = exp( w ⊤ x + b)<label>(60)</label></formula><p>The constraint for exactly obtaining the requested prediction y ′ is</p><formula xml:id="formula_65">f ( x ′ ) = y ′ ⇔ exp( w ⊤ x ′ + b) = y ′ ⇔ w ⊤ x ′ + b -log(y ′ ) = 0 ⇔ w ⊤ x ′ + c = 0<label>(61)</label></formula><p>where</p><formula xml:id="formula_66">c = b -log(y ′ )<label>(62)</label></formula><p>Finally, we obtain the following set of linear inequality constraints:</p><formula xml:id="formula_67">w ⊤ x ′ + c ≤ ǫ -w ⊤ x ′ -c ≤ ǫ<label>(63)</label></formula><p>where we introduced the parameter ǫ ≥ 0 that specifies the maximum tolerated deviation from the requested prediction -we set ǫ = 0 if we do not allow any deviations.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.3.4">Exponential regression</head><p>Recall that the prediction function f is given as:</p><formula xml:id="formula_68">f ( x) = - 1 w ⊤ x + b<label>(64)</label></formula><p>The constraint for a specific prediction y ′ is given as:</p><formula xml:id="formula_69">f ( x ′ ) = y ′ ⇔ - 1 w ⊤ x ′ + b = y ′ ⇔ w ⊤ x ′ + b + 1 y ′ = 0 ⇔ w ⊤ x ′ + c = 0 (65) where c = b + 1 y ′<label>(66)</label></formula><p>Finally, we obtain the following set of linear inequality constraints:</p><formula xml:id="formula_70">w ⊤ x ′ + c ≤ ǫ -w ⊤ x ′ -c ≤ ǫ (<label>67</label></formula><formula xml:id="formula_71">)</formula><p>where we introduced the parameter ǫ ≥ 0 that specifies the maximum tolerated deviation from the requested prediction -we set ǫ = 0 if we do not allow any deviations.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.4">Gaussian naive bayes</head><p>Recall that the prediction function h is given as:</p><formula xml:id="formula_72">h( x) = arg max i ∈ Y d k=1 N ( x | µ ik , σ 2 ik )π i<label>(68)</label></formula><p>We note that Eq. 68 is equivalent to</p><formula xml:id="formula_73">h( x) = arg max i ∈ Y d k=1 log N ( x | µ ik , σ 2 ik ) + log(π i )<label>(69)</label></formula><p>Simplifying the term in Eq. 69 yields</p><formula xml:id="formula_74">log(π i ) + d k=1 log N ( x | µ ik , σ 2 ik ) = log(π i ) + d k=1 log 1 2πσ 2 ik + d k=1 - 1 2σ 2 ik ( x) k -µ ik 2 2 = log(π i ) + d k=1 log 1 2πσ 2 ik - d k=1 1 2σ 2 ik ( x) 2 k + µ 2 ik -2( x) k µ ik = c i -x ⊤ A i x + q ⊤ i x<label>(70)</label></formula><p>where</p><formula xml:id="formula_75">c i = log(π i ) + d k=1 log 1 2πσ 2 ik - µ 2 ik 2σ 2 ik (<label>71</label></formula><formula xml:id="formula_76">)</formula><formula xml:id="formula_77">A i = diag 1 2σ 2 ik (72) q i = µ i1 σ 2 i1 , . . . , µ id σ 2 id ⊤<label>(73)</label></formula><p>For a sample x, in order to be classified as the i-th class, the following set of strict inequalities must hold:</p><formula xml:id="formula_78">c i -x ⊤ A i x + q ⊤ i x &gt; c j -x ⊤ A j x + q ⊤ j x ∀ j = i<label>(74)</label></formula><p>By rearranging terms in Eq. 74, we get the final constraints</p><formula xml:id="formula_79">x ⊤ A ij x + q ⊤ ij x + c ij &lt; 0 ∀ j = i<label>(75)</label></formula><p>where</p><formula xml:id="formula_80">A ij = A i -A j = diag 1 2σ 2 ik - 1 2σ 2 jk (76) q ij = q j -q i = µ j1 σ 2 j1 - µ i1 σ 2 i1 , . . . , µ jd σ 2 jd - µ id σ 2 id ⊤ (<label>77</label></formula><formula xml:id="formula_81">)</formula><formula xml:id="formula_82">c ij = c j -c i = log(π j ) -log(π i )+ d k=1 log   1 2πσ 2 jk   - µ 2 jk 2σ 2 jk -log 1 2πσ 2 ik + µ 2 ik 2σ 2 ik = log π j π i + d k=1 log   2πσ 2 ik 2πσ 2 jk   - µ 2 jk 2σ 2 jk + µ 2 ik 2σ 2 ik (<label>78</label></formula><formula xml:id="formula_83">)</formula><p>Because we can not make any statement about the definiteness of the diagonal matrix A ij , the constraint Eq. 75 is a non-convex quadratic inequality constraint.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.5">Quadratic discriminant analysis</head><p>Recall that the prediction function h is given as:</p><formula xml:id="formula_84">h( x) = arg max i ∈ Y N ( x | µ i , Σ i )π i<label>(79)</label></formula><p>We can rewrite Eq. 79 as</p><formula xml:id="formula_85">h( x) = arg max i ∈ Y log N ( x | µ i , Σ i )π i<label>(80)</label></formula><p>Working on the log term yields</p><formula xml:id="formula_86">log N ( x | µ i , Σ i )π i = log N ( x | µ i , Σ i ) + log(π i ) = - d 2 log(2π) - 1 2 log det(Σ -1 i ) - 1 2 ( x -µ i ) ⊤ Σ -1 i ( x -µ i ) + log(π i ) = - 1 2 x ⊤ Σ -1 i x + x ⊤ q i + c i<label>(81)</label></formula><p>where</p><formula xml:id="formula_87">q i = Σ -1 i µ i (<label>82</label></formula><formula xml:id="formula_88">)</formula><formula xml:id="formula_89">c i = - d 2 log(2π) - 1 2 log det(Σ i ) - 1 2 µ ⊤ i Σ -1 i µ i + log(π i )<label>(83)</label></formula><p>For a sample x, in order to be classified as the i-th class, the following set of strict inequalities must hold:</p><formula xml:id="formula_90">- 1 2 x ⊤ Σ -1 i x + x ⊤ q i + c i &gt; - 1 2 x ⊤ Σ -1 j x + x ⊤ q j + c j ∀ j = i<label>(84)</label></formula><p>Rearranging Eq. 84 yields</p><formula xml:id="formula_91">1 2 x ⊤ A ij x + x ⊤ q ij + c ij &lt; 0 ∀ j = i<label>(85)</label></formula><p>where</p><formula xml:id="formula_92">A ij = Σ -1 i -Σ -1 j (<label>86</label></formula><formula xml:id="formula_93">)</formula><formula xml:id="formula_94">q ij = q j -q i = Σ -1 j µ j -Σ -1 i µ i (<label>87</label></formula><formula xml:id="formula_95">)</formula><formula xml:id="formula_96">c ij = c j -c i = - d 2 log(2π) - 1 2 log det(Σ j ) - 1 2 µ ⊤ j Σ -1 j µ j + log(π j )+ d 2 log(2π) + 1 2 log det(Σ i ) + 1 2 µ ⊤ i Σ -1 i µ i -log(π i ) = 1 2 µ ⊤ i Σ -1 i µ i -µ ⊤ j Σ -1 j µ j + 1 2 log det(Σ i ) det(Σ j ) + log π j π i<label>(88)</label></formula><p>The final constraint Eq. 85 is a non-convex quadratic constraint because we can not make any statement about the definiteness of A ij .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.6">Learning vector quantization</head><p>Note: The subsequent sections are taken from <ref type="bibr" target="#b17">[18]</ref>.</p><p>6.6.1 Enforcing a specific prototype as the nearest neighbor By using the following set of inequalities, we can force the prototype p i to be the nearest neighbor of the counterfactual x ′ -which would cause x ′ to be classified as o</p><formula xml:id="formula_97">i : d( x ′ , p i ) &lt; d( x ′ , p j ) ∀ p j ∈ P(y ′ )<label>(89)</label></formula><p>We consider a fixed pair of i and j:</p><formula xml:id="formula_98">d( x ′ , p i ) &lt; d( x ′ , p j ) ⇔ x ′ -p i 2 Ωi &lt; x ′ -p j 2 Ωj ⇔ ( x ′ -p i ) ⊤ Ω i ( x ′ -p i ) &lt; ( x ′ -p j ) ⊤ Ω j ( x ′ -p j ) ⇔ x ′⊤ Ω i x ′ -2 x ′⊤ Ω i p i + p ⊤ i Ω i p i &lt; x ′⊤ Ω j x ′ -2 x ′⊤ Ω j p j + p ⊤ j Ω i p j ⇔ x ′⊤ Ω i x ′ -x ′⊤ Ω j x ′ -2 x ′⊤ Ω i p i + 2 x ′⊤ Ω j p j + p ⊤ i Ω i p i -p ⊤ j Ω i p j &lt; 0 ⇔ x ′⊤ (Ω i -Ω j ) x ′ + x ′⊤ (-2Ω i p i + 2Ω j p j ) + ( p ⊤ i Ω i p i -p ⊤ j Ω i p j ) ⇔ 1 2 x ′⊤ (Ω i -Ω j ) x ′ + 1 2 x ′⊤ (Ω j p j -Ω i p i ) + 1 2 ( p ⊤ i Ω i p i -p ⊤ j Ω i p j ) &lt; 0 ⇔ 1 2 x ′⊤ A ij x ′ + x ′⊤ q ij + c ij &lt; 0<label>(90)</label></formula><p>where</p><formula xml:id="formula_99">A ij = Ω i -Ω j<label>(91)</label></formula><formula xml:id="formula_100">q ij = 1 2 Ω j p j -Ω i p i (92) c ij = 1 2 p i ⊤Ω i p i -p j ⊤Ω j p j<label>(93)</label></formula><p>If we only have one global distance matrix Ω, we find that A ij = 0 and the inequality Eq. 90 simplifies:</p><formula xml:id="formula_101">d( x, p i ) &lt; d( x, p j ) ⇔ x ′⊤ q ij + c ij &lt; 0<label>(94)</label></formula><p>where</p><formula xml:id="formula_102">q ij = 1 2 Ω p j -p i (95) c ij = 1 2 p ⊤ i Ω p i -p ⊤ j Ω p j<label>(96)</label></formula><p>If we do not use a custom distance matrix, we have Ω = I and Eq. 90 becomes:</p><formula xml:id="formula_103">d( x, p i ) &lt; d( x, p j ) ⇔ x ′⊤ q ij + c ij &lt; 0<label>(97)</label></formula><p>where</p><formula xml:id="formula_104">q ij = 1 2 p j -p i (98) c ij = 1 2 p ⊤ i p i -p ⊤ j p j<label>(99)</label></formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.7">Minimizing the Euclidean distance</head><p>Minimizing the Euclidean distance (Eq. 36) yields a quadratic objective. First, we expand the Euclidean distance (Eq. 36):</p><formula xml:id="formula_105">x ′ -x 2 2 = ( x ′ -x) ⊤ ( x ′ -x) = x ′⊤ x ′ -x ′⊤ x -x ⊤ x ′ + x ⊤ x = x ′⊤ x ′ -2 x ⊤ x ′ + x ⊤ x<label>(100)</label></formula><p>Next, we note that that we can drop the constant x ⊤ x when optimizing with respect to x ′ : min</p><formula xml:id="formula_106">x ′ ∈ R d x ′ -x 2 2 ⇔ min x ′ ∈ R d 1 2 x ′⊤ x ′ -x ⊤ x ′<label>(101)</label></formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.8">Minimizing the weighted Manhattan distance</head><p>Minimizing the weighted Manhattan distance (Eq. 2) yields a linear objective. First, we transform the problem of minimizing the weighted Manhattan distance (Eq. 2) into epigraph form:</p><formula xml:id="formula_107">min x ′ ∈ R d j α j • |( x ′ ) j -( x) j | ⇔ min x ′ ∈ R d ,β ∈ R β s.t. j α j • |( x ′ ) j -( x) j | ≤ β β ≥ 0 (102)</formula><p>Next, we separate the dimensions:</p><formula xml:id="formula_108">min x ′ ∈ R d ,β ∈ R β s.t. j α j • |( x ′ ) j -( x) j | ≤ β β ≥ 0 ⇔ min x ′ , β ∈ R d j ( β) j s.t. α j • |( x ′ ) j -( x) j | ≤ ( β) j ∀ j ( β) j ≥ 0 ∀ j<label>(103)</label></formula><p>After that, we remove the absolute value function:</p><formula xml:id="formula_109">min x ′ , β ∈ R d j ( β) j s.t. α j • |( x ′ ) j -( x) j | ≤ ( β) j ∀ j ( β) j ≥ 0 ∀ j ⇔ min x ′ , β ∈ R d j ( β) j s.t. α j ( x ′ ) j -α j ( x) j ≤ ( β) j ∀ j -α j ( x ′ ) j + α j ( x) j ≤ ( β) j ∀ j ( β) j ≥ 0 ∀ j<label>(104)</label></formula><p>Finally, we rewrite everything in matrix-vector notation:</p><formula xml:id="formula_110">min x ′ , β ∈ R d 1 ⊤ β s.t. Υ x ′ -Υ x ≤ β -Υ x ′ + Υ x ≤ β β ≥ 0 (<label>105</label></formula><formula xml:id="formula_111">)</formula><p>where Υ = diag(α j ) (106)</p><p>6.9 Solving a non-convex QCQP Solving a non-convex QCQP is known to be NP-hard <ref type="bibr" target="#b27">[28,</ref><ref type="bibr" target="#b38">39]</ref>. In section 6.9.1 we discuss a method for approximately solving a non-convex QCQP and in section 6.9.2 we describe how to solve the special case of a nonconvex QCQP having a single constraint.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.9.1">Approximately solving a non-convex QCQP</head><p>Recall the non-convex quadratic constraint: 1 2</p><p>x ′⊤ A ij x ′ + x ′⊤ q ij + r ij ≤ 0 (107)</p><p>In this paper, we always defined the matrix A ij as the difference of two s.p.s.d. matrices A i and A j :</p><formula xml:id="formula_112">A ij = A i -A j<label>(108)</label></formula><p>By making use of Eq. 108, we can rewrite Eq. 107 as:</p><formula xml:id="formula_113">1 2 x ′⊤ A i x ′ + x ′⊤ q ij + r ij - 1 2 x ′⊤ A j x ′ ≤ 0 ⇔ f ( x ′ ) -g( x ′ ) ≤ 0 (109) where f ( x ′ ) = 1 2 x ′⊤ A i x ′ + x ′⊤ q ij + r ij (110) g( x ′ ) = 1 2 x ′⊤ A j x ′<label>(111)</label></formula><p>Under the assumption that our regularization function θ() is a convex function 4 , we can rewrite a generic version of the non-convex QCQP Eq. 41 as follows:</p><formula xml:id="formula_114">min x ′ ∈ R d θ( x ′ , x) s.t. f ( x ′ ) -g( x ′ ) ≤ 0 (112)</formula><p>Because A i and A j are s.p.s.d. matrices, we know that f ( x ′ ) and g( x ′ ) are convex functions. Therefore, Eq. 112 is a difference-of-convex program (DCP). This allows us to use the penalty convex-concave procedure (CCP) <ref type="bibr" target="#b27">[28]</ref> for computing an approximate solution of Eq. 112, yielding an approximate solution of the original non-convex QCQP. For using the penalty CCP, we need the first order Taylor approximation of g( x ′ ) around a current point x k :</p><formula xml:id="formula_115">ĝ( x ′ ) x k = g( x k ) + (∇ x ′ g)( x k ) ⊤ ( x ′ -x k ) = 1 2 x ⊤ k A j x k + (A j x k ) ⊤ ( x ′ -x k ) = (A j x k ) ⊤ x ′ + 1 2 x ⊤ k A j x k -(A j x k ) ⊤ x k = ρ ⊤ jk x ′ + cjk<label>(113)</label></formula><p>where</p><formula xml:id="formula_116">ρ jk = A j x k (114) cjk = - 1 2 x ⊤ k A j x k<label>(115)</label></formula><p>In order to run the convex-concave procedure, we have to provide an initial (feasible) solution. We could either use the original data point as an initial infeasible solution, some data point yielding the requested prediction as an initial feasible solution or some other "smart" initialization.</p><p>As an alternative, we could use other methods for approximately computing a solution of the non-convex QCQP like the Suggest-Improve framework <ref type="bibr" target="#b27">[28]</ref> actually, the methods we described in the previous paragraph is an instance of the Suggest-Improve framework.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.9.2">Solving a non-convex QCQP with just one constraint</head><p>We consider the general QCQP min</p><formula xml:id="formula_117">x ′ ∈ R d x ′⊤ Q x ′ + q ⊤ x ′ + c s.t. x ′⊤ A x ′ + b ⊤ x ′ + r ≤ 0 (116)</formula><p>where Q, A ∈ R d×d , q, b ∈ R d and c, r ∈ R.</p><p>If Q and A are not symmetric positive semi-definite, Eq. 116 is a non-convex QCQP. However, despite the non-convexity, we can solve Eq. 116 efficiently by solving the dual of Eq. 116 and observing that the duality gap is zero <ref type="bibr" target="#b38">[39]</ref> -under the assumption that Eq. 116 is strictly feasible 5 . Therefore, solving Eq. 116 is equivalent to solving the following semi-definite program (SDP) <ref type="bibr" target="#b38">[39]</ref>: arg min</p><formula xml:id="formula_118">X ∈ S d , x ′ ∈ R d trace(QX) + q ⊤ x ′ + c s.t. trace (AX) + b ⊤ x ′ + r ≤ 0 X x ′ x ′⊤ 1 0 (<label>117</label></formula><formula xml:id="formula_119">)</formula><p>where we introduced an additional variable 6 X that can be discarded afterwards.</p></div>			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0"><p>We restrict ourself to R d , but in theory one could use an arbitrary domain X .</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_1"><p>https://github.com/andreArtelt/OnTheComputationOfCounterfactualExplanations</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="5" xml:id="foot_2"><p>We can always achieve strict feasibility by moving a non-strict feasible point away from the decision boundary.</p></note>
+		</body>
+		<back>
+
+			<div type="funding">
+<div> †  <p>We gratefully acknowledge funding from the <rs type="funder">VW-Foundation</rs> for project <rs type="projectName">IMPACT</rs> funded in the frame of the funding line <rs type="funder">AI and its Implications for Future Society</rs>.</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funded-project" xml:id="_D72dcer">
+					<orgName type="project" subtype="full">IMPACT</orgName>
+				</org>
+			</listOrg>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title level="m" type="main">Exploring applications of deep reinforcement learning for real-world autonomous driving systems</title>
+		<author>
+			<persName><forename type="first">Victor</forename><surname>Talpaert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ibrahim</forename><surname>Sobh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Ravi Kiran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Patrick</forename><surname>Mannion</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Senthil</forename><surname>Yogamani</surname></persName>
+		</author>
+		<idno>CoRR, abs/1901.01536</idno>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note>Ahmad El Sallab, and Patrick Perez</note>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Deep learning for audio signal processing</title>
+		<author>
+			<persName><forename type="first">Hendrik</forename><surname>Purwins</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bo</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tuomas</forename><surname>Virtanen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jan</forename><surname>Schlüter</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Shuo-Yiin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tara</forename><forename type="middle">N</forename><surname>Chang</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Sainath</surname></persName>
+		</author>
+		<idno>CoRR, abs/1905.00078</idno>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<title level="m" type="main">A survey of the usages of deep learning in natural language processing</title>
+		<author>
+			<persName><forename type="first">Daniel</forename><forename type="middle">W</forename><surname>Otter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Julian</forename><forename type="middle">R</forename><surname>Medina</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jugal</forename><forename type="middle">K</forename><surname>Kalita</surname></persName>
+		</author>
+		<idno>CoRR, abs/1807.10854</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">A survey of deep learning-based object detection</title>
+		<author>
+			<persName><forename type="first">Licheng</forename><surname>Jiao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Fan</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Fang</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shuyuan</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lingling</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhixi</forename><surname>Feng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rong</forename><surname>Qu</surname></persName>
+		</author>
+		<idno>CoRR, abs/1907.09408</idno>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<title level="m" type="main">Examining deep learning architectures for crime classification and prediction</title>
+		<author>
+			<persName><forename type="first">Panagiotis</forename><surname>Stalidis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Theodoros</forename><surname>Semertzidis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Petros</forename><surname>Daras</surname></persName>
+		</author>
+		<idno>abs/1812.00602</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Consumer credit-risk models via machine-learning algorithms</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Amir</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Adlar</forename><forename type="middle">J</forename><surname>Khandani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Lo</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Banking &amp; Finance</title>
+		<imprint>
+			<biblScope unit="volume">34</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<biblScope unit="page" from="2767" to="2787" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<author>
+			<persName><forename type="first">Christoph</forename><surname>Molnar</surname></persName>
+		</author>
+		<ptr target="https://christophm.github.io/interpretable-ml-book/" />
+		<title level="m">Interpretable Machine Learning</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">/679 of the european parliament and of the council of 27 april 2016 on the protection of natural persons with regard to the processing of personal data and on the free movement of such data, and repealing directive 95/46/ec (general data protection regulation</title>
+		<ptr target="https://eur-lex.europa.eu/eli/reg/2016/679/oj" />
+		<imprint>
+			<date type="published" when="2016">2016. 2016</date>
+			<publisher>European parliament and council</publisher>
+		</imprint>
+	</monogr>
+	<note>Regulation (eu</note>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<title level="m" type="main">A survey on explainable artificial intelligence (XAI): towards medical XAI</title>
+		<author>
+			<persName><forename type="first">Erico</forename><surname>Tjoa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cuntai</forename><surname>Guan</surname></persName>
+		</author>
+		<idno>CoRR, abs/1907.07374</idno>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Explaining explanations: An overview of interpretability of machine learning</title>
+		<author>
+			<persName><forename type="first">Leilani</forename><forename type="middle">H</forename><surname>Gilpin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David</forename><surname>Bau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ben</forename><forename type="middle">Z</forename><surname>Yuan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ayesha</forename><surname>Bajwa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><surname>Specter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lalana</forename><surname>Kagal</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">th IEEE International Conference on Data Science and Advanced Analytics</title>
+		<meeting><address><addrLine>Turin, Italy</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2018-10-01">2018. October 1-3, 2018. 2018</date>
+			<biblScope unit="page" from="80" to="89" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">Explainable artificial intelligence: Understanding, visualizing and interpreting deep learning models</title>
+		<author>
+			<persName><forename type="first">Wojciech</forename><surname>Samek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Thomas</forename><surname>Wiegand</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Klaus-Robert</forename><surname>Müller</surname></persName>
+		</author>
+		<idno>CoRR, abs/1708.08296</idno>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<monogr>
+		<title level="m" type="main">Counterfactual explanations without opening the black box: Automated decisions and the GDPR</title>
+		<author>
+			<persName><forename type="first">Sandra</forename><surname>Wachter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Brent</forename><forename type="middle">D</forename><surname>Mittelstadt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chris</forename><surname>Russell</surname></persName>
+		</author>
+		<idno>CoRR, abs/1711.00399</idno>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<title level="m" type="main">A simple and effective model-based variable importance measure</title>
+		<author>
+			<persName><forename type="first">Brandon</forename><forename type="middle">M</forename><surname>Greenwell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bradley</forename><forename type="middle">C</forename><surname>Boehmke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><forename type="middle">J</forename><surname>Mccarthy</surname></persName>
+		</author>
+		<idno>CoRR, abs/1805.04755</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">All Models are Wrong but many are Useful: Variable Importance for Black-Box</title>
+		<author>
+			<persName><forename type="first">Aaron</forename><surname>Fisher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cynthia</forename><surname>Rudin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Francesca</forename><surname>Dominici</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1801.01489</idno>
+	</analytic>
+	<monogr>
+		<title level="m">Proprietary, or Misspecified Prediction Models, using Model Class Reliance. arXiv e-prints</title>
+		<imprint>
+			<date type="published" when="2018-01">Jan 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Causal interpretations of black-box models</title>
+		<author>
+			<persName><forename type="first">Qingyuan</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Trevor</forename><surname>Hastie</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Business &amp; Economic Statistics</title>
+		<imprint>
+			<biblScope unit="volume">0</biblScope>
+			<biblScope unit="issue">ja</biblScope>
+			<biblScope unit="page" from="1" to="19" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">why should i trust you?&quot;: Explaining the predictions of any classifier</title>
+		<author>
+			<persName><forename type="first">Marco</forename><surname>Tulio Ribeiro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sameer</forename><surname>Singh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Carlos</forename><surname>Guestrin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 22Nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, KDD &apos;16</title>
+		<meeting>the 22Nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, KDD &apos;16<address><addrLine>New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="1135" to="1144" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<monogr>
+		<title level="m" type="main">Local rule-based explanations of black box decision systems</title>
+		<author>
+			<persName><forename type="first">Riccardo</forename><surname>Guidotti</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Anna</forename><surname>Monreale</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Salvatore</forename><surname>Ruggieri</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dino</forename><surname>Pedreschi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Franco</forename><surname>Turini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Fosca</forename><surname>Giannotti</surname></persName>
+		</author>
+		<idno>CoRR, abs/1805.10820</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<title level="m" type="main">Efficient computation of counterfactual explanations of LVQ models</title>
+		<author>
+			<persName><forename type="first">André</forename><surname>Artelt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Barbara</forename><surname>Hammer</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1908.00735</idno>
+		<imprint>
+			<date type="published" when="2019-08">Aug 2019</date>
+		</imprint>
+	</monogr>
+	<note>arXiv e-prints</note>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title level="m" type="main">Case-based reasoning: Foundational issues, methodological variations, and systemapproaches</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Aamodt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Plaza</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1994">1994</date>
+			<publisher>AI communications</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Understanding black-box predictions via influence functions</title>
+		<author>
+			<persName><forename type="first">Pang</forename><surname>Wei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Koh</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Percy</forename><surname>Liang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 34th International Conference on Machine Learning</title>
+		<meeting>the 34th International Conference on Machine Learning<address><addrLine>Sydney, NSW, Australia</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2017-08">2017. August 2017. 2017</date>
+			<biblScope unit="page" from="1885" to="1894" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Examples are not enough, learn to criticize! criticism for interpretability</title>
+		<author>
+			<persName><forename type="first">Been</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Oluwasanmi</forename><surname>Koyejo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rajiv</forename><surname>Khanna</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems 29: Annual Conference on Neural Information Processing Systems</title>
+		<meeting><address><addrLine>Barcelona, Spain</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2016-12-05">2016. December 5-10, 2016. 2016</date>
+			<biblScope unit="page" from="2280" to="2288" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Comparison-based inverse classification for interpretability in machine learning</title>
+		<author>
+			<persName><forename type="first">Thibault</forename><surname>Laugel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Marie-Jeanne</forename><surname>Lesot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Christophe</forename><surname>Marsala</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xavier</forename><surname>Renard</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Marcin</forename><surname>Detyniecki</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Information Processing and Management of Uncertainty in Knowledge-Based Systems. Theory and Foundations -17th International Conference</title>
+		<meeting><address><addrLine>Cádiz, Spain</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2018-06-11">2018. June 11-15, 2018. 2018</date>
+			<biblScope unit="page" from="100" to="111" />
+		</imprint>
+	</monogr>
+	<note>Proceedings, Part I</note>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<monogr>
+		<title level="m" type="main">Interpretable counterfactual explanations guided by prototypes</title>
+		<author>
+			<persName><forename type="first">Arnaud</forename><surname>Van Looveren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Janis</forename><surname>Klaise</surname></persName>
+		</author>
+		<idno>CoRR, abs/1907.02584</idno>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<monogr>
+		<title level="m" type="main">FACE: feasible and actionable counterfactual explanations</title>
+		<author>
+			<persName><forename type="first">Rafael</forename><surname>Poyiadzi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kacper</forename><surname>Sokol</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Raúl</forename><surname>Santos-Rodriguez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tijl</forename><surname>De Bie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Peter</forename><forename type="middle">A</forename><surname>Flach</surname></persName>
+		</author>
+		<idno>CoRR, abs/1909.09369</idno>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<monogr>
+		<title level="m" type="main">CERTIFAI: counterfactual explanations for robustness, transparency, interpretability, and fairness of artificial intelligence models</title>
+		<author>
+			<persName><forename type="first">Shubham</forename><surname>Sharma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jette</forename><surname>Henderson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joydeep</forename><surname>Ghosh</surname></persName>
+		</author>
+		<idno>CoRR, abs/1905.07857</idno>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Efficient search for diverse coherent explanations</title>
+		<author>
+			<persName><forename type="first">Chris</forename><surname>Russell</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Conference on Fairness, Accountability, and Transparency, FAT* 2019</title>
+		<meeting>the Conference on Fairness, Accountability, and Transparency, FAT* 2019<address><addrLine>Atlanta, GA, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2019">January 29-31, 2019. 2019</date>
+			<biblScope unit="page" from="20" to="28" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<monogr>
+		<title level="m" type="main">Mixed Integer Programming</title>
+		<author>
+			<persName><forename type="first">Laurence</forename><forename type="middle">A</forename><surname>Wolsey</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2008">2008</date>
+			<publisher>American Cancer Society</publisher>
+			<biblScope unit="page" from="1" to="10" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<monogr>
+		<title level="m" type="main">General heuristics for nonconvex quadratically constrained quadratic programming</title>
+		<author>
+			<persName><forename type="first">Jaehyun</forename><surname>Park</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stephen</forename><surname>Boyd</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1703.07870</idno>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">A review of learning vector quantization classifiers</title>
+		<author>
+			<persName><forename type="first">David</forename><surname>Nova</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pablo</forename><forename type="middle">A</forename><surname>Estévez</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural Comput. Appl</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="issue">3-4</biblScope>
+			<biblScope unit="page" from="511" to="524" />
+			<date type="published" when="2014-09">September 2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Adaptive relevance matrices in learning vector quantization</title>
+		<author>
+			<persName><forename type="first">Petra</forename><surname>Schneider</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><surname>Biehl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Barbara</forename><surname>Hammer</surname></persName>
+		</author>
+		<idno type="PMID">19764875</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Neural Computation</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="issue">12</biblScope>
+			<biblScope unit="page" from="3532" to="3561" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Distance learning in discriminative vector quantization</title>
+		<author>
+			<persName><forename type="first">Petra</forename><surname>Schneider</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><surname>Biehl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Barbara</forename><surname>Hammer</surname></persName>
+		</author>
+		<idno type="PMID">19635012</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Neural Computation</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page" from="2942" to="2969" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">A survey on decision tree algorithms of classification in data mining</title>
+		<author>
+			<persName><forename type="first">Himani</forename><surname>Sharma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sunil</forename><surname>Kumar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">International Journal of Science and Research (IJSR)</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="page">4</biblScope>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Interpretable predictions of tree-based ensembles via actionable feature tweaking</title>
+		<author>
+			<persName><forename type="first">Gabriele</forename><surname>Tolomei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Fabrizio</forename><surname>Silvestri</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><surname>Haines</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mounia</forename><surname>Lalmas</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 23rd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, KDD &apos;17</title>
+		<meeting>the 23rd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, KDD &apos;17<address><addrLine>New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="465" to="474" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<monogr>
+		<title level="m" type="main">Ceml: Counterfactuals for explaining machine learning models -a python toolbox</title>
+		<author>
+			<persName><forename type="first">André</forename><surname>Artelt</surname></persName>
+		</author>
+		<ptr target="https://www.github.com/andreArtelt/ceml" />
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<monogr>
+		<title level="m" type="main">Python tutorial. Centrum voor Wiskunde en Informatica Amsterdam</title>
+		<author>
+			<persName><forename type="first">Guido</forename><surname>Van Rossum</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Fred</forename><forename type="middle">L</forename><surname>Drake</surname><genName>Jr</genName></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1995">1995</date>
+			<pubPlace>The Netherlands</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Scikit-learn: Machine learning in Python</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Pedregosa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Varoquaux</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gramfort</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Michel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Thirion</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Grisel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Blondel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Prettenhofer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Weiss</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Dubourg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Vanderplas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Passos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Cournapeau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Brucher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Perrot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Duchesnay</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page" from="2825" to="2830" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<analytic>
+		<title level="a" type="main">The numpy array: A structure for efficient numerical computation</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">Chris</forename><surname>Stéfan Van Der Walt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gaël</forename><surname>Colbert</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Varoquaux</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computing in Science and Engineering</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="22" to="30" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">CVXPY: A Python-embedded modeling language for convex optimization</title>
+		<author>
+			<persName><forename type="first">Steven</forename><surname>Diamond</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stephen</forename><surname>Boyd</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">17</biblScope>
+			<biblScope unit="issue">83</biblScope>
+			<biblScope unit="page" from="1" to="5" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<monogr>
+		<author>
+			<persName><forename type="first">Stephen</forename><surname>Boyd</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lieven</forename><surname>Vandenberghe</surname></persName>
+		</author>
+		<title level="m">Convex Optimization</title>
+		<meeting><address><addrLine>New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>Cambridge University Press</publisher>
+			<date type="published" when="2004">2004</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

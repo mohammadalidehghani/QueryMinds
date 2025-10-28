@@ -1,0 +1,937 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Distributed Multitask Learning</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2015-10-05">October 5, 2015</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Jialei</forename><surname>Wang</surname></persName>
+							<email>jialei@uchicago.edu</email>
+							<affiliation key="aff0">
+								<orgName type="department" key="dep1">Department of Computer Science</orgName>
+								<orgName type="department" key="dep2">Booth School of Business</orgName>
+								<orgName type="institution" key="instit1">University of Chicago</orgName>
+								<orgName type="institution" key="instit2">University of Chicago</orgName>
+								<orgName type="institution" key="instit3">Toyota Technological Institute at Chicago</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Mladen</forename><surname>Kolar</surname></persName>
+							<email>mkolar@chicagobooth.edu</email>
+							<affiliation key="aff0">
+								<orgName type="department" key="dep1">Department of Computer Science</orgName>
+								<orgName type="department" key="dep2">Booth School of Business</orgName>
+								<orgName type="institution" key="instit1">University of Chicago</orgName>
+								<orgName type="institution" key="instit2">University of Chicago</orgName>
+								<orgName type="institution" key="instit3">Toyota Technological Institute at Chicago</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Nathan</forename><surname>Srebro</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department" key="dep1">Department of Computer Science</orgName>
+								<orgName type="department" key="dep2">Booth School of Business</orgName>
+								<orgName type="institution" key="instit1">University of Chicago</orgName>
+								<orgName type="institution" key="instit2">University of Chicago</orgName>
+								<orgName type="institution" key="instit3">Toyota Technological Institute at Chicago</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Distributed Multitask Learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2015-10-05">October 5, 2015</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">E73901AE7DEDCA8D107149297B988C74</idno>
+					<idno type="arXiv">arXiv:1510.00633v1[stat.ML]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:04+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>We consider the problem of distributed multi-task learning, where each machine learns a separate, but related, task. Specifically, each machine learns a linear predictor in high-dimensional space, where all tasks share the same small support. We present a communication-efficient estimator based on the debiased lasso and show that it is comparable with the optimal centralized method.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Learning multiple tasks simultaneously allows transferring information between related tasks and for improved performance compared to learning each tasks separately <ref type="bibr" target="#b5">[Caruana, 1997]</ref>. It has been successfully exploited in, e.g., spam filtering <ref type="bibr" target="#b28">[Weinberger et al., 2009]</ref>, web search <ref type="bibr" target="#b7">[Chapelle et al., 2010]</ref>, disease prediction <ref type="bibr" target="#b34">[Zhou et al., 2013]</ref> and eQTL mapping <ref type="bibr" target="#b14">[Kim and Xing, 2010]</ref>.</p><p>Tasks could be related to each other in a number of ways. In this paper, we focus on the high-dimensional multi-task setting with joint support where a few variables are related to all tasks, while others are not predictive <ref type="bibr" target="#b24">[Turlach et al., 2005;</ref><ref type="bibr" target="#b17">Obozinski et al., 2011;</ref><ref type="bibr" target="#b16">Lounici et al., 2011]</ref>. The standard approach is to use the mixed ℓ 1 /ℓ 2 or ℓ 1 /ℓ ∞ penalty, as such penalties encourage selection of variables that affect all tasks. Using a mixed norm penalty leads to better performance in terms of prediction, estimation and model selection compared to using the ℓ 1 norm penalty, which is equivalent to considering each task separately.</p><p>Shared support multi-task learning is generally considered in a centralized setting where data from all tasks is available on a single machine, and the estimator is computed using a standard single-thread algorithm. With the growth of modern massive data sets, there is a need to revisit multi-task learning in a distributed setting, where tasks and data are distributed across machines and communication is expensive. In particular, we consider a setting where each machine holds one "task" and its related data.</p><p>We develop an efficient distributed algorithm for multi-task learning that exploits shared sparsity between tasks. Our algorithm (DSML) requires only one round of communication between the workers and the central node, involving each machine sending a vector to the central node and receiving back a support set. Despite the limited communication, our algorithm enjoys the same theoretical guarantees, in terms of the leading term in reasonable regimes and mild conditions, as the centralized approach. Table <ref type="table" target="#tab_0">1</ref> summarizes our support recovery guarantees compared to the centralized (group lasso) and local (lasso) approaches, while </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Distributed Learning and Optimization</head><p>With the increase in the volume of data used for machine learning, and the availability of distributed computing resources, distributed learning and the use of distributed optimization for machine learning has received much attention. Most work on distributed optimization focuses on "consensus problems", where each machine holds a different objective f i (β) and the goal is to communicate between the machines so as to jointly optimize the average objective 1/m i f i (β), that is, to find a single vector β that is good for all local objectives <ref type="bibr" target="#b3">[Boyd et al., 2011]</ref>. The difficulty of consensus problems is that the local objectives might be rather different, and, as a result, one can obtain lower bounds on the amount of communication that must be exchanged in order to reach a joint optimum. In particular, the problem becomes harder as more machines are involved.</p><p>The consensus problem has also been studied in the stochastic setting <ref type="bibr" target="#b19">[Ram et al., 2010]</ref>, in which each machine receive stochastic estimates of its local objective. Thinking of each local objective as a generalization error w.r.t. a local distribution, we obtain the following distributed learning formulation <ref type="bibr" target="#b1">[Balcan et al., 2012]</ref>: each machine holds a different source distribution D i from which it can sample, and this distribution corresponds to a different local generalization error f i = E (X,y)∼D i [loss(β, X, y)]. The goal is to find a single predictor β that minimizes the average generalization error, based on samples sampled at the local nodes. Again, the problem becomes harder when more machines are involved and one can obtain lower bounds on the amount of communication required- <ref type="bibr" target="#b1">[Balcan et al., 2012]</ref> carry out such an analysis for several hypothesis classes.</p><p>A more typical situation in machine learning is one in which there is only a single source distribution D, and data from this single source is distributed randomly across the machines (or equivalently, each machine has access to the same source distribution D i = D). Such a problem can be reduced to a consensus problem by performing consensus optimization of the empirical errors at each machine. However, such an approach ignores several issues: first, the local empirical objectives are not arbitrarily different, but rather quite similar, which can and should be taken advantage of in optimization <ref type="bibr">[Shamir et al., 2014]</ref>. Second, since each machine has access to the source distribution, there is no lower bound on communication-an entirely "local" approach is possible, were each machine completely ignores other machines and just uses its own data. In fact, increasing the number of machines only makes the problem easier (in that it can reduce the runtime or number of samples per machine required to achieve target performance), as additional machines can always be ignored. In such a setting, the other relevant baseline is the "centralized" approach, where all data is communicated to a central machine which computes a predictor centrally. The goal here is then to obtain performance close to that of the "centralized" approach (and much better than the "local" approach), using roughly the same number of samples, but with low communication and computation costs. Such single-source distributed problems have been studied both in terms of predictive performance <ref type="bibr">[Shamir and Srebro, 2014;</ref><ref type="bibr" target="#b11">Jaggi et al., 2014]</ref> and parameter estimation <ref type="bibr">[Zhang et al., 2013b,a;</ref><ref type="bibr" target="#b15">Lee et al., 2015]</ref>.</p><p>In this paper we suggest a novel setting that combines aspects of the above two extremes. On one hand, we assume that each machine has a different source distributions D i (X, y), corresponding to a different task, as in consensus problems and in <ref type="bibr" target="#b1">[Balcan et al., 2012]</ref>. For example, each machine serves a different geographical location, or each is at a different hospital or school with different characteristics. But if indeed there are differences between the source distributions, it is natural to learn different predictors β i for each machine, so that β i is good for the distribution typical to that machine. In this regard, our distributed multi-task learning problem is more similar to single-source problems, in that machines could potentially learn on their own given enough samples and enough time. Furthermore, availability of other machines just makes the problem easier by allowing transfer between the machine, thus reducing the sample complexity and runtime. The goal, then, is to leverage as much transfer as possible, while limiting communication and runtime. As with single-source problems, we compare our method to the two baselines, where we would like to be much better than the "local" approach, achieving performance nearly as good as the "centralized" approach, but with minimal communication and efficient runtime.</p><p>To the best of our knowledge, the only previous discussion of distributed multi-task learning is <ref type="bibr" target="#b8">[Dinuzzo et al., 2011]</ref>, which considered a different setting with an almost orthogonal goal: a client-server architecture, where the server collects data from different clients, and send sufficient information that might be helpful for each client to solve its own task. Their emphasis is on preserving privacy, but their architecture is communication-heavy as the entire data set is communicated to the central server, as in the "centralized" bases line. On the other hand, we are mostly concerned with communication costs, but, for the time being, do not address privacy concerns.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Preliminaries</head><p>We consider the following multi-task linear regression model with m tasks:</p><formula xml:id="formula_0">y t = X t β * t + t , t = 1, . . . , m,<label>(1)</label></formula><p>where X t ∈ R nt×p , y t ∈ R nt , and t ∼ N (0, σ 2 t I) ∈ R nt is a noise vector, and β * t is the unknown vector of coefficients for the task t. For notation simplicity we assume each task has equal sample size and the same noise level, that is, we assume, n 1 = n 2 = . . . = n and σ 1 = σ 2 = . . . = σ. We will be working in a high-dimensional regime with p possibly larger than n, however, we will assume that each β * t is sparse, that is, few components of β * t are different from zero. Furthermore, we assume that the support between the tasks is shared. In particular, let</p><formula xml:id="formula_1">S t = support(β * t ) = {j ∈ [p] : β tj = 0}, with S 1 = S 2 = . . . = S and s = |S| n.</formula><p>Suppose the data sets (X 1 , y 1 ), . . . , (X m , y m ) are distributed across machines, our goal is to estimate {β * t } m t=1 as accurately as possible, while maintaining low communication cost.</p><p>The lasso estimate for each task t is given by:</p><formula xml:id="formula_2">βt = arg min βt 1 n y t -X t β t 2 2 + λ t β t 1 .<label>(2)</label></formula><p>The multi-task estimates are given by the joint optimization:</p><formula xml:id="formula_3">{ βt } m t=1 = arg min {βt} m t=1 1 mn t=1 y t -X t β t 2 2 + λpen({β t } m t=1 ),<label>(3)</label></formula><p>where pen({β t } m t=1 ) is the regularizaton that promote group sparse solutions. For example, the group lasso penalty uses pen(</p><formula xml:id="formula_4">{β t } m t=1 ) = j∈[p]</formula><p>t∈m β 2 tj <ref type="bibr" target="#b29">[Yuan and Lin, 2006]</ref>, while the iCAP uses pen( <ref type="bibr" target="#b33">Zhao et al., 2009]</ref>. In a distributed setting, one could potentially minimize (3) using a distributed consensus procedure (see Section 2), but such an approach would generally require multiple round of communication. Our procedure, described in the next section, lies in between the local lasso (2) and centralized estimate (3), requiring only one round of communication to compute, while still ensuring much of the statistical benefits of using group regularization.</p><formula xml:id="formula_5">{β t } m t=1 ) = j∈[p] max t=1,...,m |β tj | [</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Methodology</head><p>In this section, we detail our procedure for performing estimation under model in ( <ref type="formula" target="#formula_34">16</ref>). Algorithm 1 provides an outline of the steps executed by the worker nodes and the master node, which are explained in details below.</p><p>Recall that each worker node contains data for one task. That is, a node t contains data (X t , y t ). In the first step, each worker node solves a lasso problem locally, that is, a node t minimizes the program in (2) and obtains βt . Next, a worker node constructs a debiased lasso estimator βu t by performing one Newton step update on the loss function, starting at the estimated value βt :</p><formula xml:id="formula_6">βu t = βt + n -1 M t X T t (y t -X t βt ),<label>(4)</label></formula><p>Algorithm 1: DSML:Distributed debiased Sparse Multi-task Lasso. Workers: for t = 1, 2, . . . , m do Each worker obtains βt as a solution to a local lasso in (2); Each worker obtains βu t the debiased lasso estimate in (17) and sends it to the master; if Receive Ŝ(Λ) from the master then Calculate final estimate βt in (6). end end Master: if Receive { βu t } m t=1 from all workers then Compute Ŝ(Λ) by group hard thresholding in( <ref type="formula">5</ref>) and send the result back to every worker. end where n -1 X T t (y t -X t βt ) is a subgradient of the ℓ 1 norm and the matrix M t ∈ R p×p serves as an approximate inverse of the Hessian. The idea of debiasing the lasso estimator was introduced in the recent literature on statistical inference in high-dimensions <ref type="bibr">[Zhang and Zhang, 2013;</ref><ref type="bibr" target="#b25">van de Geer et al., 2014;</ref><ref type="bibr" target="#b13">Javanmard and Montanari, 2014]</ref>. By removing the bias introduced through the ℓ 1 penalty, one can estimate the sampling distribution of a component of βu t and make inference about the unknown parameter of interest. In our paper, we will also utilize the sampling distribution of the debiased estimator, however, with a different goal in mind. The above mentioned papers proposed different techniques to construct the matrix M . Here, we adopt the approach proposed in <ref type="bibr" target="#b13">[Javanmard and Montanari, 2014]</ref>, as it leads to weakest assumption on the model in ( <ref type="formula" target="#formula_34">16</ref>): each machine uses a matrix M t = ( mtj ) p j=1 with rows:</p><formula xml:id="formula_7">mtj = arg min m j ∈R p m T j Σt m j subject to Σt m j -e j ∞ ≤ µ.</formula><p>where e j is the vector with j-th component equal to 1 and 0 otherwise and Σt = n -1 X T t X t . After each worker obtains the debiased estimator βu t , it sends it to the central machine. After debiasing, the estimator is no longer sparse and as a result each worker communicates p numbers to the master node. It is at the master where shared sparsity between the task coefficients gets utilized. The master node concatenates the received estimators into a matrix B = ( βu 1 , βu 2 , ..., βu m ). Let Bj be the j-th row of B. The master performs the hard group thresholding to obtain an estimate of S as</p><formula xml:id="formula_8">Ŝ(Λ) = {j | Bj 2 &gt; Λ}.</formula><p>(5)</p><p>The estimated support Ŝ(Λ) is communicated back to each worker, which then use the estimate of the support to filter their local estimate. In particular, each worker produces the final estimate:</p><formula xml:id="formula_9">βtj = βu tj if j ∈ Ŝ(Λ) 0 otherwise. (<label>6</label></formula><formula xml:id="formula_10">)</formula><p>Extension to multitask classification. DSML can be generalized to estimate multitask generalized linear models. We be briefly outline how to extend DSML to a multi-task logistic regression model, where y tk ∈ {-1, 1} and:</p><formula xml:id="formula_11">P (y tk |X tk ) = exp 1 2 y tk X tk β * t exp -1 2 y tk X tk β * t + exp 1 2 y tk X tk β * t , ∀k = 1, . . . , n, t = 1, . . . , m.<label>(7)</label></formula><p>First, each worker solves the ℓ 1 -regularized logistic regression problem</p><formula xml:id="formula_12">βt = arg min βt 1 n k∈[n] log(1 + exp(-y tk X tk β t )) + λ t β t 1 .</formula><p>Let W t ∈ R n×n be a diagonal weighting matrix, with a k-th diagonal element</p><formula xml:id="formula_13">W t(kk) = 1 1 + exp(-X tk βt ) • exp(-X tk βt ) 1 + exp(-X tk βt ) ,</formula><p>which will be used to approximately invert the Hessian matrix of the logistic loss. The matrix M t = ( mtj ) p j=1 , which serves as an approximate inverse of the Hessian, in the case of logistic regression can be obtained as a solution to the following optimization problem:</p><formula xml:id="formula_14">mtj = arg min m tj ∈R p m T tj X t T W t X t m tj subject to n -1 X T t W t X t m tj -e j ∞ ≤ µ.</formula><p>Finally, the debiased estimator is obtained as</p><formula xml:id="formula_15">βu t = βt + n -1 M t X t T 1 2 (y t + 1) -1 + exp(-X t βt ) -1</formula><p>, and then communicated to the master node. The rest of procedure is as described before.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Theoretical Analysis</head><p>In this section, we present our main theoretical results for the DSML procedure described in the previous section. We start by describing assumptions that we make on the model in ( <ref type="formula" target="#formula_34">16</ref>). Our results are based on the random design analysis, and we also discuss fixed design case in appendix. Let the data X t for t-task are drawn from a subgaussian random vector with covariance matrix E[n -1 X T t X t ] = Σ t . We assume the subguassian random vectors for every task have bounded subgaussian norm: max t max k X tk ψ 2 ≤ σ X <ref type="bibr" target="#b26">[Vershynin, 2012]</ref>. Let λ min (Σ) to be the minimal eigenvalue of Σ, and λ max (Σ) be its maximal eigenvalue. Let λ min = min t∈[m] λ min (Σ t ) and λ max = max t∈[m] λ max (Σ t ) be the bound on the eigenvalues of these covariance matrices. Let K be the maximal diagonal elements of the inverse convariance matrices:</p><formula xml:id="formula_16">K = max t∈[m] max j∈[p] (Σ -1 t ) jj ,</formula><p>The following theorem is our main result, which is proved in appendix.</p><p>Theorem 1. Suppose λ in (2) was chosen as λ t = 4σ log p n . Furthermore, suppose that the multi-task coefficients in (16) satisfy the following bound on the signal strength</p><formula xml:id="formula_17">min j∈S t∈[m] (β * tj ) 2 ≥ 6Kσ m + log p n + Cσ 4 X λ 1/2 max σ|S| √ m log p λ 3/2 min n := 2Λ * ,<label>(8)</label></formula><p>where C &lt; 5000. Then the support estimated by the master node satisfies Ŝ(Λ * ) = S with probability at least 1 -mp -1 .</p><p>Let us compare the minimal signal strength to that required by the lasso and group lasso. Let B = [β 1 , β 2 , . . . , β m ] ∈ R p×m be the matrix of true coefficients. Simplifying (8), we have that our procedure requires the minimum signal strength to satisfy</p><formula xml:id="formula_18">min j∈S 1 √ m B j 2 1 n 1 + log p m + |S| log p n ,<label>(9)</label></formula><p>where a(n) b(n) means that for some c, N , a(n) &gt; c • b(n), ∀n &gt; N . For the centralized group lasso, the standard analysis assumes a stronger condition on the data, namely that the design matrix satisfies mutual incoherence with parameter α and sparse eigenvalue condition. Mutual incoherence is a much stronger conditions on the design in comparison to the generalized coherence condition required by DSML. Group lasso recovers the support if [Corollary 5.2 of <ref type="bibr" target="#b16">Lounici et al., 2011]</ref>:</p><formula xml:id="formula_19">min j∈S 1 √ m B j 2 ≥ 4 √ 2C α,κ σ √ n 1 + 2.5 log p m 1 n 1 + log p m . (<label>10</label></formula><formula xml:id="formula_20">)</formula><p>where C α,κ is some constant depend on the mutual incoherence and sparse eigenvalue parameters. Under the irrepresentable condition on the design (which is weaker than the mutual incoherence), the lasso requires the signal to satisfy <ref type="bibr" target="#b4">[Bunea, 2008;</ref><ref type="bibr" target="#b27">Wainwright, 2009]</ref>:</p><formula xml:id="formula_21">min t∈[m] min j∈S |β * tj | ≥ C γ,κ σ log p n log p n<label>(11)</label></formula><p>for some constant C γ,κ of the mutual coherence parameter γ and of κ. Ignoring for the moment the differences in the conditions on the design matrix, there are two advantages of the multitask group lasso over the local lasso: relaxing the signal strength requirement to a requirement on the average strength across tasks, and a reduction by a factor of m on the log p term. Similarly to the group lasso, DSML requires a lower bound only on the average signal strength, not on any individual coefficient. And as long as m n, or more precisely n m|S| 2 (log p) 2 κ 2 (m+log p) enjoys the same linear reduction in the dominant term of the required signal strength, match the leading term of the group lasso bound.</p><p>Based on Theorem 1, we have the following corollary that characterizes estimation error and prediction risk of DSML, with the proof given in the appendix.</p><p>Corollary 2. Suppose the conditions of Theorem 1 hold. With probability at least 1mp -1 , we have</p><formula xml:id="formula_22">p j=1 Bj -B j 2 ≤ 6K|S|σ m + log p n + Cσ 4 X λ 1/2 max σ|S| 2 √ m log p λ 3/2 min n</formula><p>and</p><formula xml:id="formula_23">1 nm m t=1 (E Xt (X T t βt -X T t β * t )) 2 ≤ 36K 2 |S|σ 2 n 1 + log p m + C 2 σ 8 X λ max σ 2 |S| 3 (log p) 2 λ 3 min n 2 .</formula><p>Let us compare these guarantees for to the group lasso. For DSML Corollary 2 yields:</p><formula xml:id="formula_24">1 √ m p j=1 Bj -B j 2 |S| √ n 1 + log p m + |S| 2 log p n ,<label>(12)</label></formula><p>When using the group lasso, the restricted eigenvalue condition is sufficient for obtaining error bounds and following holds for the group lasso [Corollary 4.1 of <ref type="bibr" target="#b16">Lounici et al., 2011]</ref>:</p><formula xml:id="formula_25">1 √ m p j=1 Bj -B j 2 ≤ 32 √ 2σ|S| κ √ n 1 + 2.5 log p m |S| √ n 1 + log p m ,<label>(13)</label></formula><p>which is min-max optimal (up to a logarithmic factor). Albeit with the stronger generalized coherence condition, DSML matches this bound when n m|S| 2 (log p) 2 (m+log p) . Similarly for prediction DSML attains:</p><formula xml:id="formula_26">1 nm m t=1 (E Xt (X T t βt -X T t β * t )) 2 |S|σ 2 n 1 + log p m + σ 2 |S| 3 (log p) 2 n 2 , (<label>14</label></formula><formula xml:id="formula_27">)</formula><p>which in the same regime matches the group lasso minimax optimal rate:</p><formula xml:id="formula_28">1 nm m t=1 (E Xt (X T t βt -X T t β * t )) 2 ≤ 128|S|σ 2 κn 1 + 2.5 log p m |S|σ 2 n 1 + log p m .</formula><p>(15) In both cases, as long as m is not too large, we have a linear improvement over Lasso, which corresponds to ( <ref type="formula" target="#formula_25">13</ref>) and ( <ref type="formula">15</ref>) with m = 1.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">Experimental results</head><p>Our first set of experiments is on simulated data. We generated synthetic data according to the model in ( <ref type="formula" target="#formula_34">16</ref>) and in (7). Rows of X t are sampled from a mean zero multivariate normal with the covariance matrix Σ = (Σ ab ) a,b∈[p] , Σ ab = 2 -|a-b| . The data dimension p is set to 200, while the number of true relevant variables s is set to 10. Non-zero coefficients of β are generated uniformly in [0, 1]. Variance σ 2 is set to 1. Our simulation results are averaged over 200 independent runs. We investigate how performance of various procedures changes as a function of problem parameters (n, p, m, s). We compare the following procedures: i) local lasso, ii) group lasso, iii) refitted group lasso, where a worker node performs ordinary least squares on the selected support, iv) iCAP, and v) DSML. The parameters for local lasso, group lasso and iCAP were tuned to achieve the minimal Hamming error in variable selection. For DSML, to debias the output of local lasso estimator, we use µ = log p/n. The thresholding parameter Λ is also optimized to achive the best variable selection performance. The simulation results for regression are shown in Figure <ref type="figure" target="#fig_0">1</ref>. In terms of support recovery (measured by Hamming distance), Group lasso, iCAP, and DSML all perform similarly and significantly better than the local lasso. In terms of estimation error, lasso perform the worst, while DSML and refitted group lasso perform the best. This might be a result of bias removal introduced by regularization. Since the group lasso recovers the true support in most cases, refitting on it yields the maximum likelihood estimator on the true support. It is remarkable that DSML performs almost as well as this oracle estimator.</p><p>Figure <ref type="figure" target="#fig_1">2</ref> shows the simulation results for classification. Similar with the regression case, we make the following observations:</p><p>• The group sparsity based approaches, including DSML, significantly outperform the individual lasso.</p><p>• In terms of Hamming variable selection error, DSML performs slightly worse than group lasso and iCAP. While in terms of estimation error and prediction error, DSML performs much better than group lasso and icap. Given the fact that group lasso recovers the true support in most cases, refitted group lasso is equivalent to oracle maximum likelihood estimator. It is remarkable that DSML only performs slightly worse than refitted group lasso.</p><p>• The advantage of DSML, as well as group lasso over individual lasso, becomes more and more significant with the increase in number of tasks.</p><p>We also evaluated DSML on the following benchmark data sets considered in previous investigations of shared support multi-task School. This is a widely used dataset for multi-task learning <ref type="bibr" target="#b0">[Argyriou et al., 2008]</ref>. The goal is to predict the students' performance at London's secondary schools. There are 27 attributes for each student. The tasks are naturally divided according to different schools. We only considered schools with at least 200 students, which results in 11 tasks.</p><p>Protein. The task is to predict the protein secondary structure <ref type="bibr" target="#b21">[Sander and Schneider, 1991]</ref>. We considered three binary classification tasks here: coil vs helix, helix vs strand, strand vs coil. The dataset consists of 24,387 instances in total, each with 357 features. OCR. We consider the optical character recognition problem. Data were gathered by Rob Kassel at the MIT Spoken Language Systems Group<ref type="foot" target="#foot_0">foot_0</ref> . Following <ref type="bibr" target="#b18">[Obozinski et al., 2010]</ref>, we consider the following 9 binary classification task: c vs e, g vs y, g vs s, m vs n, a vs g, i vs j, a vs o, f vs t, h vs n. Each image is represented by 8 × 16 binary pixels.</p><p>MNIST. This is a handwritten digit recognition dataset<ref type="foot" target="#foot_1">foot_1</ref> , the ata consists of images that represent digits. Each image is represented by 784 pixels. We considered the following 5 binary classification task: 2 vs 4, 0 vs 9, 3 vs 5, 1 vs 7, 6 vs 8.</p><p>USPS. This dataset consists handwritten images from envelopes by the U.S. Postal Service. We considere the following 5 binary classification task: 2 vs 4, 0 vs 9, 3 vs 5, 1 vs 7, 6 vs 8. Each image is represented by 256 pixels.</p><p>Vehicle. We considered the vehicle classification problem in distributed sensor networks <ref type="bibr" target="#b9">[Duarte and Hu, 2004]</ref>. We considered the following 3 binary classification task: AAV vs DW, AAV vs noise, DW vs noise. There are 98,528 instances in total, each instances is described by 50 acoustic features and 50 seismic features.</p><p>In addition to the procedures used in the previous section, we also compare against the dirty model Jalali et al. <ref type="bibr">[2010]</ref>, as well as the centralized approach that first debiases</p><p>0.1 0.2 0.3 0.4 0.5 Training Ratio 0.010 0.012 0.014 0.016 0.018 0.020 0.022 0.024 Averaged Classification Error 0.1 0.2 0.3 0.4 0.5 Training Ratio 0.070 0.075 0.080 0.085 0.090 0.095 Averaged classification error 0.1 0.2 0.3 0.4 0.5 Training Ratio 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 Averaged Classification Error USPS OCR Protein 0.1 0.2 0.3 0.4 0.5 Training Ratio 0.17 0.18 0.19 0.20 0.21 0.22 0.23 0.24 0.25 Averaged nMSE Lasso Group lasso Debiased group lasso + HT iCAP DSML Dirty 0.1 0.2 0.3 0.4 0.5 Training Ratio 0.019 0.020 0.021 0.022 0.023 0.024 0.025 0.026 0.027 0.028 Averaged classification error 0.1 0.2 0.3 0.4 0.5 Training Ratio 0.130 0.135 0.140 0.145 0.150 0.155 0.160 0.165 0.170 Averaged classification error School MNIST Vehicle the group lasso and then performs group hard thresholding as in ( <ref type="formula">5</ref>). Regularization and thresholding parameters were tuned on a held-out set consisting of 20% of the data. In Figure <ref type="figure" target="#fig_2">3</ref> we report results of training on 10%, 30% and, 50% of the total data set size.</p><p>The multi-task methods clearly preform better than the local lasso, with DSML achieving similar error as the centralized methods.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7">Discussion</head><p>We introduced and studied a shared-sparsity distributed multi-task learning problem. We presented a novel communication-efficient approach that required only one round of communication and achieves provable guarantees that compete with the centralized approach to leading order up to a generous bound on the number of machines. Our analysis was based on Restricted Eigenvalue and Generalized Coherence conditions. Such conditions, or other similar conditions, are required for support recovery, but much weaker conditions are sufficient for obtaining low prediction error with the lasso or group lasso. An interesting open question is whether there exists a communication efficient method for distributed multi-task learning that requires sample complexity n = O(|S| + (log p)/m), like the group lasso, even without Restricted Eigenvalue and Generalized Coherence conditions, or whether beating the n = O(|S| + log p) sample complexity of the lasso in a more general setting inherently requires large amounts of communication. Our methods, certainly, rely on these stronger conditions. DSML can be easily extended to other types of structured sparsity, including sparse group lasso <ref type="bibr" target="#b10">[Friedman et al., 2010]</ref>, tree-guided group lasso <ref type="bibr" target="#b14">[Kim and Xing, 2010</ref>] and the dirty model <ref type="bibr" target="#b12">[Jalali et al., 2010]</ref>. Going beyond shared sparsity, shared subspace (i.e. low rank) and other matrix-factorization and feature-learning methods are also commonly and successfully used for multi-task learning, and it would be extremely interesting to understand distributed multi-task learning in these models.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="8">Appendix</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A Proof of Theorem 1</head><p>We first introduce the following lemma.</p><p>Lemma 3. When the rows of X 1 , . . . , X t are independent subgaussian random vectors, with mean zero, covariance Σ 1 , ..., Σ t , respectively. Let</p><formula xml:id="formula_29">C M = max t∈[m] max j∈[p] M T t X T t X t n M t jj .</formula><p>Then with probability at least 1 -2mp exp (-cn) -2mp -2 for some constant c, we have</p><formula xml:id="formula_30">C M ≤ 2 max t∈[m] max j∈[p] (Σ -1 t ) jj .</formula><p>Proof. As shown in Theorem 2.4 of <ref type="bibr" target="#b13">[Javanmard and Montanari, 2014]</ref>, Σ -1 t will be a feasible solution for the problem of estimating M t . Since we're minimizing (M T t Σt M t ) jj , we must have max</p><formula xml:id="formula_31">j∈[p] (M T t Σt M t ) jj ≤ max j∈[p] (Σ -1 t Σt Σ -1 t ) jj .</formula><p>Based on the concentration results of sub-exponential random variable <ref type="bibr" target="#b26">[Vershynin, 2012]</ref>, also Lemma 3.3 of <ref type="bibr" target="#b15">[Lee et al., 2015]</ref>, we know with probability at least 1 -2p exp (-cn) for some constant c, we have</p><formula xml:id="formula_32">max j∈[p] (Σ -1 t Σt Σ -1 t ) jj ≤ 2 max j∈[p] (Σ -1 t ) jj .</formula><p>Take an union bound over t ∈ [m], we obtain with probability at least 1-2mp exp (-cn),</p><formula xml:id="formula_33">C M ≤ max t∈[m] max j∈[p] (M T t Σt M t ) jj ≤ max t∈[m] max j∈[p] (Σ -1 t Σt Σ -1 t ) jj ≤ 2 max t∈[m] max j∈[p] (Σ -1 t ) jj .</formula><p>Now we are ready to prove Theorem 1, recall the model assumption</p><formula xml:id="formula_34">y t = X t β * t + t , t = 1, . . . , m,<label>(16)</label></formula><p>and the debiased estimation</p><formula xml:id="formula_35">βu t = βt + n -1 M t X T t (y t -X t βt ),<label>(17)</label></formula><p>we have</p><formula xml:id="formula_36">βu t = βt + 1 n M t X T t (X t β * t -X t βt ) + 1 n M t X T t t =β * t + (M t Σt -I)(β * t -βt ) + 1 n M t X T t t .</formula><p>For the term</p><formula xml:id="formula_37">(M t Σt -I)(β * t -βt ), define C µ = 10eσ 4 X λ max λ min ,</formula><p>we have the following bound</p><formula xml:id="formula_38">(M t Σt -I)(β * t -βt ) ∞ ≤ max j Σt m tj -e j ∞ β * t -βt 1 ≤ P C µ log p n • 16A κ σ|S| log p n = 16AC µ σ|S| log p κn .<label>(18)</label></formula><p>Noticed that n</p><formula xml:id="formula_39">-1 M t X T t t ∼ N 0, σ 2 M t Σt M t T n .</formula><p>Our next step uses a result on the concentration of χ 2 random variables. For any coordinate j, we have</p><formula xml:id="formula_40">m i=1 n -1 e T j M t X T t 2 ≤ C 2 M σ 2 n m i=1 ξ 2 i ,</formula><p>where (ξ i ) i∈[m] are standard normal random variables. Using Lemma 6 with a weight vector</p><formula xml:id="formula_41">v = C 2 M σ 2 n , C 2 M σ 2 n , . . . , C 2 M σ 2 n and choosing t = √ m + log p √ m , we have P    C 2 M σ 2 n m i=1 ξ 2 i √ 2m C 2 M σ 2 n - m 2 &gt; √ m + log p √ m    ≤ 2 exp   - √ m + log p √ m 2 2 + 2 √ 2(1 + log p m )    .</formula><p>A union bound over all j ∈ [p] gives us that with probability at least 1</p><formula xml:id="formula_42">-p -1 i∈[m] n -1 e T j M t X T t 2 ≤ 3m C 2 M σ 2 n + √ 2 log p C 2 M σ 2 n , ∀j ∈ [p].<label>(19)</label></formula><p>Combining ( <ref type="formula" target="#formula_38">18</ref>) and ( <ref type="formula" target="#formula_42">19</ref>), we get the following estimation error bound:</p><formula xml:id="formula_43">Bj -B j 2 = i∈[m] [M t Σt -I)(β * t -βt )] j + n -1 M t X T t t j 2 ≤ i∈[m] 2 [M t Σt -I)(β * t -βt )] 2 j + n -1 M t X T t t 2 j ≤ i∈[m] 512A 2 C 2 µ σ 2 |S| 2 (log p) 2 κ 2 n 2 + 6m C 2 M σ 2 n + 2 √ 2 log p C 2 M σ 2 n = σ √ n 512A 2 C 2 µ m|S| 2 (log p) 2 κ 2 n + 6C 2 M m + 2 √ 2C 2 M log p ≤ 91C µ σ|S| √ m log p κn + 3C M σ m + log p n ,<label>(20)</label></formula><p>where the first inequality uses the fact (a + b) 2 ≤ 2a 2 + 2b 2 , and the second inequality uses ( <ref type="formula" target="#formula_38">18</ref>) and ( <ref type="formula" target="#formula_42">19</ref>)), the last inequality uses the fact that √ a + b ≤ √ a + √ b. For every variable j ∈ S, we have</p><formula xml:id="formula_44">Bj 2 ≤ 91C µ σ|S| √ m log p κn + 3C M σ m + log p n . plug in κ ≥ 1 2 λ min , C µ = 10eσ 4 X λmax λ min , C M ≤ 2K, we obtain Bj 2 ≤ 1820eσ 4 X λ 1/2 max σ|S| √ m log p λ 3/2 min n + 6Kσ m + log p n .</formula><p>From (20) and the choice of Λ * , we see that all variables not in S will be excluded from Ŝ as well. For every variable j ∈ S, we have</p><formula xml:id="formula_45">Bj 2 ≥ B j 2 -Bj -B j 2 ≥ 2Λ * -Λ * = Λ * .</formula><p>Therefore, all variables in S will correctly stay in Ŝ after the group hard thresholding.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B Proof of Corollary</head><p>From Theorem 2 we have that Ŝ(Λ * ) = S and</p><formula xml:id="formula_46">Bj -B j 2 ≤ 1820eσ 4 X λ 1/2 max σ|S| √ m log p λ 3/2 min n + 6Kσ m + log p n ,<label>(21)</label></formula><p>with high probability. Summing over j ∈ S, we obtain the ℓ 1 /ℓ 2 estimation error bound.</p><p>For the prediction risk bound, we have</p><formula xml:id="formula_47">1 nm m t=1 X t ( βt -β * t ) 2 2 ≤ λ max m m i=1 βt -β * t 2 2 = λ max m p j=1 Bj -B j 2 2 .</formula><p>Using ( <ref type="formula" target="#formula_46">21</ref>) and the fact that B -B is row-wise |S|-sparse, we obtain the prediction risk bound.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C Collection of known results</head><p>For completeness, we first give the definition of subgaussian norm, details could be found at <ref type="bibr" target="#b26">[Vershynin, 2012]</ref>.</p><p>Definition 4 (Subgaussian norm). The subgaussian norm X ψ 2 of a subgaussian pdimensional random vector X, is defined as</p><formula xml:id="formula_48">X ψ 2 = sup x∈S p-1 sup q&gt;1</formula><p>q -1/2 (E| X, x | q ) 1/q , where S p-1 is the p-dimensional unit sphere.</p><p>We then define the restricted set C(|S|, 3) as</p><formula xml:id="formula_49">C(|S|, 3) = {∆ ∈ R p | ∆ U c 1 ≤ 3 ∆ U 1 , U ⊂ [p], |U | ≤ |S|}.</formula><p>The following proposition is a simple extension of Theorem 6.2 in <ref type="bibr" target="#b2">[Bickel et al., 2009]</ref>. Proof. Using Theorem 6.2 in <ref type="bibr" target="#b2">[Bickel et al., 2009]</ref> and take an union bound over 1, . . . , m we obtain the result.</p><p>Lemma 6 (Equation ( <ref type="formula">27</ref>) in <ref type="bibr" target="#b6">[Cavalier et al., 2002]</ref>; Lemma B.1 in <ref type="bibr" target="#b16">[Lounici et al., 2011]</ref>).</p><p>Let ξ 1 , ξ 2 , ...ξ m be i.i.d. standard normal random variables, let v = (v 1 , ..., v m ) = 0,</p><formula xml:id="formula_50">η v = 1 √ 2 v 2 m i=1 (ξ 2 i -1)v i and m(v) = v ∞ v 2 .</formula><p>We have, for all t &gt; 0, that</p><formula xml:id="formula_51">P (|η v | &gt; t) ≤ 2 exp - t 2 2 + 2 √ 2tm(v) .</formula><p>The next lemma relies on the generalized coherence parameter:</p><p>Definition 7 (Generalized Coherence). For matrices X ∈ R n×p and M = (m 1 , . . . , m p ) ∈ R p×p , let µ(X, M ) = max</p><formula xml:id="formula_52">j∈[p]</formula><p>Σm j -e j ∞ be the generalized coherence parameter between X and M , where Σ = n -1 X T X. Furthermore, let µ * = min t∈[m] min M ∈R p×p µ(X t , M ) be the minimum generalized coherence.</p><p>Lemma 8 (Theorem 2.4 in <ref type="bibr" target="#b13">[Javanmard and Montanari, 2014]</ref>). When X t are drawn from subgaussian random vectors with covariance matrix Σ t , and X t Σ -1/2 t has bounded subgaussian norm X t Σ -1/2 t ψ 2 ≤ σ X . When n ≥ 24 log p, then with probability at least 1 -2p -2 , we have µ(X t , Σ -1 t ) &lt; 10eσ 4 X λ max λ min log p n .</p><p>For subgaussian design, we also have the following restricted eigenvalue condition <ref type="bibr" target="#b20">[Rudelson and Zhou, 2013;</ref><ref type="bibr" target="#b15">Lee et al., 2015]</ref>.</p><p>Lemma 9. When X t are drawn from subguassian random vectors with covariance matrix Σ t , and bounded subgaussian norm σ X . When n ≥ 4000s σ X log 60 √ 2ep s where s = 1 + 30000 λmax λ min |S|, and p &gt; s , then with probability at least 1 -2 exp (-n/4000C 4 κ ) , for any vector ∆ ∈ C(|S|, 3) where we have</p><formula xml:id="formula_53">∆ T X T t X t n ∆ ≥ 1 2 λ min ∆ S 2 2 .</formula></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Hamming distance, estimation error, and prediction error for multi-task regression with p = 200. Top row: the number of tasks m = 10. Sample size per tasks is varied. Bottom row: Sample size n = 50. Number of tasks m varied.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: Hamming distance, estimation error, and prediction error for multi-task classification with p = 200. Top row: the number of tasks m = 10. Sample size per tasks is varied. Bottom row: Sample size n = 150. Number of tasks m varied.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 3 :</head><label>3</label><figDesc>Figure 3: Comparison on real world datasets.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><figDesc>regularization parameter in lasso. With probability at least 1 -mp 1-A 2 /8 , the minimum restricted eigenvalue of design matrix X 1 , . . . , X m :</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 1 :</head><label>1</label><figDesc>Table 2 compares the parameter and prediction error guarantees. Lower</figDesc><table><row><cell>Approach</cell><cell>Communication</cell><cell>Assumptions</cell><cell cols="2">Min signal strength</cell><cell>Strength type</cell></row><row><cell>Lasso</cell><cell>0</cell><cell>Mutual Incoherence Sparse Eigenvalue</cell><cell>log p n</cell><cell></cell><cell>Element-wise</cell></row><row><cell>Group lasso</cell><cell>O(np)</cell><cell>Mutual Incoherence Sparse Eigenvalue</cell><cell cols="2">1 n 1 + log p m</cell><cell>Row-wise</cell></row><row><cell>DSML</cell><cell>O(p)</cell><cell>Generalized Coherence Restricted Eigenvalue</cell><cell>1 n 1 + log p m</cell><cell>+ |S| log p n</cell><cell>Row-wise</cell></row></table><note><p>bound on coefficients required to ensure support recovery with p variables, m tasks, n samples per task and a true support of size |S|.</p></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>Table 2 :</head><label>2</label><figDesc>Comparison of parameter estimation errors and prediction errors. The DSML guarantees improve over Lasso and have the same leading term as the Group lasso as long as m &lt; n/(|S| 2 log p).</figDesc><table><row><cell>Approach</cell><cell>Assumptions</cell><cell cols="3">ℓ1/ℓ2 estimation error</cell><cell></cell><cell cols="2">Prediction error</cell></row><row><cell>Lasso</cell><cell>Restricted Eigenvalue</cell><cell></cell><cell></cell><cell>|S| 2 log p n</cell><cell></cell><cell></cell><cell>|S| log p n</cell></row><row><cell>Group lasso</cell><cell>Restricted Eigenvalue</cell><cell></cell><cell>|S| √ n</cell><cell>1 + log p m</cell><cell></cell><cell>|S| n</cell><cell>1 + log p m</cell></row><row><cell>DSML</cell><cell>Generalized Coherence Restricted Eigenvalue</cell><cell>|S| √ n</cell><cell cols="2">1 + log p m + |S| 2 log p n</cell><cell>|S| n</cell><cell cols="2">1 + log p m</cell><cell>+ |S| 3 (log p) 2 n 2</cell></row></table></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0"><p>http://www.seas.upenn.edu/~taskar/ocr/</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_1"><p>http://yann.lecun.com/exdb/mnist/</p></note>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Convex multi-task feature learning</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Argyriou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Evgeniou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Pontil</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Mach. Learn</title>
+		<imprint>
+			<biblScope unit="volume">73</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="243" to="272" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Distributed learning, communication complexity and privacy</title>
+		<author>
+			<persName><forename type="first">Maria-Florina</forename><surname>Balcan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Avrim</forename><surname>Blum</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shai</forename><surname>Fine</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yishay</forename><surname>Mansour</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">COLT</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="volume">22</biblScope>
+			<biblScope unit="page" from="26" to="27" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Simultaneous analysis of lasso and Dantzig selector</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Peter</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Bickel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexandre</forename><forename type="middle">B</forename><surname>Ya'acov Ritov</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Tsybakov</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Ann. Stat</title>
+		<imprint>
+			<biblScope unit="volume">37</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="1705" to="1732" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Distributed optimization and statistical learning via the alternating direction method of multipliers</title>
+		<author>
+			<persName><forename type="first">Stephen</forename><forename type="middle">P</forename><surname>Boyd</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Neal</forename><surname>Parikh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Eric</forename><surname>Chu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Borja</forename><surname>Peleato</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jonathan</forename><surname>Eckstein</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Found. Trends Mach. Learn</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="122" />
+			<date type="published" when="2011-01">January 2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Honest variable selection in linear and logistic regression models via ℓ 1 and ℓ 1 + ℓ 2 penalization</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Bunea</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Electron. J. Stat</title>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="page" from="1153" to="1194" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Multitask learning</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Caruana</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Mach. Learn</title>
+		<imprint>
+			<biblScope unit="volume">28</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="41" to="75" />
+			<date type="published" when="1997">1997</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Oracle inequalities for inverse problems</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Cavalier</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">K</forename><surname>Golubev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Picard</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">B</forename><surname>Tsybakov</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Ann. Statist</title>
+		<imprint>
+			<biblScope unit="volume">30</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="843" to="874" />
+			<date type="published" when="2002-06">06 2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Multi-task learning for boosting with application to web search ranking</title>
+		<author>
+			<persName><forename type="first">Olivier</forename><surname>Chapelle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Pannagadatta</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Srinivas</forename><surname>Shivaswamy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kilian</forename><forename type="middle">Q</forename><surname>Vadrevu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ya</forename><surname>Weinberger</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Belle</forename><forename type="middle">L</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Tseng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">KDD</title>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+			<biblScope unit="page" from="1189" to="1198" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Client-server multitask learning from distributed datasets</title>
+		<author>
+			<persName><forename type="first">Francesco</forename><surname>Dinuzzo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gianluigi</forename><surname>Pillonetto</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Giuseppe</forename><forename type="middle">De</forename><surname>Nicolao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Neural Networks</title>
+		<imprint>
+			<biblScope unit="volume">22</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="290" to="303" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Vehicle classification in distributed sensor networks</title>
+		<author>
+			<persName><forename type="first">Marco</forename><forename type="middle">F</forename><surname>Duarte</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yu</forename><forename type="middle">Hen</forename><surname>Hu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Parallel Distrib. Comput</title>
+		<idno type="ISSN">0743-7315</idno>
+		<imprint>
+			<biblScope unit="volume">64</biblScope>
+			<biblScope unit="issue">7</biblScope>
+			<biblScope unit="page" from="826" to="838" />
+			<date type="published" when="2004-07">July 2004</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">A note on the group lasso and a sparse group lasso</title>
+		<author>
+			<persName><forename type="first">Jerome</forename><forename type="middle">H</forename><surname>Friedman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Trevor</forename><forename type="middle">J</forename><surname>Hastie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Robert</forename><forename type="middle">J</forename><surname>Tibshirani</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1001.0736</idno>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">ArXiv e-prints</note>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Communication-efficient distributed dual coordinate ascent</title>
+		<author>
+			<persName><forename type="first">Martin</forename><surname>Jaggi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Virginia</forename><surname>Smith</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Martin</forename><surname>Takác</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jonathan</forename><surname>Terhorst</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sanjay</forename><surname>Krishnan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Thomas</forename><surname>Hofmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><forename type="middle">I</forename><surname>Jordan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. of NIPS</title>
+		<meeting>of NIPS</meeting>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="3068" to="3076" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">A dirty model for multi-task learning</title>
+		<author>
+			<persName><forename type="first">Ali</forename><surname>Jalali</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pradeep</forename><forename type="middle">D</forename><surname>Ravikumar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sujay</forename><surname>Sanghavi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chao</forename><surname>Ruan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. of NIPS</title>
+		<meeting>of NIPS</meeting>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+			<biblScope unit="page" from="964" to="972" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Confidence intervals and hypothesis testing for high-dimensional regression</title>
+		<author>
+			<persName><forename type="first">Adel</forename><surname>Javanmard</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrea</forename><surname>Montanari</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Mach. Learn. Res</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="page" from="2869" to="2909" />
+			<date type="published" when="2014-10">Oct. 2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Tree-guided group lasso for multi-task regression with structured sparsity</title>
+		<author>
+			<persName><forename type="first">Seyoung</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Eric</forename><forename type="middle">P</forename><surname>Xing</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. of ICML</title>
+		<meeting>of ICML</meeting>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+			<biblScope unit="page" from="543" to="550" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<title level="m" type="main">Communication-efficient sparse regression: a one-shot approach</title>
+		<author>
+			<persName><forename type="first">Jason</forename><forename type="middle">D</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yuekai</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Qiang</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jonathan</forename><forename type="middle">E</forename><surname>Taylor</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1503.04337</idno>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">ArXiv e-prints</note>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Oracle inequalities and optimal inference under group sparsity</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lounici</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Pontil</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexandre</forename><forename type="middle">B</forename><surname>Tsybakov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sara</forename><forename type="middle">A</forename><surname>Van De Geer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Ann. Stat</title>
+		<imprint>
+			<biblScope unit="volume">39</biblScope>
+			<biblScope unit="page" from="2164" to="2204" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Support union recovery in high-dimensional multivariate regression</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Obozinski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Martin</forename><forename type="middle">J</forename><surname>Wainwright</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><forename type="middle">I</forename><surname>Jordan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Ann. Stat</title>
+		<imprint>
+			<biblScope unit="volume">39</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="47" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Joint covariate selection and joint subspace selection for multiple classification problems</title>
+		<author>
+			<persName><forename type="first">Guillaume</forename><surname>Obozinski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ben</forename><surname>Taskar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><forename type="middle">I</forename><surname>Jordan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Statistics and Computing</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="231" to="252" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Distributed stochastic subgradient projection algorithms for convex optimization</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ram</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Nedić</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Veeravalli</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of optimization theory and applications</title>
+		<imprint>
+			<biblScope unit="volume">147</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="516" to="545" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<title level="m" type="main">Reconstruction from anisotropic random measurements</title>
+		<author>
+			<persName><forename type="first">Mark</forename><surname>Rudelson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shuheng</forename><surname>Zhou</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Database of homology-derived protein structures and the structural meaning of sequence alignment</title>
+		<author>
+			<persName><forename type="first">Chris</forename><surname>Sander</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Reinhard</forename><surname>Schneider</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Protein</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="page" from="56" to="68" />
+			<date type="published" when="1991">1991</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Communication efficient distributed optimization using an approximate newton-type method</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Shamir</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Srebro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICML</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">On distributed stochastic optimization and learning</title>
+		<author>
+			<persName><forename type="first">Ohad</forename><surname>Shamir</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nathan</forename><surname>Srebro</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">52nd Annual Allerton Conference on Communication, Control and Computing</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<monogr>
+		<title level="m" type="main">Simultaneous variable selection</title>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">A</forename><surname>Turlach</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">N</forename><surname>Venables</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Wright</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2005">2005</date>
+			<biblScope unit="volume">47</biblScope>
+			<biblScope unit="page" from="349" to="363" />
+		</imprint>
+	</monogr>
+	<note type="report_type">Technometrics</note>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">On asymptotically optimal confidence regions and tests for high-dimensional models</title>
+		<author>
+			<persName><forename type="first">Sara</forename><forename type="middle">A</forename><surname>Van De Geer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Peter</forename><surname>Bühlmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ruben</forename><surname>Ya'acov Ritov</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Dezeure</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Ann. Stat</title>
+		<imprint>
+			<biblScope unit="volume">42</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="1166" to="1202" />
+			<date type="published" when="2014-06">Jun 2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Introduction to the non-asymptotic analysis of random matrices</title>
+		<author>
+			<persName><forename type="first">Roman</forename><surname>Vershynin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Compressed Sensing: Theory and Applications</title>
+		<editor>
+			<persName><forename type="first">Y</forename><forename type="middle">C</forename><surname>Eldar</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">G</forename><surname>Kutyniok</surname></persName>
+		</editor>
+		<imprint>
+			<publisher>Cambridge University Press</publisher>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Sharp thresholds for high-dimensional and noisy sparsity recovery using ℓ 1 -constrained quadratic programming (lasso)</title>
+		<author>
+			<persName><forename type="first">Martin</forename><forename type="middle">J</forename><surname>Wainwright</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Inf. Theory</title>
+		<imprint>
+			<biblScope unit="volume">55</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="2183" to="2202" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Feature hashing for large scale multitask learning</title>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Kilian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Anirban</forename><surname>Weinberger</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">John</forename><surname>Dasgupta</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexander</forename><forename type="middle">J</forename><surname>Langford</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Josh</forename><surname>Smola</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Attenberg</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICML</title>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+			<biblScope unit="page" from="1113" to="1120" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Model selection and estimation in regression with grouped variables</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Yuan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. R. Stat. Soc. B</title>
+		<imprint>
+			<biblScope unit="volume">68</biblScope>
+			<biblScope unit="page" from="49" to="67" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Confidence intervals for low dimensional pa-rameters in high dimensional linear models</title>
+		<author>
+			<persName><forename type="first">Cun-Hui</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stephanie</forename><forename type="middle">S</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. R. Stat. Soc. B</title>
+		<imprint>
+			<biblScope unit="volume">76</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="217" to="242" />
+			<date type="published" when="2013-07">Jul 2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Informationtheoretic lower bounds for distributed statistical estimation with communication constraints</title>
+		<author>
+			<persName><forename type="first">Yuchen</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">John</forename><forename type="middle">C</forename><surname>Duchi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><forename type="middle">I</forename><surname>Jordan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Martin</forename><forename type="middle">J</forename><surname>Wainwright</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. of NIPS</title>
+		<meeting>of NIPS</meeting>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="page" from="2328" to="2336" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Communication-efficient algorithms for statistical optimization</title>
+		<author>
+			<persName><forename type="first">Yuchen</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">John</forename><forename type="middle">C</forename><surname>Duchi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Martin</forename><forename type="middle">J</forename><surname>Wainwright</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Mach. Learn. Res</title>
+		<imprint>
+			<biblScope unit="volume">14</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="3321" to="3363" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">The composite absolute penalties family for grouped and hierarchical variable selection</title>
+		<author>
+			<persName><forename type="first">Peng</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Guilherme</forename><surname>Rocha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bin</forename><surname>Yu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Ann. Statist</title>
+		<imprint>
+			<biblScope unit="page" from="3468" to="3497" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">Modeling disease progression via multi-task learning</title>
+		<author>
+			<persName><forename type="first">Jiayu</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jun</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Vaibhav</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jieping</forename><surname>Narayan</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ye</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">NeuroImage</title>
+		<imprint>
+			<biblScope unit="volume">78</biblScope>
+			<biblScope unit="page" from="233" to="248" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

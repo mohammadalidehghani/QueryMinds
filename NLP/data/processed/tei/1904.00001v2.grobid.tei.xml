@@ -1,0 +1,1938 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Engineering problems in machine learning systems</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2019-08-22">22 Aug 2019</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Hiroshi</forename><surname>Kuwajima</surname></persName>
+							<email>hiroshi.kuwajima.j7d@jp.denso.com</email>
+							<affiliation key="aff0">
+								<orgName type="department">DENSO CORPORATION</orgName>
+								<orgName type="institution">Tokyo Institute of Technology</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Hirotoshi</forename><surname>Yasuoka</surname></persName>
+							<email>hirotoshi.yasuoka.j2z@jp.denso.com</email>
+							<affiliation key="aff0">
+								<orgName type="department">DENSO CORPORATION</orgName>
+								<orgName type="institution">Tokyo Institute of Technology</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Engineering problems in machine learning systems</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2019-08-22">22 Aug 2019</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">3F0F8BE55D11560CFB1C194FE4086267</idno>
+					<idno type="arXiv">arXiv:1904.00001v2[cs.SE]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Fatal accidents are a major issue hindering the wide acceptance of safety-critical systems that employ machine learning and deep learning models, such as automated driving vehicles. In order to use machine learning in a safety-critical system, it is necessary to demonstrate the safety and security of the system through engineering processes. However, thus far, no such widely accepted engineering concepts or frameworks have been established for these systems. The key to using a machine learning model in a deductively engineered system is decomposing the data-driven training of machine learning models into requirement, design, and verification, particularly for machine learning models used in safety-critical systems. Simultaneously, open problems and relevant technical fields are not organized in a manner that enables researchers to select a theme and work on it. In this study, we identify, classify, and explore the open problems in engineering (safety-critical) machine learning systems -that is, in terms of requirement, design, and verification of machine learning models and systems -as well as discuss related works and research directions, using automated driving vehicles as an example. Our results show that machine learning models are characterized by a lack of requirements specification, lack of design specification, lack of interpretability, and lack of robustness. We also perform a gap analysis on a conventional system quality standard SQuARE with the characteristics of machine learning models to study quality models for machine learning systems. We find that a lack of requirements specification and lack of robustness have the greatest impact on conventional quality models.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Recent developments in machine learning techniques, such as deep neural networks (NNs), have led to the widespread application of systems that assign advanced environmental perception and decision-making to computer logics learned from big data instead of manually built rule-based logics <ref type="bibr" target="#b9">[10]</ref>. Highly complex machine learning techniques such as NNs have been studied for decades, however until recently, we have suffered from numerous training data to train complex models properly and computing methods to perform high computational complexity of training such models. The availability of big data and affordable high-performance computing, such as deep learning frameworks on off-the-shelf graphics processing units (GPUs) <ref type="bibr" target="#b37">[38]</ref>, have made highly complex machine learning techniques practical for various applications including automatic speech recognition <ref type="bibr" target="#b27">[28]</ref>, image recognition <ref type="bibr" target="#b43">[44]</ref>, natural language processing <ref type="bibr" target="#b62">[63]</ref>, drag discovery <ref type="bibr" target="#b66">[67]</ref>, and recommendation systems <ref type="bibr" target="#b23">[24]</ref>.</p><p>Machine learning models are becoming indispensable components even of systems that require safety-critical environmental perception and decision-making such as automated-driving systems <ref type="bibr" target="#b47">[48]</ref>. A safety-critical systems is a system whose failure may result in safety issues such as death or serious injury to people. For safety-critical systems, worst-case performance is more important than average performance, and developers are held strictly accountable. However, for human society to accept such safety-critical machine learning systems, it is important to develop common engineering frameworks, such as quality measures and standard engineering processes, to manage the risks of using machine learning models and systems that include machine learning models <ref type="bibr" target="#b42">[43]</ref>. Such frameworks, and ultimately the quality assurance based on them, have an impact on social receptivity because they can be one of the approaches used to deliver safety and security. In fact, recent accidents caused during the use of several experimental automated vehicles have revealed the imperative need to address the upcoming social issue of (quality) assurance based on such frameworks <ref type="bibr" target="#b0">[1]</ref>. Engineering frameworks such as standard development processes have been studied for conventional systems and software for years, and machine learning systems also need such frameworks that engineers can follow. In order to establish engineering frameworks, it is necessary to visualize and organize these open problems; thus, experts from numerous different technical fields discuss these problems in depth and develop solutions driven by engineering needs.</p><p>In this study, we review the open engineering problems associated with safety-critical machine learning systems and also present related works and future directions for research. We hypothesize an ideal training process that connects deductive requirements and data-driven training by considering test data as a requirements specification and training data as a design specification; thereafter, we review open problems for the process. Our results show that machine learning models are characterized by a lack of requirements specification, lack of design specification, lack of interpretability, and lack of robustness. In addition, we discover that requirements specification and verification for open environments are key aspects of machine learning systems. We also study quality models for machine learning systems, which can be used for future requirements and evaluations of these machine learning systems. Our results show that a lack of requirements specification and lack of robustness have the greatest impact on conventional system quality models.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Background</head><p>An automated driving vehicle is a vehicle that operates without human input. Automated driving has not been built as a stand-alone system in a vehicle but can be realized using a system comprising clouds, roadside devices (fog or cloud edge), and automated driving vehicles (edge) <ref type="bibr" target="#b10">[11]</ref>, which create and update high-precision digital maps <ref type="bibr" target="#b53">[54]</ref> while cooperating with peripheral vehicles. An in-vehicle automated driving system installed in a vehicle comprises multiple subsystems for perception, planning, and control; such a system realizes automated driving operations in cooperation with clouds and roadside units <ref type="bibr" target="#b1">[2]</ref>. For simplicity, in this paper, we focus on these in-vehicle automated driving systems. Each perception, planning, and control subsystem may contain necessary machine learning models. Supervised learning models <ref type="bibr" target="#b43">[44]</ref> and reinforcement learning models <ref type="bibr" target="#b48">[49]</ref> can be used for perception and planning, while non-machine learning control algorithms can be used for control. In order to build a machine learning system, it is necessary to define its engineering processes and quality measures in advance, then follow and measure them strictly during development time. Conventional systems were developed in a rigorous development process involving requirement, design, and verification, cf. V-Model <ref type="bibr" target="#b31">[32]</ref> (a graphical representation of a systems development lifecycle).</p><p>In this study, we identify open engineering problems at two levels -systems and machine learning models -and use an automated driving system as an example of a safety-critical machine learning system. We proceed to investigate the problems in terms of the three steps of the development process: requirement, design, and verification. The two levels and three steps are illustrated in Fig. <ref type="figure" target="#fig_0">1</ref>. Notably, many of the problems considered in this paper do not occur only in automated driving systems but also generally in safety-critical systems.</p><p>This study is related to preceding studies <ref type="bibr" target="#b24">[25,</ref><ref type="bibr" target="#b57">58]</ref> that studied the applicability of ISO 26262 <ref type="bibr" target="#b33">[34]</ref> and Automotive SPICE <ref type="bibr" target="#b67">[68]</ref> to automotive software using machine learning and deep learning. Our work assumes a more general development process to show open problems; we examined quality models for machine learning systems, based on a conventional system and software quality standard, Systems and software Quality Requirements and Evaluation (SQuARE) <ref type="bibr" target="#b34">[35]</ref>, which has not been done in previous studies.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>System</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Machine learning model</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Engineering machine learning models</head><p>A machine learning model is acquired by executing a training algorithm with a model structure and training data sets for inputs, while trained models are evaluated using test datasets <ref type="bibr" target="#b50">[51]</ref>. This is a data-driven inductive method that differs from the deductive development used for conventional systems. In this paper, we call a machine learning model that has undefined parameters a "model structure." In order to use machine learning models in a deductively engineered system, it is necessary to break down the data-driven training of model parameters into requirements, designs, and verifications, particularly for models used in safety-critical systems.</p><p>We hypothesize the engineering process for machine learning models in Fig. <ref type="figure">2</ref>. The dotted boxes in the figure illustrate the differences between the conventional training process and hypothesized training process. A requirement of machine learning models can be the specification of test data, although the current practice is to divide the original data into training and test data sets <ref type="bibr" target="#b4">[5,</ref><ref type="bibr" target="#b61">62]</ref>. The design process then specifies or builds the training data to achieve high performance in the test data, with the model requirements as a background. The explicit specification of test data and training data addresses a lack of requirements specification and a lack of design specification, respectively. In the current practice, the verification of machine learning models is measured using performance metrics on the test data. However, we consider it important to check properties that cannot be measured using the test data, such as robustness and interpretability.</p><p>In the following subsections, we introduce our ideas related to the requirements, designs, and verifications of machine learning models, as well as research directions and related works.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Requirements of machine learning models</head><p>Most current machine learning research undoubtedly assumes that test data is given <ref type="bibr" target="#b29">[30,</ref><ref type="bibr" target="#b43">44]</ref>; it is the main part of a model's requirements. Test data must be carefully specified at the beginning of development, by either the developers or contractees of the machine learning model, and must be agreed upon by their contractors. Thus, the main open engineering problem here is the deductive definition of the requirements for machine learning models and their test data to enable the test data to connect with deductive requirements and data-driven training. In machine learning, the roles of training data and test data must be considered to be different. While training data is used to improve the performance of a machine learning model <ref type="bibr" target="#b36">[37]</ref>, we propose considering the test data to accurately reflect the environmental conditions in operation. However, in practice <ref type="bibr" target="#b6">[7]</ref>, when all data obtained at the time of development are divided, some are used as training data and the others become test</p><p>Verification Design Requirement Designing Model Spec. Train Data Training Model Data Split Test Data Testing (a) Conventional training process Verification Design Requirement Function Req. Property Req. Environment Req. Collection Test Data Designing Training Data Spec. Collection Model Spec. Train Data Training Model Testing Automatic Verification (b) Hypothesized training process Figure 2: Engineering process of machine learning models data [5, 62]. For simplicity, we ignore validation data for model selection. Despite the ultimate goal of machine learning models to work well in operation, we test machine learning models on test data, which originates from the same source as training data. In this manner, the training and test data are approximately equally distributed, but their relationship to the operational data (which is the actual target of the model) is unknown or it is implicitly assumed that the training, test, and operational data sets are similar <ref type="bibr" target="#b7">[8]</ref>. In other words, machine learning models are trained using data-driven methods that lack requirements specification.</p><p>In particular, in a safety-critical machine learning system, it is necessary to specify the distribution of test data (considering the operational environment the system will actually be operated in) and to collect the test data based on these specifications. By accepting an a priori viewpoint of the distribution of test data, we can define the assumed environment deductively and collect data inductively. Moreover, by assuming the distribution of test data, we can discuss the operational domain (operational data distribution) for requirements specification. Operational data tend to change with time, thereby deteriorating model performance in operation <ref type="bibr" target="#b65">[66,</ref><ref type="bibr" target="#b68">69]</ref>. The deviation between test data used during development and operational data can become larger with time from what it was when development was completed. This phenomenon is referred to either as covariance shift <ref type="bibr" target="#b7">[8]</ref>, distri-butional shift <ref type="bibr" target="#b2">[3]</ref>, or concept drift <ref type="bibr" target="#b65">[66]</ref>. If the operational data trend changes from that of test data, then machine learning models trained on the test data do not work on the changed operational data. Thus, it is important to check for consistency between operational data and test data (assuming the original environment) and to either make the machine learning models follow the operational data in a continuous maintenance process or to, at least, detect the deviation between test and operational data. A lack of requirements specification is a barrier to this.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Related works and research directions for requirements of machine learning models</head><p>Although it does not incorporate the specification of test data, i.e., requirements specification, runtime monitoring of neuron activation patterns is an approach to detect change points <ref type="bibr" target="#b13">[14]</ref>. It creates a monitor of neuron activation patterns after training time, and runs the monitor at operation time to measure the deviation from training time. Change is detected when the activation pattern at operation time becomes detached from the neuron activation pattern at training time. Neuron activation patterns on test data may implicitly include the model requirements as a background.</p><p>Even in the current development of in-vehicle automated driving systems, the test data would be collected assuming the operational environment, in order to make the distribution of the operational data and that of the test data as consistent as possible. However, the methods used to describe the assumed environment of machine learning models are not organized. In particular, specific methods are required to define the completeness of test data. In previous literature, CV-HAZOP (Computer Vision -Hazard and Operability Studies) <ref type="bibr" target="#b72">[73]</ref> defined a catalogue of challenges (risks) for computer vision algorithms. The catalogue has 1, 469 manually registered risks as of now. Including all CV-HAZOP risks can be a test data coverage in computer vision problems. When systematically testing machine learning models to achieve test data coverage, we experience combinatorial explosion while guiding the data sampling process. In previous literature, quantitative projection coverage was used to resolve such combinatorial explosion <ref type="bibr" target="#b11">[12]</ref>.</p><p>Although these previous works focused on combinatory environments, the importance or criticality of each environment could change. For example, criticality of misclassification of pedestrians may be high in daytime city street, whereas that of vehicles may be high in night time highway. CV-HAZOP proposes that the catalogue of challenges creates a basis for referencing criticalities for each risk and calculating criticality coverage <ref type="bibr" target="#b72">[73]</ref>. Figure <ref type="figure" target="#fig_1">3</ref> illustrates our proposed example of requirements specification. Test data must have attributes, such as time and weather, and their distributions that are based on the assumed environment (Fig. <ref type="figure" target="#fig_1">3(a)</ref>). Recent public driving data sets have such attributes. For example, BDD100K <ref type="bibr" target="#b70">[71]</ref> has weather conditions, including sunny, overcast, and rainy, different times of day, including daytime and nighttime, as well as scenes, including city street, gas stations, highway, parking lot, residential, and tunnel. Further, since the required performance may change for each environment, it is necessary to express the association between the assumed environment and the required performance. Each condition of the test data distribution can have a different confusion matrix (or other performance metrics) that machine learning models will have as desired values (Fig. <ref type="figure" target="#fig_1">3</ref>(c)).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Design of machine learning models</head><p>A machine learning model is automatically obtained by training the parameters of a model structure using training data. Thus, specifications cannot be designed a priori -that is, machine learning models lack design specifications). This limitation is essential and unavoidable because highperformance machine learning models are developed by learning high-dimensional parameters from data that engineers cannot manually specify. However, in the development of a safety-critical ma-</p><p>chine learning system, it is necessary to record the model structure, training data, and training system, including training specifications -such as hyper parameters, initial parameters, learning rates, and random number seeds -to secure the reproducibility of the training process. Engineers cannot design the training; however, they can design the training data. Training data, as a large indirect part of the design specification, coupled with training specifications is carefully designed to achieve the requirements specification. In this manner, the lack of design specification is indirectly remedied. Yet, to the best of our knowledge, there is no standard or widely accepted process of designing training data for machine learning models. time day night weather fine 40% 30% rainy 20% 10% (a) Environment specification predicted pedestrian vehicle actual pedestrian 90% 10% vehicle 20% 80% (b) Performance specification for fine × day † predicted pedestrian vehicle actual pedestrian 85% 15% vehicle 15% 85% (c) Performance specification for fine × night predicted pedestrian vehicle actual pedestrian 90% 10% vehicle 20% 80% (d) Performance specification for rainy × day predicted pedestrian vehicle actual pedestrian 85% 15% vehicle 15% 85% (e) Performance specification for rainy × night ‡</p><p>† E.g., there are many pedestrians in fine daytime, and they are prioritized. ‡ E.g., there are many vehicles in rainy nights, and they are prioritized. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Related works and research directions for design of machine learning models</head><p>One of the challenges with the lack of design specification is the establishment of a training process for machine learning models by designing training data and models. Training data must be designed in the process by iteratively identifying the weak points of the model and then generating or collecting additional data for training. A previous suggestion <ref type="bibr" target="#b52">[53]</ref> indicates that a criteria for growing training data is that the training error is low while the test error is high; however, the suggestion does not show what types of data must be added. It is known that deep learning models, in particular, easily fit a random labeling of the training data <ref type="bibr" target="#b73">[74]</ref> and, thus, the distribution of training data is important.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Verification of machine learning models</head><p>Machine learning models are mainly verified by running a model on test data; however, certain properties of a machine learning model, such as robustness, cannot be evaluated with test data. Therefore, we introduce property checking in the verification of machine learning models.</p><p>An increasing stability against disturbance, or a lack of robustness, is key to the verification of machine learning models. It has been reported that image recognition models incorrectly recognize slight noise that cannot be recognized by humans with high confidence, thereby creating what are called adversarial examples (AEs) <ref type="bibr" target="#b63">[64]</ref>. An AE is known to have model-independent versatility and is an issue that can threaten the safety of automated driving systems, depending on image recognition. For example, when evaluating robustness against an AE as fault tolerance, it is necessary to artificially generate perturbations around data points. We can generate an AE close to a data point specified in the requirements and quantify the robustness using the maximum radius in which the model can yield correct answers.</p><p>The inference processes of advanced machine learning models -such as NNs -are considered black boxes, and machine learning models lack interpretability. In this context, a black box refers to a situation where, although feature activations can be observed physically, the actual phenomenon cannot be understood. That being said, safety-critical systems must exhibit interpretability and transparency. The interpretability of machine learning models has been well-researched recently and there are several methods for addressing it. LIME <ref type="bibr" target="#b56">[57]</ref> is one of the most well-known methods for improving interpretability. It derives a simple interpretable model to explain the behavior of an original model around a given data point. NN visualization <ref type="bibr" target="#b28">[29]</ref> also shows great promise to improve interpretability. Object detectors emerging in deep scene CNNs is an NN visualization that intentionally performs occlusion on input data and specifies the region where the inference result changes drastically as a region of interest <ref type="bibr" target="#b74">[75,</ref><ref type="bibr" target="#b75">76]</ref>; another method back-propagates activation values from the influencer nodes during the subsequent feature extraction process to identify the region of interest <ref type="bibr" target="#b71">[72]</ref> and generate heat maps <ref type="bibr" target="#b8">[9,</ref><ref type="bibr" target="#b49">50,</ref><ref type="bibr" target="#b59">60,</ref><ref type="bibr" target="#b60">61]</ref> for convolutional NNs. Further, interpretability is also useful for performance improvement, debugging during training, and validating of training results. Developers can understand the internal behavior of a trained NN to train higher performance models <ref type="bibr" target="#b44">[45]</ref>. For example, a developer can visualize an NN's focus points for an incorrect inference and understand what was wrong, before additional training data is collected according to the analysis. If a machine learning model outputs an incorrect inference, but the visualized focus area is natural for humans, then an inaccurate ground truth label is suggested.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Related works and research directions for verification of machine learning models</head><p>In the field of theoretical computer science, the automatic design verification <ref type="bibr" target="#b45">[46]</ref> based on formal verification technologies for certain properties, such as safety and liveness <ref type="bibr" target="#b25">[26]</ref>, makes the verification of a machine learning model possible. Several automatic verification techniques exist for NNs and we categorize them here. The initial categories are function and decision problems. The former quantifies the degrees of properties, while the latter identifies if the properties are satisfied in a machine learning model. Related works for function problems address adversarial frequency and severity <ref type="bibr" target="#b5">[6]</ref> as well as maximum perturbation bound <ref type="bibr" target="#b14">[15]</ref>, referring to the frequency of AE found, the expectation of the closest AE, and the maximum absolute value of the perturbation of inputs that do not change the outputs, respectively. Decision problems are further subdivided into verification and falsification, which seek a complete proof and counterexamples by best effort, respectively. Related works of verification are global safety <ref type="bibr" target="#b55">[56]</ref>, local safety <ref type="bibr" target="#b54">[55]</ref>, (ǫ, δ)-robustness <ref type="bibr" target="#b39">[40]</ref>, and (x, η, δ)safe <ref type="bibr" target="#b30">[31]</ref>. Global safety is output bound, and local safety is the consistency of inference among close data points. A related example for falsification is the CNN Analyzer <ref type="bibr" target="#b21">[22,</ref><ref type="bibr" target="#b22">23]</ref>. It identifies counterexamples against the signal temporal logic <ref type="bibr" target="#b20">[21]</ref> properties of in-vehicle automated driving systems and counterexamples of object (vehicle) detection by convolutional NNs. Further, Reluplex <ref type="bibr" target="#b40">[41]</ref> is a solver used to both verify and falsify first-order propositional logics <ref type="bibr" target="#b3">[4]</ref> against NNs using Rectified Linear Units (ReLU) <ref type="bibr" target="#b51">[52]</ref> for activation functions. Reluplex is an SMT (satisfiability modulo theories) solver <ref type="bibr" target="#b18">[19]</ref> to verify properties of deep NNs or provide counterexamples against them by utilizing the simplex method <ref type="bibr" target="#b17">[18]</ref> and the partial linearity of the ReLU function. Dependability metrics set for NNs is a related work that proposes metrics such as scenario coverage, neuron activation pattern, interpretation precision for RICC (robustness, interpretability, completeness, and correctness) criteria <ref type="bibr" target="#b12">[13]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Engineering machine learning systems</head><p>In this section, we review open engineering problems in terms of the system level of in-vehicle automated driving systems as an example of safety-critical machine learning systems. Problems related to machine learning systems originate from machine learning models and the open environments in which automated vehicles function. The former is low modularity of machine learning systems due to the characteristics of machine learning models, such as lack of design specifications and lack of robustness. The latter include capturing physical operational environments and user behaviors of in-vehicle automated driving systems for requirements and addressing the intractableness of field operation testing (FOT) for verification. An open environment problem is not directly related to machine learning, although it is an important challenge for in-vehicle automated driving systems. In this paper, we consider open environments to be a common challenge for machine learning systems because machine learning models are employed to capture these complex environments.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Requirements of machine learning systems</head><p>In order to develop high quality systems and products, comprehensive requirements specifications and the evaluation of machine learning systems based on the requirements specification are needed; in turn, these require appropriate quality characteristics for the systems that can be used for requirements and evaluations. Quality characteristics of machine learning "systems" are more important in the context of industry than those of machine learning "models," because machine learning models are not used in a stand-alone manner but are always embedded in systems. System and software quality models have been developed for years; however, to the best of our knowledge, there is no standard quality model that adapts the characteristics of machine learning models -such as lack of requirements specifications, design specifications, interpretability, and robustness -into account. Thus, we conduct a gap analysis on a conventional system and software quality standard, SQuARE <ref type="bibr" target="#b34">[35]</ref> in 5.</p><p>Another important aspect of machine learning (or any other) systems is that they cannot operate in every environment and require limitations or warranty scopes. Thus, a particular machine learning system must be implemented for a predefined environment. Environment attributes to be predefined for automated driving systems are static conditions such as weather, times of day, scene, road, as well as dynamic conditions (dynamics of) such as the vehicle under control and other moving objects (surrounding vehicles and pedestrians). However, there are various (uncountable) types of roads, traffic lights, and traffic participants, such as other vehicles (be they automated or manually driven) and pedestrians; therefore, it is not easy to define the operational environment for in-vehicle automated driving systems. An open engineering problem in the requirements specification of machine learning systems is that there is no standard means to design and define such environments, i.e., requirements specification cannot be clearly defined. In the automotive industry, this is called the operational design domain <ref type="bibr" target="#b26">[27,</ref><ref type="bibr" target="#b64">65]</ref> and it can be defined by conditions such as geographical areas, road types, traffic conditions, and maximum speed of the subject vehicle <ref type="bibr" target="#b15">[16]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Related works and research directions for requirements of machine learning systems</head><p>The German PEGASUS project is a joint initiative of vehicle manufacturers, suppliers, tool vendors, certification organizations, and research institutes, aiming to define standard quality assurance methods for automated-driving systems <ref type="bibr" target="#b46">[47]</ref>. The purpose of this project is to clarify the expected performance level and evaluation criteria of automated driving systems through scenario-based verification. The scope of the project includes standard test procedures, continuous and flexible tool chains, the integration of tests into development processes, cross-company test methods, requirement definition methods, driving scenarios, and a common database of scenarios. Scenarios are collected from test drives and the market to demonstrate that systems are equal to, or better than, human drivers. Scenario collection, i.e., building requirements specification, and scenario-based verification are conducted in a continuous manner. Regular scenarios are continuously tested by simulation, and critical scenarios are tested through artificially configured environments on test courses. The PEGASUS project is an excellent example of the continuous requirements and verification for in-vehicle automated driving systems and their verification.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Design of machine learning systems</head><p>An open engineering problem at the system level of machine learning systems is designing systems that include machine learning models by considering and applying the characteristics of "Change Anything Change Everything" (CACE) <ref type="bibr" target="#b58">[59]</ref>. CACE originates from a lack of design specification in machine learning models. Machine learning models are trained in a data-driven manner, thereby making the localizing of change difficult. If a small part is changed, then the entire machine learning changes once it is trained again. Subsequently, machine learning systems have to be changed for the newly trained machine learning models. In order to prevent reworking after training machine learning models, it is necessary to have system architectures that can cope with additional requirements without modification of the model.</p><p>In general, it is difficult for a machine learning model to achieve 100% accuracy on test data <ref type="bibr" target="#b19">[20]</ref> and as its accuracy approaches 100%, further performance improvement becomes difficult. Therefore, optimizing machine learning models is not the only means to improve subsystem performance, thereby making a rigorous breakdown of subsystem requirements into machine learning model requirements essential for safety-critical machine learning systems. In this process, safety analysis methods and processes are important, such as the encapsulation of machine learning models by rule-based safeguarding and the use of redundant and diverse architecture that absorbs and mitigates the uncertainty of machine learning models.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Related works and research directions for design of machine learning systems</head><p>To the best of our knowledge, we do not find special techniques that directly address the design of machine learning systems. SOTIF <ref type="bibr" target="#b69">[70]</ref>, a safety standard/process concerning performance limits of functionalities, focuses on securing functionalities with uncertainty. Uncertain functionalities include machine learning models. SOTIF has a process that includes identification of scenarios that can trigger unsafe actions (triggering conditions) for the system and system modifications to address them <ref type="bibr" target="#b16">[17]</ref>. The process standards can be potentially effective in the design of machine learning system in general, rather than evaluating an entire machine learning system upon completion of development. In addition to process standards, research directions include test stubs for machine learning models, encapsulation of machine learning models by rule-based safeguarding, and the use of redundant and diverse architecture that mitigates and absorbs the low robustness of machine learning models.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.3">Verification of machine learning systems</head><p>The simplest approach to verifying an in-vehicle automated driving system is by verification against actual data. Accumulating a large number of safe automated driving trips, with long distances to match human drivers, will effectively demonstrate that in-vehicle automated driving systems are as safe as human drivers. In order to verify the system within a realistic time-frame, there are two options: reduce the required verification scenarios or accelerate the verification. Therefore, high accuracy verification models must be able to exclude unreal scenarios. It is necessary to accelerate simulation experimentation, thereby reproducing corner-case scenarios on test courses with a short mileage (i.e., scenarios with an extremely low probability of occurrence and ones that are difficult to statistically obtain through FOT on an actual road).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Related works and research directions for verification of machine learning systems</head><p>Obtaining statistically significant results would require FOT on a humongous number of miles <ref type="bibr" target="#b38">[39]</ref>. <ref type="bibr" target="#b38">[39]</ref> is based on a simple hypothesis testing, and the resulting required miles may not reflect actual situations. Research directions include building detailed close-to-reality models for driving scenes and scenarios to reflect the real world conditions and reduce FOT miles.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Quality of machine learning systems</head><p>We reviewed the open engineering problems in machine learning systems, and recognized that machine learning models are characterized by their lack of requirements specifications, design specifications, interpretability, and robustness. In this section, we study quality models for machine learning systems by discussing the combination of these machine learning characteristics and a conventional system and software quality standard, SQuARE <ref type="bibr" target="#b34">[35]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1">Quality models for conventional systems</head><p>We focus on SQuARE, ISO/IEC 25000 series <ref type="bibr" target="#b34">[35]</ref>, as the conventional system quality baseline. Systems and software quality are usually studied in software engineering. One of the earliest work is an international standard ISO/IEC 9126 Software engineering -Product quality <ref type="bibr" target="#b35">[36]</ref>, first issued in 1991. ISO/IEC 9126 classified software quality into six characteristics: Functionality, Reliability, Usability, Efficiency, Maintainability, and Portability. ISO/IEC 9126 was replaced by its succeeding international standard ISO/IEC 25000 series, Systems and software engineering -Systems and software Quality Requirements and Evaluation (SQuaRE) <ref type="bibr" target="#b34">[35]</ref>. SQuARE is a widely acknowledged system quality standard and includes quality measures (QMs) and quality measure elements (QMEs) as well as quality models, characteristics, and sub-characteristics. These components have a tree structure (one-to-many relationships), and the top-level quality models are Product quality, Data quality, Quality in use, and IT service quality, as illustrated in Fig. <ref type="figure" target="#fig_2">4</ref>. Boxes with thick lines and thin lines in Fig. <ref type="figure" target="#fig_2">4</ref> represent quality models and quality characteristics, respectively. Quality subcharacteristics are not defined for Data quality.</p><p>Each quality characteristic of Data quality, or each quality sub-characteristic of Product quality and Quality in use, has multiple QMs that define how to quantify the quality. A QM X is defined in the form of a formula, such that X = A/B and X = 1 -A/B, and the elements in the formula A and B are QMEs. An example set of a quality model, a characteristic, a sub-characteristic, a QM, and QMEs are Product quality, Reliability, Maturity, Mean time between failure, and Operation time (QME 1) and Number of system/software failures that actually occurred (QME 2), respectively. There are other QMs for the sub-characteristic Maturity (such as Failure rate, whose QMEs are Number of failures detected during observation time and Duration of observation). QMs and QMEs are not defined for IT service quality.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Quality in use</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Effectiveness</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2">Gap analysis</head><p>We performed a gap analysis between conventional system quality models and future system quality models for machine learning systems, given a conventional system and software quality standard SQuARE and the characteristics of the machine learning models introduced in this paper. In order to conduct the most fine and precise analysis, we checked each QME (such as the number of systems/software failures that actually occurred) against each machine learning characteristic (such as a lack of robustness) to see if the QME was affected by the machine learning characteristic. If a QME in machine learning systems became immeasurable, as is the case with conventional systems, then the parent quality (sub-)characteristic would have gaps. IT service quality model was ignored in this gap analysis because it has no QME defined in the ISO/IEC 25000 series. Table <ref type="table" target="#tab_3">1</ref> presents an example of impact analysis of characteristics of machine learning models and QMEs defined for Functional suitability in Product quality. Req, Des, Rob, and Tra are abbreviations for lack of requirements specification, design specification, robustness, and transparency, respectively. Functional suitability in Product quality was selected only to serve as an example, and corresponding analysis was conducted for all QMEs of all quality models, except for IT service quality model.</p><p>We examined 1, 464 combinations of 366 QMEs and 4 characteristics of machine learning models to obtain the results. The number of combinations we identified as being affected by machine learning models was 20 from among 1, 464. Tables <ref type="table" target="#tab_4">2</ref>, <ref type="table" target="#tab_5">3</ref>, and 4 are the summaries of impact analysis on Product quality, Data quality, and Quality in use models affected by the characteristics of machine learning models. QM and QME levels are omitted. Each QME associated with a quality (sub-)characteristic was examined to determine if it was affected by any machine learning characteristics: a lack of requirements specification (Req), a lack of design specification (Des), a lack of robustness (Rob), or and lack of transparency (Tra). The section signs with numbers in parentheses next to machine learning characteristics are the indices to the itemization in the subsequent paragraphs. The number of QMEs affected by the machine learning characteristics are presented in the abovementioned tables. If we consider that the ratios of QMEs affected by characteristics of machine learning models are an indication of the impacts to quality (sub-)characteristics, then at the quality-model level, it is evident that the impact to Product quality is the highest, while those of Data quality and Quality in use are low. ‡ Functions considered cannot be defined strictly. For example, there are many pedestrian variations of pedestrian detection for an auto emergency braking (AEB) function, and it can be multiple functions. We cannot define functions without ambiguity. † † When the input changes slightly, the result can changes drastically. We cannot measure the correctness of the function precisely. Perturbed trials can quantify the uncertainty. ‡ ‡ Functions considered cannot be defined strictly. For example, there are many pedestrian variations for pedestrian detection, and it can be multiple functions. We cannot define functions without ambiguity.</p><p>The characteristics of machine learning models that affected QMEs the most were a lack of requirements specification and a lack of robustness. First, we discuss the impact of a lack of requirements specification. Quality characteristics involving preconditions (such as operational contexts, the interval of values, and operational environments) were affected by a lack of requirements specification. This is because requirements specifications define preconditions for systems. As discussed previously, machine learning models are trained using data-driven processes and lack explicit requirements specifications. Instead, preconditions are implicitly encoded in training data and not explicitly described. Thus, the following QMEs become unmeasurable due to a lack of preconditions (requirements specifications). Note that the corresponding quality model, characteristic, sub-characteristic, and QM are described in square brackets. Different operational environments in which systems must be tested, required intervals of values for data items, distinct contexts of use, and additional contexts in which the product might be used cannot be defined for data-driven training processes; the above QMEs are not measurable.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>§1</head><p>The reasons for a lack of requirements specifications in machine learning models are twofold: a lack of preconditions (introduced in the last paragraph) and a difficulty defining the desired behaviors of machine learning models due to the wide variety of input and output patterns. For example, there are Next, we discuss the impact of a lack of robustness. QMEs that observe machine learning system behavior are affected by a lack of robustness. When the inputs of machine learning models change even There is a small impact on machine learning systems due to the lack of design specification and lack of transparency characteristics. If there are no design specifications, we cannot estimate the effort of a system modification nor the impact of a local modification to the overall system. We cannot forecast how many hours the training process will require, in advance. In addition, we cannot know the strengths and weaknesses of automatically trained machine learning models in general. Therefore, we cannot know the redundancy of components without design specification or transparency. Models with similar weaknesses do not work as redundancies, and redundant installation does not make sense for machine learning models. The following are QMEs that are unmeasurable due to a lack of design specifications and a lack of transparency:</p><formula xml:id="formula_0">§16</formula><p>Number of system components redundantly installed [Product quality / Reliability / Fault tolerance / Redundancy of components] §17 Number of components which are implemented with no impact on others [Product quality / Maintainability / Modularity / Coupling of components] §18 Expected time for making a specific type of modification [Product quality / Maintainability / Modifiability / Modification efficiency] Since there is no established method of diagnostic and monitoring functionalities for machine learning models, the following QMEs are not measurable for machine learning systems. §19 Number of functions having state monitoring capability [Product quality / Usability / Operability / Monitoring capability] §20 Number of diagnostic functions useful for causal analysis [Product quality / Maintainability / Analysability / Diagnosis function effectiveness]</p><p>We have discussed the combination of machine learning characteristics with a conventional system and software quality standard, SQuARE. The typical gaps for the quality models of machine learning systems were found in requirements specification (precondition specification and level of detail for function specification) and robustness (uncertainty of observation and extremely low probable rare cases). In order to address these gaps, system quality models can be modified and/or extended. We introduce the direction to address these gaps in 5.3.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.3">Toward quality models for machine learning systems</head><p>The first set of challenges exist in quality measures for preconditions and functions (functionalities) for machine learning systems, that is, requirements specification. We assume that preconditions and function specifications are defined by input range and pairs of input/output, respectively. If input and/or output data are high-dimensional, both defining preconditions and detailed function specifications are difficult. As machine learning models are trained in a data-driven manner, we inevitably conclude that data is involved. One natural idea is first to manually engineer the deductive specifications in as detailed a manner as possible and second to prepare data that includes example instances for requirements specifications. Requirements specifications of machine learning systems cannot fully define the preconditions and functions; however, the remaining uncertainty of specifications is covered by examples. In order to make requirements specifications as detailed as possible, we need quality definitions (and subsequently QM) of requirements specifications themselves. A type of QM for requirements specifications is the sum of the quality of deductive requirements specification and the quality of inductive requirements specification, that is, sample data.</p><p>The quality of deductive requirements specifications for machine learning systems -that is, the level of details of requirements specifications -is not straightforward to measure. Although not quantitative, a proxy of quality of deductive requirements specification is to measure the level of detail of the background argument. An earlier study <ref type="bibr" target="#b32">[33]</ref> used structured arguments, like goal structure notation (GSN) <ref type="bibr" target="#b41">[42]</ref>, to address uncertain requirements and environments. Quality measures of deductive requirements specification such as the following can be added to quality models of machine learning systems:</p><p>• "Number of functions with preconditions specified with structured argument" divided by "Number of functions that could benefit from specifying preconditions"</p><p>• "Number of functions with detailed function specification with structured argument" divided by "Number of functions that could benefit from detailed function specification"</p><p>Further, the quality of inductive requirements specification (sample data) must be defined as the coverage of deductive requirements specifications, that is, how much deductive requirements specifications were covered by the inductive requirements specification (sample data). If the structured argument is in a tree structure, the ratio of leaf nodes that have corresponding sample data can be a quality measure of sample data. A quality measure of inductive requirements specification is given by the following:</p><p>• "Number of GSN solutions (leaf nodes) having corresponding sample data" divided by "Number of GSN solutions (leaf nodes) that could benefit from specifying sample data"</p><p>It is also important to handle the uncertainty of observation of machine learning systems in the quality models for machine learning systems. The current quality measures are deterministic. Introducing a number of trials and variance to quality measures will incorporate the uncertainty of observation and improve the expression power of quality models.</p><p>Another aspect in the lack of robustness is the extremely low probability of rare cases. It must be noted that it is not possible to identify all rare cases by definition. We cannot evaluate the result of rare case discovery; however, we can see the quality of the process or the effort involved in it. Quality measures of the process of discovering rare cases would be the effort in rare case discovery plus the number of rare cases discovered in a unit of time.</p><p>A viewpoint that is not included in the current quality models is development data, although SQuARE has Data quality. Data quality in SQuARE is about the data included in the system itself, such as customer mailing address database. For machine learning systems, development data -that is, test and training data -is rather important, and the quality models for machine learning systems must include the corresponding quality. There are two different definitions for test data quality and training data quality. The former is related to inductive requirements specification, that is, an aforementioned quality of sample data. Test data quality includes the gap between manually engineered deductive requirements specifications and actually collected sample data points. The latter is related to design specification and includes the quality of manually annotated supervisory signals. This will be a trade-off to the cost of labor-intensive annotation processes.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">Conclusion</head><p>With the rapid development of technology in recent years, machine learning has begun to be employed in various systems. To use machine learning in a safety-critical system, such as an automated driving system, it is necessary to demonstrate the safety and security of the system to society through the engineering process. In this paper, taking automated driving as an example, we presented open engineering problems with corresponding related works and research directions from the viewpoints of requirements, designs, and verifications for machine learning models and systems.</p><p>At the level of the machine learning model, we hypothesized an ideal training process that connects deductive requirements and data-driven training, thereby considering test data as a requirements specification and training data as a design specification. Moreover, we recognized that the characteristics of machine learning models are a lack of requirements specification, a lack of design specification, a lack of interpretability, and a lack of robustness. We also discussed the combination of a conventional system and software quality standard, SQuARE, and the aforementioned characteristics of machine learning models to study the quality models for machine learning systems. It turned out that a lack of requirements specification (precondition specification and level of detail for function specification) and a lack of robustness (uncertainty of observation and extremely low probability rare cases) have the largest impact on the conventional system quality models. Further, we discussed the direction of future quality models for machine learning systems; however, most of it is a subject for future research.</p><p>Future research directions include the development of element technologies for engineering machine learning models and systems, such as requirements specification techniques to cover test data distribution or open environments. As evident from this paper, there are numerous open engineering problems and possible directions to address them. However, to establish an engineering process for safety-critical machine learning systems, even if each company individually performs its own engineering processes based on its own concepts, process activities and work products cannot be automatically accepted by human society. Individual practices are not standard, and in order to achieve accountability, need evaluation on a case-by-case basis by a third party, particularly in case of problems. In such evaluations, own engineering practices of individual companies are at risk for being misunderstood, otherwise proprietary development information has to be disclosed for accountability. Thus, we need widely accepted standards to avoid these situations. Attempts to research element technologies along with standard guidelines for requirements, designs, and verifications would also be practically helpful. For example, a standard guideline for multiple verification tiers (actual data testing for normal conditions, simulated data testing for the corner cases, automatic verification for highest integrity levels only, falsification in middle integrity levels, etc.) would encourage the practical use of verification techniques and help an industry suffering from a lack of quality assurance of machine learning systems. Another approach is to develop standard quality models for machine learning systems. In this paper, we discussed the quality models for machine learning systems based on SQuARE. Future research directions include discussing quality characteristics beyond SQuARE, defining specific QM and QME, and quality characteristics and sub-characteristics if necessary.</p><p>Conflict of Interest: The authors declare that they have no conflict of interest.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Engineering process of machine learning systems</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 3 :</head><label>3</label><figDesc>Figure 3: Example environment requirements specification (data distribution matrix) and performance requirements specification (confusion matrix)</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 4 :</head><label>4</label><figDesc>Figure 4: Quality models and quality characteristics in SQuARE</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><figDesc>Number of functions which were tested in different operational environments [Product quality / Portability / Adaptability / Operational environment adaptability] §2 Number of data items for which can be defined a required interval of values [Data quality / Accuracy / Data accuracy range] §3 Total number of required distinct contexts of use [Quality in use / Context coverage / Context completeness / Context completeness] §4 Total number of additional contexts in which the product might be used [Quality in use / Context coverage / Flexibility / Flexible context of use]</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_3"><head>Table 1 :</head><label>1</label><figDesc>Example impact analysis (Functional suitability characteristic in Product quality model) When the input changes slightly, the result can changes drastically. We cannot measure the correctness of the function precisely. Perturbed trials can quantify the uncertainty.</figDesc><table><row><cell>QM</cell><cell>QME</cell><cell>Req Des Rob Tra</cell></row><row><cell>Functional coverage</cell><cell>Number of functions missing</cell><cell></cell></row><row><cell></cell><cell>Number of functions specified</cell><cell></cell></row><row><cell>Functional correctness</cell><cell>Number of functions that are incorrect</cell><cell>†</cell></row><row><cell></cell><cell>Number of functions considered</cell><cell>‡</cell></row><row><cell></cell><cell>Number of functions missing or incorrect</cell><cell></cell></row><row><cell>Functional</cell><cell>among those that are required for achieving</cell><cell>† †</cell></row><row><cell>appropriateness of usage</cell><cell>a specific usage objective.</cell><cell></cell></row><row><cell>objective</cell><cell>Number of functions required for achiev-ing a specific usage objective</cell><cell>‡ ‡</cell></row><row><cell></cell><cell>Appropriateness score for a usage objec-</cell><cell></cell></row><row><cell>Functional</cell><cell>tive</cell><cell></cell></row><row><cell>appropriateness of system</cell><cell>Number of usage objectives</cell><cell></cell></row><row><cell>†</cell><cell></cell><cell></cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_4"><head>Table 2 :</head><label>2</label><figDesc>Impact analysis on Product quality modelNumber of QMEs pedestrians (such as young and old, one with bags and umbrella) for an AEB function and it is difficult to define the function precisely (the types of pedestrians that the system covers) without ambiguity. Being unable to define precise functions affects Function suitability, as well as Portability of Product quality. Being unable to define precise normal conditions, outliers for a wide variety of input data values are not definable, neither. The following QMEs are not measurable due to the difficulty of defining behaviors:</figDesc><table><row><cell>Characteristic</cell><cell>Sub-characteristic</cell><cell>all</cell><cell>affected</cell></row><row><cell>Functional suitability</cell><cell>Functional correctness</cell><cell>2</cell><cell>2 Req ( §5), Rob ( §9)</cell></row><row><cell></cell><cell>Functional appropriateness</cell><cell>4</cell><cell>2 Req ( §6), Rob ( §10)</cell></row><row><cell></cell><cell>Others</cell><cell>2</cell><cell>0</cell></row><row><cell>Subtotals</cell><cell></cell><cell>8</cell><cell>4</cell></row><row><cell cols="2">Performance Efficiency Any</cell><cell>29</cell><cell>0</cell></row><row><cell>Subtotals</cell><cell></cell><cell>29</cell><cell>0</cell></row><row><cell>Compatibility</cell><cell>Any</cell><cell>8</cell><cell>0</cell></row><row><cell>Subtotals</cell><cell></cell><cell>8</cell><cell>0</cell></row><row><cell>Usability</cell><cell>Operability</cell><cell>18</cell><cell>1 Tra ( §19)</cell></row><row><cell></cell><cell>Others</cell><cell>25</cell><cell>0</cell></row><row><cell>Subtotals</cell><cell></cell><cell>43</cell><cell>1</cell></row><row><cell>Reliability</cell><cell>Maturity</cell><cell>8</cell><cell>2 Rob×2 ( §12,  §13)</cell></row><row><cell></cell><cell>Fault tolerance</cell><cell>7</cell><cell>2 Rob ( §11), Des ( §16)</cell></row><row><cell></cell><cell>Others</cell><cell>8</cell><cell>0</cell></row><row><cell>Subtotals</cell><cell></cell><cell>23</cell><cell>4</cell></row><row><cell>Security</cell><cell>Any</cell><cell>22</cell><cell>0</cell></row><row><cell>Subtotals</cell><cell></cell><cell>22</cell><cell>0</cell></row><row><cell>Maintainability</cell><cell>Modularity</cell><cell>4</cell><cell>2 Tra ( §17)</cell></row><row><cell></cell><cell>Analysability</cell><cell>6</cell><cell>1 Tra ( §20)</cell></row><row><cell></cell><cell>Modifiability</cell><cell>7</cell><cell>1 Des ( §18)</cell></row><row><cell></cell><cell>Testability</cell><cell>6</cell><cell>1 Rob ( §14)</cell></row><row><cell></cell><cell>Others</cell><cell>4</cell><cell>0</cell></row><row><cell>Subtotals</cell><cell></cell><cell>27</cell><cell>5</cell></row><row><cell>Portability</cell><cell>Adaptability</cell><cell>6</cell><cell>1 Req ( §1)</cell></row><row><cell></cell><cell>Replaceability</cell><cell>8</cell><cell>2 Req ( §7)</cell></row><row><cell></cell><cell>Others</cell><cell>5</cell><cell>0</cell></row><row><cell>Subtotals</cell><cell></cell><cell>19</cell><cell>3</cell></row><row><cell>Total</cell><cell></cell><cell cols="2">179 15</cell></row><row><cell cols="2">numerous variations of §5 Number of functions that are incorrect</cell><cell></cell><cell></cell></row><row><cell cols="4">[Product quality / Functional suitability / Functional correctness / Functional correctness]</cell></row><row><cell cols="4">§6 Number of functions missing or incorrect among those that are required for achieving a specific</cell></row><row><cell>usage objective</cell><cell></cell><cell></cell><cell></cell></row><row><cell cols="4">[Product quality / Functional suitability / Functional appropriateness / Functional appropriateness of</cell></row><row><cell>usage objective]</cell><cell></cell><cell></cell><cell></cell></row><row><cell cols="3">§7 Number of functions which produce similar results as before</cell><cell></cell></row><row><cell cols="4">[Product quality / Portability / Replaceability / Functional inclusiveness]</cell></row><row><cell></cell><cell></cell><cell></cell><cell></cell></row></table><note><p>§8 Number of data values that are outliers [Data quality model / Accuracy / Risk of data set inaccuracy]</p></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_5"><head>Table 3 :</head><label>3</label><figDesc>Impact analysis on Data quality model</figDesc><table><row><cell></cell><cell></cell><cell>Number of QMEs</cell></row><row><cell>Characteristic</cell><cell>all</cell><cell>affected</cell></row><row><cell>Accuracy</cell><cell cols="2">14 2 Req ×2 ( §2,  §8), Rob ( §15)</cell></row><row><cell>Completeness</cell><cell>16 0</cell><cell></cell></row><row><cell>Consistency</cell><cell>12 0</cell><cell></cell></row><row><cell>Credibility</cell><cell>8 0</cell><cell></cell></row><row><cell>Currentness</cell><cell>6 0</cell><cell></cell></row><row><cell>Accessibility</cell><cell>6 0</cell><cell></cell></row><row><cell>Compliance</cell><cell>4 0</cell><cell></cell></row><row><cell>Confidentiality</cell><cell>4 0</cell><cell></cell></row><row><cell>Efficiency</cell><cell>14 0</cell><cell></cell></row><row><cell>Precision</cell><cell>4 0</cell><cell></cell></row><row><cell>Traceability</cell><cell>6 0</cell><cell></cell></row><row><cell>Understandability</cell><cell>14 0</cell><cell></cell></row><row><cell>Availability</cell><cell>6 0</cell><cell></cell></row><row><cell>Portability</cell><cell>6 0</cell><cell></cell></row><row><cell>Recoverability</cell><cell>6 0</cell><cell></cell></row><row><cell>Total</cell><cell>126 3</cell><cell></cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_6"><head>Table 4 :</head><label>4</label><figDesc>Impact analysis on Quality in use model slightly, the results can change drastically. Therefore, the behavior of such systems becomes uncertain and we cannot measure (count) correct behavior. Moreover, we noticed that the QMEs affected by low robustness were similar to those affected by a lack of requirements specification. The QMs using these QMEs are typically ratios, with numerators being QMEs that count correct behavior and denominators being QMEs that count preconditions. For example, one of the quality measures of Functional correctness is X = 1 -A/B, where A = [Number of functions that are incorrect], B = [Number of functions considered]. We cannot measure the numerator A and the denominator B due to the two characteristics of machine learning models -a lack of robustness and a lack of requirements specification, respectively. The following QMEs are not precisely measurable due to a lack of robustness: §11 Number of avoided critical and serious failure occurrences based on test cases [Product quality / Reliability / Fault tolerance / Failure avoidance]QMEs related to negative events affected the difficulty of capturing rare cases of machine learning models, which is another form of a lack of robustness. Outliers and failures in SQuARE should have included rare cases; however, rare cases may not appear in a limited time frame and when they do, the extremely low probability of occurrence may be neglected. As mentioned previously, an extremely long FOT is required to capture such rare events. The following are the QMEs that were underestimated due to the difficulty of overlooking rare cases:</figDesc><table><row><cell></cell><cell></cell><cell cols="2">Number of QMEs</cell></row><row><cell>Characteristic</cell><cell>Sub-characteristic</cell><cell>all</cell><cell>affected</cell></row><row><cell>Effectiveness</cell><cell>Any</cell><cell>8 0</cell><cell></cell></row><row><cell>Subtotals</cell><cell></cell><cell>8 0</cell><cell></cell></row><row><cell>Efficiency</cell><cell>Any</cell><cell>11 0</cell><cell></cell></row><row><cell>Subtotals</cell><cell></cell><cell>11 0</cell><cell></cell></row><row><cell>Satisfaction</cell><cell>Any</cell><cell>13 0</cell><cell></cell></row><row><cell>Subtotals</cell><cell></cell><cell>13 0</cell><cell></cell></row><row><cell cols="2">Freedom from risk Any</cell><cell>21 0</cell><cell></cell></row><row><cell>Subtotals</cell><cell></cell><cell>21 0</cell><cell></cell></row><row><cell>Context coverage</cell><cell>Context completeness</cell><cell cols="2">2 1 Req ( §3)</cell></row><row><cell></cell><cell>Flexibility</cell><cell cols="2">6 1 Req ( §4)</cell></row><row><cell>Subtotals</cell><cell></cell><cell>8 2</cell><cell></cell></row><row><cell>Total</cell><cell></cell><cell>61 2</cell><cell></cell></row><row><cell cols="2">§9 Number of functions that are incorrect</cell><cell></cell><cell></cell></row><row><cell cols="4">[Product quality / Functional suitability / Functional correctness / Functional correctness]</cell></row><row><cell cols="4">§10 Number of functions missing or incorrect among those that are required for achieving a specific</cell></row><row><cell cols="2">usage objective</cell><cell></cell><cell></cell></row></table></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_0"><p>Preprint. Work in progress.</p></note>
+		</body>
+		<back>
+
+			<div type="availability">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Availability</head><p>Portability Recoverability</p></div>
+			</div>
+
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Product quality</head></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title level="m" type="main">Report of traffic collision involving an autonomous vehicle</title>
+		<ptr target="https://www.dmv.ca.gov/portal/dmv/detail/vr/autonomous/autonomousveh_ol316+" />
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note>ol 316</note>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Co-operative data access in multiple road side units (rsus)-based vehicular ad hoc networks (vanets)</title>
+		<author>
+			<persName><forename type="first">Ggmn</forename><surname>Ali</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chan</forename><forename type="middle">E</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Australasian Telecommunication Networks and Applications Conference</title>
+		<meeting><address><addrLine>Melbourne, Australia</addrLine></address></meeting>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2011-11-09">2011. 2011. November 9-11, 2011</date>
+			<biblScope unit="page" from="1" to="6" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<title level="m" type="main">Concrete problems in AI safety</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Amodei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Olah</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Steinhardt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">F</forename><surname>Christiano</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Schulman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Mané</surname></persName>
+		</author>
+		<idno>CoRR abs/1606.06565</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">Introduction to Mathematical Logic and Type Theory: To Truth Through Proof, 2nd edn</title>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">B</forename><surname>Andrews</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2002">2002</date>
+			<publisher>Kluwer Academic Publishers</publisher>
+			<pubPlace>Norwell, MA, USA</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">A survey of cross-validation procedures for model selection</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Arlot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Celisse</forename><forename type="middle">A</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Statistics surveys</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="page" from="40" to="79" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Measuring neural net robustness with constraints</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Bastani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Ioannou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Lampropoulos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Vytiniotis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Nori</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Criminisi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<editor>
+			<persName><forename type="first">D</forename><forename type="middle">D</forename><surname>Lee</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">M</forename><surname>Sugiyama</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">U</forename><forename type="middle">V</forename><surname>Luxburg</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">I</forename><surname>Guyon</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">R</forename><surname>Garnett</surname></persName>
+		</editor>
+		<imprint>
+			<publisher>Curran Associates, Inc</publisher>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="volume">29</biblScope>
+			<biblScope unit="page" from="2613" to="2621" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Online learning versus offline learning</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ben-David</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Kushilevitz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Mansour</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Machine Learning</title>
+		<imprint>
+			<biblScope unit="volume">29</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="45" to="63" />
+			<date type="published" when="1997">1997</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Discriminative learning under covariate shift</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Bickel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Brückner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Scheffer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="page" from="2137" to="2155" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Layer-wise relevance propagation for neural networks with local renormalization layers</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Binder</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Montavon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Lapuschkin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Müller</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Samek</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Artificial Neural Networks and Machine Learning -ICANN 2016 -25th International Conference on Artificial Neural Networks</title>
+		<title level="s">Lecture Notes in Computer Science</title>
+		<editor>
+			<persName><forename type="first">Aep</forename><surname>Villa</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">P</forename><surname>Masulli</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Ajp</forename><surname>Rivero</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Barcelona, Spain</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2016-09-06">2016. September 6-9, 2016</date>
+			<biblScope unit="volume">9887</biblScope>
+			<biblScope unit="page" from="63" to="71" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">S</forename><surname>Bird</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Crankshaw</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Gibson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Gonzalez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Lakshmiratan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">E</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Re</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Sen</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017. 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Cloud incubator car: A reliable platform for autonomous driving</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Borraz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">J</forename><surname>Navarro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Fernández</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">M</forename><surname>Alcover</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Applied Sciences</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Quantitative projection coverage for testing ml-enabled autonomous systems</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Cheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Yasuoka</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Technology for Verification and Analysis -16th International Symposium</title>
+		<title level="s">Lecture Notes in Computer Science</title>
+		<editor>
+			<persName><forename type="first">S</forename><forename type="middle">K</forename><surname>Lahiri</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">C</forename><surname>Wang</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Los Angeles, CA, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2018-10-07">2018. October 7-10, 2018</date>
+			<biblScope unit="volume">2018</biblScope>
+			<biblScope unit="page" from="126" to="142" />
+		</imprint>
+	</monogr>
+	<note>ATVA</note>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Towards dependability metrics for neural networks</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Cheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Nührenberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Ruess</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Yasuoka</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">16th ACM/IEEE International Conference on Formal Methods and Models for System Design</title>
+		<meeting><address><addrLine>Beijing, China</addrLine></address></meeting>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2018-10-15">2018. 2018. October 15-18, 2018</date>
+			<biblScope unit="page" from="43" to="46" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<title level="m" type="main">Runtime monitoring neuron activation patterns</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Cheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Nührenberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Yasuoka</surname></persName>
+		</author>
+		<idno>CoRR abs/1809.06573</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title level="m" type="main">Maximum resilience of artificial neural networks</title>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">H</forename><surname>Cheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Nührenberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Ruess</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<publisher>ATVA</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<title level="m" type="main">An automated vehicle safety concept based on runtime restriction of the operational design domain</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Colwell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Phan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Saleem</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Salay</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Czarnecki</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="1910" to="1917" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<monogr>
+		<title level="m" type="main">On-road safety of automated driving system (ads) -taxonomy and safety analysis methods</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Czarnecki</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<title level="m" type="main">Origins of the simplex method. Tech. rep., STANFORD UNIV CA SYS-TEMS OPTIMIZATION LAB</title>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">B</forename><surname>Dantzig</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1987">1987</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">An efficient smt solver</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>De Moura</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Bjørner</surname></persName>
+		</author>
+		<idno>TACAS&apos;08/ETAPS&apos;08</idno>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Theory and Practice of Software, 14th International Conference on Tools and Algorithms for the Construction and Analysis of Systems</title>
+		<meeting>the Theory and Practice of Software, 14th International Conference on Tools and Algorithms for the Construction and Analysis of Systems<address><addrLine>Berlin, Heidelberg</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer-Verlag</publisher>
+			<date type="published" when="2008">2008</date>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="page" from="337" to="340" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">A few useful things to know about machine learning</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Domingos</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Commun ACM</title>
+		<imprint>
+			<biblScope unit="volume">55</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page" from="78" to="87" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">On signal temporal logic</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Donzé</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Runtime Verification</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="page" from="382" to="383" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Systematic testing of convolutional neural networks for autonomous driving</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Dreossi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ghosh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">L</forename><surname>Sangiovanni-Vincentelli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">A</forename><surname>Seshia</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICML Workshop on Reliable Machine Learning in the Wild</title>
+		<imprint>
+			<publisher>RMLW</publisher>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Compositional falsification of cyber-physical systems with machine learning components</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Dreossi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Donzé</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Seshia</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Automated Reasoning</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">A multi-view deep learning approach for cross domain user modeling in recommendation systems</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">M</forename><surname>Elkahky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Song</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>He</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 24th International Conference on World Wide Web, International World Wide Web Conferences Steering Committee, Republic and Canton of</title>
+		<meeting>the 24th International Conference on World Wide Web, International World Wide Web Conferences Steering Committee, Republic and Canton of<address><addrLine>Geneva, Switzerland</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="page" from="278" to="288" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Deep learning in automotive: Challenges and opportunities</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Falcini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Lami</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Software Process Improvement and Capability Determination</title>
+		<editor>
+			<persName><forename type="first">A</forename><surname>Mas</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">A</forename><surname>Mesquida</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">O'</forename><surname>Connor</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">R</forename><forename type="middle">V</forename><surname>Rout</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">T</forename><surname>Dorling</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">A</forename></persName>
+		</editor>
+		<meeting><address><addrLine>Cham</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer International Publishing</publisher>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="279" to="288" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<monogr>
+		<title level="m" type="main">Formal verification of safety and liveness properties for logic controllers</title>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">A</forename><surname>Garcia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Sánchez</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+			<biblScope unit="page" from="1" to="3" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<monogr>
+		<title level="m" type="main">Federal Guide to Self-Driving Cars and Automated Driving: Preparing for the Future of Transportation -Automated Vehicles 3.0, Safety Issues and Role of the Government in Autonomous Regulation</title>
+		<imprint>
+			<date type="published" when="2018">2018. 2018</date>
+			<publisher>Government U, of Transportation UD</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Hybrid speech recognition with deep bidirectional LSTM</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Graves</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Jaitly</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mohamed</forename><forename type="middle">A</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2013 IEEE Workshop on Automatic Speech Recognition and Understanding</title>
+		<meeting><address><addrLine>Czech Republic</addrLine></address></meeting>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2013-12-08">2013. December 8-12, 2013</date>
+			<biblScope unit="page" from="273" to="278" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">A taxonomy and library for visualizing learned features in convolutional neural networks</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Grün</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Rupprecht</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Navab</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Federico</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICML Workshop on Visualization for Deep Learning</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Deep residual learning for image recognition</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Sun</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE Conference on Computer Vision and Pattern Recognition (CVPR</title>
+		<imprint>
+			<date type="published" when="2016">2016. 2016</date>
+			<biblScope unit="page" from="770" to="778" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<monogr>
+		<title level="m" type="main">Safety verification of deep neural networks</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">Z</forename><surname>Kwiatkowska</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Wu</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<publisher>CAV</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<monogr>
+		<author>
+			<persName><surname>Incose</surname></persName>
+		</author>
+		<title level="m">Systems Engineering Handbook: A Guide for System Life Cycle Processes and Activities</title>
+		<imprint>
+			<publisher>John Wiley and Sons, Inc</publisher>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Continuous argument engineering: Tackling uncertainty in machine learning based systems</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Ishikawa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Matsuno</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Computer Safety, Reliability, and Security -SAFECOMP 2018 Workshops, ASSURE, DEC-SoS, SASSUR, STRIVE, and WAISE</title>
+		<title level="s">Lecture Notes in Computer Science</title>
+		<editor>
+			<persName><forename type="first">B</forename><surname>Gallina</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">A</forename><surname>Skavhaug</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">E</forename><surname>Schoitsch</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">F</forename><surname>Bitsch</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Västerås, Sweden</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2018-09-18">2018. September 18, 2018</date>
+			<biblScope unit="volume">11094</biblScope>
+			<biblScope unit="page" from="14" to="21" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<monogr>
+		<title level="m" type="main">Road vehicles -functional safety -part 1: Vocabulary</title>
+		<idno>ISO 26262-1:2018</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">Tech. rep</note>
+	<note>International Organization for Standardization</note>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<monogr>
+		<title level="m" type="main">Systems and software engineering -Systems and software Quality Requirements and Evaluation (SQuaRE) -Guide to SQuaRE. Standard, International Organization for Standardization</title>
+		<idno>ISO/IEC 25000:2014</idno>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note>International Electrotechnical Commission</note>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Software engineering -product quality</title>
+		<author>
+			<persName><surname>Iso/Iec</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Organization for Standardization</title>
+		<imprint>
+			<date type="published" when="2001">2001. 2001</date>
+			<biblScope unit="volume">9126</biblScope>
+		</imprint>
+	</monogr>
+	<note type="report_type">Tech. rep</note>
+	<note>International Electrotechnical Commission</note>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<monogr>
+		<title level="m" type="main">An Introduction to Statistical Learning: With Applications in R</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>James</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Witten</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Hastie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Tibshirani</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<publisher>Springer Publishing Company</publisher>
+		</imprint>
+	</monogr>
+	<note>Incorporated</note>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">Caffe: Convolutional architecture for fast feature embedding</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Jia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Shelhamer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Donahue</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Karayev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Long</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Girshick</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Guadarrama</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Darrell</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 22Nd ACM International Conference on Multimedia</title>
+		<meeting>the 22Nd ACM International Conference on Multimedia<address><addrLine>New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="675" to="678" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<analytic>
+		<title level="a" type="main">Driving to safety: How many miles of driving would it take to demonstrate autonomous vehicle reliability?</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Kalra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">M</forename><surname>Paddock</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Transportation Research Part A: Policy and Practice</title>
+		<imprint>
+			<biblScope unit="volume">94</biblScope>
+			<biblScope unit="page" from="182" to="193" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">Towards proving the adversarial robustness of deep neural networks</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Katz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Barrett</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">L</forename><surname>Dill</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Julian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">J</forename><surname>Kochenderfer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the First Workshop on Formal Verification of Autonomous Vehicles (FVAV &apos;17</title>
+		<title level="s">Electronic Proceedings in Theoretical Computer Science</title>
+		<editor>
+			<persName><forename type="first">L</forename><surname>Bulwahn</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">M</forename><surname>Kamali</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">S</forename><surname>Linker</surname></persName>
+		</editor>
+		<meeting>the First Workshop on Formal Verification of Autonomous Vehicles (FVAV &apos;17<address><addrLine>turin, Italy</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="volume">257</biblScope>
+			<biblScope unit="page" from="19" to="26" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<monogr>
+		<title level="m" type="main">Reluplex: An efficient smt solver for verifying deep neural networks</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Katz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">W</forename><surname>Barrett</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">L</forename><surname>Dill</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Julian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">J</forename><surname>Kochenderfer</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<publisher>CAV</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title level="a" type="main">The goal structuring notation -a safety argument notation</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Kelly</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Weaver</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. of Dependable Systems and Networks 2004 Workshop on Assurance Cases</title>
+		<meeting>of Dependable Systems and Networks 2004 Workshop on Assurance Cases</meeting>
+		<imprint>
+			<date type="published" when="2004">2004</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b42">
+	<analytic>
+		<title level="a" type="main">Challenges in autonomous vehicle testing and validation</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Koopman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Wagner</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">SAE Int J Trans Safety</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="page" from="15" to="24" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b43">
+	<analytic>
+		<title level="a" type="main">Imagenet classification with deep convolutional neural networks</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Krizhevsky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Sutskever</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<editor>
+			<persName><forename type="first">F</forename><surname>Pereira</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Cjc</forename><surname>Burges</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">L</forename><surname>Bottou</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">K</forename><forename type="middle">Q</forename><surname>Weinberger</surname></persName>
+		</editor>
+		<imprint>
+			<publisher>Curran Associates, Inc</publisher>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="page" from="1097" to="1105" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b44">
+	<analytic>
+		<title level="a" type="main">Improving transparency of deep neural inference process</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Kuwajima</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Tanaka</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Okutomi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Progress in Artificial Intelligence</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="273" to="285" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b45">
+	<monogr>
+		<title level="m" type="main">Hardware Design Verification: Simulation and Formal Method-Based Approaches, 1st edn</title>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">K</forename><surname>Lam</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2008">2008</date>
+			<publisher>Prentice Hall PTR</publisher>
+			<pubPlace>Upper Saddle River, NJ, USA</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b46">
+	<monogr>
+		<title level="m" type="main">Pegasus: Effectively ensuring automated driving</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lemmer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Mazzega</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<publisher>VDA Technical Congress</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b47">
+	<monogr>
+		<title level="m" type="main">2017 nips workshop on machine learning for intelligent transportation systems</title>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">E</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Dragan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">C</forename><surname>Niebles</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Savarese</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b48">
+	<monogr>
+		<title level="m" type="main">Playing atari with deep reinforcement learning</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Mnih</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Kavukcuoglu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Silver</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Graves</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Antonoglou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wierstra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A</forename><surname>Riedmiller</surname></persName>
+		</author>
+		<idno>CoRR abs/1312.5602</idno>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b49">
+	<analytic>
+		<title level="a" type="main">Explaining nonlinear classification decisions with deep taylor decomposition</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Montavon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Lapuschkin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Binder</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Samek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Müller</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Pattern Recognition</title>
+		<imprint>
+			<biblScope unit="volume">65</biblScope>
+			<biblScope unit="page" from="211" to="222" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b50">
+	<monogr>
+		<title level="m" type="main">Machine learning : a probabilistic perspective</title>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">P</forename><surname>Murphy</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<publisher>MIT Press</publisher>
+			<pubPlace>Cambridge, Mass</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b51">
+	<analytic>
+		<title level="a" type="main">Rectified linear units improve restricted boltzmann machines</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Nair</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 27th International Conference on Machine Learning (ICML-10)</title>
+		<editor>
+			<persName><forename type="first">J</forename><surname>Fürnkranz</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">T</forename><surname>Joachims</surname></persName>
+		</editor>
+		<meeting>the 27th International Conference on Machine Learning (ICML-10)<address><addrLine>Haifa, Israel, Omnipress</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2010-06-21">2010. June 21-24, 2010</date>
+			<biblScope unit="page" from="807" to="814" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b52">
+	<analytic>
+		<title level="a" type="main">Deep learning</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Ng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">nVIDIA GPU Technology Conference (GTC)</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b53">
+	<analytic>
+		<title level="a" type="main">Lanelet2: A high-definition map framework for the future of automated driving</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Poggenhans</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Pauls</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Janosovits</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Orf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Naumann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Kuhnt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Mayr</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ITSC</title>
+		<imprint>
+			<biblScope unit="page" from="1672" to="1679" />
+			<date type="published" when="2018">2018</date>
+			<publisher>IEEE</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b54">
+	<monogr>
+		<title level="m" type="main">An abstraction-refinement approach to verification of artificial neural networks</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Pulina</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Tacchella</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+			<publisher>CAV</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b55">
+	<analytic>
+		<title level="a" type="main">Challenging smt solvers to verify neural networks</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Pulina</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Tacchella</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">AI Commun</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="117" to="135" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b56">
+	<analytic>
+		<title level="a" type="main">why should I trust you?&quot;: Explaining the predictions of any classifier</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">T</forename><surname>Ribeiro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Singh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Guestrin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining</title>
+		<meeting>the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining<address><addrLine>San Francisco, CA, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2016-08-13">2016. August 13-17, 2016</date>
+			<biblScope unit="page" from="1135" to="1144" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b57">
+	<monogr>
+		<title level="m" type="main">An analysis of ISO 26262: Using machine learning safely in automotive software</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Salay</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Queiroz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Czarnecki</surname></persName>
+		</author>
+		<idno>CoRR abs/1709.02435</idno>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b58">
+	<analytic>
+		<title level="a" type="main">Hidden technical debt in machine learning systems</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Sculley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Holt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Golovin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Davydov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Phillips</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Ebner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Chaudhary</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Young</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">F</forename><surname>Crespo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Dennison</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 28th International Conference on Neural Information Processing Systems</title>
+		<meeting>the 28th International Conference on Neural Information Processing Systems<address><addrLine>Cambridge, MA, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>MIT Press</publisher>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="page" from="2503" to="2511" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b59">
+	<monogr>
+		<title level="m" type="main">Not just a black box: Learning important features through propagating activation differences</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Shrikumar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Greenside</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Shcherbina</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kundaje</surname></persName>
+		</author>
+		<idno>CoRR abs/1605.01713</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b60">
+	<analytic>
+		<title level="a" type="main">Deep inside convolutional networks: Visualising image classification models and saliency maps</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Simonyan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Vedaldi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Zisserman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the International Conference on Learning Representations</title>
+		<meeting>the International Conference on Learning Representations</meeting>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note>ICLR</note>
+</biblStruct>
+
+<biblStruct xml:id="b61">
+	<analytic>
+		<title level="a" type="main">Cross-validatory choice and assessment of statistical predictions</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Stone</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the Royal Statistical Society: Series B (Methodological)</title>
+		<imprint>
+			<biblScope unit="volume">36</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="111" to="133" />
+			<date type="published" when="1974">1974</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b62">
+	<analytic>
+		<title level="a" type="main">Sequence to sequence learning with neural networks</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Sutskever</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Vinyals</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><forename type="middle">V</forename><surname>Le</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<editor>
+			<persName><forename type="first">Z</forename><surname>Ghahramani</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">M</forename><surname>Welling</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">C</forename><surname>Cortes</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">N</forename><forename type="middle">D</forename><surname>Lawrence</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">K</forename><forename type="middle">Q</forename><surname>Weinberger</surname></persName>
+		</editor>
+		<imprint>
+			<publisher>Curran Associates, Inc</publisher>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="page" from="3104" to="3112" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b63">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">C</forename><surname>Szegedy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Zaremba</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Sutskever</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Bruna</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Erhan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">J</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Fergus</forename><forename type="middle">R</forename></persName>
+		</author>
+		<idno>CoRR abs/1312.6199</idno>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b64">
+	<monogr>
+		<title level="m">Automated Driving Systems: A Vision for Safety</title>
+		<imprint>
+			<publisher>of Transportation UD, Administration NHTS</publisher>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b65">
+	<monogr>
+		<title level="m" type="main">The problem of concept drift: Definitions and related work</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Tsymbal</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2004">2004</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">Tech. rep</note>
+</biblStruct>
+
+<biblStruct xml:id="b66">
+	<analytic>
+		<title level="a" type="main">Applications of machine learning in drug discovery and development</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Vamathevan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Clark</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Czodrowski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Dunham</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Ferran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Madabhushi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Shah</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Spitzer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Zhao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature Reviews Drug Discovery</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="463" to="477" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b67">
+	<analytic>
+		<title level="a" type="main">Automotive spice process assessment / reference model version 3.0. Tech. rep</title>
+		<author>
+			<persName><surname>Vda Qmc Working</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Group 13 / Automotive SIG</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b68">
+	<analytic>
+		<title level="a" type="main">Characterizing concept drift</title>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">I</forename><surname>Webb</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Hyde</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Cao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">L</forename><surname>Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Petitjean</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Data Min Knowl Discov</title>
+		<imprint>
+			<biblScope unit="volume">30</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="964" to="994" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b69">
+	<monogr>
+		<title level="m" type="main">Quantitative sotif analysis for highly automated driving systems</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Wendorff</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<publisher>Safetronic</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b70">
+	<monogr>
+		<title level="m" type="main">BDD100K: A diverse driving video database with scalable annotation tooling</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Xian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Liao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Madhavan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Darrell</surname></persName>
+		</author>
+		<idno>CoRR abs/1805.04687</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b71">
+	<analytic>
+		<title level="a" type="main">Visualizing and understanding convolutional networks</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">D</forename><surname>Zeiler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Fergus</forename><forename type="middle">R</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Computer Vision -ECCV 2014</title>
+		<editor>
+			<persName><forename type="first">D</forename><surname>Fleet</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">T</forename><surname>Pajdla</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">B</forename><surname>Schiele</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">T</forename><surname>Tuytelaars</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Cham</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer International Publishing</publisher>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="818" to="833" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b72">
+	<analytic>
+		<title level="a" type="main">CV-HAZOP: introducing test data validation for computer vision</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Zendel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Murschitz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Humenberger</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Herzner</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2015 IEEE International Conference on Computer Vision, ICCV 2015</title>
+		<meeting><address><addrLine>Santiago, Chile</addrLine></address></meeting>
+		<imprint>
+			<publisher>IEEE Computer Society</publisher>
+			<date type="published" when="2015-12-07">2015. December 7-13, 2015</date>
+			<biblScope unit="page" from="2066" to="2074" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b73">
+	<monogr>
+		<title level="m" type="main">Understanding deep learning requires rethinking generalization</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Hardt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Recht</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Vinyals</surname></persName>
+		</author>
+		<idno>CoRR abs/1611.03530</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b74">
+	<analytic>
+		<title level="a" type="main">Object detectors emerge in deep scene cnns</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Khosla</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Lapedriza</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Oliva</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Torralba</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Learning Representations</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+	<note>ICLR</note>
+</biblStruct>
+
+<biblStruct xml:id="b75">
+	<analytic>
+		<title level="a" type="main">Learning deep features for discriminative localization</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Khosla</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Lapedriza</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Oliva</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Torralba</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE Conference on Computer Vision and Pattern Recognition (CVPR)</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

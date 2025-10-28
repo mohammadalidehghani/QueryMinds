@@ -1,0 +1,2632 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">A systematic review of fuzzing based on machine learning techniques</title>
+				<funder ref="#_4W8sn9k">
+					<orgName type="full">National Key Research and Development Program of China</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Yan</forename><surname>Wang</surname></persName>
+							<email>yanwang@stu.scu.edu.cn</email>
+							<affiliation key="aff0">
+								<orgName type="department">College of Cybersecurity</orgName>
+								<orgName type="institution">Sichuan University</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Peng</forename><surname>Jia</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">College of Cybersecurity</orgName>
+								<orgName type="institution">Sichuan University</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Luping</forename><surname>Liu</surname></persName>
+							<email>lupingllp@gmail.com</email>
+							<affiliation key="aff2">
+								<orgName type="department">College of Electronics and Information Engineering</orgName>
+								<orgName type="institution">Sichuan University，No</orgName>
+								<address>
+									<addrLine>24 South Section 1 Yihuan Road</addrLine>
+									<settlement>Chengdu</settlement>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Jiayong</forename><surname>Liu</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">College of Cybersecurity</orgName>
+								<orgName type="institution">Sichuan University</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<affiliation key="aff1">
+								<orgName type="laboratory">No</orgName>
+								<address>
+									<addrLine>24 South Section 1 Yihuan Road</addrLine>
+									<settlement>Chengdu</settlement>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">A systematic review of fuzzing based on machine learning techniques</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">760EC9BD8EC68E15514D7C9C579E3C0B</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>Fuzzing</term>
+					<term>vulnerability</term>
+					<term>testcase</term>
+					<term>mutation operator</term>
+					<term>machine learning</term>
+					<term>deep neural network</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Security vulnerabilities play a vital role in network security system. Fuzzing technology is widely used as a vulnerability discovery technology to reduce damage in advance. However, traditional fuzzing techniques have many challenges, such as how to mutate input seed files, how to increase code coverage, and how to effectively bypass verification. Machine learning technology has been introduced as a new method into fuzzing test to alleviate these challenges. This paper reviews the research progress of using machine learning technology for fuzzing test in recent years, analyzes how machine learning improve the fuzz process and results, and sheds light on future work in fuzzing. Firstly, this paper discusses the reasons why machine learning techniques can be used for fuzzing scenarios and identifies six different stages in which machine learning have been used. Then this paper systematically study the machine learning based fuzzing models from selection of machine learning algorithm, pre-processing methods, datasets, evaluation metrics, and hyperparameters setting. Next, this paper assesses the performance of the machine learning models based on the frequently used evaluation metrics. The results of the evaluation prove that machine learning technology has an acceptable capability of categorize predictive for fuzzing. Finally, the comparison on capability of discovering vulnerabilities between traditional fuzzing tools and machine learning based fuzzing tools is analyzed. The results depict that the introduction of machine learning technology can improve the performance of fuzzing. However, there are still some limitations, such as unbalanced training samples and difficult to extract the characteristics related to vulnerabilities.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.">Introduction</head><p>Vulnerabilities often refer to the flows or weaknesses in hardware, software, protocol implementations, or system security policies that allow an attacker to access or compromise the system without authorization, and have become the root cause of the threats toward network security. WannaCry ransomware attack outbroke on May 2017, and more than 150 countries and 300,000 users were attacked, causing more than $8 billion in damage <ref type="bibr">(Wikipedia 2019b)</ref>. The virus spread widely by utilizing the "Eternal Blue" vulnerability of the NSA (Nation Security Agency) leak. The number of vulnerabilities announced by CVE (Common Vulnerabilities &amp; Exposures) began to explode in 2017, from the original highest 7946 vulnerabilities in 2014 to the publication of 16555 vulnerabilities in 2018 <ref type="bibr" target="#b18">(CVE 2019)</ref>.</p><p>Considering the increasing number and the severe damages of vulnerabilities, vulnerability discovery technology has attracted widespread attention. Fuzzing technology is an efficient method to discover weaknesses, which was first proposed by <ref type="bibr" target="#b64">Miller et al. in 1990</ref><ref type="bibr" target="#b64">(Miller et al. 1990)</ref>. It is an automatic testing technique that covers numerous boundary cases using invalid data (e.g., files, network packets, program codes) as application input to ensure the absence of exploitable vulnerabilities <ref type="bibr" target="#b72">(Oehlert 2005)</ref>. Since then, a variety of different techniques were proposed to improve the efficient of fuzzing. These techniques include static analysis <ref type="bibr" target="#b82">(Sparks et al. 2007;</ref><ref type="bibr">Kinder et al. 2008)</ref>, dynamic analysis <ref type="bibr" target="#b39">(Höschele and Zeller 2016;</ref><ref type="bibr" target="#b4">Bastani et al. 2017;</ref><ref type="bibr" target="#b46">Kifetew et al. 2017</ref>), However, fuzzing test still faces</p><p>The runtime state monitoring stage monitors the state of the program at runtime and guides the generation of the test samples by feeding back the information at the time of execution to the testcase generation phase <ref type="bibr" target="#b78">(Serebryany and Bruening 2012;</ref><ref type="bibr" target="#b81">Slowinska et al. 2012)</ref>. The techniques used in the monitor include binary code instrumentation <ref type="bibr" target="#b61">(Luk et al. 2005)</ref>, taint analysis <ref type="bibr" target="#b24">(Drewry and Ormandy 2007)</ref>, etc. When a target program crashes or reports some error, the related information must be collected for later replay and analysis. In the analysis stage, the information collected at the time of the crash will be analyzed to determine whether or not the crash is a bug. Then, fuzzer classify bugs by exploitability analysis to determine whether it is a vulnerability <ref type="bibr" target="#b12">(Chen et al. 2013;</ref><ref type="bibr" target="#b86">Team MSECMSS 2013;</ref><ref type="bibr" target="#b98">Zalewski M 2016)</ref>. Finally, analysts make the final confirmation through debugging.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2.">The Limitations of Fuzzing</head><p>The traditional fuzzer has three key challenges: (1) how to mutate seed inputs, (2) how to improve code coverage, (3) how to bypass the validation <ref type="bibr" target="#b55">(Li et al. 2018)</ref>. Various auxiliary analysis techniques were introduced to fuzzing test to alleviate these challenges and improve the efficiency of vulnerability detection. The introduction of these technologies has promoted the development of fuzzing technology and made the traditional fuzzing process more intelligent. However, these technologies also have certain limitations and disadvantages.</p><p>Static analysis extracts relevant information from a binary code or source code to direct the fuzzing process without running the program <ref type="bibr" target="#b91">(Wichmann et al. 1995)</ref>. However, static analysis lacks context information during the running and has a high dependence on prior knowledge, resulting in low accuracy and a high false position rate.</p><p>Dynamic analysis needs to execute the target program in real systems or emulator <ref type="bibr" target="#b26">(Ernst 2003)</ref>. It monitors program status and obtains relevant runtime knowledge at execution time. It includes dynamic symbolic execution <ref type="bibr" target="#b9">(Cadar et al. 2006;</ref><ref type="bibr" target="#b32">Godefroid et al. 2008;</ref><ref type="bibr" target="#b15">Chipounov et al. 2011)</ref> and dynamic taint analysis <ref type="bibr" target="#b24">(Drewry and Ormandy 2007;</ref><ref type="bibr" target="#b38">Haller et al. 2013;</ref><ref type="bibr" target="#b69">Neugschwandtner et al. 2015)</ref>.</p><p>Dynamic symbolic execution generates a set of path constraints by using symbolic values as input during program execution <ref type="bibr" target="#b48">(King 1976)</ref>. Then determine whether the path is reachable and generate the corresponding test input by satisfying model theory (SMT) solver. While there exist many limitations on symbolic execution, such as path explosion <ref type="bibr" target="#b96">(Xie et al. 2009)</ref>, environment interactions <ref type="bibr" target="#b8">(Cadar et al. 2008;</ref><ref type="bibr" target="#b2">Avgerinos et al. 2014)</ref>, memory modeling <ref type="bibr" target="#b10">(Cha et al. 2012;</ref><ref type="bibr" target="#b80">Shoshitaishvili et al. 2015)</ref>, and parallel computing <ref type="bibr" target="#b7">(Bucur et al. 2011;</ref><ref type="bibr" target="#b3">Avgerinos et al. 2016)</ref>.</p><p>Dynamic taint analysis uses the tagged data as input to the program, which records how the program uses the input data and which program elements were tainted by the input data. However, taint analysis has the problems of under-tainting and over-tainting <ref type="bibr" target="#b43">(Kang et al. 2011)</ref>.</p><p>Considering the challenges of the state-of-the-art fuzzer and the shortcomings the various techniques already had, fuzzing testing requires a combination of new technologies and methods as countermeasures to these challenges.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">Introduction of Machine Learning Technology</head><p>Machine learning acquires new knowledge or skills by learning from existing example data or experiences and automatically optimize the performance of the computer system itself <ref type="bibr" target="#b94">(Witten et al. 2016)</ref>. Machine learning tasks can be categorized into traditional machine learning, deep learning, and reinforcement learning. Traditional machine learning is divided into supervised learning, unsupervised learning, and semi-supervised learning according to whether the input data is labeled or not and the amount of labeled data.</p><p>Deep learning <ref type="bibr" target="#b22">(Deng et al. 2014;</ref><ref type="bibr" target="#b53">LeCun et al. 2015</ref>) is an artificial neural network composed of multiple nonlinear processing units to representation learning of data, which is a deeper extension of the machine learning algorithm. The original "feature engineering" is replaced based on the method of representational learning, and the machine can automatically extract useful features from the input data. Reinforcement learning <ref type="bibr" target="#b85">(Sutton et al. 1998;</ref><ref type="bibr" target="#b84">Sutton and Barto 2018)</ref> is a branch of machine learning methods, which describes and solves the problem of agents maximizing feedbacks or achieving specific goals through learning strategies in the interaction with the environment. Unlike learning from a large number of input samples, reinforcement learning is essentially an automatic decision-making process.</p><p>Current machine learning techniques have been widely used in statistical learning <ref type="bibr" target="#b84">(Sutton and Barto 2018)</ref>, pattern recognition <ref type="bibr" target="#b68">(Neal 2007)</ref>, data mining <ref type="bibr" target="#b65">(Mitchell 1999)</ref>, computer vision <ref type="bibr" target="#b50">(Krizhevsky et al. 2012)</ref>, and natural language processing <ref type="bibr" target="#b16">(Collobert and Weston 2008)</ref>. In the field of cyberspace security, researchers have also used machine learning for scenarios such as malicious code detection <ref type="bibr" target="#b41">(Huang and Stokes 2016;</ref><ref type="bibr" target="#b58">Liu et al. 2019a</ref>), intrusion detection <ref type="bibr" target="#b21">(Debar et al. 1992;</ref><ref type="bibr" target="#b42">Javaid et al. 2016)</ref>, spam and phishing classification <ref type="bibr" target="#b0">(Abu-Nimeh et al. 2007;</ref><ref type="bibr" target="#b31">Fette et al. 2007)</ref>, and log analysis <ref type="bibr" target="#b51">(Lane and Brodley 1997;</ref><ref type="bibr" target="#b87">Titonis et al. 2017)</ref>.</p><p>Table <ref type="table">1</ref>. The reason why machine learning techniques can be introduced to the fuzzing test process</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Machine Learning Fuzzing</head><p>Can solve classification problems There are several classification problems in the fuzzing process, such as whether seed files and test cases are valid, the exploitability of crash, which mutation operator to choose.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Long training time and fast decision time</head><p>Techniques that consume less performance at run-time are needed so that more test samples can be run in less time.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Deep learning can automatically learn grammar semantics</head><p>Test input needs to be bypass format check in the program runtime.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Need many samples</head><p>Fuzzing produces a large number of test samples and crash samples.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Input is vector</head><p>Natural language processing technology can support, such as one-hot and word2vec.</p><p>Supervised learning requires label data Increased code coverage or inclusion of vulnerability paths can be used as labels.</p><p>The application of machine learning technology to fuzzing testing has also attracted the attention of security researchers, and its essence is to treat vulnerability detection as a problem with a program or sample classification <ref type="bibr" target="#b75">(Rajpal et al. 2017;</ref><ref type="bibr" target="#b13">Cheng et al. 2019;</ref><ref type="bibr" target="#b90">Wang et al. 2019)</ref>. Researchers use existing machine learning techniques to help fuzzer extract experience and knowledge from existing large amounts of vulnerability-related data, and then the new sample is classified and predicted based on the model generated by the training. According to the characteristics of machine learning technology and fuzzing technology, as well as the development of artificial intelligence technology, Table <ref type="table">1</ref> summarizes some of the factors that machine learning technology and fuzzing technology can be combined. Although machine learning technology is used in many industries, there are still many conditions and restrictions on the use of it. As shown in Table <ref type="table">1</ref>, the prior condition that machine learning is used to fuzzing has existed, and the new solutions for the problems existing in fuzzing are provided by using machine learning. What problems can be solved by using machine learning and how the effect of the solution in the fuzzing test is discussed in the following sections.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.">Applying Machine Learning Techniques for Different Fuzzing Steps</head><p>The workflow of fuzzing is shown in Fig. <ref type="figure" target="#fig_0">1</ref>. The steps of fuzzing can be classified as follows according to the problems solved by using machine learning:</p><formula xml:id="formula_0"></formula><p>Seed file generation  Testcase generation  Testcase filter  Mutation operator selection  Fitness function  Exploitability analysis</p><p>Table 2 lists the number of corresponding research articles in each category. The total number of references is 29. Testcase generation is the most frequent step in fuzzing process combined with machine learning technology, and the number of research literature is 11. The reason may be that it is easiest to collect a large number of samples and labels for machine learning from the test sample generation step.</p><p>Table 2. The distribution of research literatures based on Machine learning for different steps of fuzzing testing</p><p>Step Number</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Seed file generation 5</head><p>Testcase generation 11</p><p>Testcase filter 3</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Mutation operator selection 6</head><p>Fitness function 1</p><p>Exploitability analysis 3</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1.">Seed file generation</head><p>The seed file is mutated into fuzzing input sample through various mutation operations. The quality of the input seed file is an essential factor influencing the testing effect. The current seed selection strategy has shortcomings, such as it requires more time to acquire the seed set and the execution effect of selected seeds is almost the same as that of randomly selected seeds <ref type="bibr" target="#b76">(Rebert et al. 2014)</ref>. The common features of the seed files which lead to higher code coverage, more crashes, and more unique execution paths in the traditional fuzzing test can be learned by using machine learning techniques, and finally generate more seed files with this feature through a generation-based or mutation-based approach.</p><p>The data-driven seed generation method implemented by Skyfire <ref type="bibr" target="#b89">(Wang et al. 2017)</ref> uses PCFG (Probabilistic context-sensitive grammar, which contains semantic rules and grammatical features) to extract semantic information automatically. These semantic information and grammar rules are used to seed generation. The generated seed file can be guaranteed to pass syntax parsing and semantic checking by using this method. Eventually, Skyfire could execute a deeper path to the target program, thereby more effectively discover deep vulnerabilities.</p><p>Fast fuzzing <ref type="bibr" target="#b70">(Nichols et al. 2017</ref>) explores the use of deep neural models to enhance the effectiveness of random mutation testing. The method learns features from AFL (Zalewski M 2016) generated samples, and generates seed files that increase the execution path through confrontation training of the Generative Adversarial Networks (GAN).</p><p>SmartSeed <ref type="bibr" target="#b62">(Lv et al. 2018)</ref> reads and converts the input file into a uniform type of matrix in binary form, and then automatically learns features from the collected datasets that triggering a unique crash or unique path by using WGAN and MLP. Seed files that are easier to cause crashes and unique paths can be generated by the trained model. <ref type="bibr" target="#b13">Cheng et al. (Cheng et al. 2019</ref>) used RNN and seq2seq to find the correlation between the PDF file and the target program execution path. Then, this correlation was used to generate new seed files that are more likely to explore new paths in the target program.</p><p>NeuFuzz <ref type="bibr" target="#b90">(Wang et al. 2019</ref>) learn the known vulnerability programs and hidden vulnerability patterns in the sample through LSTM to discover the execution path that may contain the vulnerability. Then, NeuFuzz preferentially executes the seed files that can cover the path containing the vulnerability, and assigns more mutation energy to these seed files based on the prediction results.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2.">Testcase generation</head><p>A testcase can be generated by performing mutation on the seed file, be constructed based on known input file formats. As the final input, the content of a testcase will directly affect whether or not a bug is triggered. Therefore, constructing a testcase with high code coverage or vulnerability-oriented can effectively improve the efficiency of vulnerability detection in fuzzer.</p><p>Samplefuzz <ref type="bibr" target="#b33">(Godefroid et al. 2017)</ref> is the first attempt to automatically generate input syntax from sample input using neural networks-based statistical learning techniques. A generation model of automatically PDF object learning based on the seq2seq recursive neural network was proposed and evaluated in this work. The model can generate not only a large number of new useful objects but also improve the coverage.</p><p>Fan et al. <ref type="bibr">(Fan and Chang 2017)</ref> proposed a method for automatically generating black-box fuzzing testcases for proprietary network protocols. The method uses the seq2seq to learn the generated input model of a proprietary network protocol by processing its traffic, and new messages are generated by using the learning model.</p><p>GANFuzz <ref type="bibr" target="#b40">(Hu et al. 2018</ref>) learn the protocol syntax by training the generated model in the Generative adversarial network to estimate the underlying distribution function of the industrial network protocol message. A well-formed testcase can be generated based on this generation model.</p><p>DeepSmith <ref type="bibr" target="#b17">(Cummins et al. 2018)</ref> takes the generation of random programs as a language modeling problem. It learns the syntax, semantics, and conventional structures and patterns of the programming language on the code corpus by using the LSTM model. DeepSmith generated grammatically formatted test samples based on the generation method for fuzzing the compiler. <ref type="bibr" target="#b77">Sablotny et al. (Sablotny et al. 2018</ref>) constructed the model of the stacked RNN to generate HTML tags and new testcases for fuzzing the browser's rendering engine. The main idea is to generate HTML tags based on the probability distribution of learning character sequences from a large number of HTML tags.</p><p>IUST DeepFuzz <ref type="bibr" target="#b67">(Nasrabadi et al. 2018</ref>) learns the structure of complex input files by using a deep recurrent neural network (RNN)-based neural language model (NLM). IUST DeepFuzz first deletes the non-text part of the input file and replaces it with a token. The token is replaced with a variation of the deleted portion to generate the new testcase after the end of the training.</p><p>NEUZZ <ref type="bibr" target="#b79">(She et al. 2019</ref>) further proposes a gradient-guided search strategy that calculates and uses the smooth approximation gradient (i.e., NN model) to identify target mutation locations, which could maximize the number of errors detected in the target program. It also demonstrates how to improve the NN model by gradually retraining the model on the wrongly predicted program behavior. <ref type="bibr" target="#b73">Paduraru et al. (Paduraru and Melemciuc 2018)</ref> clustered the corpus with different file formats. By treating the corpus of the input file as a series of characters, the generation model of each cluster is learned by seq2seq. This method can generate new test samples that can perform more branches based on the trained model. <ref type="bibr">Li et al. (Li et al. 2019b</ref>) proposed a method for generating fuzzing test data on industrial control protocols based on WGAN. This method can learn the structure and distribution of real-world data frames and generate similar data frames without knowing the detailed protocol specifications.</p><p>DeepFuzz <ref type="bibr">(Liu et al. 2019b</ref>) learns the correct C program grammar from the original GCC test suite through the seq2seq model. This model continuously generates grammatically correct C programs based on the learned grammar. Then, the strategies of insert, replace, and remove is used for testcases generation to fuzz the compiler.</p><p>V-Fuzz <ref type="bibr">(Li et al. 2019a</ref>) constructs a graph-embedded network to train a vulnerability prediction model. The fuzzer is guided to generate samples that tend to reach the area of potential vulnerabilities based on the trained model. The attribute control flow graph of the vulnerability function and the security function is extracted for learning on the function level. The probability of the evaluation is used as metrics for guiding the test sample preference in the prediction stage.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.3.">Testcase filter</head><p>During the fuzzing test, the PUT needs to execute a large number of samples, and it is time-consuming and inefficient to execute all the samples with uneven quality. The purpose of the testcase filter is to select the test input that is more likely to trigger new paths or vulnerabilities from a large number of samples. Input samples can be analyzed and classified to determine which samples should be further executed to find security vulnerabilities by using machine learning techniques. <ref type="bibr" target="#b35">Gong et al. (Gong et al. 2017</ref>) trained a deep learning model based on samples generated by AFL that caused the program state to be changed as well as the program state to be unchanged. Whether the sample generated by the new round of AFL could change the program state can be predicted by the trained model. Therefore, AFL cannot execute samples that cannot generate new states, which can improve the efficiency of fuzzer.</p><p>Augmented-AFL <ref type="bibr" target="#b75">(Rajpal et al. 2017)</ref> implements several neural network architectures to learn the capability to predict expected code coverage for a given set of input modifications. In the fuzzing, the learned function is used to predict the heat map of the complete input file, corresponding to the probability of mutations in the location of each file that results in new code coverage. The coverage map is then used to determine the priority of the mutation location.</p><p>Siddharth <ref type="bibr">(Karamcheti et al. 2018b</ref>) maps program inputs to execution trajectories and sorts the entropy of the execution trajectory distribution. Siddharth is based on the assumption that the higher the uncertainty, the more likely it is to execute a new code path, so the input with the maximal (most uncertain) entropy is selected to perform the next input.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.4.">Mutation operator selection</head><p>The concept of mutation operators in fuzzing is derived from the biological genetic algorithm. The mutation operator in fuzzing includes operations such as add, modify, and remove. Different mutations at different locations can have different effects. The selection strategy of the mutation operator is to achieve the goals of improving the fuzzing efficiency, such as increasing code coverage or including fragile paths. Inspired by feedback-driven random testing and reinforcement learning, Böttinger et al. <ref type="bibr" target="#b6">(Böttinger et al. 2018)</ref> proposed the first fuzzing method using reinforcement learning to maximize code coverage and less processing time. The model can learn the running characteristics of mutations when high returns are achieved.</p><p>FuzzerGym <ref type="bibr" target="#b25">(Drozd and Wagner 2018)</ref> uses LLVM Santizers' productive and efficient program monitor to obtain status information. This information is used to optimize mutation operator selection using reinforcement learning (RL). The advantages of reinforcement learning and fuzzing are combined to achieve more in-depth coverage across multiple benchmarks by integrating OpenAI Gym with libFuzzer, and realize the learning of the mutation-selection strategy directly from input data. <ref type="bibr">Karamcheti et al. (Karamcheti et al. 2018a</ref>) proposed a Thompson Sampling optimization method based on robbers, which can adaptively adjust the mutator distribution in the process of fuzzing a single program. It is determined which mutation operator should be selected by learning the impact of each mutation operator on code coverage. Finally, the selected mutation operator is used to mutate the test input in the next iteration.</p><p>FUZZBOOST <ref type="bibr" target="#b60">(Liu et al. 2019</ref>) uses code coverage information collected from runtime traces as a reward and optimizes this reward using the Deep Q-learning algorithm. By doing this, the fuzzing agent learns how to select mutation operators for mutating the seed program to improve the coverage of fuzzing tests.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.5.">Fitness function</head><p>In genetic algorithms, a fitness function is a particular type of objective function that is used to summarize, as a single figure of merit, how to close a given design solution to achieve the set aims <ref type="bibr">(Wikipedia 2019a)</ref>. Fitness function refers to the evaluation method used to distinguish the satisfactory and unsatisfactory standards of testcase in the state-of-the-art fuzzer based on genetic algorithm. Common fitness functions include code coverage, potential vulnerability position.</p><p>Xiao et al. <ref type="bibr" target="#b83">(Sun et al. 2018)</ref> proposed a new genetic programming-based fitness function, which is different from the current mainstream code coverage-based method. It combines Markov-chain and PCFG model to learn commonness from a corpus of normal scripts developed by programmers, and uses the learned information to compute the script uncommonness by measuring the deviation of the script to a common script. Scripts with larger deviation may be more likely to trigger errors in the interpreters. This deviation is used to compute the fitness of the GP-based language fuzzing script.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.6.">Exploitability analysis</head><p>Vulnerability exploitability refers to the possibility of the vulnerability being attacked and exploited by the attacker. It is an inherent property of vulnerability. In fuzzing, there are a lot of crashes and error messages, but a few of them are vulnerabilities. How to find real vulnerabilities from these crashes is a challenge. Commonly used vulnerability analysis methods are static analysis and dynamic analysis. Adopt the technology of tools such as !exploitable <ref type="bibr" target="#b86">(Team MSECMSS 2013)</ref>, CERT tools.</p><p>ExploitMeter <ref type="bibr" target="#b97">(Yan et al. 2017</ref>) uses the Bayesian machine learning algorithm to make initial judgments on the static features extracted from the software. The initial judgments and the exploitability judgments in the fuzzing process are combined to update the final Exploitability results.</p><p>Exniffer <ref type="bibr">(Tripathi et al. 2018</ref>) suggests using machine learning to determine more general rules for crash exploitability prediction automatically. The method uses support vector machines (SVM) to learn the features extracted from core dump files (generated during crashes) and information from the most recent processor hardware debugging extensions.</p><p>Zhan et al. <ref type="bibr">(Zhang and Thing 2019)</ref> generated compact fingerprints for dynamic execution tracking of each crash input based on n-gram analysis and feature hashing. The fingerprint is then fed to an online classifier to build a distinguishing model. Incremental learning enabled by online classifiers allows models to scale well even for large numbers of crashes, while being easy to update for new crashes.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.">Analysis of Machine Learning Based Fuzzing Model</head><p>The work that systematic comparison of the performance of various algorithms is lesser in the present work of choice of machine learning algorithms for fuzzing. This section systematically summarizes the knowledge of the machine learning model used in the fuzzing test. It summarizes the following five aspects: </p><formula xml:id="formula_1"></formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1.">Selection of machine learning algorithm</head><p>The fuzzing test utilizes the classification capability of machine learning to train hidden vulnerability detection models. The training data is from a large number of known sample sets and program execution feedback information, which can effectively improve the efficiency of vulnerability detection. However, different machine learning algorithms are applied to different scenarios. Even in the same scenario, choosing different algorithms can lead to significant differences in results <ref type="bibr" target="#b103">(Zou et al. 2018)</ref>. The input data of the fuzzer can be hexadecimal text, source code, binary string, network packet, and other forms. The PUT also contains complex syntax, semantics, and logical structure. It is a tough problem to judge which machine learning algorithm effective for the complex environment of the fuzzing test.</p><p>Table <ref type="table" target="#tab_2">3</ref> lists the machine learning algorithms and their distributions used in the fuzzing. The first column shows the name of the machine learning algorithms, and the second column counts the number of times the corresponding algorithm was used (appears and implemented in the literature). The third column indicates the category to which the algorithm belongs, including three categories: traditional machine learning, deep learning, and reinforcement learning. Each traditional machine learning algorithm is used only once. The reason for this phenomenon may be that traditional machine learning techniques require manual extraction of features. However, both the input sample format and the target program contain complex syntactic and semantic structures, and there are no valid vulnerability models or vulnerability features.</p><p>Deep learning relies on its representation learning to have the capability to automatically extract features for a wide range of applications in fuzzing testing. The two most used algorithms are LSTM and seq2seq, which are used 9 times and 6 times, respectively. The reason that LSTM is used the most is its excelling at processing sequential data: the program execution path is very similar to the statement in natural language, and whether a piece of code contains a vulnerability depends on the context. On the other hand, LSTM has a memory function suitable for handling long dependencies because the code associated with the vulnerability may be located at a relatively long distance in the path <ref type="bibr" target="#b90">(Wang et al. 2019)</ref>. The length of input and output sequences of the seq2seq model is variable, which can effectively use the input of fuzzing as text data to learn local or global syntax information. New neural networks, such as Generative adversarial network <ref type="bibr" target="#b36">(Goodfellow et al. 2014)</ref> and Graph Convolutional Network <ref type="bibr" target="#b49">(Kipf and Welling 2016)</ref>, is also used in the fuzzing test.</p><p>Reinforcement learning is used for the selection of mutation operators in the fuzzing test because reinforcement learning needs to choose different actions in different environments, which is similar to the selection of mutation operator. However, reinforcement learning itself has limitations, such as long training time, weak convergence, and local optimization, which leads to its less used in the fuzzing test <ref type="bibr" target="#b66">(Mnih et al. 2013</ref>). </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2.">Pre-processing method</head><p>Due to the different types of PUT, the input format is quite different, such as text, pictures, video, network data packets, and program code. This data needs to be converted into an input that can be used for machine learning. Table <ref type="table" target="#tab_3">4</ref> summarizes the data preprocessing methods commonly used for fuzzing tests. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Program analysis</head><p>The extracted information is transformed into vectors through static or dynamic analysis Natural language processing Direct use of n-gram, count statistics, Word2vec, heat map, and other ways to convert the input into a vector.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Others</head><p>A combination of program analysis and natural language processing, custom, take the entire file or component element as input</p><p>In fuzzing, pre-processing methods are divided into three categories: program analysis, natural language processing, and others. Program analysis refers to extracting program features or runtime information, such as stacks, registers, assembly instructions, jumps, program control flow graphs, abstract syntax trees, and program execution paths, by techniques using static or dynamic analysis <ref type="bibr" target="#b89">(Wang et al. 2017;</ref><ref type="bibr">Tripathi et al. 2018;</ref><ref type="bibr">Li et al. 2019a)</ref>. Natural language processing refers to the methods directly letting input as text, using sophisticated text processing techniques to extract hidden features in the input data, such as n-gram <ref type="bibr" target="#b19">(Damashek 1995)</ref>, count statistics, Word2vec <ref type="bibr" target="#b34">(Goldberg and Levy 2014)</ref>, heat map <ref type="bibr" target="#b93">(Wilkinson and Friendly 2009)</ref> and other methods <ref type="bibr">(Fan and Chang 2017;</ref><ref type="bibr" target="#b97">Yan et al. 2017;</ref><ref type="bibr">Karamcheti et al. 2018b)</ref>. Others include combining program analysis with natural language processing techniques <ref type="bibr" target="#b90">(Wang et al. 2019;</ref><ref type="bibr">Zhang and Thing 2019)</ref> or converting entire documents or pdf objects into vectors <ref type="bibr" target="#b75">(Rajpal et al. 2017;</ref><ref type="bibr" target="#b62">Lv et al. 2018)</ref>, as well as custom methods. As defined in the literature <ref type="bibr" target="#b35">(Gong et al. 2017)</ref>, the binary sequence of testcase is represented by 32-bits, fuzzing technique is represented by 4-bit, mutation bits is represented by 10-bit, and the mutation value is represented by 32-bits, whether the new test case is represented by 1-bit. Finally, each piece of data can be combined into a 79-bit binary sequence, with the first 78-bit as input and the last 1-bit as a label.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.3.">Datasets</head><p>The performance of machine learning is primarily influenced by the training data. Especially, deep learning can easily lead to over-fitting when the amount of data is insufficient. In the present work, the datasets used for machine learning algorithm based fuzzing test are the following sources:</p><formula xml:id="formula_2"> Web-crawler  Fuzzing generation  Self-build  Public dataset</formula><p>Web crawlers <ref type="bibr" target="#b63">(Menczer et al. 2001</ref>) are commonly used methods for collecting data, especially for widely used file formats such as DOC, PDF, SWF, and XML. Conventional crawling methods can be downloaded according to specific file extension filter conditions, specific magic bytes and other signature methods <ref type="bibr" target="#b33">(Godefroid et al. 2017;</ref><ref type="bibr" target="#b89">Wang et al. 2017;</ref><ref type="bibr" target="#b13">Cheng et al. 2019)</ref>.</p><p>The fuzzing generation is to executing a similar fuzzer such as AFL and collects the generated samples and their tag data (coverage, code execution path, etc.) for a period of time. This method can generate datasets in various formats, and the number of samples can be satisfied <ref type="bibr" target="#b35">(Gong et al. 2017;</ref><ref type="bibr" target="#b75">Rajpal et al. 2017;</ref><ref type="bibr" target="#b62">Lv et al. 2018;</ref><ref type="bibr">She et al. 2018</ref>).</p><p>The self-build approach is similar to the fuzzing generation, but it uses other means, such as a self-built communication environment to grab traffic packets as datasets <ref type="bibr">(Fan and Chang 2017;</ref><ref type="bibr" target="#b40">Hu et al. 2018;</ref><ref type="bibr">Li et al. 2019b</ref>).</p><p>The public datasets used and their corresponding categorizations are as follows:</p><p> Learning from "Big Code" datasets(Github 2017): At present, as an open-source project, making the above contains a large amount of public data associated with the code, such as Python ASTs(This dataset includes 100'000 + 50'000 python files as parsed abstract syntax trees along with the code of the parser), JavaScript ASTs(This dataset includes 150,000 JavaScript files. The data is available as JavaScript and as parsed abstract syntax trees).</p><p> The NIST SARD project datasets <ref type="bibr" target="#b71">(NIST 2006)</ref>: It is the ground truth of examining the problem code as a software assurance tool, which contains test cases of over 100,000 different programming languages, covering dozens of different categories of weaknesses, such as those in the Common Weakness Enumeration (CWE). These test cases contain files for all phases of the software lifecycle, such as design, source code, and binaries, which also contain patches for weaknesses.</p><p> GCC test suite datasets (GCC 2019): The GNU Compiler Collection includes front-ends for C, C++, Objective-C, Fortran, Java, Ada, and Go languages, as well as libraries for these languages (such as libstdc++, libgcj.).</p><p> DARPA Cyber Grand Challenge datasets (DARPA CGC 2016): The DARPA Network Challenge Binaries is a set of 200 binary programs with extensive functionalities released by DARPA. These programs are part of an open challenge for creating tools that automatically modify, validate, and fix errors. Common to all of these binaries is that each binary contains one or more bugs that are generated by humans when they programming, which is documented by the developers.</p><p> LAVA-M datasets <ref type="bibr" target="#b23">(Dolan-Gavitt et al. 2016</ref>): Consisting of four programs from the GNU Coreutils suite: uniq, base64, md5sum, and who, which are injected with 28, 44, 57, and 2265 errors with unique IDs, respectively, with some unlabeled errors. These errors are located deep in the program and are only triggered when an offset in the program input buffer matches a 4-byte "magic" (random) value. This data set has become popular in recent years for benchmarking complex white box fuzzers, symbolic execution tools, and some gray box fuzzers.</p><p> VDiscovery datasets <ref type="bibr" target="#b37">(Grieco et al. 2016</ref>): The dataset is released by VDiscovery which is a vulnerability discovery tool, and contains a total of 402 unique samples. These samples consist of 138,308 sequences of system calls for 1,039 Debian programs. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.4.">Evaluation metrics</head><p>The performance evaluation of the fuzzing methods based on machine learning technology can be divided into two aspects: the evaluation of the performance of the machine learning model and the evaluation of the vulnerability detection capability.</p><p>The evaluation of the machine learning model is based on the classification metrics. Table <ref type="table" target="#tab_4">5</ref> summarizes the metrics and detailed information used to evaluate the machine learning model in fuzzing, and the number of times these metrics were used was also counted. According to the statistics in Table <ref type="table" target="#tab_4">5</ref>, the most commonly used performance metrics are Accuracy and Precision, which are closely followed by Recall, Loss, FPR, and F-measure. FPR, Models perplexity is the least used.</p><p>The evaluation of vulnerability detection capability of the fuzzing method based on machine learning is the same as that of traditional fuzzing methods. Table <ref type="table" target="#tab_5">6</ref> summarizes the metrics and details of the vulnerability detection performance that have been used to evaluate the fuzzing method based on machine learning technology.</p><p>Both the traditional fuzzing method and the machine-learning-based fuzzing method are designed to find vulnerabilities. So coverage, unique crashes, and bugs are valid metrics for evaluating the performance of the fuzzing model. However, the fuzzing method based on machine learning has model training, feature extraction, and other steps, so efficiency is also used many literatures.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.5.">Hyperparameters setting</head><p>In the implementation of the machine learning model, the value of hyperparameters is not obtained through training but requires artificial settings before training. In general, it is necessary to optimize the hyperparameters and select an optimal set of hyperparameters to improve the performance and effectiveness of learning. Table <ref type="table" target="#tab_6">7</ref> analyzes and compares the works of literature, and summarizes the values that have been selected for some crucial hyperparameters in machine learning. The hyperparameters in the deep learning algorithm are mainly selected to complete the comparison, including the number of layers, number of nodes in each layer, epochs, activation function, and learning rate. The different number of layers and number of nodes in each layer will affect the accuracy and complexity of the whole neural network. Over-fitting will also occur when the number of nodes in each layer is large. In the fuzzing scenario, the maximum number of layers is 4, and the number of nodes are 128 and 256. As the number of epochs increases, the weight updating iterations of the neural network will increase, and the loss function curve will enter the optimized fitting state from the initial unfitting state to the over-fitting state. Usually, the maximum number of epochs selected is 50, but the best effect can be reached at 40. The choice of the activation function could improve the ability of the neural network to model expression, and solve the problem that cannot be solved by the linear model. However, the advantages and disadvantages of different activation functions are different, such as sigmoid input range between [0, 1], but there are "sigmoid saturate and kill gradients" and not "zero-centered" problems <ref type="bibr" target="#b54">(LeCun et al. 2012)</ref>. Tanh <ref type="bibr" target="#b27">(Fan 2000)</ref> solves the sigmoid output of not "zero-centered", but other problems still exist. In fuzzing, Sigmoid, ReLU, and Tanh are most commonly used activation functions. The learning rate controls the learning progress of the model and also affects the speed of the model's convergence to the local minimum value. A higher learning rate will easily lead to an explosion and shock of loss value, while a lower learning rate will lead to slow over-fitting and convergence speed. Many values of learning rate are selected in fuzzing, and 0.001 is used more.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.">Performance Evaluation of Fuzzing Model Based on Machine Learning</head><p>The performance evaluation of machine learning-based fuzzing model is divided into two parts: on the one hand, evaluating the performance of the machine learning model used in fuzzing to discuss whether machine learning technology is with reasonable classification ability in the scenario of fuzzing test. On the other hand, evaluating the vulnerability detection ability of the fuzzing model to discuss whether the vulnerability detection capability is improved by using machine learning technology. Considering that the detailed parameter settings of the experiments are not explicitly given in many works of literature, and the experimental codes are not open-sourced, the data used in this section are derived from the experimental data in the corresponding literature.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.1.">Performance evaluation of machine learning model for fuzzing</head><p>In this section, we summarize the results of the machine learning based fuzzing model. The results in Section V show that Accuracy, Precision, Recall, and Loss are the most frequently used performance measures in the selected research literatures. We provide the results of these four performance measures, where Accuracy, Precision, Recall values are selected as the maximum value of the model determined in each literature, the value of Loss is selected as the minimum value of the model determined in the corresponding literature. The results are shown in Fig. <ref type="figure" target="#fig_4">2</ref>, <ref type="figure">3</ref>, <ref type="figure">4</ref>, and <ref type="figure">5</ref>. Fig. 4. Comparison of Recall between different models Fig. 5. Comparison of loss between different models</p><p>The higher value of the three types of performance metrics, including accuracy, precision, and recall, indicates a more accurate prediction. In terms of accuracy, the value of the machine learning model in the listed literature is above 0.9. Precision results in Fig. <ref type="figure">3</ref> also show that the machine learning model in the listed literature has a precision value above 0.92. The statistical results of the performance metrics recall in Fig. <ref type="figure">4</ref> show that the lowest recall value in the listed literature is 0.6, and the highest recall value is 0.98. Especially, the values of the accuracy and precision are 1 in the Exploitmeter proposed by Yan'17-DT <ref type="bibr" target="#b97">(Yan et al. 2017)</ref>, which is the highest among the experimental results of multiple types of features. However, all of the experimental results of Exploitmeter average accuracy is 0.9, the precision of the average of around 0.4, and average recall is 0.2. The accuracy of V-fuzz proposed by Li '19 <ref type="bibr">(Li et al. 2019a</ref>) can reach more than 0.9 after the experiment is stable, but its recall value is also low, only 60%. The main reason for the occurrence of the values of these metrics in these two models is that the features selected in the paper are not highly correlated with vulnerabilities, so they cannot be used as the prediction of exploitable samples and vulnerability samples. However, the lower the value of the performance metrics Loss, the higher the robustness of the model. The statistical recall value in Fig. <ref type="figure">5</ref> is at least 0.05, and the highest is 0.53. The values of these performance metrics indicate that the machine learning model for fuzzing has reasonable predictive power.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.2.">Performance evaluation of vulnerability detection capability</head><p>In fuzzing test, there are challenges such as how to mutate and generate input seed files, how to increase coverage rate, and how to pass the validation effectively. Whether the application of machine learning technology can effectively alleviate some bottlenecks is the critical problems is studied in this paper. This chapter summarizes the experimental results of the fuzzing tools based on machine learning and evaluates them from the aspects of coverage, unique code path, unique crash or bug, Pass rate, and efficiency.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.2.1">Coverage</head><p>Coverage is the most frequently used metrics in the fuzzing test to evaluate the vulnerability detection performance. Table <ref type="table" target="#tab_7">8</ref> summarizes the experimental results of all the machine learning-based fuzzing models mentioned in this paper. On the whole, the application of machine learning technology in fuzzing improves code coverage. Especially, NEUZZ has a fourfold increase in coverage compared to baseline AFL <ref type="bibr">(She et al. 2018)</ref>. However, there are some models, such as V-Fuzz <ref type="bibr">(Li et al. 2019a</ref>), <ref type="bibr">Cheng'19 (Cheng et al. 2019)</ref>, SampleFuzz <ref type="bibr" target="#b33">(Godefroid et al. 2017)</ref>, and Augmented-AFL <ref type="bibr" target="#b75">(Rajpal et al. 2017)</ref>, which did not improve much comparing with the baseline. The reason can be summarized into three points: (1) not oriented for increasing coverage, but with a vulnerability-oriented driver process such as a vulnerable path; (2) the tension between the coverage and the pass rate, that is if the format of the generated sample is suitable, the coverage rate is low, and conversely, the coverage rate is high; (3) model query and execution trade-offs, the larger file will consume more time when the prediction process is performed before the fuzzing test. So in order to execute more samples in a short time, the size of selected sample files should be small, so that the code executed is limited. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.2.2">Unique code path</head><p>In terms of finding unique code paths. Augmented-AFL has significant gains compared to AFL in readpdf and readelf, which is up to 2 times, but no significant improvements in mupdf and libxml. Faster Fuzzing does not cause deep path exploration when the synthetic seed file is provided as input to the program compared to AFL. The model proposed by <ref type="bibr">Cheng '19 et al. (Fan and Chang 2018)</ref> explores an average of 24.30% more execution paths than AFL on mupdf programs. SmartSeed <ref type="bibr" target="#b62">(Lv et al. 2018</ref>) finds the most paths in 8 programs, ranked second 1 program, and ranked third in 3 programs among all the 12 target applications. SmartSeed + AFL find 30.7% unique paths of more than the best seed strategy available.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.2.3">Unique crash or bug</head><p>Table <ref type="table" target="#tab_8">9</ref> summarizes the results of crash and bug experiment in different works of literature. The fuzzing tools that introduce machine learning can find more crashes and bugs than the traditional fuzzing tool in the actual program and exposes multiple CVEs on the whole. However, there are also some tools, such as Neural fuzzing, that fail to find any crash during the experiment.  Table <ref type="table" target="#tab_9">10</ref> summarizes the number of bugs found by the traditional fuzzing tools and the machine learning-based fuzzing tools based on the LAVA-M dataset. The first line lists the four programs in LAVA-M, the second line lists the number of bugs exposed in each program, and the third line to the last line indicates the number of bugs found by each different fuzzing tools in the four programs of LAVA-M. The last four lines are the experimental results of the fuzzing tools using machine learning methods. From the statistical data, it can be found that the vulnerability discovery capability of the machine learning-based fuzzing tool is not improved compared with the state-of-the-art fuzzing tools, such as REDQUEEN <ref type="bibr" target="#b1">(Aschermann et al. 2019)</ref>, DigFuzz <ref type="bibr" target="#b102">(Zhao et al. 2019)</ref>, Angora(Chen and Chen 2018), InsFuzz <ref type="bibr" target="#b100">(Zhang et al. 2019)</ref> and T-fuzz <ref type="bibr" target="#b74">(Peng et al. 2018)</ref>. The only better one is the NEUZZ tool, which can maintain the highest number among three of the four programs. In general, the fuzzing method based on machine learning has not substantially improved the vulnerability detection capability compared with the traditional fuzzing method. However, there is a threat to the validity of this conclusion. Due to the different goals, fewer the machine learning-based fuzzing tools can test the LAVA-M dataset, so it is difficult to obtain and summarize the conclusions.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.2.4">Pass rate</head><p>The pass rate represents the percentage of generated samples that can pass the program's syntax check. Comparing to the 34% pass rate of CFG on XML, Skyfire <ref type="bibr" target="#b89">(Wang et al. 2017</ref>) has 85% XSL and 63% XML that can pass semantic detection and reach the application execution state due to its consideration of context. The pass rate of SampleFuzz <ref type="bibr" target="#b33">(Godefroid et al. 2017</ref>) is between 70% and 97%, showing good learning quality. The pass rate of DeepFuzz <ref type="bibr">(Liu et al. 2019b)</ref> increases with the number of iterations. The optimal pass rate of all sampling methods is achieved in 30 iterations of training. The highest pass rate is 82.63%, and the training is stable after 80%. Sample files generated by deep learning and automatic learning based on grammatical semantic information have a high sample pass rate. But finding a security vulnerability requires executing a file whose format is corrupted, so it is necessary to weigh the proportion of sample validity. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.2.5">Efficiency</head><p>The test efficiency is to evaluate the time overhead of the fuzzing runtime, including two aspects: execution time and generation time. Execution time refers to the time overhead of executing test samples in the fuzzing process, such as the time it finds a given number of crashes and hangs, the number of test samples executed per second, and the time it takes to execute the same test sample. The generation time refers to the time it takes to generate a seed file or a test sample. Table <ref type="table" target="#tab_10">11</ref> summarizes the experimental results of the test efficiency of the machine learning-based fuzzing models. In terms of execution time, using machine learning can select high-quality samples in advance and reduce the execution of useless samples. By doing this, fuzzer improves the efficiency of the fuzzing test. However, the execution speed of the Neufuzz <ref type="bibr" target="#b90">(Wang et al. 2019</ref>) is about 8% slower than PTfuzz <ref type="bibr">(Zhang et al. 2018</ref>) due to the need for path recovery. As for the generation time, since the grammar of the program input is learned by the machine learning method, files can be generated faster than traditional methods such as checking and filtering. In general, the fuzzing model using machine learning has a good improvement in test efficiency compared to the traditional fuzzing model.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.">Conclusion and Future Directions</head><p>In this paper, we systematically review the works of literature to analyze and assess the performance of machine learning techniques for fuzzing. First, we introduced the concept of fuzzing and the key challenges that currently exist. Second, we analyzed and summarized the reasons why machine learning technology can be used in fuzzing scenarios. Third, we emphatically summarized the use of machine learning techniques for different stages, such as seed file generation, testcase generation, testcase filter, mutation operator selection, fitness function, and exploitability analysis. Fourth, we summarized the characteristics of the primary research from the perspectives of selection on machine learning algorithm, pre-processing methods, datasets, evaluation metrics, and hyperparameters settings. Then the performances of the machine learning based fuzzing models are assessed based on four metrics (accuracy, precision, recall, and loss). The results depict that machine learning has an excellent predictive capability for fuzzing. Finally, the vulnerability discovery capability of the machine learning-based fuzzing tool is analyzed by comparing with the traditional fuzzing tool. By Comparing coverage, unique code path, unique crash or bug, pass rate, and efficiency, the results depict that the introduction of machine learning technology in fuzzing can improve the performance of fuzzing.</p><p>In some ways, however, machine learning based fuzzing tools has some drawbacks compared to the state-of-the-art fuzzing tools.</p><p>Future directions can be carried out from the following three aspects:</p><p>(1) Datasets</p><p>In this study, we find that there is no public dataset that can be used as a benchmark in the current fuzzing field. Datasets constructed from web crawlers, fuzzing generation, self-builds are not universal and are less recognized. Some public data sets have been used to contain fewer categories, fewer features, and the data used for training is unbalanced.</p><p>The quality of the data set will seriously affect the performance of the vulnerability detection model. Therefore, we believe that the introduction of machine learning into fuzzing must establish open data sets that can be used as a test benchmark.</p><p>(2) Feature selection</p><p>Machine learning constructs a classification model by learning the characteristics of the data sets. The selection of different features will lead to different classification accuracy and precision of the model. The structure of the program and the execution information are not directly related to the vulnerability in the field of vulnerability discovery, so how to select practical features from the program or sample becomes an essential factor affecting the performance of fuzzing. At present, the natural language processing technology is relatively mature, so we can consider using advanced technologies in the field of natural language processing to extract useful information such as code attributes, semantic and grammatical features of programs for fuzzing.</p><p>(</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>3) Selection of learning algorithms</head><p>Different machine learning techniques are suitable for different scenarios, and different network configurations can lead to different results. First of all, the characteristics of different stages of fuzzing, the size of the corresponding data, the advantages and disadvantages of different algorithms should be used as the basis for the algorithm selection. Secondly, graph convolutional networks, fusion neural networks, and interpretable deep learning models can all be tried to integrate with fuzzing, and it is necessary to study more complicated and suitable neural network models to improve the quality of generated samples.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Fig. 1 .</head><label>1</label><figDesc>Fig. 1. Working process of fuzzing</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><figDesc>Becker et al.<ref type="bibr" target="#b5">(Becker et al. 2010</ref>) specified a finite state machine and decomposed different message types to analyze the neighbor discovery protocol. The main idea of the work is to use the reinforcement learning model based on three different reward functions of tracking, debugging, and monitoring networks for fuzzing to choose the best fuzzing test strategy.LEFT<ref type="bibr" target="#b30">(Fang and Yan 2018</ref>) constructs a model based on reinforcement learning to fuzzing LTE functions in Android mobile phones. The model mainly includes three kinds of fuzzing methods: emulation-instrumented black-box fuzzing, threat-model-aware fuzzing, and RL-guided fuzzing.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><figDesc>Selection of machine learning algorithm  Pre-processing methods  Datasets  Evaluation metrics  Hyperparameters setting</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Fig. 2 .</head><label>2</label><figDesc>Fig. 2. Comparison of Accuracy between different models Fig. 3. Comparison of Precision between different models</figDesc><graphic coords="13,136.80,283.80,156.95,202.55" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_2"><head>Table 3 .</head><label>3</label><figDesc>Machine Learning Algorithm Distribution for Fuzzing</figDesc><table><row><cell>Algorithm</cell><cell>Number</cell><cell>Category</cell></row><row><cell>LR (Logistic Regression)</cell><cell>1</cell><cell></cell></row><row><cell>NB (Naive Bayes)</cell><cell>1</cell><cell></cell></row><row><cell>SVM (Support Vector Machines)</cell><cell>1</cell><cell></cell></row><row><cell>RF (Random Forest)</cell><cell>1</cell><cell></cell></row><row><cell>DT (Decision Tree)</cell><cell>1</cell><cell>Traditional Machine learning</cell></row><row><cell>PCFG (Probabilistic Context-Free Grammar)</cell><cell>1</cell><cell></cell></row><row><cell>PCSG(Probabilistic Context-Sensitive Grammar)</cell><cell>1</cell><cell></cell></row><row><cell>PA (Passive-Aggressive)</cell><cell>1</cell><cell></cell></row><row><cell>Thompson Sampling</cell><cell>1</cell><cell></cell></row><row><cell>RNN (Recurrent Neural Network)</cell><cell>3</cell><cell></cell></row><row><cell>CNN (Convolutional Neural Network)</cell><cell>2</cell><cell></cell></row><row><cell>LSTM (Long Short Term Memory)</cell><cell>9</cell><cell></cell></row><row><cell>GRU (Gate Recurrent Unit,)</cell><cell>1</cell><cell></cell></row><row><cell>BLSTM (Bidirectional Long Short-Term memory) Seq2seq (Sequence-to-sequence)</cell><cell>2 6</cell><cell>Deep learning</cell></row><row><cell>MLP (Multilayer Perceptron)</cell><cell>2</cell><cell></cell></row><row><cell>GCN (Graph Convolutional Network)</cell><cell>1</cell><cell></cell></row><row><cell>GAN (Generative Adversarial Networks)</cell><cell>2</cell><cell></cell></row><row><cell>WGAN (Wasserstein Generative Adversarial Networks)</cell><cell>2</cell><cell></cell></row><row><cell>Q-Learning</cell><cell>1</cell><cell></cell></row><row><cell>SARSA (State-action-reward-state-action) Deep Q-Learning</cell><cell>1 2</cell><cell>Reinforcement learning</cell></row><row><cell>Deep Double Q-Learning</cell><cell>1</cell><cell></cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_3"><head>Table 4 .</head><label>4</label><figDesc>Pre-processing Method for Machine Learning Technology in Fuzzing</figDesc><table><row><cell>Pre-processing Method</cell><cell>Description</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_4"><head>Table 5 .</head><label>5</label><figDesc>Evaluation Metrics and Details for Machine Learning Based Fuzzing Model</figDesc><table><row><cell>Performance metrics</cell><cell>Description</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_5"><head>Table 6 .</head><label>6</label><figDesc>Evaluation Metrics and Details for Fuzzing Model Based on Machine Learning</figDesc><table><row><cell>Performance metrics</cell><cell>Description</cell><cell>count</cell></row><row><cell>Coverage</cell><cell>It includes instruction coverage, basic block coverage, line</cell><cell>15</cell></row><row><cell></cell><cell>coverage, branch coverage, edge coverage, function</cell><cell></cell></row><row><cell></cell><cell>coverage, and relative coverage</cell><cell></cell></row><row><cell>Unique code path</cell><cell>It represents the number of code paths that are executed or</cell><cell>4</cell></row><row><cell></cell><cell>triggered during testing.</cell><cell></cell></row><row><cell>Unique crash or bug</cell><cell>It represents the number of unique crashes and bugs found</cell><cell>13</cell></row><row><cell></cell><cell>during testing.</cell><cell></cell></row><row><cell>Pass rate</cell><cell>It represents the proportion of samples generated that can be</cell><cell>3</cell></row><row><cell></cell><cell>verified by the syntax of PUT</cell><cell></cell></row><row><cell>Efficiency</cell><cell>It represents the measures of time consumption during</cell><cell>12</cell></row><row><cell></cell><cell>testing, such as training time of machine learning model,</cell><cell></cell></row><row><cell></cell><cell>seed generation speed, sample generation speed, execution</cell><cell></cell></row><row><cell></cell><cell>time, and so on.</cell><cell></cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_6"><head>Table 7 .</head><label>7</label><figDesc>Analysis of Hyperparameters Setting of Machine Learning based Fuzzing Model</figDesc><table><row><cell>Hyperparameters</cell><cell>Selected value</cell><cell>summary</cell></row><row><cell>Number of layers</cell><cell>1-8</cell><cell>Select a maximum of 4 layers and 2</cell></row><row><cell></cell><cell></cell><cell>hidden layers.</cell></row><row><cell>Number of nodes in each</cell><cell>32, 64, 100, 128, 256, 512, 1024, 4096,</cell><cell>Among them, 128 and 256 are more.</cell></row><row><cell>layer</cell><cell>8192</cell><cell></cell></row><row><cell>Epochs</cell><cell>5, 10, 15, 20, 30, 40, 50</cell><cell>The maximum epoch's option is 50,</cell></row><row><cell></cell><cell></cell><cell>but 40 works best.</cell></row><row><cell>Activation function</cell><cell>Sigmoid, elu, softplus, softsign, ReLU,</cell><cell>Sigmoid, ReLU, and tanh are most</cell></row><row><cell></cell><cell>tanh</cell><cell>commonly used.</cell></row><row><cell>Learning rate</cell><cell>0.0001, 0.0005, 0.001, 0.002, 0.02, 0.1</cell><cell>0.001 was used the most</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_7"><head>Table 8</head><label>8</label><figDesc>Results of Coverage Improvement Fuzzing Model Based on Machine Learning</figDesc><table><row><cell>Coverage category</cell><cell>Fuzzing model</cell><cell>comparison</cell><cell>result</cell></row><row><cell></cell><cell></cell><cell>AFL,</cell><cell></cell></row><row><cell></cell><cell>Neural Fuzzing</cell><cell>Augmented-AFL,</cell><cell>Increased by 2.26%, 7.73%, and 7.56% respectively.</cell></row><row><cell></cell><cell></cell><cell>SampleFuzz</cell><cell></cell></row><row><cell></cell><cell></cell><cell></cell><cell>Significant improvements in code coverage metrics for readelf and</cell></row><row><cell>basic block coverage</cell><cell>Augmented-AFL</cell><cell>AFL</cell><cell>readpng programs, a maximum increased by 1.26%, but in the other</cell></row><row><cell></cell><cell></cell><cell></cell><cell>two programs, performance is not much different.</cell></row><row><cell></cell><cell>V-Fuzz</cell><cell>VUzzer</cell><cell>Little difference.</cell></row><row><cell></cell><cell>FUZZBOOST</cell><cell>GCC test suite baseline</cell><cell>Increased by 37.14%.</cell></row><row><cell></cell><cell>Cheng'19</cell><cell>AFL</cell><cell>Increased by 2.18%</cell></row><row><cell></cell><cell>FuzzerGym</cell><cell>libFuzzer</cell><cell>Up to about 2.5 times more line coverage than libfuzzer.</cell></row><row><cell>line coverage,</cell><cell>Skyfire</cell><cell>Crawl+AFL</cell><cell>Increased by 20%</cell></row><row><cell></cell><cell>DEEPFUZZ</cell><cell>Csmith</cell><cell>Increased by 6.69％</cell></row><row><cell>relative coverage</cell><cell>Karamcheti'18'</cell><cell>FidgetyAFL, Batched FidgetyAFL AFL,</cell><cell>Higher code coverage is achieved, and as the number of executions increases, the gap grows. When executed up to 50,000 times, the relative coverage can be increased by about 10%.</cell></row><row><cell></cell><cell>Thompson Sampling</cell><cell>FidgetyAFL,</cell><cell>Increased by 10％.</cell></row><row><cell></cell><cell></cell><cell>FaireFuzz</cell><cell></cell></row><row><cell>function coverage</cell><cell>Skyfire DEEPFUZZ</cell><cell>Crawl+AFL Csmith</cell><cell>Increased by 15%. Increased by 2.26％.</cell></row><row><cell>instruction coverage</cell><cell>SampleFuzz Cheng'19</cell><cell>Normal sample execution SampleFuzz</cell><cell>Increase by about 1%. The new corpus covers 0.11% more instructions.</cell></row><row><cell></cell><cell></cell><cell>AFL,</cell><cell></cell></row><row><cell>branch coverage</cell><cell>NEUZZ</cell><cell>AFLFast, VUzzer, KleeFL, AFL-laf-intel,</cell><cell>It is 4 times higher than the AFL and 2.5 times higher than the AFLFast with the second-highest performance. Edge coverage of 3.7x to 8.4x is achieved in different projects compared to RNN-based fuzzes.</cell></row><row><cell></cell><cell></cell><cell>RNN</cell><cell></cell></row><row><cell></cell><cell>DEEPFUZZ</cell><cell>Csmith</cell><cell>Increased by 2.36％.</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_8"><head>Table 9</head><label>9</label><figDesc>Machine Learning-Based Fuzzing Compared to Baseline Results in Unique Crash and Bug Discovery Fuzz found the most unique crash, compared to VUzzer, the average number of unique crashes discovered by V-Fuzz increased by 35.8%; a unique crash was discovered faster than other fuzzers; On LAVA-M, V-Fuzz found more crashes; V-FUZZ found 10 CVEs, 3 of which are new.</figDesc><table><row><cell>Fuzzing model</cell><cell>Comparison</cell><cell>Result</cell></row><row><cell>SampleFuzz</cell><cell>--</cell><cell>One bug was discovered during the five-day experiment.</cell></row><row><cell>Augmented-AFL</cell><cell>AFL</cell><cell>More than 20 and 110 unique crashes were found on readelf and libxml programs, respectively.</cell></row><row><cell>NeuFuzz</cell><cell>PTfuzz, QAFL</cell><cell>On the LAVA-M dataset, 19 crashes were discovered, and more crashes were found than the 3 found by PTFuzz and 0 found in QAFL. In the real program, 42 vulnerabilities were discovered, 14 of which were disclosed by the predecessors, 21 of which were confirmed by CVE.</cell></row><row><cell>Skyfire+AFL</cell><cell>Crawl</cell><cell>Skyfire+AFL found 19 previously undiscovered memory crashes, 21 new denials of service bugs, more than Skyfire or Crawl+AFL. 11 of these vulnerabilities were identified as CVE.</cell></row><row><cell>DeepSmith</cell><cell>CLSmith</cell><cell>29 different compiler assertions are fired. DeepSmith also triggered 3 unreachable compile-time crashes that CLSmith did not trigger.</cell></row><row><cell>Cheng'19</cell><cell>AFL</cell><cell>67 crashes were triggered, including 2 CVE vulnerabilities, while AFL's original seed corpus triggered only 32 crashes, with no CVE vulnerabilities.</cell></row><row><cell></cell><cell>AFL,</cell><cell></cell></row><row><cell>NEUZZ</cell><cell>AFLFast, VUzzer, KleeFL,</cell><cell>60 bugs were found in 6 different programs, more than AFL (29), AFLFast (27), VUzzer (7), KleeFL (14), and AFL-laf-intel (26).</cell></row><row><cell></cell><cell>AFL-laf-intel</cell><cell></cell></row><row><cell cols="3">V-Fuzz V-SmartSeed+AFL Vuzzer, AFL, AFLFast Random, AFLresult, Peachset, Unique crash of 124.6% was found over the best seed strategy available, and 16 CVE vulnerabilities were Hotset, discovered.</cell></row><row><cell></cell><cell>AFL-cmin</cell><cell></cell></row><row><cell></cell><cell>+ AFL</cell><cell></cell></row><row><cell>Neural Fuzzing</cell><cell>--</cell><cell>No crash found</cell></row><row><cell>DeepFuzz</cell><cell>Csmith</cell><cell>DeepFuzz found 8 newly confirmed GCC errors.</cell></row><row><cell>Thompson Sampling</cell><cell>AFL, FidgetyAFL, FaireFuzz</cell><cell>Thompson Sampling found 1336 unique crashes in all 75 test binaries, almost twice the number found by any other fuzzer.</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_9"><head>Table 10 Machine</head><label>10</label><figDesc>Learning-Based Fuzzing Model and State-of-the-art Fuzzing Statistics on The Number of Vulnerabilities Discover on LAVA-M Datasets</figDesc><table><row><cell></cell><cell>base64</cell><cell>md5sum</cell><cell>uniq</cell><cell>who</cell></row><row><cell>#Bugs</cell><cell>44</cell><cell>57</cell><cell>28</cell><cell>2136</cell></row><row><cell>AFL</cell><cell>0</cell><cell>0</cell><cell>9</cell><cell>1</cell></row><row><cell>VUzzer</cell><cell>17</cell><cell>--</cell><cell>27</cell><cell>50</cell></row><row><cell>FUZZER</cell><cell>7</cell><cell>2</cell><cell>7</cell><cell>0</cell></row><row><cell>SES</cell><cell>9</cell><cell>0</cell><cell>0</cell><cell>18</cell></row><row><cell>Steelix</cell><cell>43</cell><cell>28</cell><cell>24</cell><cell>194</cell></row><row><cell>Angora</cell><cell>48</cell><cell>57</cell><cell>29</cell><cell>1,541</cell></row><row><cell>AFL-laf-intel</cell><cell>42</cell><cell>49</cell><cell>24</cell><cell>17</cell></row><row><cell>InsFuzz</cell><cell>48</cell><cell>38</cell><cell>11</cell><cell>802</cell></row><row><cell>T-fuzz</cell><cell>43</cell><cell>49</cell><cell>26</cell><cell>63</cell></row><row><cell>REDQUEEN</cell><cell>44</cell><cell>57</cell><cell>28</cell><cell>2134</cell></row><row><cell>DigFuzz</cell><cell>48</cell><cell>59</cell><cell>28</cell><cell>167</cell></row><row><cell>NEUZZ</cell><cell>48</cell><cell>60</cell><cell>29</cell><cell>1,582</cell></row><row><cell>NeuFuzz</cell><cell>6</cell><cell>--</cell><cell>5</cell><cell>8</cell></row><row><cell>Thompson Sampling</cell><cell>31</cell><cell>1</cell><cell>0</cell><cell>106</cell></row><row><cell>V-Fuzz</cell><cell>27</cell><cell>--</cell><cell>28</cell><cell>62</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_10"><head>Table 11 .</head><label>11</label><figDesc>Evolution Results of Efficiency Based on Machine Learning Fuzzing Model</figDesc><table><row><cell>Efficiency</cell><cell>Fuzzing model</cell><cell>Comparison</cell><cell>Result</cell></row><row><cell></cell><cell>Gong'17</cell><cell>AFL</cell><cell>On average, the time overhead increased by about 5%.</cell></row><row><cell>Execution time</cell><cell>NeuFuzz Bottinger'18</cell><cell>QAFL, PTFuzz random selection</cell><cell>In terms of execution efficiency (number of test cases executed per second), it is 2.5 times faster than QAFL and about 8% slower than PTFuzz. By combining time and coverage as rewards for reinforcement learning, execution time was improved by 11.3%</cell></row><row><cell></cell><cell>DeepSmith</cell><cell>CLSmith</cell><cell>DeepSmith averages 4.46 times faster than CLSmith in test case execution efficiency.</cell></row><row><cell></cell><cell>Faster Fuzzing</cell><cell>random selection, LSTM</cell><cell>The seed file generated by the GAN-based method is 14.23% faster than the random method and 60.72% faster than the LSTM.</cell></row><row><cell></cell><cell></cell><cell></cell><cell>Random selection is the fastest.SmartSeed takes 12 seconds to generate 100</cell></row><row><cell></cell><cell></cell><cell>random selection,</cell><cell>seed files and 240 seconds to generate 2000 seed files. For example, to generate</cell></row><row><cell></cell><cell>SmartSeed</cell><cell>peachset,</cell><cell>500 seed files, it takes peachset and AFL-cmin 2,500 seconds and 874 seconds</cell></row><row><cell>Generated</cell><cell></cell><cell>AFL-cmin,</cell><cell>respectively, and hotset needs &gt;2,000 minutes to select seeds from 500 files in</cell></row><row><cell>time</cell><cell></cell><cell></cell><cell>our experiment.</cell></row><row><cell></cell><cell>DeepSmith</cell><cell>CLSmith</cell><cell>The generation time of DeepSmith increases linearly with the length of the program, which is 2.45 times faster than CLSmith.</cell></row><row><cell></cell><cell></cell><cell></cell><cell>Skyfire generates 18,686, 19,324, and 525,647 XSL, XML, and JavaScript</cell></row><row><cell></cell><cell>Skyfire</cell><cell>--</cell><cell>seeds requiring only 20.3 seconds, 20.6 seconds, and 521.2 seconds,</cell></row><row><cell></cell><cell></cell><cell></cell><cell>respectively.</cell></row></table></figure>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>ACKNOWLEDGMENT</head><p>This work was supported by the <rs type="funder">National Key Research and Development Program of China</rs> under Grant <rs type="grantNumber">2017YFB0802900</rs>.</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_4W8sn9k">
+					<idno type="grant-number">2017YFB0802900</idno>
+				</org>
+			</listOrg>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">A comparison of machine learning techniques for phishing detection</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Abu-Nimeh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Nappa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Nair</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the anti-phishing working groups 2nd annual eCrime researchers summit</title>
+		<meeting>the anti-phishing working groups 2nd annual eCrime researchers summit</meeting>
+		<imprint>
+			<date type="published" when="2007">2007</date>
+			<biblScope unit="page" from="60" to="69" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">REDQUEEN: Fuzzing with Input-to-State Correspondence</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Aschermann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Schumilo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Blazytko</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Gawlik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Holz</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<publisher>NDSS</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">AEG: Automatic exploit generation</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Avgerinos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">K</forename><surname>Cha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Rebert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">J</forename><surname>Schwartz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Woo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Brumley</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Commun ACM</title>
+		<imprint>
+			<biblScope unit="volume">57</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="74" to="84" />
+			<date type="published" when="2014-02-01">2014 Feb 1</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Enhancing symbolic execution with veritesting</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Avgerinos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Rebert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">K</forename><surname>Cha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Brumley</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Commun ACM</title>
+		<imprint>
+			<biblScope unit="volume">59</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="93" to="100" />
+			<date type="published" when="2016-05-23">2016 May 23</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Synthesizing program input grammars</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Bastani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Sharma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Aiken</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Liang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM SIGPLAN Not</title>
+		<imprint>
+			<biblScope unit="volume">52</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="95" to="110" />
+			<date type="published" when="2017-06-14">2017 Jun 14</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">An Autonomic Testing Framework for IPv6 Configuration Protocols</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Becker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Abdelnur</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>State</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Engel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IFIP International Conference on Autonomous Infrastructure, Management and Security</title>
+		<meeting><address><addrLine>Berlin, Heidelberg</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2010">2010</date>
+			<biblScope unit="page" from="65" to="76" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Deep reinforcement fuzzing</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Böttinger</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Godefroid</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Singh</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2018 IEEE Security and Privacy Workshops</title>
+		<imprint>
+			<publisher>SPW). IEEE</publisher>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="116" to="122" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Parallel symbolic execution for automated real-world software testing</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Bucur</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Ureche</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Zamfir</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Candea</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the sixth conference on Computer systems. ACM</title>
+		<meeting>the sixth conference on Computer systems. ACM</meeting>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+			<biblScope unit="page" from="183" to="198" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">KLEE: Unassisted and Automatic Generation of High-Coverage Tests for Complex Systems Programs</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Cadar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Dunbar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">R</forename><surname>Engler</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc 8th USENIX Conf Oper Syst Des Implement</title>
+		<meeting>8th USENIX Conf Oper Syst Des Implement</meeting>
+		<imprint>
+			<date type="published" when="2008">2008</date>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="page" from="209" to="224" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">EXE: A system for automatically generating inputs of death using symbolic execution</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Cadar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Twohey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Ganesh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Engler</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the ACM Conference on Computer and Communications Security</title>
+		<meeting>the ACM Conference on Computer and Communications Security</meeting>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Unleashing Mayhem on Binary Code</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">K</forename><surname>Cha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Avgerinos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Rebert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Brumley</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2012 IEEE Symposium on Security and Privacy</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="380" to="394" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Efficient Fuzzing by Principled Search</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chen</forename><forename type="middle">H</forename><surname>Angora</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2018 IEEE Symposium on Security and Privacy (SP)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="711" to="725" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Taming compiler fuzzers</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Groce</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W-K</forename><surname>Wong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Fern</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Eide</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM SIGPLAN Not</title>
+		<imprint>
+			<biblScope unit="volume">23</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="197" to="208" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+	<note>Jun</note>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Optimizing seed inputs in fuzzing with machine learning</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Cheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Fu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 41st International Conference on Software Engineering: Companion Proceedings</title>
+		<meeting>the 41st International Conference on Software Engineering: Companion Proceedings</meeting>
+		<imprint>
+			<publisher>IEEE Press</publisher>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="244" to="245" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Machine Learning Methods for Software Vulnerability Detection</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Chernis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Verma</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the Fourth ACM International Workshop on Security and Privacy Analytics ACM</title>
+		<imprint>
+			<biblScope unit="page" from="31" to="39" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">S2E: A platform for in-vivo multi-path analysis of software systems</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Chipounov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Kuznetsov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Candea</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM SIGARCH Computer Architecture News</title>
+		<imprint>
+			<biblScope unit="page" from="265" to="278" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">A unified architecture for natural language processing: Deep neural networks with multitask learning</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Collobert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Weston</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 25th international conference on Machine learning</title>
+		<meeting>the 25th international conference on Machine learning</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2008">2008</date>
+			<biblScope unit="page" from="160" to="167" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Compiler fuzzing through deep learning</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Cummins</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Petoumenos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Murray</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Leather</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 27th ACM SIGSOFT International Symposium on Software Testing and Analysis</title>
+		<meeting>the 27th ACM SIGSOFT International Symposium on Software Testing and Analysis</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="95" to="105" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title level="m" type="main">Common Vulnerabilities &amp; Exposures [Internet]</title>
+		<author>
+			<persName><surname>Cve</surname></persName>
+		</author>
+		<ptr target="https://www.cvedetails.com/browse-by-date.php" />
+		<imprint>
+			<date type="published" when="2019-07-17">2019. 2019 Jul 17</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Gauging Similarity with n-Grams: Language-Independent Categorization of Text</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Damashek</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Science</title>
+		<imprint>
+			<biblScope unit="volume">80</biblScope>
+			<biblScope unit="issue">5199</biblScope>
+			<biblScope unit="page" from="843" to="848" />
+			<date type="published" when="1995-02-10">1995 Feb 10</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<author>
+			<persName><surname>Darpa Cgc</surname></persName>
+		</author>
+		<ptr target="https://github.com/CyberGrandChallenge" />
+		<title level="m">Darpa cyber grand challenge binaries</title>
+		<imprint>
+			<date type="published" when="2016">2016. 2019 Jul 17</date>
+		</imprint>
+	</monogr>
+	<note>Internet</note>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">A neural network component for an intrusion detection system</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Debar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Becker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Siboni</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings 1992 IEEE Computer Society Symposium on Research in Security and Privacy</title>
+		<meeting>1992 IEEE Computer Society Symposium on Research in Security and Privacy</meeting>
+		<imprint>
+			<date type="published" when="1992">1992</date>
+			<biblScope unit="page" from="240" to="250" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Deep learning: methods and applications</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Deng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Yu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Found Trends®in Signal Process</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="page" from="197" to="387" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Lava: Large-scale automated vulnerability addition</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Dolan-Gavitt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Hulin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Kirda</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Leek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mambretti</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Robertson</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2016 IEEE Symposium on Security and Privacy</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="110" to="121" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<monogr>
+		<title level="m" type="main">Flayer: exposing application internals</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Drewry</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Ormandy</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<monogr>
+		<author>
+			<persName><forename type="first">W</forename><surname>Drozd</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">D</forename><surname>Wagner</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1807.07490</idno>
+		<title level="m">FuzzerGym: A Competitive Framework for Fuzzing and Learning</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Static and dynamic analysis: Synergy and duality</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">D</forename><surname>Ernst</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">WODA 2003: ICSE Workshop on Dynamic Analysis</title>
+		<imprint>
+			<date type="published" when="2003">2003</date>
+			<biblScope unit="page" from="24" to="27" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Extended tanh-function method and its applications to nonlinear equations</title>
+		<author>
+			<persName><forename type="first">Fan</forename><forename type="middle">E</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Phys Lett A</title>
+		<imprint>
+			<biblScope unit="volume">277</biblScope>
+			<biblScope unit="issue">4-5</biblScope>
+			<biblScope unit="page" from="212" to="218" />
+			<date type="published" when="2000-12">2000 Dec</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Machine Learning for Black-Box Fuzzing of Network Protocols</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Fan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Chang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Information and Communications Security</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="621" to="632" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Machine learning for black-box fuzzing of network protocols</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Fan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Chang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Information and Communications Security</title>
+		<meeting><address><addrLine>Cham</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="621" to="632" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Emulation-Instrumented Fuzz Testing of 4G/LTE Android Mobile Devices Guided by Reinforcement Learning</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Fang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Yan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">European Symposium on Research in Computer Security</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="20" to="40" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Learning to detect phishing emails</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Fette</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Sadeh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Tomasic</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 16th international conference on World Wide Web</title>
+		<meeting>the 16th international conference on World Wide Web</meeting>
+		<imprint>
+			<date type="published" when="2007">2007</date>
+			<biblScope unit="page" from="649" to="656" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Grammar-based whitebox fuzzing</title>
+		<author>
+			<persName><forename type="first">Gcc</forename><surname>The ; Godefroid</surname></persName>
+			<affiliation>
+				<orgName type="collaboration">GNU Compiler Collection</orgName>
+			</affiliation>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Kiezun</surname></persName>
+			<affiliation>
+				<orgName type="collaboration">GNU Compiler Collection</orgName>
+			</affiliation>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Levin</surname></persName>
+			<affiliation>
+				<orgName type="collaboration">GNU Compiler Collection</orgName>
+			</affiliation>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">Y</forename></persName>
+			<affiliation>
+				<orgName type="collaboration">GNU Compiler Collection</orgName>
+			</affiliation>
+		</author>
+		<ptr target="http://learnbigcode.github.io/datasets/" />
+	</analytic>
+	<monogr>
+		<title level="m">Learning from &quot;Big Code</title>
+		<imprint>
+			<date type="published" when="2008-05-30">2019. 2019 Jul 17. 2017. 2019 Jul 17. 2008 May 30</date>
+			<biblScope unit="volume">43</biblScope>
+			<biblScope unit="page" from="206" to="215" />
+		</imprint>
+	</monogr>
+	<note>Internet Internet</note>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Machine learning for input fuzzing</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Godefroid</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Peleg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Singh</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Learn&amp;fuzz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2017 32nd IEEE/ACM International Conference on Automated Software Engineering (ASE)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="50" to="59" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<monogr>
+		<title level="m" type="main">word2vec Explained: deriving Mikolov et al.&apos;s negative-sampling word-embedding method</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Goldberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Levy</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1402.3722</idno>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Learn to Accelerate Identifying New Test Cases in Fuzzing</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Gong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zhou</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Security, Privacy and Anonymity in Computation, Communication and Storage</title>
+		<meeting><address><addrLine>Cham</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="298" to="307" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<analytic>
+		<title level="a" type="main">Generative adversarial nets</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Pouget-Abadie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Mirza</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Warde</forename><forename type="middle">-</forename><surname>Farley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Ozair</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in neural information processing systems</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="2672" to="2680" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">Toward Large-Scale Vulnerability Discovery using Machine Learning</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Grieco</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">L</forename><surname>Grinblat</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Uzal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Rawat</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Feist</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Mounier</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Sixth ACM Conference on Data and Application Security and Privacy</title>
+		<meeting>the Sixth ACM Conference on Data and Application Security and Privacy</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="85" to="96" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<analytic>
+		<title level="a" type="main">Dowsing for Overflows: A Guided Fuzzer to Find Buffer Boundary Violation. SEC &apos;13</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Haller</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Slowinska</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Bos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">M</forename><surname>Neugschwandtner</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">USENIX Conf Secur</title>
+		<imprint>
+			<biblScope unit="volume">22</biblScope>
+			<biblScope unit="page" from="49" to="64" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+	<note>Proc</note>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">Mining input grammars from dynamic taints</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Höschele</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Zeller</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 31st IEEE/ACM International Conference on Automated Software Engineering</title>
+		<meeting>the 31st IEEE/ACM International Conference on Automated Software Engineering</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="720" to="725" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<analytic>
+		<title level="a" type="main">Ganfuzz: A Gan-based industrial network protocol fuzzing framework</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Hu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Shi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Xiong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Bu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 15th ACM International Conference on Computing Frontiers</title>
+		<meeting>the 15th ACM International Conference on Computing Frontiers</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="138" to="145" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title level="a" type="main">MtNet: A Multi-Task Neural Network for Dynamic Malware Classification</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">W</forename><surname>Stokes</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Detection of Intrusions and Malware, and Vulnerability Assessment</title>
+		<meeting><address><addrLine>Cham</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="399" to="418" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b42">
+	<analytic>
+		<title level="a" type="main">A deep learning approach for network intrusion detection system</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Javaid</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Niyaz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Alam</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 9th EAI International Conference on Bio-inspired Information and Communications Technologies</title>
+		<meeting>the 9th EAI International Conference on Bio-inspired Information and Communications Technologies</meeting>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="21" to="26" />
+		</imprint>
+	</monogr>
+	<note>formerly BIONETICS</note>
+</biblStruct>
+
+<biblStruct xml:id="b43">
+	<analytic>
+		<title level="a" type="main">Dta++: dynamic taint analysis with targeted control-flow propagation</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">G</forename><surname>Kang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Mccamant</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Poosankam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Song</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">NDSS</title>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b44">
+	<analytic>
+		<title level="a" type="main">Adaptive Grey-Box Fuzz-Testing with Thompson Sampling</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Karamcheti</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Mann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Rosenberg</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the 11th ACM Workshop on Artificial Intelligence and Security</title>
+		<imprint>
+			<biblScope unit="page" from="37" to="47" />
+			<date type="published" when="2018">2018</date>
+			<publisher>ACM</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b45">
+	<monogr>
+		<title level="m" type="main">Improving Grey-Box Fuzzing by Modeling Program Behavior</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Karamcheti</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Mann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Rosenberg</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page">181108973</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b46">
+	<analytic>
+		<title level="a" type="main">Generating valid grammar-based test inputs by means of genetic programming and annotated grammars</title>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">M</forename><surname>Kifetew</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Tiella</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Tonella</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Empir Softw Eng</title>
+		<imprint>
+			<biblScope unit="volume">22</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="928" to="961" />
+			<date type="published" when="2017-04-14">2017 Apr 14</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b47">
+	<analytic>
+		<title level="a" type="main">An Abstract Interpretation-Based Framework for Control Flow Reconstruction from Binaries</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Kinder</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Zuleger</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Veith</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Workshop on Verification, Model Checking, and Abstract Interpretation</title>
+		<meeting><address><addrLine>Berlin, Heidelberg</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2009">2009</date>
+			<biblScope unit="page" from="214" to="228" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b48">
+	<analytic>
+		<title level="a" type="main">Symbolic execution and program testing</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">C</forename><surname>King</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Commun ACM</title>
+		<imprint>
+			<biblScope unit="volume">19</biblScope>
+			<biblScope unit="issue">7</biblScope>
+			<biblScope unit="page" from="385" to="394" />
+			<date type="published" when="1976-07-01">1976 Jul 1</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b49">
+	<monogr>
+		<title level="m" type="main">Semi-supervised classification with graph convolutional networks</title>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">N</forename><surname>Kipf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Welling</surname></persName>
+		</author>
+		<idno>arXiv160902907</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv Prepr</note>
+</biblStruct>
+
+<biblStruct xml:id="b50">
+	<analytic>
+		<title level="a" type="main">Imagenet classification with deep convolutional neural networks</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Krizhevsky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Sutskever</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in neural information processing systems</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="1097" to="1105" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b51">
+	<analytic>
+		<title level="a" type="main">An application of machine learning to anomaly detection</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Lane</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">E</forename><surname>Brodley</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 20th National Information Systems Security Conference</title>
+		<meeting>the 20th National Information Systems Security Conference</meeting>
+		<imprint>
+			<date type="published" when="1997">1997</date>
+			<biblScope unit="page" from="366" to="380" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b52">
+	<monogr>
+		<title level="m" type="main">AFL fuzzing strategies</title>
+		<author>
+			<persName><surname>Lcamtuf</surname></persName>
+		</author>
+		<ptr target="https://lcamtuf.blogspot.com/2014/08/binary-fuzzing-strategies-whatworks.html" />
+		<imprint>
+			<date type="published" when="2014">2014. 2019 Jul 18</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b53">
+	<analytic>
+		<title level="a" type="main">Deep learning</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lecun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<biblScope unit="issue">7553</biblScope>
+			<biblScope unit="page">436</biblScope>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b54">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">Y</forename><forename type="middle">A</forename><surname>Lecun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Bottou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">B</forename><surname>Orr</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">R</forename><surname>Müller</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="s">Efficient backprop. Lect Notes Comput Sci (including Subser Lect Notes Artif Intell Lect Notes Bioinformatics</title>
+		<imprint>
+			<biblScope unit="page" from="9" to="48" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b55">
+	<monogr>
+		<title level="m" type="main">Fuzzing: a survey. Cybersecurity</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Zhang</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018-12-05">2018 Dec 5</date>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="page">6</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b56">
+	<monogr>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ji</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Lv</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Gu</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1901.01142</idno>
+		<title level="m">Vulnerability-Oriented Evolutionary Fuzzing</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b57">
+	<monogr>
+		<title level="m" type="main">An Intelligent Fuzzing Data Generation Method Based on Deep Adversarial Learning</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Shi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Xiong</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<publisher>IEEE Access</publisher>
+			<biblScope unit="page" from="49327" to="49340" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b58">
+	<analytic>
+		<title level="a" type="main">Capturing the symptoms of malicious code in electronic documents by file&apos;s entropy signal combined with machine learning</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Qing</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Fang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Liu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Appl Soft Comput</title>
+		<imprint>
+			<biblScope unit="volume">82</biblScope>
+			<biblScope unit="page">105598</biblScope>
+			<date type="published" when="2019-09">2019a Sep</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b59">
+	<analytic>
+		<title level="a" type="main">Automatic Generation of Syntax Valid C Programs for Fuzz Testing</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Prajapati</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Deepfuzz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the... AAAI Conference on Artificial Intelligence</title>
+		<meeting>the... AAAI Conference on Artificial Intelligence</meeting>
+		<imprint>
+			<biblScope unit="volume">2019</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b60">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">Liu</forename><surname>Xiao</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Prajapati</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Li</forename><surname>Rupesh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">D</forename><surname>Xiaoting</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Reinforcement Compiler Fuzzing</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b61">
+	<analytic>
+		<title level="a" type="main">Pin: building customized program analysis tools with dynamic instrumentation</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Luk</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Cohn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Muth</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Patil</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Klauser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Lowney</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM SIGPLAN Not</title>
+		<imprint>
+			<biblScope unit="volume">40</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page">190</biblScope>
+			<date type="published" when="2005-06-12">2005 Jun 12</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b62">
+	<monogr>
+		<author>
+			<persName><forename type="first">C</forename><surname>Lv</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ji</forename><forename type="middle">S</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chen</forename><forename type="middle">J</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chen</forename><forename type="middle">J</forename><surname>Smartseed</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1807.02606</idno>
+		<title level="m">Smart Seed Generation for Efficient Fuzzing</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b63">
+	<analytic>
+		<title level="a" type="main">Evaluating topic-driven web crawlers</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Menczer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Pant</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Srinivasan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">E</forename><surname>Ruiz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 24th annual international ACM SIGIR conference on Research and development in information retrieval</title>
+		<meeting>the 24th annual international ACM SIGIR conference on Research and development in information retrieval</meeting>
+		<imprint>
+			<date type="published" when="2001">2001</date>
+			<biblScope unit="page" from="241" to="249" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b64">
+	<analytic>
+		<title level="a" type="main">An empirical study of the reliability of UNIX utilities</title>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">P</forename><surname>Miller</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Fredriksen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>So</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Commun ACM</title>
+		<imprint>
+			<biblScope unit="issue">12</biblScope>
+			<biblScope unit="page" from="32" to="44" />
+			<date type="published" when="1990-12-01">1990 Dec 1</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b65">
+	<analytic>
+		<title level="a" type="main">Machine learning and data mining</title>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">M</forename><surname>Mitchell</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Commun ACM</title>
+		<imprint>
+			<biblScope unit="volume">42</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<date type="published" when="1999">1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b66">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">V</forename><surname>Mnih</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Kavukcuoglu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Silver</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Graves</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Antonoglou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wierstra</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Playing Atari with Deep Reinforcement Learning. arXiv Prepr arXiv</title>
+		<imprint>
+			<date type="published" when="2013-12-19">13125602. 2013 Dec 19</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b67">
+	<analytic>
+		<title level="a" type="main">Format-aware Learn&amp;Fuzz: Deep Test Data Generation for Efficient Fuzzing</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">Z</forename><surname>Nasrabadi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Parsa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kalaee</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">arXiv Prepr arXiv</title>
+		<imprint>
+			<date type="published" when="2018-12-24">181209961. 2018 Dec 24</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b68">
+	<monogr>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">M</forename><surname>Neal</surname></persName>
+		</author>
+		<title level="m">Pattern Recognition and Machine Learning</title>
+		<imprint>
+			<date type="published" when="2007-08">2007 Aug</date>
+			<biblScope unit="volume">49</biblScope>
+			<biblScope unit="page" from="366" to="366" />
+		</imprint>
+	</monogr>
+	<note type="report_type">Technometrics</note>
+</biblStruct>
+
+<biblStruct xml:id="b69">
+	<monogr>
+		<author>
+			<persName><forename type="first">M</forename><surname>Neugschwandtner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Milani</forename><surname>Comparetti</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Haller</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Bos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>The</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Borg</surname></persName>
+		</author>
+		<title level="m">Proceedings of the 5th ACM Conference on Data and Application Security and Privacy -CODASPY &apos;15</title>
+		<meeting>the 5th ACM Conference on Data and Application Security and Privacy -CODASPY &apos;15<address><addrLine>New York, New York, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM Press</publisher>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="page" from="87" to="97" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b70">
+	<monogr>
+		<author>
+			<persName><forename type="first">N</forename><surname>Nichols</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Raugas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Jasper</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hilliard</forename><forename type="middle">N</forename><surname>Faster</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Fuzzing</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1711.02807</idno>
+		<title level="m">Reinitialization with Deep Neural Models</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b71">
+	<monogr>
+		<title level="m" type="main">The NIST SARD project</title>
+		<author>
+			<persName><surname>Nist</surname></persName>
+		</author>
+		<ptr target="https://samate.nist.gov/SRD/testsuite.php" />
+		<imprint>
+			<date type="published" when="2006">2006. 2019 Jul 17</date>
+		</imprint>
+	</monogr>
+	<note>Internet</note>
+</biblStruct>
+
+<biblStruct xml:id="b72">
+	<analytic>
+		<title level="a" type="main">Violating Assumptions with Fuzzing</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Oehlert</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Secur Priv Mag</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="58" to="62" />
+			<date type="published" when="2005-03">2005 Mar</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b73">
+	<analytic>
+		<title level="a" type="main">An Automatic Test Data Generation Tool using Machine Learning</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Paduraru</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M-C</forename><surname>Melemciuc</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 13th International Conference on Software Technologies</title>
+		<meeting>the 13th International Conference on Software Technologies</meeting>
+		<imprint>
+			<publisher>SCITEPRESS -Science and Technology Publications</publisher>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="506" to="515" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b74">
+	<analytic>
+		<title level="a" type="main">Fuzzing by Program Transformation</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Peng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Shoshitaishvili</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Payer</surname></persName>
+		</author>
+		<author>
+			<persName><surname>T-Fuzz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2018 IEEE Symposium on Security and Privacy</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="697" to="710" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b75">
+	<monogr>
+		<title level="m" type="main">Not all bytes are equal: Neural byte sieve for fuzzing</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Rajpal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Blum</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Singh</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017-11-09">2017 Nov 9</date>
+			<biblScope unit="page" from="1" to="10" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b76">
+	<analytic>
+		<title level="a" type="main">Optimizing seed selection for fuzzing</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Rebert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">K</forename><surname>Cha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Avgerinos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Foote</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Warren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Grieco</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">23rd {USENIX} Security Symposium</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="volume">14</biblScope>
+			<biblScope unit="page" from="861" to="875" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b77">
+	<analytic>
+		<title level="a" type="main">Recurrent Neural Networks for Fuzz Testing Web Browsers</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Sablotny</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">S</forename><surname>Jensen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">W</forename><surname>Johnson</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Information Security and Cryptology</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="354" to="370" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b78">
+	<analytic>
+		<title level="a" type="main">AddressSanitizer: a fast address sanity checker</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Serebryany</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Bruening</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Presented as part of the 2012 {USENIX} Annual Technical Conference</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page" from="309" to="318" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b79">
+	<monogr>
+		<author>
+			<persName><forename type="first">D</forename><surname>She</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Pei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Epstein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Ray</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jana</forename><forename type="middle">S</forename><surname>Neuzz</surname></persName>
+		</author>
+		<title level="m">Efficient Fuzzing with Neural Program Smoothing; IEEE Symposium on Security &amp; Privacy</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page">38</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b80">
+	<analytic>
+		<title level="a" type="main">Firmalice -Automatic Detection of Authentication Bypass Vulnerabilities in Binary Firmware</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Shoshitaishvili</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Hauser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Kruegel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Vigna</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings 2015 Network and Distributed System Security Symposium</title>
+		<meeting>2015 Network and Distributed System Security Symposium<address><addrLine>Reston, VA</addrLine></address></meeting>
+		<imprint>
+			<publisher>Internet Society</publisher>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b81">
+	<monogr>
+		<title level="m" type="main">Body armor for binaries: preventing buffer overflows without recompilation. ATC&apos;12 Proc 2012 USENIX Conf Annu Tech</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Slowinska</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Stancescu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Bos</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="125" to="137" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b82">
+	<analytic>
+		<title level="a" type="main">Automated Vulnerability Analysis: Leveraging Control Flow for Evolutionary Input Crafting</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Sparks</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Embleton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Cunningham</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Zou</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Twenty-Third Annual Computer Security Applications Conference</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2007">2007. 2007</date>
+			<biblScope unit="page" from="477" to="486" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b83">
+	<analytic>
+		<title level="a" type="main">Improving Fitness Function for Language Fuzzing with PCFG Model</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Fu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Dong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE 42nd Annual Computer Software and Applications Conference (COMPSAC)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2018">2018. 2018</date>
+			<biblScope unit="page" from="655" to="660" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b84">
+	<monogr>
+		<title level="m" type="main">Reinforcement learning: An introduction</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">S</forename><surname>Sutton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">G</forename><surname>Barto</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<publisher>MIT press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b85">
+	<monogr>
+		<title level="m" type="main">Introduction to reinforcement learning</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">S</forename><surname>Sutton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">G</forename><surname>Barto</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Others</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1998">1998</date>
+			<publisher>MIT press Cambridge</publisher>
+			<biblScope unit="volume">2</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b86">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">Msecmss</forename><forename type="middle">!</forename><surname>Team</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Exploitable</surname></persName>
+		</author>
+		<ptr target="http://msecdbg.codeplex.com" />
+		<imprint>
+			<date type="published" when="2013">2013. 2019 Jul 18</date>
+		</imprint>
+	</monogr>
+	<note>Internet</note>
+</biblStruct>
+
+<biblStruct xml:id="b87">
+	<monogr>
+		<title level="m" type="main">Automated behavioral and static analysis using an instrumented sandbox and machine learning classification for mobile security</title>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">H</forename><surname>Titonis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">R</forename><surname>Manohar-Alers</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">J</forename><surname>Wysopal</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<publisher>Google Patents</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b88">
+	<analytic>
+		<title level="a" type="main">Learning to Prioritize Crashes by Assessing the Exploitability from Memory Dump</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Tripathi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Grieco</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rawat</forename><forename type="middle">S</forename><surname>Exniffer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2017 24th Asia-Pacific Software Engineering Conference (APSEC)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="239" to="248" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b89">
+	<analytic>
+		<title level="a" type="main">Skyfire: Data-Driven Seed Generation for Fuzzing</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Wei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Liu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2017 IEEE Symposium on Security and Privacy</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="579" to="594" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b90">
+	<analytic>
+		<title level="a" type="main">Efficient Fuzzing With Deep Neural Network</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Wei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Wang</forename><forename type="middle">Q</forename><surname>Neufuzz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Access</title>
+		<imprint>
+			<biblScope unit="page" from="36340" to="36352" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b91">
+	<analytic>
+		<title level="a" type="main">Industrial perspective on static analysis</title>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">A</forename><surname>Wichmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">A</forename><surname>Canning</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dwr</forename><surname>Marsh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">L</forename><surname>Clutterbuck</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">A</forename><surname>Winsborrow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">J</forename><surname>Ward</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Softw Eng J</title>
+		<imprint>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page">69</biblScope>
+			<date type="published" when="1995">1995</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b92">
+	<monogr>
+		<title level="m" type="main">WannaCry ransomware attack</title>
+		<author>
+			<persName><surname>Wikipedia</surname></persName>
+		</author>
+		<ptr target="https://en.wikipedia.org/wiki/WannaCry_ransomware_attack" />
+		<imprint>
+			<date type="published" when="2019-07-06">2019. 2019 Jul 17. 2019. 2019 Jul 6</date>
+		</imprint>
+	</monogr>
+	<note>Internet Fitness function Internet</note>
+</biblStruct>
+
+<biblStruct xml:id="b93">
+	<analytic>
+		<title level="a" type="main">The history of the cluster heat map</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Wilkinson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Friendly</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Am Stat</title>
+		<imprint>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="179" to="184" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b94">
+	<monogr>
+		<title level="m" type="main">Data Mining: Practical machine learning tools and techniques</title>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">H</forename><surname>Witten</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Frank</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A</forename><surname>Hall</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">J</forename><surname>Pal</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>Morgan Kaufmann</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b95">
+	<monogr>
+		<title level="m" type="main">Vulnerability detection with deep learning</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Wang</forename><forename type="middle">W</forename></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017. 2017</date>
+			<biblScope unit="page" from="1298" to="1302" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b96">
+	<analytic>
+		<title level="a" type="main">Fitness-guided path exploration in dynamic symbolic execution</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Xie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Tillmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>De Halleux</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Schulte</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE/IFIP International Conference on Dependable Systems &amp; Networks</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2009">2009. 2009</date>
+			<biblScope unit="page" from="359" to="368" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b97">
+	<analytic>
+		<title level="a" type="main">Combining Fuzzing with Machine Learning for Automated Evaluation of Software Exploitability</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Yan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Lu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Shu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Kucuk</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Exploitmeter</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2017 IEEE Symposium on Privacy-Aware Computing (PAC)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="164" to="175" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b98">
+	<monogr>
+		<title level="m" type="main">American fuzzy lop</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Zalewski</surname></persName>
+		</author>
+		<ptr target="http://lcamtuf.coredump.cx/afl/" />
+		<imprint>
+			<date type="published" when="2016">2016. 2019 Jul 17</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b99">
+	<analytic>
+		<title level="a" type="main">Guided Fuzzing With Processor Trace Feedback</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Luo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Min</forename><forename type="middle">E</forename><surname>Ptfuzz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Access</title>
+		<imprint>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="37302" to="37313" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b100">
+	<analytic>
+		<title level="a" type="main">Fuzzing Binaries with Location Sensitivity</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Jia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Insfuzz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Access</title>
+		<imprint>
+			<biblScope unit="page" from="22434" to="22444" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b101">
+	<analytic>
+		<title level="a" type="main">Assisting Vulnerability Detection by Prioritizing Crashes with Incremental Learning</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vll</forename><surname>Thing</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">TENCON 2018-2018 IEEE Region 10 Conference</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="2080" to="2085" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b102">
+	<analytic>
+		<title level="a" type="main">Send Hardest Problems My Way: Probabilistic Path Prioritization for Hybrid Fuzzing</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Duan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Yin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xuan</forename><forename type="middle">J</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings 2019 Network and Distributed System Security Symposium</title>
+		<meeting>2019 Network and Distributed System Security Symposium<address><addrLine>Reston, VA</addrLine></address></meeting>
+		<imprint>
+			<publisher>Internet Society</publisher>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b103">
+	<analytic>
+		<title level="a" type="main">From automation to intelligence: Survey of research on vulnerability discovery techniques. Qinghua Daxue Xuebao</title>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Zou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Chen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal Tsinghua Univ</title>
+		<imprint>
+			<biblScope unit="issue">12</biblScope>
+			<biblScope unit="page" from="1079" to="1094" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

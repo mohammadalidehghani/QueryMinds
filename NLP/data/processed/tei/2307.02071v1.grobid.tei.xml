@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">A Comparison of Machine Learning Methods for Data with High-Cardinality Categorical Variables</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2023-07-06">July 6, 2023</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Fabio</forename><surname>Sigrist</surname></persName>
+							<email>fabio.sigrist@hslu.ch</email>
+							<affiliation key="aff0">
+								<orgName type="department">Sciences and Arts</orgName>
+								<orgName type="institution" key="instit1">Lucerne University of Applied</orgName>
+								<orgName type="institution" key="instit2">Lucerne University of Applied Sciences and Arts</orgName>
+								<address>
+									<addrLine>Suurstoffi 1</addrLine>
+									<postCode>6343</postCode>
+									<settlement>Rotkreuz</settlement>
+									<country key="CH">Switzerland</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">A Comparison of Machine Learning Methods for Data with High-Cardinality Categorical Variables</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2023-07-06">July 6, 2023</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">BE9BE936D03BD8046922C2CF41BFDE88</idno>
+					<idno type="arXiv">arXiv:2307.02071v1[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:07+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>Mixed effects machine learning</term>
+					<term>random effects</term>
+					<term>high-cardinality categorical variables</term>
+					<term>tree-boosting</term>
+					<term>deep neural networks</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>High-cardinality categorical variables are variables for which the number of different levels is large relative to the sample size of a data set, or in other words, there are few data points per level. Machine learning methods can have difficulties with high-cardinality variables. In this article, we empirically compare several versions of two of the most successful machine learning methods, tree-boosting and deep neural networks, and linear mixed effects models using multiple tabular data sets with high-cardinality categorical variables. We find that, first, machine learning models with random effects have higher prediction accuracy than their classical counterparts without random effects, and, second, tree-boosting with random effects outperforms deep neural networks with random effects.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>High-cardinality categorical variables are variables for which the number of different levels is large relative to the sample size of a data set or, equivalently, there is little data per level. Highcardinality categorical variables can pose difficulties for machine learning methods such as deep neural networks and tree-based models.</p><p>A simple strategy for dealing with categorical variables is to use one-hot encoding or dummy variables. But this approach often does not work well for high-cardinality categorical variables due to the reasons described below. For neural networks, a frequently adopted solution is to use entity embeddings <ref type="bibr" target="#b5">[Guo and Berkhahn, 2016</ref>] that map every level of a categorical variable into a low-dimensional Euclidean space. For tree-boosting, an alternative to one-hot encoding is to assign a number to every level of a categorical variable, and then consider this as a one-dimensional numeric variable. Another solution implemented in the LightGBM boosting library <ref type="bibr" target="#b8">[Ke et al., 2017]</ref> works by partitioning all levels into two subsets using an approximate approach <ref type="bibr" target="#b2">[Fisher, 1958]</ref> when finding splits in the tree-building algorithm. Further, the CatBoost boosting library <ref type="bibr" target="#b11">[Prokhorenkova et al., 2018]</ref> implements an approach based on ordered target statistics calculated using random partitions of the training data for handling categorical predictor variables.</p><p>Random effects <ref type="bibr">[Laird et al., 1982, Pinheiro and</ref><ref type="bibr" target="#b10">Bates, 2006]</ref> can also be used as a tool for handling high-cardinality categorical variables. In a random effects model, it is assumed that a (potentially transformed) parameter µ ∈ R n of the response variable distribution equals the sum of fixed F (X) and random effects Zb:</p><formula xml:id="formula_0">µ = F (X) + Zb, b ∼ N (0, Σ),</formula><p>where F (X) is the row-wise evaluation of a function</p><formula xml:id="formula_1">F (•) : R p → R, F (X) = (F (X 1 ), . . . , F (X n )) T , X i = (X i1 . . . , X ip ) T ∈ R p is the i-th row of the fixed effects variables matrix X ∈ R n×p , i = 1, . . . , n, b ∈ R m ,</formula><p>and Z ∈ R n×m . These models are called mixed effects models since they contain both fixed effects F (X) and random effects Zb. If the conditional response variable distribution is Gaussian and there is a single high-cardinality categorical variable, such a mixed effects model can also be written as</p><formula xml:id="formula_2">y ij = F (x ij ) + b i + ϵ ij , b i iid ∼ N (0, σ 2 1 ), ϵ ij iid ∼ N (0, σ 2 ),<label>(1)</label></formula><p>where j = 1, . . . , n i is the sample index within level i with n i being the number of samples for which the categorical variable attains level i, i = 1, . . . , q is the level index with q being the number of levels of the categorical variable, and x ij are the fixed effects predictor variables for observation ij. The total number of samples is n = q i=1 n i . Further, the random effects b i and ϵ ij are assumed to be independent. For this model, the matrix Z is simply a binary incidence matrix that maps every random effect b i to its corresponding observations and Σ = σ 2 I m .</p><p>In (generalized) linear mixed effects models it is assumed that F (•) is a linear function: F (X) = Xβ. In the last years, linear mixed effects models have been extended to non-linear ones using single trees <ref type="bibr" target="#b6">[Hajjem et al., 2011</ref><ref type="bibr" target="#b12">, Sela and Simonoff, 2012</ref><ref type="bibr" target="#b3">, Fu and Simonoff, 2015]</ref>, random forest <ref type="bibr" target="#b7">[Hajjem et al., 2014]</ref>, tree-boosting <ref type="bibr" target="#b14">[Sigrist, 2022</ref><ref type="bibr" target="#b15">[Sigrist, , 2023]]</ref>, and most recently (in terms of first public preprint) deep neural networks <ref type="bibr" target="#b16">[Simchoni and Rosset, 2021</ref><ref type="bibr" target="#b15">, 2023</ref><ref type="bibr" target="#b0">, Avanzi et al., 2023]</ref>. In contrast to classical independent machine learning models, the random effects introduce dependence among samples.</p><p>1.1 Why are random effects useful for high-cardinality categorical variables?</p><p>For high-cardinality categorical variables, there is little data for every level. Intuitively, if the response variable has a different (conditional) mean for many levels, traditional machine learning models (with, e.g., one-hot encoding, embeddings, or simply one-dimensional numeric variables) may have problems with over-or underfitting for such data. From the point of view of a classical bias-variance trade-off, independent machine learning models may have difficulties balancing this trade-off and finding an appropriate amount of regularization. For instance, overfitting may occur which means that a model has a low bias but high variance.</p><p>Broadly speaking, random effects act as a prior, or regularizer, which models the difficult part of a function, i.e., the part whose "dimension" is similar to the total sample size, and, in doing so, provide an effective way for finding a balance between over-and underfitting or bias and variance. For instance, for a single categorical variable, random effects models will shrink estimates of group intercept effects towards the global mean. This process is sometimes also called "information pooling". It represents a trade-off between completely ignoring the categorical variable (= underfitting / high bias and low variance) and giving every level in the categorical variable "complete freedom" in estimation (= overfitting / low bias and high variance). Importantly, the amount of regularization, which is determined by the variance parameters of the model, is learned from the data. Specifically, in the above single-level random effects model in (1), a (point) prediction ŷp for the response variable for a sample with predictor variables x p and categorical variable having level i is given by ŷp = F (x p ) + σ2</p><formula xml:id="formula_3">1 σ2 /n i + σ2 1 (ȳ i -Fi ),</formula><p>where F (x p ) is the trained function evaluated at x p , σ2 1 and σ2 are variance estimates, and ȳi and Fi are sample means of y ij and F (x ij ), respectively, for level i. Ignoring the categorical variable would give the prediction ŷp = F (x p ), and a fully flexible model without regularization gives ŷp = F (x p )+(ȳ i -Fi ). I.e., the difference between these two extreme cases and the random effects model is the shrinkage factor σ2 1 σ2 /ni+σ<ref type="foot" target="#foot_1">foot_1</ref> 1 (which goes to zero if the number of samples n i for level i is large). Related to this, random effects models allow for more efficient (i.e., lower variance) estimation of the fixed effects function F (•) <ref type="bibr" target="#b14">[Sigrist, 2022]</ref>. See also <ref type="bibr">Sigrist [2023, Section 1.1]</ref> for a discussion on why random effects are useful for modeling high-cardinality categorical variables.</p><p>In line with the above argumentation, <ref type="bibr">Sigrist [2023, Section 4</ref>.1] find in empirical experiments that tree-boosting combined with random effects outperforms traditional independent tree-boosting the more, the lower the number of samples per level of a categorical variable, i.e., the higher the cardinality of a categorical variable.</p><p>2 Methods, data sets, and experimental settings</p><p>In the following, we compare several methods using multiple real-world data sets with highcardinality categorical variables. We use all the publicly available tabular data sets from <ref type="bibr">Simchoni and</ref><ref type="bibr">Rosset [2021, 2023]</ref> and also the same experimental setting as in <ref type="bibr">Simchoni and</ref><ref type="bibr">Rosset [2021, 2023]</ref>. In addition, we include the Wages data set analyzed in <ref type="bibr" target="#b14">Sigrist [2022]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">Methods</head><p>We consider the following methods:</p><p>• 'Linear': linear mixed effects models • 'NN Embed': deep neural networks with embeddings • 'LMMNN': combining deep neural networks and random effects <ref type="bibr">[Simchoni and</ref><ref type="bibr">Rosset, 2021, 2023]</ref> • 'LGBM Num': tree-boosting by assigning a number to every level of categorical variables and considering these as one-dimensional numeric variables</p><p>• 'LGBM Cat': tree-boosting with the approach of LightGBM <ref type="bibr" target="#b8">[Ke et al., 2017]</ref> for categorical variables</p><p>• 'CatBoost': tree-boosting with the approach of CatBoost <ref type="bibr" target="#b11">[Prokhorenkova et al., 2018]</ref> for categorical variables</p><p>• 'GPBoost': combining tree-boosting and random effects <ref type="bibr" target="#b14">[Sigrist, 2022</ref><ref type="bibr" target="#b15">[Sigrist, , 2023] ]</ref> The MERF algorithm of <ref type="bibr" target="#b7">Hajjem et al. [2014]</ref> is another promising mixed effects machine learning method, but its current implementation in the form of a Python package<ref type="foot" target="#foot_0">foot_0</ref> is prohibitively slow for the sample sizes of the data sets considered here. Also note that, recently (starting with version 1.6), the XGBoost library <ref type="bibr" target="#b1">[Chen and Guestrin, 2016]</ref> has also implemented the same approach as LightGBM for handling categorical variables. 2 We do not consider this as a separate approach here.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">Data sets</head><p>Table <ref type="table" target="#tab_0">1</ref> gives an overview of the data sets. For more details on the data, we refer to <ref type="bibr">Simchoni and</ref><ref type="bibr">Rosset [2021, 2023]</ref> and <ref type="bibr" target="#b14">Sigrist [2022]</ref>. For all methods with random effects, we include random effects for every categorical variable mentioned in and Wages data sets are longitudinal data sets. This means that the samples for every level or the categorical variables are repeated measurements over time t. As in <ref type="bibr" target="#b17">Simchoni and Rosset [2023]</ref>, we additionally include random coefficients (= random slopes), for the time variables t and t 2 besides intercept random effects with no prior correlation among the random effects. I.e., these random effects models are given by</p><formula xml:id="formula_4">y ij = F (x ij ) + b 0,i + b 1,i • t ij + b 2,i • t 2 ij + ϵ ij , b k,i iid ∼ N (0, σ 2 k ), k ∈ {1, 2, 3}, ϵ ij iid ∼ N (0, σ 2 ),</formula><p>where b 1,i and b 2,i are the random slopes.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3">Experimental setting</head><p>We use the same experimental setting as in <ref type="bibr" target="#b17">Simchoni and Rosset [2023]</ref> to compare the different methods. This means that we perform 5-fold cross-validation with the test mean squared error (MSE) to measure prediction accuracy. For the longitudinal data sets, we use the "random mode" 5-fold CV setting of <ref type="bibr" target="#b17">Simchoni and Rosset [2023]</ref> where in every fold, 80% of the data is used for training and 20% of the data for validation irrespective of the time variable t. The results for neural networks with embeddings and also neural networks with random effects (LMMNN) are taken from <ref type="bibr">Simchoni and</ref><ref type="bibr">Rosset [2021, 2023]</ref>; see <ref type="bibr">Simchoni and</ref><ref type="bibr">Rosset [2021, 2023]</ref> for more details on the specifications of these two modeling approaches. For linear mixed effects models,</p><p>LGBM Num, LGBM Cat, GPBoost, and GPBoost I, we use the GPBoost library version 1.2.1 which is built upon the LightGBM library. Further, we use version 1.1.1 of the CatBoost library. For all tree-boosting methods, we choose tuning parameters on every of the five training sets in the 5-fold CV by randomly splitting the training data into inner training data containing 80% of the outer training data and validation data consisting of the remaining 20%. We use a deterministic grid search with the mean squared error as a selection criterion and consider the following parameter combinations: number of boosting iterations M ∈ {1, . . . , 1000}, learning rate ∈ {1, 0.1, 0.01}, maximal tree-depth ∈ {1, 2, 3, 5, 10}, minimal number of samples per leaf ∈ {10, 100, 1000}, and L2 penalty on leaf values ∈ {0, 1, 10}. For the machine learning models with random effects, one can either exclude or include the high-cardinality categorical variables in the fixed effects function. When additionally including them, one allows for potential interaction between the categorical variables and other predictor variables. For GPBoost, we consider this as a tuning parameter option. However, the difference between these two modeling options is minor which is an indication that there is no interaction present; see Table <ref type="table">4</ref> in the appendix, where we report the results when separately either excluding or including the high-cardinality categorical variables in the fixed effects tree ensemble function.</p><p>Code for pre-processing the data with instructions on how to download the data and code for running the experiments can be found at <ref type="url" target="https://github.com/fabsig/Compare_ML_HighCardinality_Categorical_Variables">https://github.com/fabsig/Compare_ML_HighCardinality_  Categorical_Variables</ref>. Pre-processed data for modeling can also be found on the above webpage for data sets for which the license of the original source permits it.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Results</head><p>The results are reported in Figure <ref type="figure">1</ref> and Table <ref type="table" target="#tab_1">2</ref>. Table <ref type="table" target="#tab_1">2</ref> reports test mean squared errors (MSE) and corresponding standard errors. To summarize the prediction accuracy over the different data sets, we report average relative differences to the best result and average ranks. The former is obtained by calculating the relative difference of a test MSE of a method compared to the lowest MSE for every data set and then taking the average over all data sets. In Figure <ref type="figure">1</ref>, we also report the average relative difference to the best result. In addition, Table <ref type="table" target="#tab_3">3</ref> in the appendix reports average wall clock times.</p><p>Figure <ref type="figure">1</ref>: Average relative difference (in %) to the lowest test MSE. The Wages data set is not included for calculating this since not all methods were run on it.</p><p>The results in Table <ref type="table" target="#tab_1">2</ref> show that combined tree-boosting and random effects (GPBoost) has the highest prediction accuracy. GPBoost has an average relative difference to the best result of 7.02% and an average rank of 2.14. Combined neural networks and random effects (LMMNN) have an average relative difference to the best result of 17.3% and an average rank of 3.57. LightGBM (LGBM Cat) has a similar average relative difference to the best result of 17.4% and an average rank of 2.71. Next, CatBoost has an average relative difference to the best method of 44.5% and an average rank of 2.86. Linear mixed effects models perform worse having an average relative difference of approximately 47.6% and an average rank of 4.71. Overall worst perform neural networks with embeddings having an average relative difference to the best result of 189%. Tree-boosting with the categorical variables transformed to one-dimensional numeric variables (LGBM Num) performs slightly better with an average relative difference to the best result of 111%.<ref type="foot" target="#foot_3">foot_3</ref> </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Conclusion</head><p>We empirically compare various versions of tree-boosting and deep neural networks as well as linear mixed effects models on multiple tabular data sets with high-cardinality variables. We find that, first, machine learning models with random effects have higher prediction accuracy than their classical independent counterparts without random effects and, second, tree-boosting with random effects performs better than deep neural networks with random effects. While there may be several reasons for the latter finding, this is in line with the recent work of <ref type="bibr" target="#b4">Grinsztajn et al. [2022]</ref> who find that tree-boosting outperforms deep neural networks (and also random forest) on tabular data without high-cardinality categorical variables. Similarly, Shwartz-Ziv and Armon [2022] conclude that tree-boosting "outperforms deep models on tabular data." Appendices A Additional results Dataset Linear LGBM Cat LGBM Num CatBoost GPBoost NN Embed LMMNN Airbnb 1.93 6.41 0.952 16.8 14.4 825. 95.4 IMDb 183. 1.82 1.63 19.8 236. 55.8 144. Spotify 99.1 5.06 1.10 7.07 90.6 12.7 57.1 News 138. 1.02 1.54 93.1 63.9 31.1 83.9 InstEval 95.3 4.64 0.773 25.5 682. 51.1 92.5 Rossmann 8.22 3.61 1.32 54.6 1.45 53.6 76.3 AUimport 37.7 8.87 0.604 17.7 45.9 107. 175. Wages 19.6 3.61 2.41 43.6 34.2 Table 4: Results when either excluding ('GPBoost E') or including ('GPBoost I') the categorical variables in the fixed effects tree ensemble function for GPBoost.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="5,139.34,301.23,332.57,266.06" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 1 :</head><label>1</label><figDesc>Table1with no prior correlation among random effects. The Rossmann, AUImport, Summary of data sets. n is the number of samples, p is the number of predictor variables (excl. high-cardinality categorical variables), K is the number of high-cardinality categorical variables, and 'Cat. var.' describes the categorical variable(s).</figDesc><table><row><cell>Dataset</cell><cell>n</cell><cell>p</cell><cell cols="2">K Cat. var.</cell><cell cols="2">Nb. levels Response var.</cell></row><row><cell>Airbnb</cell><cell>50K</cell><cell cols="2">196 1</cell><cell>host</cell><cell>39K</cell><cell>price (log)</cell></row><row><cell>IMDb</cell><cell>88K</cell><cell cols="2">159 2</cell><cell>director</cell><cell>38K</cell><cell>avg. movie score</cell></row><row><cell></cell><cell></cell><cell></cell><cell></cell><cell cols="2">movie type 1.7K</cell><cell></cell></row><row><cell>Spotify</cell><cell>28K</cell><cell>14</cell><cell>4</cell><cell>artist</cell><cell>10K</cell><cell>song danceability</cell></row><row><cell></cell><cell></cell><cell></cell><cell></cell><cell>album</cell><cell>22K</cell><cell></cell></row><row><cell></cell><cell></cell><cell></cell><cell></cell><cell>playlist</cell><cell>2.3K</cell><cell></cell></row><row><cell></cell><cell></cell><cell></cell><cell></cell><cell>subgenre</cell><cell>553</cell><cell></cell></row><row><cell>News</cell><cell>81K</cell><cell cols="2">176 2</cell><cell>source</cell><cell>5.4K</cell><cell>nb. shares (log)</cell></row><row><cell></cell><cell></cell><cell></cell><cell></cell><cell>title</cell><cell>72K</cell><cell></cell></row><row><cell>InstEval</cell><cell>73K</cell><cell>3</cell><cell>3</cell><cell>student</cell><cell>2.9K</cell><cell>teacher rating</cell></row><row><cell></cell><cell></cell><cell></cell><cell></cell><cell>teacher</cell><cell>1.1K</cell><cell></cell></row><row><cell></cell><cell></cell><cell></cell><cell></cell><cell cols="2">department 14</cell><cell></cell></row><row><cell cols="2">Rossmann 33K</cell><cell>23</cell><cell>1</cell><cell>store</cell><cell>1.1K</cell><cell>total sales (in 100K)</cell></row><row><cell cols="3">AUimport 125K 8</cell><cell>1</cell><cell cols="2">commodity 5K</cell><cell>total import (log)</cell></row><row><cell>Wages</cell><cell>28K</cell><cell>52</cell><cell>1</cell><cell>person</cell><cell>4.7K</cell><cell>wage (log)</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>Table 2 :</head><label>2</label><figDesc>Average test mean squared error (MSE) and standard errors in parentheses. Best results are bold. 'Avg. rank' denotes the average rank of a method. 'Avg. rel. dif.' denotes the average relative difference in % of a method compared to the best method. The Wages data set is not included for calculating ranks and relative differences since not all methods were run on it.</figDesc><table><row><cell>Dataset</cell><cell>Linear</cell><cell cols="3">LGBM Cat LGBM Num CatBoost</cell><cell>GPBoost</cell><cell cols="2">NN Embed LMMNN</cell></row><row><cell>Airbnb</cell><cell>0.268</cell><cell>0.131</cell><cell>0.132</cell><cell>0.131</cell><cell>0.125</cell><cell>0.158</cell><cell>0.142</cell></row><row><cell></cell><cell>(0.0748)</cell><cell>(0.00283)</cell><cell>(0.00285)</cell><cell>(0.00267)</cell><cell>(0.00264)</cell><cell>(0.00158)</cell><cell>(0.00167)</cell></row><row><cell>IMDb</cell><cell>1.02</cell><cell>0.954</cell><cell>1.05</cell><cell>0.922</cell><cell>0.850</cell><cell>1.26</cell><cell>0.974</cell></row><row><cell></cell><cell>(0.00730)</cell><cell>(0.00721)</cell><cell>(0.00830)</cell><cell>(0.0117)</cell><cell>(0.00825)</cell><cell>(0.124)</cell><cell>(0.00933)</cell></row><row><cell>Spotify</cell><cell>0.0111</cell><cell>0.00858</cell><cell>0.00880</cell><cell>0.00851</cell><cell>0.00910</cell><cell>0.0164</cell><cell>0.00926</cell></row><row><cell></cell><cell>(9.20e-05)</cell><cell>(6.23e-05)</cell><cell>(5.79e-05)</cell><cell>(4.69e-05)</cell><cell cols="2">(0.000164) (0.000540)</cell><cell>(8.34e-05)</cell></row><row><cell>News</cell><cell>1.88</cell><cell>1.89</cell><cell>2.37</cell><cell>1.85</cell><cell>1.72</cell><cell>1.89</cell><cell>1.81</cell></row><row><cell></cell><cell>(0.0146)</cell><cell>(0.0147)</cell><cell>(0.0157)</cell><cell>(0.0160)</cell><cell>(0.0131)</cell><cell>(0.0215)</cell><cell>(0.0190)</cell></row><row><cell>InstEval</cell><cell>1.44</cell><cell>1.44</cell><cell>1.53</cell><cell>1.46</cell><cell>1.47</cell><cell>1.50</cell><cell>1.45</cell></row><row><cell></cell><cell>(0.00672)</cell><cell>(0.00746)</cell><cell>(0.00549)</cell><cell>(0.00711)</cell><cell>(0.0230)</cell><cell>(0.00669)</cell><cell>(0.00492)</cell></row><row><cell>Rossmann</cell><cell>0.0153</cell><cell>0.00627</cell><cell>0.0124</cell><cell>0.01000</cell><cell>0.00877</cell><cell>0.0516</cell><cell>0.0105</cell></row><row><cell></cell><cell cols="2">(0.000552) (0.000188)</cell><cell>(0.000848)</cell><cell cols="3">(0.000267) (0.000284) (0.00600)</cell><cell>(0.000162)</cell></row><row><cell>AUimport</cell><cell>0.743</cell><cell>1.26</cell><cell>4.56</cell><cell>2.15</cell><cell>0.651</cell><cell>3.35</cell><cell>0.713</cell></row><row><cell></cell><cell>(0.0138)</cell><cell>(0.0269)</cell><cell>(0.0177)</cell><cell>(0.0477)</cell><cell>(0.00396)</cell><cell>(0.455)</cell><cell>(0.00700)</cell></row><row><cell>Wages</cell><cell>0.321</cell><cell>0.102</cell><cell>0.0992</cell><cell>0.0920</cell><cell>0.0830</cell><cell></cell><cell></cell></row><row><cell></cell><cell>(0.0222)</cell><cell>(0.00259)</cell><cell>(0.00234)</cell><cell>(0.00251)</cell><cell>(0.00200)</cell><cell></cell><cell></cell></row><row><cell>Avg. rank</cell><cell>4.71</cell><cell>2.71</cell><cell>5.57</cell><cell>2.86</cell><cell>2.14</cell><cell>6.43</cell><cell>3.57</cell></row><row><cell cols="2">Avg. rel. dif. 47.6</cell><cell>17.4</cell><cell>111.</cell><cell>44.5</cell><cell>7.02</cell><cell>189.</cell><cell>17.3</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_3"><head>Table 3 :</head><label>3</label><figDesc>Average wall-clock time in seconds. Note that except for the linear model, the wallclock time depends on the chosen tuning parameters. The experiments for 'NN Embed' and 'LMMNN' were run on Google Colab with NVIDIA Tesla V100 GPU machines (see<ref type="bibr" target="#b17">Simchoni and Rosset, 2023)</ref>, and all for all other methods, a laptop with an Intel i7-12800H processor was used.</figDesc><table><row><cell>Dataset</cell><cell>Linear</cell><cell cols="3">LGBM Cat LGBM Num CatBoost</cell><cell cols="4">GPBoost E GPBoost I NN Embed LMMNN</cell></row><row><cell>Airbnb</cell><cell>0.268</cell><cell>0.131</cell><cell>0.132</cell><cell>0.131</cell><cell>0.124</cell><cell>0.125</cell><cell>0.158</cell><cell>0.142</cell></row><row><cell></cell><cell>(0.0748)</cell><cell>(0.00283)</cell><cell>(0.00285)</cell><cell>(0.00267)</cell><cell>(0.00272)</cell><cell>(0.00265)</cell><cell>(0.00158)</cell><cell>(0.00167)</cell></row><row><cell>IMDb</cell><cell>1.02</cell><cell>0.954</cell><cell>1.05</cell><cell>0.922</cell><cell>0.883</cell><cell>0.850</cell><cell>1.26</cell><cell>0.974</cell></row><row><cell></cell><cell>(0.00730)</cell><cell>(0.00721)</cell><cell>(0.00830)</cell><cell>(0.0117)</cell><cell>(0.00837)</cell><cell>(0.00825)</cell><cell>(0.124)</cell><cell>(0.00933)</cell></row><row><cell>Spotify</cell><cell>0.0111</cell><cell>0.00858</cell><cell>0.00880</cell><cell>0.00851</cell><cell>0.00894</cell><cell>0.00986</cell><cell>0.0164</cell><cell>0.00926</cell></row><row><cell></cell><cell>(9.20e-05)</cell><cell>(6.23e-05)</cell><cell>(5.79e-05)</cell><cell>(4.69e-05)</cell><cell>(6.99e-05)</cell><cell>(0.000227)</cell><cell>(0.000540)</cell><cell>(8.34e-05)</cell></row><row><cell>News</cell><cell>1.88</cell><cell>1.89</cell><cell>2.37</cell><cell>1.85</cell><cell>1.78</cell><cell>1.72</cell><cell>1.89</cell><cell>1.81</cell></row><row><cell></cell><cell>(0.0146)</cell><cell>(0.0147)</cell><cell>(0.0157)</cell><cell>(0.0160)</cell><cell>(0.0143)</cell><cell>(0.0131)</cell><cell>(0.0215)</cell><cell>(0.0190)</cell></row><row><cell>InstEval</cell><cell>1.44</cell><cell>1.44</cell><cell>1.53</cell><cell>1.46</cell><cell>1.44</cell><cell>1.47</cell><cell>1.50</cell><cell>1.45</cell></row><row><cell></cell><cell>(0.00672)</cell><cell>(0.00746)</cell><cell>(0.00549)</cell><cell>(0.00711)</cell><cell>(0.00685)</cell><cell>(0.0230)</cell><cell>(0.00669)</cell><cell>(0.00492)</cell></row><row><cell>Rossmann</cell><cell>0.0153</cell><cell>0.00627</cell><cell>0.0124</cell><cell>0.01000</cell><cell>0.00910</cell><cell>0.00877</cell><cell>0.0516</cell><cell>0.0105</cell></row><row><cell></cell><cell cols="2">(0.000552) (0.000188)</cell><cell>(0.000848)</cell><cell cols="2">(0.000267) (0.000229)</cell><cell>(0.000284)</cell><cell>(0.00600)</cell><cell>(0.000162)</cell></row><row><cell>AUimport</cell><cell>0.743</cell><cell>1.26</cell><cell>4.56</cell><cell>2.15</cell><cell>0.714</cell><cell>0.651</cell><cell>3.35</cell><cell>0.713</cell></row><row><cell></cell><cell>(0.0138)</cell><cell>(0.0269)</cell><cell>(0.0177)</cell><cell>(0.0477)</cell><cell>(0.00550)</cell><cell>(0.00396)</cell><cell>(0.455)</cell><cell>(0.00700)</cell></row><row><cell>Wages</cell><cell>0.321</cell><cell>0.102</cell><cell>0.0992</cell><cell>0.0920</cell><cell>0.0829</cell><cell>0.0830</cell><cell></cell><cell></cell></row><row><cell></cell><cell>(0.0222)</cell><cell>(0.00259)</cell><cell>(0.00234)</cell><cell>(0.00251)</cell><cell>(0.00191)</cell><cell>(0.00205)</cell><cell></cell><cell></cell></row><row><cell>Avg. rank</cell><cell>5.71</cell><cell>3.29</cell><cell>6.43</cell><cell>3.71</cell><cell>2.43</cell><cell>2.71</cell><cell>7.43</cell><cell>4.29</cell></row><row><cell cols="2">Avg. rel. dif. 47.7</cell><cell>17.4</cell><cell>111.</cell><cell>44.5</cell><cell>9.63</cell><cell>8.36</cell><cell>189.</cell><cell>17.3</cell></row></table></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0"><p>https://github.com/manifoldai/merf</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_1"><p>See https://xgboost.readthedocs.io/en/stable/tutorials/categorical.html#optimal-partitioning (retrieved on June</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_2"><p>30, 2023)   </p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="3" xml:id="foot_3"><p>In their online documentation, LightGBM recommends "For a categorical feature with high cardinality, it often works best to treat the feature as numeric ..."; see https://lightgbm.readthedocs.io/en/latest/Advanced-Topics.html#categorical-feature-support (retrieved on June 30, 2023). We clearly come to a different conclusion.</p></note>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<author>
+			<persName><forename type="first">B</forename><surname>Avanzi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Taylor</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Wong</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2301.12710</idno>
+		<title level="m">Machine Learning with High-Cardinality Categorical Features in Actuarial Applications</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">XGBoost: A scalable tree boosting system</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Guestrin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 22nd acm sigkdd international conference on knowledge discovery and data mining</title>
+		<meeting>the 22nd acm sigkdd international conference on knowledge discovery and data mining</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="785" to="794" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">On grouping for maximum homogeneity</title>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">D</forename><surname>Fisher</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the American statistical Association</title>
+		<imprint>
+			<biblScope unit="volume">53</biblScope>
+			<biblScope unit="issue">284</biblScope>
+			<biblScope unit="page" from="789" to="798" />
+			<date type="published" when="1958">1958</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">regression trees for longitudinal and clustered data</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Fu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">S</forename><surname>Simonoff</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computational Statistics &amp; Data Analysis</title>
+		<imprint>
+			<biblScope unit="volume">88</biblScope>
+			<biblScope unit="page" from="53" to="74" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Why do tree-based models still outperform deep learning on typical tabular data</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Grinsztajn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Oyallon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Varoquaux</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<editor>
+			<persName><forename type="first">S</forename><surname>Koyejo</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">S</forename><surname>Mohamed</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">A</forename><surname>Agarwal</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">D</forename><surname>Belgrave</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">K</forename><surname>Cho</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">A</forename><surname>Oh</surname></persName>
+		</editor>
+		<imprint>
+			<publisher>Curran Associates, Inc</publisher>
+			<date type="published" when="2022">2022</date>
+			<biblScope unit="volume">35</biblScope>
+			<biblScope unit="page" from="507" to="520" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<author>
+			<persName><forename type="first">C</forename><surname>Guo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Berkhahn</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1604.06737</idno>
+		<title level="m">Entity embeddings of categorical variables</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Mixed effects regression trees for clustered data</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Hajjem</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Bellavance</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Larocque</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Statistics &amp; probability letters</title>
+		<imprint>
+			<biblScope unit="volume">81</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="451" to="459" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Mixed-effects random forest for clustered data</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Hajjem</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Bellavance</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Larocque</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Statistical Computation and Simulation</title>
+		<imprint>
+			<biblScope unit="volume">84</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="1313" to="1328" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">LightGBM: A highly efficient gradient boosting decision tree</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Ke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Meng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Finley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Ye</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T.-Y</forename><surname>Liu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="3149" to="3157" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Random-effects models for longitudinal data</title>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">M</forename><surname>Laird</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">H</forename><surname>Ware</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Biometrics</title>
+		<imprint>
+			<biblScope unit="volume">38</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="963" to="974" />
+			<date type="published" when="1982">1982</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">Mixed-effects models in S and S-PLUS</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Pinheiro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Bates</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+			<publisher>Springer Science &amp; Business Media</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">CatBoost: unbiased boosting with categorical features</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Prokhorenkova</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Gusev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Vorobev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">V</forename><surname>Dorogush</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gulin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="6638" to="6648" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">RE-EM trees: a data mining approach for longitudinal and clustered data</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">J</forename><surname>Sela</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">S</forename><surname>Simonoff</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Machine learning</title>
+		<imprint>
+			<biblScope unit="volume">86</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="169" to="207" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Tabular data: Deep learning is not all you need</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Shwartz-Ziv</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Armon</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Information Fusion</title>
+		<imprint>
+			<biblScope unit="volume">81</biblScope>
+			<biblScope unit="page" from="84" to="90" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Gaussian Process Boosting</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Sigrist</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">23</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="10565" to="10610" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Latent Gaussian Model Boosting</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Sigrist</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Pattern Analysis and Machine Intelligence</title>
+		<imprint>
+			<biblScope unit="volume">45</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="1894" to="1905" />
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Using random effects to account for high-cardinality categorical features and repeated measures in deep neural networks</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Simchoni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Rosset</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<biblScope unit="volume">34</biblScope>
+			<biblScope unit="page" from="25111" to="25122" />
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Integrating Random Effects in Deep Neural Networks</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Simchoni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Rosset</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">24</biblScope>
+			<biblScope unit="issue">156</biblScope>
+			<biblScope unit="page" from="1" to="57" />
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

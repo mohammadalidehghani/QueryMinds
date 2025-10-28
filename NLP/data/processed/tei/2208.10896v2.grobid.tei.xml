@@ -1,0 +1,816 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">pystacked: Stacking generalization and machine learning in Stata</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2023-03-06">6 Mar 2023</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Achim</forename><surname>Ahrens</surname></persName>
+							<email>achim.ahrens@gess.ethz.ch</email>
+							<affiliation key="aff0">
+								<orgName type="department">Heriot-Watt University Edinburgh</orgName>
+								<orgName type="institution" key="instit1">ETH Zürich</orgName>
+								<orgName type="institution" key="instit2">University of Chicago</orgName>
+								<address>
+									<country key="GB">United Kingdom</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Christian</forename><forename type="middle">B</forename><surname>Hansen</surname></persName>
+							<email>christian.hansen@chicagobooth.edu</email>
+							<affiliation key="aff0">
+								<orgName type="department">Heriot-Watt University Edinburgh</orgName>
+								<orgName type="institution" key="instit1">ETH Zürich</orgName>
+								<orgName type="institution" key="instit2">University of Chicago</orgName>
+								<address>
+									<country key="GB">United Kingdom</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Mark</forename><forename type="middle">E</forename><surname>Schaffer</surname></persName>
+							<email>m.e.schaffer@hw.ac.uk</email>
+							<affiliation key="aff0">
+								<orgName type="department">Heriot-Watt University Edinburgh</orgName>
+								<orgName type="institution" key="instit1">ETH Zürich</orgName>
+								<orgName type="institution" key="instit2">University of Chicago</orgName>
+								<address>
+									<country key="GB">United Kingdom</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">pystacked: Stacking generalization and machine learning in Stata</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2023-03-06">6 Mar 2023</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">C64BCEAB99249C21E55BE02FC259D8CC</idno>
+					<idno type="arXiv">arXiv:2208.10896v2[econ.EM]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>st0001</term>
+					<term>machine learning</term>
+					<term>stacked generalization</term>
+					<term>model averaging</term>
+					<term>Stata</term>
+					<term>Python</term>
+					<term>sci-kit learn © yyyy StataCorp LP st0001</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>pystacked implements stacked generalization <ref type="bibr" target="#b25">(Wolpert, 1992)</ref> for regression and binary classification via Python's scikit-learn. Stacking combines multiple supervised machine learners-the "base" or "level-0" learners-into a single learner. The currently supported base learners include regularized regression, random forest, gradient boosted trees, support vector machines, and feed-forward neural nets (multi-layer perceptron). pystacked can also be used as a 'regular' machine learning program to fit a single base learner and, thus, provides an easyto-use API for scikit-learn's machine learning algorithms.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>When faced with a new prediction or classification task, it is a priori rarely obvious which machine learning algorithm is best suited. A common approach is to evaluate the performance of a set of machine learners on a hold-out partition of the data or via cross-validation and then select the machine learner that minimizes a chosen loss metric. However, this approach is incomplete as combining multiple learners into one final prediction might lead to superior performance compared to each individual learner. This possibility motivates stacked generalization, or simply stacking, due to <ref type="bibr" target="#b25">Wolpert (1992)</ref> and <ref type="bibr" target="#b3">Breiman (1996)</ref>. Stacking is a form of model averaging. Theoretical results in van der <ref type="bibr" target="#b24">Laan et al. (2007)</ref> support the use of stacking as it performs asymptotically at least as well as the best-performing individual learner as long as the number of base learners is not too large.</p><p>In this article, we introduce pystacked for stacking regression and binary classification in Stata. pystacked allows users to fit multiple machine learning algorithms via Python's scikit-learn <ref type="bibr" target="#b22">(Pedregosa et al. 2011;</ref><ref type="bibr" target="#b5">Buitinck et al. 2013)</ref> and combine these into one final prediction as a weighted average of individual predictions. pystacked adds to the growing number of programs for machine learning in Stata, including, among others, lassopack for regularized regression <ref type="bibr" target="#b0">(Ahrens et al. 2020)</ref>, rforest for random forests <ref type="bibr" target="#b23">(Schonlau and Zou 2020)</ref> and svm for support vector machines <ref type="bibr" target="#b12">(Guenther 2016;</ref><ref type="bibr" target="#b13">Guenther and Schonlau 2018)</ref>. Similarly to pystacked, <ref type="bibr" target="#b6">Cerulli (2022)</ref> and <ref type="bibr" target="#b10">Droste (2020)</ref> provide an interface to scikit-learn in Stata. mlrtime allows Stata users to make use of R's parsnip machine learning library <ref type="bibr" target="#b16">(Huntington-Klein 2021)</ref>. pystacked differs from these in that it is, to our knowledge, the first to make stacking available to Stata users. Furthermore, pystacked can also be used to fit a single machine learner and thus provides an easy-to-use and versatile API to scikit-learn's machine learning algorithms.</p><p>Stacking is widely used in applied predictive modeling in many disciplines, e.g., for predicting mortality <ref type="bibr" target="#b17">(Hwangbo et al. 2022)</ref>, bankruptcy filings <ref type="bibr" target="#b20">(Liang et al. 2020;</ref><ref type="bibr" target="#b11">Fedorova et al. 2022)</ref>, or temperatures <ref type="bibr" target="#b15">(Hooker et al. 2018)</ref>. The use of stacking as a method and pystacked as a program is, however, not only restricted to pure prediction or classification tasks. A growing literature exploits machine learning to facilitate causal inference (see for an overview <ref type="bibr" target="#b2">Athey and Imbens 2019)</ref>. Indeed, a motivation for writing pystacked is that it can be used in combination with ddml <ref type="bibr">(Ahrens et al. 2023a,b)</ref>, which implements the Double-Debiased Machine Learning (DDML) methodology of <ref type="bibr" target="#b7">Chernozhukov et al. (2018)</ref>. DDML utilizes cross-fitting, a form of iterative sample splitting, which allows leveraging a wide class of supervised machine learners, including stacking, for the estimation of causal parameters. For instance, in the context of DDML, stacking can be used to estimate the conditional expectation of an outcome with respect to confounders or propensity scores.</p><p>We stress that pystacked relies on Python's scikit-learn (version 0.24 or higher) and the ongoing work of the scikit-learn contributors. Thus, pystacked relies on Stata's Python integration which was introduced in Stata 16.0. We kindly ask users to cite scikit-learn along with this article when using pystacked. Throughout we refer to version 0.7 of pystacked, which is the latest version at the time of writing. Please check for updates to pystacked on a regular basis and consult the help file to be informed about new features. The pystacked help file includes information on how to install a recent Python version and set up Stata's Python integration. Section 2 introduces stacking. Section 3 presents the main features of the pystacked program. Section 4 demonstrates the use of the program using examples.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Methodology</head><p>In this section, we briefly summarize the stacking approach for regression and binary classification tasks. <ref type="bibr" target="#b19">Van der Laan et al. (2011)</ref> provides a book-length treatment; for a concise textbook treatment, see <ref type="bibr" target="#b14">Hastie et al. (2009)</ref>.</p><p>We first focus on stacking for regression problems where the aim is to predict the continuous outcome y i using predictors x i . The idea of stacking is to combine a set of "base" (or "level-0") learners using a "final" (or "level-1") estimator. It is advisable to include a relatively large and diverse set of base learners to capture different types of patterns in the data. The same algorithm can also be included more than once using different tuning or hyper-tuning parameters. Typical choices for base learners are regularized regression or ensemble methods, such as random forests or gradient boosting.</p><p>In the first step of stacking, we obtain cross-validated predicted values ŷ-k(i) (j),i for each base learner j and observation i. The super-script "-k(i)" indicates that we form the cross-fitted predicted value for observation i by fitting the learner to all folds except fold k(i), which is the fold that includes observation i. The use of cross-validation is necessary as stacking would otherwise give more weight to base learners that suffer from over-fitting. The second step is to fit a final learner using the observed y i as the outcome and the cross-validated predicted values ŷ-k(i)</p><p>(1),i , . . . , ŷ-k(i) (J),i as predictors. A typical choice for the final learner is constrained least squares, which enforces the stacking weights to be non-negative and sum to one. This restriction facilitates the interpretation of stacking as a weighted average of base learners and may lead to better performance <ref type="bibr" target="#b3">(Breiman 1996;</ref><ref type="bibr" target="#b14">Hastie et al. 2009)</ref>. Algorithm 1 summarizes the stacking algorithm for regression problems as it is implemented in pystacked. </p><formula xml:id="formula_0">n i=1   y i - J j=1 w j ŷ-k(i) (j),i   2 s.t. w j ≥ 0, J j=1 w j = 1</formula><p>The stacking predicted values are defined as ŷ i = j ŵj ŷ(j),i where ŵj is the estimated stacking weight corresponding to learner j and ŷ(j),i are the predicted values from re-fitting learner j on the full sample I.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>It is instructive to compare</head><p>Step 2 with the classical 'winner-takes-all' approach that selects one base learner as the one which exhibits the lowest cross-validated loss. Stacking, in contrast, may assign non-zero weights to multiple base learners, thus combining their strengths to produce a better overall predictor than any of the individual base learners. Other choices for the final learner are possible. In addition to the default final learner, pystacked supports, among others, non-negative least squares without the constraint w j = 1, ridge regression, the aforementioned 'winner-takes-all' approach that selects the base learner with the smallest cross-validated mean-squared error, and unconstrained least squares.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">Stacking classification</head><p>Stacking can be applied in a similar way to classification problems. pystacked supports stacking for binary classification problems where the outcome y i takes the values 0 or 1. The main difference to stacking regression is that ŷ-k (j),i represent cross-validated predicted probabilities.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">Base learners</head><p>In the following paragraphs, we briefly describe the base learners supported by pystacked and highlight central tuning parameters. We repeat that each of the machine learners discussed below can be fit using pystacked as a regular stand-alone machine learner without the stacking layer.</p><p>Note that it goes beyond the scope of the article to describe each learner in detail. Familiarity with linear regression, logistic regression, and classification and regression trees is assumed. We recommend consulting machine learning textbooks, e.g. <ref type="bibr" target="#b14">Hastie et al. (2009)</ref>, for more detailed discussion.</p><p>Regularized regression imposes a penalty on the size of coefficients to control overfitting. The lasso penalizes the absolute size of coefficients, whereas the ridge penalizes the sum of squared coefficients. Both methods shrink coefficients toward zero, but only the lasso yields sparse solutions where some coefficient estimates are set to exactly zero. The elastic net combines lasso and ridge-type penalties. For classification tasks with a binary outcome, logistic versions of lasso, ridge and elastic net are available.</p><p>The severity of the penalty is most commonly chosen by cross-validation. For lasso only, pystacked also supports selecting the penalty by AIC or BIC. The use of AIC or BIC has the advantage that it is computationally less intensive than cross-validation. <ref type="bibr" target="#b0">Ahrens et al. (2020)</ref> compare the two approaches.</p><p>Random forests rely on fitting a large number of regression or decision trees on bootstrap samples of the data. The random forest prediction is obtained as the average across individual trees. A crucial aspect of random forests is that, at each split when growing a tree, one may consider only a random subset of predictors. This restriction aims at de-correlating the individual trees. Central tuning parameters are the number of trees (n_estimators()), the maximum depth of individual trees (max_depth()), the minimum number of observations per leaf (min_samples_leaf()), the number of features to be considered at each split (max_features()) and the size of the bootstrap samples (max_samples()).</p><p>Gradient boosted trees also rely on fitting a large number of trees. In contrast to random forests, these trees are fit sequentially to the residuals from the current model. The learning rate determines how much the latest tree contributes to the overall model. Individual trees are usually fit to the whole sample, although sub-sampling is possible. In addition to tuning parameters relating to the trees, the learning rate (learnings_rate()) and the number of trees (n_estimators()) are the most important tuning parameters.</p><p>Support vector machines (SVM). Support vector classifiers span a hyperplane that separates observations by their outcome class. The hyperplane is chosen to maximize the distance (margin) to correctly classified observations while allowing for some classification errors. The tuning parameter C (C()) controls the frequency and degree of classification mistakes. The hyperplane can be either linear or fitted using kernels. The SVM algorithm can also be adapted for regression tasks. To this end, the hyperplane is constructed to include as many observations as possible in a tube of size 2 around the hyperplane. Central tuning parameters for regression are (epsilon()) and C (C()), which determines the cost of observations outside of the tube.</p><p>Feed-forward neural networks consist of hidden layers that link the predictors (referred to as input layers) to the outcome. Each hidden layer is composed of multiple units (nodes) which pass signals to the next layer using an activation function. Central tuning parameters are the choice of the activation function (activation()), and the number and size of hidden layers (hidden_layer_sizes()). Further tuning choices relate to stochastic gradient descent algorithms which are typically used to fit neural networks. The default solver is Adam <ref type="bibr" target="#b18">(Kingma and Ba 2014)</ref>. The option early_stopping can be used to set aside a random fraction of the data for validation. The optimization algorithm stops if there is no improvement in performance over a pre-specified number of iterations (see related options n_iter_no_change() and tol()).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Program</head><p>This section introduces the program pystacked and its main features. pystacked offers two alternative syntaxes between which the user can choose (see Section 3.1 and 3.2). The two syntaxes offer the same functionality and are included to accommodate different user preferences. Section 3.3 and 3.4 list post-estimation commands and general options, respectively. Section 3.5 discusses supported base learners. Section 3.6 is a note on learner-specific predictors. Section 3.7 explains the pipeline feature.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Syntax 1</head><p>The first syntax uses method(string) to select base learners, where string is a list of base learners. Options are passed on to base learners via cmdopt1(string), cmdopt2(string), etc. That is, base learners can be specified and options are passed on in the order in which they appear in method(string) (see Section 3.5). Likewise, the pipe*(string) option can be used for pre-processing predictors within Python on the fly, where '*' is a placeholder for '1', '2', etc. (see Section 3.7). Finally, xvars*(predictors) allows specifying a learner-specific variable lists of predictors. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Syntax 2</head><p>In the second syntax, base learners are added before the comma using method(string)</p><p>along with further learner-specific settings and separated by '||'. pystacked depvar indepvars || method(string) opt(string) pipe(string) xvars(predictors) || method(string) opt(string) pipe(string) xvars(predictors) ... || if in , general options 3.3 Post-estimation programs Predicted values. To get predicted values: predict type newname if in , pr xb To get fitted values for each base learner: predict type stub if in , basexb cvalid</p><p>Predicted values (in-and out-of-sample) are calculated when pystacked is run and stored in Python memory. predict pulls the predicted values from Python memory and saves them in Stata memory. This storage structure means that no changes on the data in Stata memory should be made between the pystacked call and the predict call. If changes to the data set are made, predict will return an error.</p><p>The option basexb returns predicted values for each base learner. By default, the predicted values from re-fitting base learners on the full estimation sample are returned. If combined with cvalid, the cross-fitted predicted values are returned for each base learner.</p><p>Tables. After estimation, pystacked can report a table of in-sample (both cross-validated and full-sample) and, optionally, out-of-sample (or holdout sample) performance for both the stacking regression and the base learners. For regression problems, the table reports the root mean-squared prediction error (RMSPE). For classification problems, a confusion matrix is reported. The default holdout sample used for out-of-sample performance with the holdout option is all observations not included in the estimation. Alternatively, the user can specify the holdout sample explicitly using the syntax holdout(varname). The table can be requested after estimation as a replay command or as part of the pystacked estimation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>pystacked , table holdout[(varname)]</head><p>Graphs. pystacked can also create graphs of in-sample and, optionally, out-of-sample performance for both the stacking regression and the base learners. For regression problems, the graphs compare predicted and actual values of depvar. For classification problems, the default is to generate receiver operator characteristic (ROC) curves. Optionally, histograms of predicted probabilities are reported. As with the table option, the default holdout sample used for out-of-sample performance is all observations not included in the estimation, but the user can instead specify the holdout sample explicitly. The table can be requested after estimation or as part of the pystacked estimation command. The graph option on its own reports the graphs using pystacked's default settings. Because graphs are produced using Stata's twoway, roctab and histogram commands, the user can control either the combined graph (graph(options)) or the individual learner graphs (lgraph(options)) by passing options to these commands.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>pystacked , graph[(options)] lgraph[(options)] histogram holdout[(varname)]</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.4">General options</head><p>A full list of general options is provided in the pystacked help file. We list only the most important general options here: type(string) allows reg(ress) for regression problems or class(ify) for classification problems. The default is regression. finalest(string) selects the final estimator used to combine base learners. The default is non-negative least squares without an intercept and the additional constraint that weights sum to 1 (nnls1). Alternatives are nnls0 (non-negative least squares without an intercept and without the sum-to-one constraint), singlebest (use the base learner with the minimum MSE), ls1 (least squares without an intercept and with the sum-to-one constraint), ols (ordinary least squares) or ridge for (logistic) ridge, which is the scikit-learn default. folds(integer ) specifies the number of folds used for cross-validation. The default is 5. foldvar(varname) is the integer fold variable for cross-validation. bfolds(integer ) sets the number of folds used for base learners that use cross-validation (e.g. cross-validated lasso); the default is 5.</p><p>pyseed(integer ) sets the Python seed. Note that since pystacked uses Python, we also need to set the Python seed to ensure replicability. There are three options:</p><p>1. pyseed(-1) draws a number between 0 and 10 8 in Stata which is then used as a Python seed; this is pystacked's default behavior. This way, one only needs to deal with the Stata seed. For example, set seed 42 is sufficient, as the Python seed is generated automatically.</p><p>2. Setting pyseed(x) with any positive integer x allows to control the Python seed directly.</p><p>3. pyseed(0) sets the seed to None in Python.</p><p>njobs(integer ) sets the number of jobs for parallel computing. The default is 0 (no parallelization), -1 uses all available CPUs, -2 uses all CPUs minus 1. backend(string) backend used for parallelization. The default is 'threading'. voting selects voting regression or classification which uses pre-specified weights. By default, voting regression uses equal weights; voting classification uses a majority rule. voteweights(numlist) defines positive weights used for voting regression or classification. The length of numlist should be the number of base learners -1. The last weight is calculated to ensure that the sum of weights equals 1. sparse converts predictor matrix to a sparse matrix. This conversion will only lead to speed improvements if the predictor matrix is sufficiently sparse. Not all learners support sparse matrices and not all learners will benefit from sparse matrices in the same way. One can also use the sparse pipeline to use sparse matrices for some learners but not for others. printopt prints the default options for specified learners. Only one learner can be specified. This is for information only; no estimation is done. See Section 3.5 for examples. showopt prints the options passed on to Python. showpy prints Python messages.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.5">Base learners</head><p>The base learners are chosen using the option method(string) in combination with type(string). The latter can take the value reg(ress) for regression and class for classification problems. Table <ref type="table" target="#tab_1">1</ref> provides an overview of supported base learners and their underlying scikit-learn routines.</p><p>cmdopt*(string) (Syntax 1) and opt(string) (Syntax 2) are used to pass options to the base learners. Due to the large number of options, we do not list all options here. We instead provide a tool that lists options for each base learner. For example, to get the default options for lasso with cross-validated penalty, type The naming of the options follows scikit-learn. Allowed settings for each option can be inferred from the scikit-learn documentation. We strongly recommend that the user reads the scikit-learn documentation carefully. 1</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.6">Learner-specific predictors</head><p>By default, pystacked uses the same set of predictors for each base learner. Using the same predictors for each method is often not desirable as the optimal set of predictors may vary across base learners. For example, when using linear machine learners such as the lasso, adding polynomials, interactions and other transformations of the base set of predictors might greatly improve out-of-sample prediction performance. The inclusion of transformations of base predictors is especially worth considering if the base set of observed predictors is small (relative to the sample size) and the relationship between outcome and predictors is likely non-linear. Tree-based methods (e.g., random forests</p><p>pipe*() Description scikit-learn programs stdscaler Standardize to mean zero and unit variance (default for regularized regression) StandardScaler() nostdscaler Overwrites default standardization for regularized regression n/a stdscaler0 Standardize to unit variance StandardScaler(with mean=False) sparse Transform to sparse matrix SparseTransformer() onehot Create dummies from categorical variables OneHotEncoder() minmaxscaler Scale to 0-1 range MinMaxScaler() medianimputer Median imputation SimpleImputer(strategy='median') knnimputer KNN imputation KNNImputer() poly2 Add 2nd-order polynomials PolynomialFeatures(degree=2) poly3 Add 3rd-order polynomials PolynomialFeatures(degree=3) interact Add interactions PolynomialFeatures( include bias=False, interaction only=True)</p><p>Table 2: Pipelines supported by pystacked.</p><p>and boosted trees), on the other hand, can detect certain types of non-linear patterns automatically. While adding transformations of the base predictors may still lead to performance gains, the added benefit is less striking relative to linear learners and might not justify the additional costs in terms of computational complexity.</p><p>There are two approaches to implement learner-specific sets of predictors: Pipelines, discussed in the next section, can be used to create some transformations on the fly for specific base learners. A more flexible approach is the xvars*(predictors) option, which allows specifying predictors for a particular learner. xvars*() supports standard Stata factor variable notation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.7">Pipelines</head><p>scikit-learn uses pipelines to pre-preprocess input data on the fly. In pystacked, pipelines can be used to impute missing values, create polynomials and interactions, and to standardize predictors. Table <ref type="table">2</ref> lists the pipelines currently supported by pystacked.</p><p>Remarks. First, regularized regressors (i.e., the methods lassoic, lassocv, ridgecv and elasticcv) use the stdscaler pipeline by default. pipe*(nostdscaler) disables this behavior. Second, the stdscaler0 pipeline is useful in combination with sparse, which transforms the predictor matrix into a sparse matrix. stdscaler0 does not center predictors so that the predictor matrix retains its sparsity property.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Applications</head><p>This section demonstrates how to apply pystacked for regression and classification tasks. Before we discuss stacking, we first show how to use pystacked as a 'regular' machine learning program for fitting a single supervised machine learner (see next subsection). We then illustrate stacking regression and stacking classification in Section 4.2 and 4.3, respectively.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Single base learner</head><p>We import the <ref type="bibr" target="#b21">Pace and Barry (1997)</ref> California house price data, and split the sample randomly into training and validation partitions using a 75/25 split. The aim of the prediction task is to predict median house prices (medhousevalue) using a set of house price characteristics. 2 We prepare the data for analysis as follows.</p><p>. clear all . use <ref type="url" target="https://statalasso.github.io/dta/cal_housing.dta">https://statalasso.github.io/dta/cal_housing.dta</ref>, clear . set seed 42 . gen train=runiform() . replace train=train&lt;.75 (20,640 real changes made) . replace medh = medh/10e3 variable medhousevalue was long now double (20,640 real changes made)</p><p>Gradient-boosted trees. As a first example, we use pystacked to fit gradient-boosted regression trees and save the out-of-sample predicted values. Since we consider a regression task rather than a classification task, we specify type(reg) (which is also the default). The option method(gradboost) selects gradient boosting. We will later see that we can specify more than one learner in methods(), and that we can also fit gradient-boosted classification trees.</p><p>. pystacked medh longi-medi if train, type(reg) methods(gradboost) Single base learner: no stacking done. Stacking weights: Method Weight gradboost 1.0000000 . predict double yhat_gb1 if !train 2. The following predictors are included in the data set in this order: district longitude (longitude), latitude (latitude), median house age (houseage), average number of rooms per household (rooms), average number of bedrooms per household (bedrooms), block group population (population), average number of household members (households), median income in block group (medinc). The data set was retrieved from the StatLib repository at <ref type="url" target="https://www.dcc.fc.up.pt/~ltorgo/Regression/cal_housing.html">https://www.dcc.fc.up.pt/~ltorgo/Regression/cal_housing.html</ref> (last accessed on February 19, 2022). There are 20,640 observations in the data set.</p><p>The output shows the stacking weights associated with each base learner. Since we only consider one method, the output is not particularly informative and simply shows a weight of one for gradient boosting. Yet, pystacked has fitted 100 boosted trees (the default) in the background using scikit-learn's ensemble.GradientBoostedRegressor.</p><p>Before we tune our gradient boosting learner, we retrieve a list of available options. The default options for gradient boosting can be listed in the console, and the scikitlearn documentation provides more detail on the allowed parameters of each option.</p><p>. pystacked, type(reg) methods(gradboost) printopt Default options: loss(squared_error) learning_rate(.1) n_estimators( <ref type="formula">100</ref>) subsample( <ref type="formula">1</ref>) criterion(friedman_mse) min_samples_split( <ref type="formula">2</ref>) min_samples_leaf( <ref type="formula">1</ref>) min_weight_fraction_leaf(0) max_depth( <ref type="formula">3</ref>) min_impurity_decrease(0) init(None) random_state(rng) max_features(None) alpha(.9) max_leaf_nodes(None) warm_start(False) validation_fraction(.1) n_iter_no_change(None) tol(.0001) ccp_alpha(0)</p><p>We consider two additional specifications. Note that we restrict ourselves to a few selected specifications for illustrative purposes. We stress that careful parameter tuning should consider a grid of values across multiple learner parameters. The first specification reduces the learning rate from 0.1 (the default) to 0.01. The second specification reduces the learning rate and increases the number of trees from 100 (the default) to 1000. We use cmdopt1() since gradient boosting is the first (and only) method listed in methods().</p><p>. pystacked medh longi-medi if train, /// &gt; type(regress) methods(gradboost) /// &gt; cmdopt1(learning_rate(.01)) Single base learner: no stacking done. Stacking weights: Method Weight gradboost 1.0000000 . predict double yhat_gb2 if !train . pystacked medh longi-medi if train, /// &gt; type(regress) methods(gradboost) /// &gt; cmdopt1(learning_rate(.01) n_estimators(1000)) Single base learner: no stacking done. Stacking weights: Method Weight gradboost 1.0000000 . predict double yhat_gb3 if !train</p><p>We can then compare the performance across the three models using the out-ofsample mean-squared prediction error (MSPE):</p><p>. gen double res_gb1_sq=(medh-yhat_gb1)^2 if !train <ref type="bibr">(15,</ref><ref type="bibr">448</ref> missing values generated) . gen double res_gb2_sq=(medh-yhat_gb2)^2 if !train (15,448 missing values generated) . gen double res_gb3_sq=(medh-yhat_gb3)^2 if !train (15,448 missing values generated) . sum res_gb* if !train Variable Obs Mean Std. dev. Min Max res_gb1_sq 5,192 29.86727 83.17099 3.92e-06 1424.438 res_gb2_sq 5,192 71.10136 129.1446 4.56e-07 1230.348 res_gb3_sq 5,192 30.36929 82.88687 1.24e-06 1384.924</p><p>The initial gradient booster achieves an out-of-sample MSPE of 29.87. The second gradient booster uses a reduced learning rate of 0.01 and performs much worse, with an MSPE of 71.10. The third gradient booster performs only slightly worse than the first, illustrating the trade-off between the learning rate and the number of trees.</p><p>Pipelines. We can make use of pipelines to pre-process our predictors. This is especially useful in the context of stacking when we want to, for example, use second-order polynomials of predictors as inputs for one method, but only use elementary predictors for another method. Here, we compare lasso with and without the poly2 pipeline:</p><p>. pystacked medh longi-medi if train, type(reg) methods(lassocv)</p><p>Single base learner: no stacking done. Stacking weights: Method Weight lassocv 1.0000000 . predict double yhat_lasso1 if !train . . pystacked medh longi-medi if train, type(reg) methods(lassocv) /// &gt; pipe1(poly2) Single base learner: no stacking done. Stacking weights: Method Weight lassocv 1.0000000 . predict double yhat_lasso2 if !train</p><p>We could replace pipe1(poly2) with xvars1(c.(medh longi-medi)##c.(medh longi -medi)). In fact, the latter is more flexible and allows, for example, to create interactions for some predictors and not for others.</p><p>We again calculate the out-of-sample MSPE:</p><p>. gen double res_lasso1_sq=(medh-yhat_lasso1)^2 if !train <ref type="bibr">(15,</ref><ref type="bibr">448</ref> missing values generated) . gen double res_lasso2_sq=(medh-yhat_lasso2)^2 if !train (15,448 missing values generated) . sum res_lasso1_sq res_lasso2_sq if !train Variable Obs Mean Std. dev. Min Max res_lasso1 ~q 5,192 47.00385 108.0759 8.43e-07 2392.572 res_lasso2 ~q 5,192 43.81224 109.5096 6.75e-08 2563.15</p><p>The poly2 pipeline improves the performance of the lasso, indicating that squared and interaction terms constitute important predictors. However, the lasso does not perform as well as gradient boosting in this application.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Stacking regression</head><p>We now consider a stacking regression application with five base learners: (1) linear regression, (2) lasso with penalty chosen by cross-validation, (3) lasso with secondorder polynomials and interactions, (4) random forest with default settings, and (5) gradient boosting with a learning rate of 0.01 and 1000 trees. That is, we use the lasso twice-once with and once without the poly2 pipeline. Indeed, nothing keeps us from using the same algorithm multiple times. This way, we can combine the same algorithm with different settings.</p><p>Note the numbering of the pipe*() and cmdopt*() options below. We apply the poly2 pipe to the first and third methods (ols and lassoic). We also change the default learning rate and the number of estimators for gradient boosting (the 5th estimator).</p><p>. set seed 42 . pystacked medh longi-medi if train, /// &gt; type(regress) /// &gt; methods(ols lassocv lassocv rf gradboost) /// &gt; pipe3(poly2) cmdopt5(learning_rate(0.01) /// &gt; n_estimators(1000)) Stacking weights: Method Weight ols 0.0000000 lassocv 0.0000000 lassocv 0.0000000 rf 0.8382714 gradboost 0.1617286</p><p>The above syntax becomes a bit difficult to read with many methods and many options. We offer an alternative syntax for easier use with many base learners.</p><p>. set seed 42 . pystacked medh longi-medi || /// &gt; m(ols) || /// &gt; m(lassocv) || /// &gt; m(lassocv) pipe(poly2) || /// &gt; m(rf) || /// &gt; m(gradboost) opt(learning_rate(0.01) n_estimators(1000)) /// &gt; if train, type(regress) Stacking weights: Method Weight ols 0.0000000 lassocv 0.0000000 lassocv 0.0000000 rf 0.8382714 gradboost 0.1617286</p><p>The stacking weights shown in the output determine how much each method contributes to the final stacking predictor. In this example, OLS and lasso based on both sets of predictors all receive a weight of zero. Random forest receives a weight of 83.8%, and gradient boosting contributes the remaining 16.2% of the weight to the final predictor.</p><p>Predicted values. In addition to the stacking predicted values, we can also get the predicted values of each base learner using the basexb option:</p><p>. predict double yhat, xb . predict double ybase, basexb . list yhat ybase* if _n &lt;= 5 yhat ybase1 ybase2 ybase3 ybase4 ybase5 1. 42.875233 41.315834 41.193416 40.02005 43.16083 41.394926 2. 38.73664 41.45306 41.421461 44.443346 38.289107 41.056291 3. 40.68331 38.212036 38.154834 37.796287 41.268902 37.648071 4. 33.559085 32.332498 32.266321 32.546423 33.4869 33.933232 5. 24.190615 25.382839 25.369064 25.269325 23.8597 25.905815</p><p>Plotting. pystacked also comes with plotting features. The graph option creates a scatter plot of predicted values on the vertical and observed values on the horizontal axis for stacking and each base learner, see Figure <ref type="figure" target="#fig_0">1</ref>. The black line is a 45-degree line and shown for reference. Since pystacked with graph can be used as a post-estimation command, there is no need to re-run the stacking estimation.</p><p>. pystacked, graph(scheme(sj)) lgraph(scheme(sj)) holdout Number of holdout observations: 5192</p><p>Figure <ref type="figure" target="#fig_0">1</ref> shows the out-of-sample predicted values. To see the in-sample predicted values, simply omit the holdout option. Note that the holdout option will not work if the estimation was run on the whole sample.</p><p>0 10 20 30 40 50 0 10 20 30 40 50 medhousevalue STACKING 0 20 40 60 80 0 10 20 30 40 50 medhousevalue weight = 0.000 Learner: ols 0 20 40 60 80 0 10 20 30 40 50 medhousevalue weight = 0.000 Learner: lassocv -20 0 20 40 60 0 10 20 30 40 50 medhousevalue weight = 0.000 Learner: lassocv 0 10 20 30 40 50 0 10 20 30 40 50 medhousevalue weight = 0.838 Learner: rf 0 20 40 60 0 10 20 30 40 50 medhousevalue weight = 0.162 Learner: gradboost Out-of-sample Predictions RMSPE table. The table option allows comparing stacking weights with in-sample, cross-validated and out-of-sample RMSPEs. As with the graph option, we can use table as a post-estimation command: . pystacked, table holdout Number of holdout observations: 5192 RMSPE: In-Sample, CV, Holdout Method Weight In-Sample CV Holdout STACKING . 2.313 4.980 4.939 ols 0.000 6.986 7.008 6.853 lassocv 0.000 6.987 7.008 6.857 lassocv 0.000 6.696 6.699 6.606 rf 0.838 1.847 5.001 4.963 gradboost 0.162 5.312 5.523 5.511 4.3 Stacking classification pystacked can be applied to binary classification problems. For demonstration, we consider the Spambase Data Set of Cranor and LaMacchia (1998), which we retrieve from the UCI Machine Learning Repository. We load the data and split the data into training (75%) and validation sample (%25). . insheet using /// &gt; <ref type="url" target="https://archive.ics.uci.edu/ml/machine-learning-databases/spambase/spambase.data">https://archive.ics.uci.edu/ml/machine-learning-databases/spambase/spambase.data</ref>, /// &gt; clear comma (58 vars, 4,601 obs) . set seed 42 . gen train=runiform() . replace train=train&lt;.75 (4,601 real changes made)</p><p>The example below is more complicated. We go through it step-by-step:</p><p>• We use five base learners: logistic regression, two gradient boosters and two neural nets. • We apply the poly2 pipeline to logistic regression, which creates squares and interaction terms of the predictors, but not to other methods. • We employ gradient boosting with 600 and 1000 classification trees.</p><p>• We consider two specifications for the neural nets: one neural net with two hidden layers of 5 nodes each, and another neural net with a single hidden layer of 5 nodes. • Finally, we use type(class) to specify that we consider a classification task and njobs(8) switches parallelization on utilizing 8 cores.</p><p>. pystacked v58 v1-v57 || /// &gt; m(logit) pipe(poly2) || /// &gt; m(gradboost) opt(n_estimators(600)) || /// &gt; m(gradboost) opt(n_estimators(1000)) || /// &gt; m(nnet) opt(hidden_layer_sizes(5 5)) || /// &gt; m(nnet) opt(hidden_layer_sizes(5)) || /// &gt; if train, type(class) njobs(8) Stacking weights: Method Weight logit 0.0000000 gradboost 0.4815155 gradboost 0.3446655 nnet 0.1131199 nnet 0.0606992</p><p>As in the previous regression example, gradient boosting receives the largest stacking weight and thus contributes most to the final stacking prediction.</p><p>Confusion matrix. Confusion matrices allow comparing actual and predicted outcomes in a 2 × 2 matrix. pystacked provides a compact table format that combines confusion matrices for each base learner and for the final stacking classifier, both for the training and validation partition.</p><p>Plotting. pystacked supports ROC curves which allow assessing the classification performance for varying discrimination thresholds. The y-axis in a ROC plot corresponds to sensitivity (true positive rate) and the x-axis corresponds to 1-specificity (false positive rate). The Area Under the Curve (AUC) displayed below each ROC plot is a common evaluation metric for classification problems.</p><p>. pystacked, /// &gt; graph(subtitle(Spam data) scheme(sj)) /// &gt; lgraph(plotopts(msymbol(i) /// &gt; ylabel(0 1, format(%3.1f))) scheme(sj)) /// &gt; holdout Number of holdout observations: 1133</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Conclusion</head><p>In this article, we introduce the Stata program pystacked. The program not only makes a range of popular supervised machine learners available, such as regularized regression, random forests, and gradient-boosted trees, but also facilitates combining multiple learners for stacking regression or classification. pystacked comes with a number of practically relevant features: for example, sparse matrix support, learner-specific predictors, pipelines for predictor transformations, and two alternative syntaxes. Nevertheless, we also see the potential for improvement in at least two directions. First, pystacked offers few diagnostics for individual learners. Features such as variable importance plots and coefficient estimates for parametric learners could be added in later versions. Secondly, the deep learning features of pystacked are currently relatively limited and could be improved by adding support for other deep learning algorithms.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Algorithm 1 :</head><label>1</label><figDesc>Stacking regression. 1. Cross-validation: a. Split the sample I = {1, . . . , n} randomly into K partitions of approximately equal size. These partitions are referred to as folds. Denote the set of observations in fold k = 1, . . . , K as I k , and its complement as I c k such that I c k = I \ I k . I k constitutes the step-k validation set and I c k the step-k training sample. b. For each fold k = 1, . . . , K and each base learner j = 1, . . . , J, fit the supervised machine learner j to the training data I c k and obtain out-of-sample predicted values ŷ-k (j),i for i ∈ I k . 2. Final learner: Fit the final learner to the full sample. The default choice is nonnegative least squares (NNLS) with the additional constraint that coefficients sum to one: min w1,...,w J</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><figDesc>pystacked depvar predictors if in , methods(string) cmdopt1(string) cmdopt2(string) ... pipe1(string) pipe2(string) ... xvars1(predictors) xvars2(predictors) ... general options where general options are discussed in Section 3.4 below.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Out-of-sample predicted values and observed values created using the graph option after stacking regression.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>Table 1 :</head><label>1</label><figDesc>Overview of machine learners available in pystacked.</figDesc><table><row><cell>method()</cell><cell cols="2">type() Machine learner description</cell><cell>scikit-learn program</cell></row><row><cell>ols</cell><cell>regress</cell><cell>Linear regression</cell><cell>linear model.LinearRegression</cell></row><row><cell>logit</cell><cell>class</cell><cell>Logistic regression</cell><cell>linear model.LogisticRegression</cell></row><row><cell>lassoic</cell><cell>regress</cell><cell>Lasso with AIC/BIC penalty</cell><cell>linear model.LassoLarsIC</cell></row><row><cell>lassocv</cell><cell>regress</cell><cell>Lasso with CV penalty</cell><cell>linear model.ElasticNetCV</cell></row><row><cell></cell><cell>class</cell><cell>Logistic lasso with CV penalty</cell><cell>linear model.LogisticRegressionCV</cell></row><row><cell>ridgecv</cell><cell>regress</cell><cell>Ridge with CV penalty</cell><cell>linear model.ElasticNetCV</cell></row><row><cell></cell><cell>class</cell><cell>Logistic ridge with CV penalty</cell><cell>linear model.LogisticRegressionCV</cell></row><row><cell>elasticcv</cell><cell>regress</cell><cell>Elastic net with CV penalty</cell><cell>linear model.ElasticNetCV</cell></row><row><cell></cell><cell>class</cell><cell>Logistic elastic net with CV</cell><cell>linear model.LogisticRegressionCV</cell></row><row><cell>svm</cell><cell>regress</cell><cell>Support vector regression</cell><cell>svm.SVR</cell></row><row><cell></cell><cell>class</cell><cell>Support vector classification</cell><cell>svm.SVC</cell></row><row><cell cols="2">gradboost regress</cell><cell>Gradient boosting regression</cell><cell>ensemble.GradientBoostingRegressor</cell></row><row><cell></cell><cell>class</cell><cell>Gradient boosting classification</cell><cell>ensemble.GradientBoostingClassifier</cell></row><row><cell>rf</cell><cell>regress</cell><cell>Random forest regression</cell><cell>ensemble.RandomForestRegressor</cell></row><row><cell></cell><cell>class</cell><cell>Random forest classification</cell><cell>ensemble.RandomForestClassifier</cell></row><row><cell>linsvm</cell><cell>class</cell><cell>Linear SVC</cell><cell>svm.LinearSVC</cell></row><row><cell>nnet</cell><cell>regress</cell><cell>Neural net regression</cell><cell>sklearn.neural network.MLPRegressor</cell></row><row><cell></cell><cell>class</cell><cell>Neural net classification</cell><cell>sklearn.neural network.MLPClassifier</cell></row><row><cell cols="4">. pystacked, type(reg) methods(lassocv) printopt</cell></row><row><cell cols="3">Default options:</cell><cell></cell></row><row><cell cols="4">alphas(None) l1_ratio(1) eps(.001) n_alphas(100) fit_intercept(True)</cell></row><row><cell cols="4">max_iter(1000) tol(.0001) cv(5) n_jobs(None) positive(False) selection(cyclic)</cell></row><row><cell cols="3">random_state(rng)</cell><cell></cell></row></table><note><p>Note:</p><p>The first two columns list all allowed combinations of method(string) and type(string), which are used to select base learners. Column 3 provides a description of each machine learner. The last column lists the underlying scikit-learn learn routine. 'CV penalty' indicates that the penalty level is chosen to minimize the cross-validated MSPE. 'AIC/BIC penalty' indicates that the penalty level minimizes either either the Akaike or Bayesian information criterion. SVC refers to support vector classification.</p></note></figure>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head n="6">Acknowledgments</head><p>We thank <rs type="person">Jan Ditzen</rs>, <rs type="person">Ben Jann</rs>, <rs type="person">Blaise Melly</rs>, <rs type="person">Alessandro Oliveira</rs>, <rs type="person">Matthias Schonlau</rs>, and <rs type="person">Thomas Wiemann</rs> for their helpful feedback. All remaining errors are our own.</p></div>
+			</div>			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>For example, the table shows 29 false positives for stacking and 294 for logistic regression in the validation partition, while the number of false negatives is 29 and 32, respectively. The accuracy of stacking and logistic regression is thus given by (678 + 397)/1133 = 94.9% and (413 + 394)/1133 = 71.2%.  </p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">lassopack: Model selection and prediction with regularized regression in Stata</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Ahrens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">B</forename><surname>Hansen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">E</forename><surname>Schaffer</surname></persName>
+		</author>
+		<idno type="DOI">10.1177/1536867X20909697</idno>
+		<ptr target="https://doi.org/10.1177/1536867X20909697" />
+	</analytic>
+	<monogr>
+		<title level="j">The Stata Journal</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="176" to="235" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">2023b. ddml: Double/debiased machine learning in Stata</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Ahrens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">B</forename><surname>Hansen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">E</forename><surname>Schaffer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Wiemann</surname></persName>
+		</author>
+		<ptr target="https://ideas.repec.org/p/arx/papers/2301.09397.html" />
+	</analytic>
+	<monogr>
+		<title level="m">Stata module for Double/Debiased Machine Learning. Statistical Software Components, Boston College Department of Economics</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+	<note>Papers 2301.09397, arXiv.org</note>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Machine learning methods that economists should know about</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Athey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">W</forename><surname>Imbens</surname></persName>
+		</author>
+		<idno type="DOI">10.1146/annurev-economics-080217-053433</idno>
+		<ptr target="https://doi.org/10.1146/annurev-economics-080217-053433" />
+	</analytic>
+	<monogr>
+		<title level="j">Annual Review of Economics</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="685" to="725" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">Tex.eprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Stacked regressions</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Breiman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Machine Learning</title>
+		<imprint>
+			<biblScope unit="volume">24</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="49" to="64" />
+			<date type="published" when="1996">1996</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<title/>
+		<idno type="DOI">10.1007/BF00117832</idno>
+		<ptr target="http://link.springer.com/10.1007/BF00117832" />
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">API design for machine learning software: experiences from the scikit-learn project</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Buitinck</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Louppe</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Blondel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Pedregosa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mueller</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Grisel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Niculae</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Prettenhofer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gramfort</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Grobler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Layton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Vanderplas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Joly</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Holt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Varoquaux</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ECML PKDD Workshop: Languages for Data Mining and Machine Learning</title>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="page" from="108" to="122" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Machine learning using Stata/Python</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Cerulli</surname></persName>
+		</author>
+		<idno type="DOI">10.1177/1536867X221140944</idno>
+		<ptr target="https://doi.org/10.1177/1536867X221140944" />
+	</analytic>
+	<monogr>
+		<title level="j">The Stata Journal</title>
+		<imprint>
+			<biblScope unit="volume">22</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="772" to="810" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Double/debiased machine learning for treatment and structural parameters</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Chernozhukov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Chetverikov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Demirer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Duflo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Hansen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Newey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Robins</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Econometrics Journal</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="C68" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<author>
+			<persName><surname>Tex</surname></persName>
+		</author>
+		<idno type="DOI">10.1111/ectj.12097</idno>
+		<ptr target="https://onlinelibrary.wiley.com/doi/abs/10.1111/ectj.12097" />
+	</analytic>
+	<monogr>
+		<title level="m">Chernozhukov2018a publisher</title>
+		<imprint>
+			<publisher>John Wiley &amp; Sons</publisher>
+			<biblScope unit="page" from="10" to="1111" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">F</forename><surname>Cranor</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">A</forename><surname>Lamacchia</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Spam! Communications of the ACM</title>
+		<imprint>
+			<biblScope unit="volume">41</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="74" to="83" />
+			<date type="published" when="1998">1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">M</forename><surname>Droste</surname></persName>
+		</author>
+		<idno>ac- cessed 02</idno>
+		<ptr target="https://github.com/mdroste/stata-pylearn/" />
+		<imprint>
+			<date type="published" when="2020-12">2020. December-2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Economic policy uncertainty and bankruptcy filings</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Fedorova</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ledyaeva</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Drogovoz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Nevredinov</surname></persName>
+		</author>
+		<ptr target="https://www.sciencedirect.com/science/article/pii/S1057521922001375" />
+	</analytic>
+	<monogr>
+		<title level="j">International Review of Financial Analysis</title>
+		<imprint>
+			<biblScope unit="volume">82</biblScope>
+			<biblScope unit="page">102174</biblScope>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Support vector machines</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Guenther</surname></persName>
+		</author>
+		<ptr target="www.stata-journal.com/article.html?article=st0461" />
+	</analytic>
+	<monogr>
+		<title level="j">Stata Journal</title>
+		<imprint>
+			<biblScope unit="volume">16</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="917" to="937" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">SVMACHINES: Stata module providing Support Vector Machines for both Classification and Regression</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Guenther</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Schonlau</surname></persName>
+		</author>
+		<ptr target="https://ideas.repec.org/c/boc/bocode/s458564.html" />
+	</analytic>
+	<monogr>
+		<title level="m">Statistical Software Components, Boston College Department of Economics</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<author>
+			<persName><forename type="first">T</forename><surname>Hastie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Tibshirani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Friedman</surname></persName>
+		</author>
+		<title level="m">The Elements of Statistical Learning</title>
+		<meeting><address><addrLine>New York</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer-Verlag</publisher>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">A global dataset of air temperature derived from satellite remote sensing and weather stations</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Hooker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Duveiller</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Cescatti</surname></persName>
+		</author>
+		<ptr target="https://www.nature.com/articles/sdata2018246" />
+	</analytic>
+	<monogr>
+		<title level="j">Scientific Data</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page">180246</biblScope>
+			<date type="published" when="2018">2018</date>
+			<publisher>Number: 1 Publisher: Nature Publishing Group</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">C</forename><surname>Huntington-Klein</surname></persName>
+		</author>
+		<ptr target="https://github.com/NickCH-K/MLRtime/" />
+		<imprint>
+			<date type="published" when="2021-12">2021. December-2021</date>
+			<biblScope unit="page">2</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Stacking ensemble learning model to predict 6-month mortality in ischemic stroke patients</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Hwangbo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><forename type="middle">J</forename><surname>Kang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Kwon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">I</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H.-J</forename><surname>Cho</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J.-K</forename><surname>Ko</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">M</forename><surname>Sung</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">H</forename><surname>Lee</surname></persName>
+		</author>
+		<ptr target="https://www.nature.com/articles/s41598-022-22323-9" />
+	</analytic>
+	<monogr>
+		<title level="j">Scientific Reports</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page">17389</biblScope>
+			<date type="published" when="2022">2022</date>
+			<publisher>Nature Publishing Group</publisher>
+			<pubPlace>Number: 1 Publisher</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">P</forename><surname>Kingma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Ba</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1412.6980</idno>
+		<title level="m">Adam: A method for stochastic optimization</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<monogr>
+		<title level="m" type="main">Targeted learning: causal inference for observational and experimental data</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">J</forename><surname>Van Der Laan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Rose</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+			<publisher>Springer</publisher>
+			<biblScope unit="volume">4</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Combining corporate governance indicators with stacking ensembles for financial distress prediction</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Liang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C.-F</forename><surname>Tsai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H.-Y</forename><forename type="middle">R</forename><surname>Lu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L.-S</forename><surname>Chang</surname></persName>
+		</author>
+		<ptr target="https://www.sciencedirect.com/science/article/pii/S0148296320305038" />
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Business Research</title>
+		<imprint>
+			<biblScope unit="volume">120</biblScope>
+			<biblScope unit="page" from="137" to="146" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Sparse spatial autoregressions</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">K</forename><surname>Pace</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Barry</surname></persName>
+		</author>
+		<ptr target="https://www.sciencedirect.com/science/article/pii/S016771529600140X" />
+	</analytic>
+	<monogr>
+		<title level="j">Statistics &amp; Probability Letters</title>
+		<imprint>
+			<biblScope unit="volume">33</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="291" to="297" />
+			<date type="published" when="1997">1997</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<author>
+			<persName><forename type="first">F</forename><surname>Pedregosa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Varoquaux</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gramfort</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Michel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Thirion</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Grisel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Blondel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Prettenhofer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Weiss</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Dubourg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Vanderplas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Passos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Cournapeau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Brucher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Perrot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Duchesnay</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Scikit-learn: Machine Learning in Python</title>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page" from="2825" to="2830" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">The random forest algorithm for statistical learning</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Schonlau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">Y</forename><surname>Zou</surname></persName>
+		</author>
+		<idno type="DOI">10.1177/1536867X20909688</idno>
+		<ptr target="https://doi.org/10.1177/1536867X20909688" />
+	</analytic>
+	<monogr>
+		<title level="j">The Stata Journal</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="3" to="29" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">J</forename><surname>Van Der Laan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">C</forename><surname>Polley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">E</forename><surname>Hubbard</surname></persName>
+		</author>
+		<idno type="DOI">10.2202/1544-6115.1309</idno>
+		<ptr target="https://doi.org/10.2202/1544-6115.1309" />
+	</analytic>
+	<monogr>
+		<title level="j">Super Learner. Statistical Applications in Genetics and Molecular Biology</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Stacked generalization</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">H</forename><surname>Wolpert</surname></persName>
+		</author>
+		<ptr target="https://www.sciencedirect.com/science/article/pii/S0893608005800231" />
+	</analytic>
+	<monogr>
+		<title level="j">Neural Networks</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="241" to="259" />
+			<date type="published" when="1992">1992</date>
+		</imprint>
+	</monogr>
+	<note>About the authors</note>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<monogr>
+		<title level="m" type="main">Achim Ahrens is Post-Doctoral Researcher and Senior Data Scientist at the Public Policy Group and Immigration Policy Lab</title>
+		<imprint>
+			<publisher>ETH Zürich</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<monogr>
+		<title level="m" type="main">Hansen is the Wallace W. Booth Professor of Econometrics and Statistics at the University of Chicago Booth School of Business</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Christian</surname></persName>
+		</author>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<monogr>
+		<title level="m" type="main">Schaffer is Professor of Econonomics in the School of Social Sciences at Heriot-Watt University</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Mark</surname></persName>
+		</author>
+		<imprint>
+			<pubPlace>Edinburgh, UK; Bonn</pubPlace>
+		</imprint>
+		<respStmt>
+			<orgName>Institute of Labor Economics (IZA</orgName>
+		</respStmt>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

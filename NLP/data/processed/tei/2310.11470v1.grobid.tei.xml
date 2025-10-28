@@ -1,0 +1,842 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Classic machine learning methods</title>
+				<funder ref="#_ZFQggnr #_VbWt69q">
+					<orgName type="full">unknown</orgName>
+				</funder>
+				<funder ref="#_9fjCBst #_cyhF5gf">
+					<orgName type="full">Agence Nationale de la Recherche</orgName>
+					<orgName type="abbreviated">ANR</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2023-05-24">24 May 2023</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Johann</forename><surname>Faouzi</surname></persName>
+							<email>johann.faouzi@gmail.com</email>
+							<affiliation key="aff0">
+								<orgName type="department">CREST</orgName>
+								<orgName type="institution">ENSAI</orgName>
+								<address>
+									<addrLine>Campus de Ker-Lann 51 Rue Blaise Pascal</addrLine>
+									<postCode>37203 - 35172</postCode>
+									<settlement>Bruz Cedex</settlement>
+									<region>BP</region>
+									<country key="FR">France</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Olivier</forename><surname>Colliot</surname></persName>
+							<affiliation key="aff1">
+								<orgName type="department" key="dep1">Sorbonne Université</orgName>
+								<orgName type="department" key="dep2">Institut du Cerveau</orgName>
+								<orgName type="institution" key="instit1">Paris Brain Institute -ICM</orgName>
+								<orgName type="institution" key="instit2">CNRS</orgName>
+								<address>
+									<region>Inria Inserm AP-HP</region>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<affiliation key="aff2">
+								<orgName type="institution">Hôpital de la Pitié-Salpêtrière</orgName>
+								<address>
+									<postCode>F-75013</postCode>
+									<settlement>Paris</settlement>
+									<country key="FR">France</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Classic machine learning methods</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2023-05-24">24 May 2023</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">EFECD2F891ACF620AA0C79BF9CA766F8</idno>
+					<idno type="arXiv">arXiv:2310.11470v1[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:07+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>machine learning</term>
+					<term>classification</term>
+					<term>regression</term>
+					<term>clustering</term>
+					<term>dimensionality reduction</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>In this chapter, we present the main classic machine learning methodss. A large part of the chapter is devoted to supervised learning techniques for classification and regression, including nearest-neighbor methods, linear and logistic regressions, support vector machines and tree-based algorithms. We also describe the problem of overfitting as well as strategies to overcome it. We finally provide a brief overview of unsupervised learning methods, namely for clustering and dimensionality reduction. The chapter does not cover neural networks and deep learning as these will be presented in Chapters 3, 4, 5 and 6.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.">Introduction</head><p>This chapter presents the main classic machine learning (ML) methods. There is a focus on supervised learning methods for classification and regression, but we also describe some unsupervised approaches. The chapter is meant to be readable by someone with no background in machine learning. It is nevertheless necessary to have some basic notions of linear algebra, probabilities and statistics. If this is not the case, we refer the reader to chapters 2 and 3 of <ref type="bibr">[1]</ref>.</p><p>The rest of this chapter is organized as follows. Rather than grouping methods by categories (for instance classification or regression methods), we chose to present methods by increasing order of complexity. We first provide the notations in Section 2. We then describe a very intuitive family of methods, that of nearest neighbors (Section 3). We continue with linear regression (Section 4) and logistic regression (Section 5), the later being a classification technique. We subsequently introduce the problem of overfitting (Section 6) as well as strategies to mitigate it (Section 7). Section 8 describes support vector machines (SVM). Section 9 explains how binary classification methods can be extended to a multi-class setting. We then describe methods which are specifically adapted to the case of normal distributions (Section 10). Decision trees and random forests are described in Section 11. We then briefly describe some unsupervised learning techniques, namely for clustering (Section 12) and dimensionality reduction (Section 13). The chapter ends with a description of kernel methods which can be used to extend linear techniques to non-linear cases (Section 14). Box 1 summarizes the methods presented in this chapter, grouped by categories and then sorted in order of appearance.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.">Notations</head><p>Let n be the number of samples and p be the number of features. An input sample is thus a p-dimensional vector:</p><formula xml:id="formula_0">x =    x 1 . . . x p   </formula><p>An output sample is denoted by y. Thus, a sample is (x, y). The dataset of n samples can then be summarized as an n × p matrix X representing the input data and an n-dimensional vector y representing the target data:</p><formula xml:id="formula_1">X =   </formula><p>x (1)  . . .</p><formula xml:id="formula_2">x (n)    =   </formula><p>x</p><p>(1) 1</p><p>. . . x</p><p>(1) p . . . . . . . . .</p><formula xml:id="formula_3">x (n) 1 . . . x (n) p    , y =   </formula><p>Box 1: Main classic ML methods</p><p>• Supervised learning -Classification: nearest neighbors, logistic regression, support vector machine (SVM), naive Bayes, linear discriminant analysis (LDA), quadratic discriminant analysis, tree-based models (decision tree, random forest, extremely randomized trees).</p><p>-Regression: nearest-neighbors, linear regression, support vector machine regression, tree-based models (decision tree, random forest, extremely randomized trees), kernel ridge regression.</p><p>• Unsupervised learning -Clustering: k-means, Gaussian mixture model.</p><p>-Dimensionality reduction: principal component analysis (PCA), linear discriminant analysis (LDA), kernel principal component analysis.</p><p>The input space is denoted by I and the set of training samples is denoted by X .</p><p>In the case of regression, y is a real number. In the case of classification, y is a single label. More precisely, y can only take one of a finite set of values called labels. The set of possible classes (i.e., labels) is denoted by C = {C 1 , . . . , C q }, with q being the number of classes. As the values of the classes are not meaningful, when there are only two classes, the classes are often called the positive and negative classes. In this case and also for mathematical reasons, without loss of generality, we assume the values of the classes to be +1 and -1.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">Nearest-neighbor methods</head><p>One of the most intuitive approaches to machine learning is nearest neighbors. It is based on the following intuition: for a given input, its corresponding output is likely to be similar to the outputs of similar inputs. A real-life metaphor would be that, if a subject has similar characteristics than other subjects who were diagnosed with a given disease, then this subject is likely to also be suffering from this disease.</p><p>More formally, nearest-neighbor methods use the training samples from the neighborhood of a given point x, denoted by N (x), to perform prediction <ref type="bibr" target="#b1">[2]</ref>.</p><p>For regression tasks, the prediction is computed as a weighted mean of the target values in N (x): ŷ =</p><p>x (i) ∈N (x) w (x) i y (i)   where w (x) i is the weight associated to x (i) to predict the output of x, with w (x) i ≥ 0 ∀i and i w (x) i = 1. For classification tasks, the predicted label corresponds to the label with the largest weighted sum of occurrences of each label:</p><formula xml:id="formula_4">ŷ = arg max C x (i) ∈N (x) w (x) i 1 y (i) =C k</formula><p>A key parameter of nearest-neighbor methods is the metric, denoted by d, that is a mathematical function that defines dissimilarity. The metric is used to define the neighborhood of any point and can also be used to compute the weights.</p><p>Machine Learning for Brain Disorders, Chapter 2</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Metrics</head><p>Many metrics have been defined for various types of input data such as vectors of real numbers, integers or booleans. Among these different types, vectors of real numbers are one of the most common types of input data, for which the most commonly used metric is the Euclidean distance, defined as:</p><formula xml:id="formula_5">∀x, x ′ ∈ I, ∥x -x ′ ∥ 2 = p j=1 (x j -x ′ j ) 2</formula><p>The Euclidean distance is sometimes referred to as the "ordinary" distance since it is the one based on the Pythagorean theorem and that everyone uses in their everyday lives.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Neighborhood</head><p>The two most common definitions of the neighborhood rely on either the number of neighbors or the radius around the given point. Figure <ref type="figure">1</ref> illustrates the differences between both definitions. The k-nearest neighbor method defines the neighborhood of a given point x as the set of the k closest points to x:</p><formula xml:id="formula_6">N (x) = {x (i) } k i=1 with d(x, x (1) ) ≤ . . . ≤ d(x, x (n) )</formula><p>The radius neighbor method defines the neighborhood of a given point x as the set of points whose dissimilarity to x is smaller than the given radius, denoted by r:</p><formula xml:id="formula_7">N (x) = {x (i) ∈ X | d(x, x (i) ) &lt; r}</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Weights</head><p>The two most common approaches to compute the weights are to use:</p><p>• uniform weights (all the weights are equal): ∀i, w Machine Learning for Brain Disorders, Chapter 2 Radius neighbors (r = 0.2)</p><p>Figure <ref type="figure">1</ref>: Different definitions of the neighborhood. On the left, the neighborhood of a given point is the set of its 5 nearest neighbors. On the right, the neighborhood of a given point is the set of points whose dissimilarity is lower than the radius. For a given input, its neighborhood may be different depending on the definition used. The Euclidean distance is used as the metric in both examples.</p><p>With uniform weights, every point in the neighborhood equally contributes to the prediction. With weights inversely proportional to the dissimilarity, closer points contribute more to the prediction than further points. Figure <ref type="figure" target="#fig_1">2</ref> illustrates the different decision functions obtained with uniform weights and weights inversely proportional to the dissimilarity for a 3-nearest neighbor classification model.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.4">Neighbor search</head><p>The brute-force method to compute the neighborhood for n points with p features is to compute the metric for each pair of inputs, which has a O(n 2 p) algorithmic complexity (assuming that evaluating the metric for a pair of inputs has a complexity of O(p), which is the case for most metrics). However, it is possible to decrease this algorithmic complexity if the metric is a distance, that is if the metric d satisfies the following properties:</p><p>1 4. Triangle Inequality: ∀a, b, c, d(a, b) + d(b, c) ≥ d(a, c) The key property is the triangle inequality, which has a simple interpretation: the shortest path between two points is a straight line. Mathematically, if a is far from c and c is close to b (i.e., d(a, c) is large and d(b, c) is small), then a is far from b (i.e., d(a, b) is large). This is obtained by rewriting the triangle inequality as follows: ∀a, b, c, d(a, b) ≥ d(a, c)d(b, c)</p><p>This means that it is not necessary to compute d(a, b) in this case. Therefore, the computational cost of a nearest neighbors search can be reduced to O(n log(n)p) or better, which is a substantial improvement over the brute-force method for large n. Two popular methods that take advantage of this property are the K-dimensional tree structure <ref type="bibr" target="#b2">[3]</ref> and the ball tree structure <ref type="bibr" target="#b3">[4]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.">Linear regression</head><p>Linear regression is a regression model that linearly combines the features. Each feature is associated with a coefficient that represents the relative weight of this feature compared to the other features. A real-life metaphor would be to see the coefficients as the ingredients of a recipe: the key is to find the best balance (i.e., proportions) between all the ingredients in order to make the best cake.</p><p>Mathematically, a linear model is a model that linearly combines the features <ref type="bibr" target="#b4">[5]</ref>:</p><formula xml:id="formula_8">f (x) = w 0 + p j=1 w j x j</formula><p>A common notation consists in including a 1 in x so that f (x) can be written as the dot product between the vector x and the vector w:</p><formula xml:id="formula_9">f (x) = w 0 × 1 + p j=1 w j x j = x ⊤ w</formula><p>where the vector w consists of:</p><p>• the intercept (also known as bias) w 0 , and • the coefficients (w 1 , . . . , w p ), where each coefficient w j is associated with the corresponding feature x j .</p><p>In the case of linear regression, f (x) is the predicted output:</p><formula xml:id="formula_10">ŷ = f (x) = x ⊤ w</formula><p>There are several methods to estimate the w coefficients. In this section, we present the oldest one which is known as ordinary least squares regression.</p><p>In the case of ordinary least squares regression, the cost function J is the sum of the squared errors on the training data (see Figure <ref type="figure">3</ref>):</p><formula xml:id="formula_11">J(w) = n i=1 y (i) -ŷ(i) 2 = n i=1 y (i) -x (i)⊤ w 2 = ∥y -Xw∥ 2 2</formula><p>One wants to find the optimal parameters w ⋆ that minimize the cost function:</p><formula xml:id="formula_12">w ⋆ = arg min w J(w)</formula><p>This optimization problem is convex, implying that any local minimum is a global minimum, and differentiable, implying that every local minimum has a null gradient. One therefore aims to find null gradients of the cost function:</p><formula xml:id="formula_13">∇ w ⋆ J = 0 =⇒ 2X ⊤ Xw ⋆ -2X ⊤ y = 0 =⇒ X ⊤ Xw ⋆ = X ⊤ y =⇒ w ⋆ = X ⊤ X -1 X ⊤ y</formula><p>Machine Learning for Brain Disorders, Chapter 2</p><p>Ordinary least square regression is one of the few machine learning optimization problem for which there exists a closed formula, i.e. the optimal solution can be computed using a finite number of standard operations such as addition, multiplication and evaluations of well-known functions.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Box 2: Linear regression</head><p>• Main idea: best hyperplane (i.e., line when p = 1, plane when p = 2) mapping the inputs and to the outputs.</p><p>• Mathematical formulation: linear relationship between the predicted output ŷ and the input x that minimizes the sum of squared errors:</p><formula xml:id="formula_14">ŷ = w ⋆ 0 + n j=1 w ⋆ j x j with w ⋆ = arg min w n i=1 y (i) -x (i)⊤ w 2</formula><p>• Regularization: can be penalized to avoid overfitting (ridge), to perform feature selection (lasso), or both (elastic-net). See Section 7.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.">Logistic regression</head><p>Intuitively, linear regression consists in finding the line that best fits the data: the true output should be as close to the line as possible. For binary classification, one wants the line to separate both classes as well as possible: the samples from one class should all be in one subspace and the samples from the other class should all be in the other subspace, with the inputs being as far as possible from the line. Mathematically, for binary classification tasks, a linear model is defined by an hyperplane splitting the input space into two subspaces such that each subspace is characteristic of one class. For instance, a line splits a plane into two subspaces in the two-dimensional case, while a plane splits a three-dimensional space into two subspaces. A hyperplane is defined by a vector w = (w 0 , w 1 , . . . , w p ) and f (x) = x ⊤ w corresponds to the signed distance between the input x and the hyperplane w: in one subspace, the distance with any input is always positive, whereas in the other subspace, the distance with any input is always negative. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Simple linear regression</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Target data Prediction Error</head><p>Figure <ref type="figure">3</ref>: Ordinary least squares regression. The coefficients (that is the intercept and the slope with a single predictor) are estimated by minimizing the sum of the squared errors.</p><p>illustrates the decision function in the two-dimensional case where both classes are linearly separable. The sign of the signed distance corresponds to the decision function of a linear binary classification model:</p><formula xml:id="formula_15">ŷ = sign(f (x)) = +1 if f (x) &gt; 0 -1 if f (x) &lt; 0</formula><p>The logistic regression model is a probabilistic linear model that transforms the signed distance to the hyperplane into a probability using the sigmoid function <ref type="bibr" target="#b5">[6]</ref>, denoted by σ(u) = 1 1+exp(-u) . Consider the linear model:</p><formula xml:id="formula_16">f (x) = x ⊤ w = w 0 + p i=j w j x j</formula><p>Then the probability of belonging to the positive class is:</p><formula xml:id="formula_17">P (y = +1|x = x) = σ(f (x)) = 1 1 + exp (-f (x))</formula><p>and that of belonging to the negative class is:</p><formula xml:id="formula_18">P (y = -1|x = x) = 1 -P (y = +1|x = x)</formula><p>Machine Learning for Brain Disorders, Chapter 2 regression is a linear model, that is its decision function is linear. In the two-dimensional case, it separates a plane with a line.</p><formula xml:id="formula_19">= exp (-f (x)) 1 + exp (-f (x)) = 1 1 + exp (f (x)) P (y = -1|x = x) = σ(-f (x))</formula><p>By applying the inverse of the sigmoid function, which is known as the logit function, one can see that the logarithm of the odds ratio is modeled as a linear combination of the features:</p><formula xml:id="formula_20">log P (y = +1|x = x) P (y = -1|x = x) = log P (y = +1|x = x) 1 -P (y = +1|x = x) = f (x)</formula><p>The w coefficients are estimated by maximizing the likelihood function, that is the function measuring the goodness of fit of the model to the training data:</p><formula xml:id="formula_21">L(w) = n i=1 P y = y (i) |x = x (i) ; w</formula><p>For computational reasons, it is easier to maximize the log-likelihood, which is simply the logarithm of the likelihood: log(L(w)) = • Mathematical formulation: the signed distance to the hyperplane is mapped into the probability to belong to the positive class using the sigmoid function:</p><formula xml:id="formula_22">f (x) = w 0 + n j=1 w j x j P (y = +1|x = x) = σ(f (x)) = 1 1 + exp (-f (x))</formula><p>• Estimation: likelihood maximization.</p><p>• Regularization: can be penalized to avoid overfitting (ℓ 2 penalty), to perform feature selection (ℓ 1 penalty), or both (elastic-net penalty).</p><p>= n i=1 log σ y (i) f (x (i) ; w)</p><formula xml:id="formula_23">= n i=1 -log 1 + exp y (i) x (i)⊤ w log(L(w)) = - n i=1 log 1 + exp y (i) x (i)⊤ w</formula><p>Finally, we can rewrite this maximization problem as a minimization problem by noticing that max w log(L(w)) =min wlog(L(w)):</p><formula xml:id="formula_24">max w log(L(w)) = -min w n i=1 log 1 + exp y (i) x (i)⊤ w</formula><p>We can see that the w coefficients that maximize the likelihood are also the coefficients that minimize the sum of the logistic loss values, with the logistic loss being defined as:</p><formula xml:id="formula_25">ℓ logistic (y, f (x)) = log (1 + exp (yf (x))) / log(2)</formula><p>Unlike for linear regression, there is no closed formula for this minimization. One thus needs to use an optimization method such as for instance</p><p>Machine Learning for Brain Disorders, Chapter 2 gradient descent which was presented in Section 3 of Chapter 1. In practice, more sophisticated approaches such as quasi-Newton methods and variants of stochastic gradient descent are often used.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.">Overfitting and regularization</head><p>The original formulations of ordinary least square regression and logistic regression are unregularized models, that is the model is trained to fit the training data as much as possible. Let us consider a real-life example as it is very similar to human learning. If a person learns by heart the content of a book, they are able to solve the exercises in the book, but unable to apply the theoretical concepts to new exercises or real-life situations. If a person only quickly reads through the book, they are probably unable to solve neither the exercises in the book nor new exercises.</p><p>The corresponding concepts are known as overfitting and underfitting in machine learning. Overfitting occurs when a model fits too well the training data and generalizes poorly to new data. Oppositely, underfitting occurs when a model does not capture well enough the characteristics of the training data, thus also generalizes poorly to new data.</p><p>Overfitting and underfitting are related to frequently used terms in machine learning: bias and variance. Bias is defined as the expected (i.e., mean) difference between the true output and the predicted output. Variance is defined as the variability of the predicted output. For instance, let us consider a model predicting the age of a person from a picture. If the model always underestimates or overestimates the age, then the model is biased. If the model makes both large and small errors, then the model has a high variance.</p><p>Ideally, one would like to have a model with a small bias and a small variance. However, the bias of a model tends to increase when decreasing its variance, and the variance of the model tends to increase when decreasing its bias. This phenomenon is known as the bias-variance tradeoff. Figure <ref type="figure" target="#fig_6">5</ref> illustrates this phenomenon. One can also notice it by computing the squared error between the true output y (fixed) and the predicted output ŷ (random variable): its expected value is the sum of the squared bias of ŷ and the variance of ŷ:</p><formula xml:id="formula_26">E (y -ŷ) 2 = E y 2 -2yŷ + ŷ2 = y 2 -2yE [ŷ] + E ŷ2 = y 2 -2yE [ŷ] + E ŷ2 + E [ŷ] 2 -E [ŷ] 2 = (E [ŷ] -y) 2 + E ŷ2 -E [ŷ] 2</formula><p>Machine Learning for Brain Disorders, Chapter 2</p><formula xml:id="formula_27">= (E [ŷ] -y) 2 + E ŷ2 -E [ŷ] 2 = (E [ŷ] -y) 2 + E ŷ2 -2E [ŷ] 2 + E [ŷ] 2 = (E [ŷ] -y) 2 + E ŷ2 -2ŷE [ŷ] + E [ŷ] 2 = (E [ŷ] -y) 2 + E (ŷ -E [ŷ]) 2 E (y -ŷ) 2 = (E [ŷ] -y) 2 bias 2 + Var [ŷ] variance 7.</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Penalized models</head><p>Depending on the class of methods, there exist different strategies to tackle overfitting. For neighbor methods, the number of neighbors used to define the neighborhood of any input and the strategy to compute the weights are the key hyperparameters to control the bias-variance trade-off. For models that are presented in the remaining sections of this chapter, we mention strategies to address the bias-variance trade-off in their respective sections. In this section, we present the most commonly used strategies for models whose parameters are optimized by minimizing a cost function defined as the mean loss values over all the training samples:</p><formula xml:id="formula_28">min w J(w) with J(w) = 1 n n i=1 ℓ y (i) , f (x (i) ; w)</formula><p>This is for instance the case of the linear and logistic regression methods presented in the previous sections.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.1">Penalties</head><p>The main idea is to introduce a penalty term Pen(w) that will constraint the parameters w to have some desired properties. The most common penalties are the ℓ 2 penalty, the ℓ 1 penalty and the elastic-net penalty.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.1.1.">ℓ 2 penalty</head><p>The ℓ 2 penalty is defined as the squared ℓ 2 norm of the w coefficients:</p><formula xml:id="formula_29">ℓ 2 (w) = ∥w∥ 2 2 = p j=1 w 2 j</formula><p>The ℓ 2 penalty forces each coefficient w i not to be too large and makes the coefficients more robust to collinearity (i.e., when some features are approximately linear combinations of the other features).</p><p>Machine Learning for Brain Disorders, Chapter 2</p><p>-3 -2 -1 0 1 2 3 High bias, high variance High bias, low variance -2 0 2 -3 -2 -1 0 1 2 3 Low bias, high variance -2 0 2 Low bias, low variance Complexity Error Underfitting (high bias, low variance) Overfitting (low bias, high variance) Training set Test set Oppositely, overfitting occurs when a model is too complex and learns the noise in the training data, leading to low bias and high variance.</p><formula xml:id="formula_30">ℓ 0 ℓ 1 ℓ 2</formula><p>Figure <ref type="figure">6</ref>: Unit balls of the ℓ 0 , ℓ 1 and ℓ 2 norms. For each norm, the set of points in R 2 whose norm is equal to 1 is plotted. The ℓ 1 norm is the best convex approximation to the ℓ 0 norm. Note that the lines for the ℓ 0 norm extend to -∞ and +∞, but are cut for plotting reasons.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.1.2.">ℓ 1 penalty</head><p>The ℓ 2 penalty forces the values of the parameters not to be too large, but does not incentive to make small values tend to zero. Indeed, the square of a small value is even smaller. When the number of features is large, or when interpretability is important, it can be useful to make the model select the most important features. The corresponding metric is the ℓ 0 "norm" (which is not a proper norm in the mathematical sense), defined as the number of nonzero elements:</p><formula xml:id="formula_31">ℓ 0 (w) = ∥w∥ 0 = p j=1 1 w j ̸ =0</formula><p>However, the ℓ 0 "norm" is neither differentiable nor convex (which are useful properties to solve an optimization problem, but this is not further detailed for the sake of conciseness). The best convex differentiable approximation of the ℓ 0 "norm" is the the ℓ 1 norm (see Figure <ref type="figure">6</ref>), defined as the sum of the absolute values of each element:</p><formula xml:id="formula_32">ℓ 1 (w) = ∥w∥ 1 = p j=1 |w j |</formula><p>Machine Learning for Brain Disorders, Chapter 2</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.1.3.">Elastic-net penalty</head><p>Both the ℓ 2 and ℓ 1 penalties have their upsides and downsides. In order to try to obtain the best of penalties, one can add both penalties in the objective function. The combination of both penalties is known as the elastic-net penalty:</p><formula xml:id="formula_33">EN(w, α) = α∥w∥ 1 + (1 -α)∥w∥ 2 2</formula><p>where α ∈ [0, 1] is a hyperparameter representing the proportion of the ℓ 1 penalty compared to the ℓ 2 penalty.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.2">New optimization problem</head><p>A natural approach would be to add a constraint to the minimization problem: min</p><formula xml:id="formula_34">w J(w) subject to Pen(w) &lt; c<label>(1)</label></formula><p>which reads as "Find the optimal parameters that minimize the cost function J among all the parameters w that satisfy Pen(w) &lt; c" for a positive real number c. Figure <ref type="figure">7</ref> illustrates the optimal solution of a simple linear regression task with different constraints. This figure also highlights the sparsity property of the ℓ 1 penalty (the optimal parameter for the horizontal axis is set to zero) that the ℓ 2 penalty does not have (the optimal parameter for the horizontal axis is small but different from zero). Although this approach is appealing due to its intuitiveness and the possibility to set the maximum possible penalty on the parameters w, it leads to a minimization problem that is not trivial to solve. A similar approach consists in adding the regularization term in the cost function:</p><formula xml:id="formula_35">min w J(w) + λ × Pen(w)<label>(2)</label></formula><p>where λ &gt; 0 is a hyperparameter that controls the weights of the penalty term compared to the mean loss values over all the training samples. This formulation is related to the Lagrangian function of the minimization problem with the penalty constraint. This formulation leads to a minimization problem with no constraint which is much easier to solve. One can actually show that Equation 1 and Equation 2 are related: solving Equation 2 for a given λ, whose optimal solution is denoted by w ⋆ λ , is equivalent to solving Equation 1 for c = Pen(w ⋆ λ ). In other words, solving Equation 2 for a given λ is equivalent to solving Equation 1 for c whose value is only known after finding the optimal solution of Equation <ref type="formula" target="#formula_35">2</ref>. λ = 1000 λ = 100 λ = 10 λ = 1 λ = 0.1 λ = 0.01 λ = 0.001 λ = 0.0001 λ = 0.00001 λ = 0.000001 λ = 0.0000001 λ = 0.00000001  For small values of λ, the mean loss value is dominating the regularization term, making the prediction function fitting too well the training data (overfitting). A good balance between the mean loss value and the regularization term is required to learn the best function.</p><p>Since linear regression is one of the oldest and best-known models, the aforementioned penalties were originally introduced for linear regression:</p><p>• Linear regression with the ℓ 2 penalty is also known as ridge <ref type="bibr" target="#b6">[7]</ref>:</p><formula xml:id="formula_36">min w ∥y -Xw∥ 2 2 + λ∥w∥ 2 2</formula><p>As in ordinary least squares regression, there exists a closed formula for the optimal solution:</p><formula xml:id="formula_37">w ⋆ = X ⊤ X + λI -1 X ⊤ y</formula><p>• Linear regression with the ℓ 1 penalty is also known as lasso <ref type="bibr" target="#b7">[8]</ref>:</p><formula xml:id="formula_38">min w ∥y -Xw∥ 2 2 + λ∥w∥ 1</formula><p>• Linear regression with the elastic-net penalty is also known as elastic-net <ref type="bibr" target="#b8">[9]</ref>:</p><formula xml:id="formula_39">min w ∥y -Xw∥ 2 2 + λα∥w∥ 1 + λ(1 -α)∥w∥ 2 2</formula><p>The penalties can also be added in other models such as logistic regression, support-vector machines, artificial neural networks, etc.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="8.">Support-vector machine</head><p>Linear and logistic regression take into account every training sample in order to find the best line, which is due to their corresponding loss functions: the squared error is zero only if the true and predicted outputs are equal, and the logistic loss is always positive. One could argue that the training samples whose outputs are "easily" well predicted are not relevant: only the training samples whose outputs are not "easily" well predicted or are wrongly predicted should be taken into account. The support vector machine (SVM) is based on this principle.</p><p>Figure <ref type="figure">9</ref>: Support vector machine classifier with linearly separable classes. When two classes are linearly separable, there exists an infinite number of hyperplanes separating them (left). The decision function of the support vector machine classifier is the hyperplane that maximizes the margin, that is the distance between the hyperplane and the closest points to the hyperplane (right). Support vectors are highlighted with a black circle surrounding them.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="8.1">Original formulation</head><p>The original support vector machine was invented in 1963 and was a linear binary classification method <ref type="bibr" target="#b9">[10]</ref>. Figure <ref type="figure">9</ref> illustrates the main concept of its original version. When both classes are linearly separable, there exists an infinite number of hyperplanes that separate both classes.</p><p>The SVM finds the hyperplane that maximizes the margin, that is the distance between the hyperplane and the closest points of both classes to the hyperplane, while linearly separating both classes.</p><p>The SVM was later updated to non-separable classes <ref type="bibr" target="#b11">[11]</ref>. Figure <ref type="figure" target="#fig_10">10</ref> illustrates the role of the margin in this case. The dashed lines correspond to the hyperplanes defined by the equations x ⊤ w = +1 and x ⊤ w = -1. The margin is the distance between both hyperplanes and is equal to 2/∥w∥ 2 2 . It defines which samples are included in the decision function of the model: a sample is included if and only if it is inside the margin, or outside the margin and misclassified. Such samples are called support vectors and are illustrated in Figure <ref type="figure" target="#fig_10">10</ref> with a black circle surrounding them. In this case, the margin can be seen a regularization term: the larger the margin is, the more support vectors are included in the decision function, the more regularized the model is.</p><formula xml:id="formula_40">( w 2 2 ) -1 ( w 2 2 ) -1</formula><p>x w = +1</p><p>x w = -1 </p><formula xml:id="formula_41">-4 -3 -2 -1 0 1 2 3 4 yf (x) 0 2 4 6 ℓ(y, f (x)) Logistic loss: ℓ logistic (y, f (x)) = log(1 + exp(yf (x)))/ log(2)</formula><p>Hinge loss: ℓ hinge (y, f (x)) = max(0, 1yf (x))</p><p>Figure <ref type="figure">11</ref>: Binary classification losses. The logistic loss is always positive, even when the point is accurately classified with high confidence (i.e., when yf (x) ≫ 0), whereas the hinge loss is equal to zero when the point is accurately classified with good confidence (i.e., when yf (x) ≥ 1).</p><p>The loss function for the SVM is called the hinge loss and is defined as:</p><formula xml:id="formula_42">ℓ hinge (y, f (x)) = max(0, 1 -yf (x))</formula><p>Figure <ref type="figure">11</ref> illustrates the curves of the logistic and hinge losses. The logistic loss is always positive, even when the point is accurately classified with high confidence (i.e., when yf (x) ≫ 0), whereas the hinge loss is equal to zero when the point is accurately classified with good confidence (i.e., when yf (x) ≥ 1). One can see that a sample (x, y) is a support vector if and only if yf (x) ≥= 1, that is if and only if ℓ hinge (y, f (x)) = 0.</p><p>The optimal w coefficients for the original version are estimated by minimizing an objective function consisting of the sum of the hinge loss values and a ℓ 2 penalty term (which is inversely proportional to the margin):</p><formula xml:id="formula_43">min w n i=1 max(0, 1 -y (i) x (i)⊤ w) + 1 2C ∥w∥ 2</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="8.2">General formulation with kernels</head><p>The SVM was later updated to non-linear decision functions with the use of kernels <ref type="bibr" target="#b12">[12]</ref>.</p><p>In order to have a non-linear decision function, one could map the input space I into another space (often called the feature space), denoted by G, using a function denoted by ϕ:</p><formula xml:id="formula_44">ϕ : I → G x → ϕ(x)</formula><p>The decision function would still be linear (with a dot product), but in the feature space:</p><formula xml:id="formula_45">f (x) = ϕ(x) ⊤ w</formula><p>Unfortunately, solving the corresponding minimization problem is not trivial:</p><formula xml:id="formula_46">min w n i=1 max 0, 1 -y (i) ϕ(x (i) ) ⊤ w + 1 2C ∥w∥<label>2 2 (3)</label></formula><p>Nonetheless, two mathematical properties make the use of non-linear transformations in the feature space possible: the kernel trick and the representer theorem.</p><p>The kernel trick asserts that the dot product in the feature space can be computed using only the points from the input space and a kernel function, denoted by K:</p><formula xml:id="formula_47">∀x, x ′ ∈ I, ϕ(x) ⊤ ϕ(x ′ ) = K(x, x ′ )</formula><p>The representer theorem <ref type="bibr" target="#b13">[13,</ref><ref type="bibr" target="#b14">14]</ref> asserts that, under certain conditions on the kernel K and the feature space G associated with the function ϕ, any minimizer of Equation 3 admits the following form:</p><formula xml:id="formula_48">f = n i=1 α i K(•, x (i) )</formula><p>where α solves:</p><formula xml:id="formula_49">min α n i=1 max(0, 1 -y (i) [Kα] i ) + 1 2C α ⊤ Kα</formula><p>where K is the n×n matrix consisting of the evaluations of the kernel on all the pairs of training samples: ∀i, j ∈ {1, . . . , n}, K ij = K(x (i) , x (j) ).</p><p>Because the hinge loss is equal to zero if and only if yf (x) is greater than or equal to 1, only the training samples (x (i) , y (i) ) such that y (i) f (x (i) ) &lt; Machine Learning for Brain Disorders, Chapter 2 Box 4: Support-vector machine • Main idea: hyperplane (i.e., line) that maximizes the margin (i.e., the distance between the hyperplane and the closest inputs to the hyperplane).</p><p>• Support vectors: only the misclassified inputs and the inputs well classified but with low confidence are taken into account.</p><p>• Non-linearity: decision function can be non-linear with the use of non-linear kernels.</p><p>• Regularization: ℓ 2 penalty.</p><p>1 have a nonzero α i coefficient. These points are the so-called support vectors and this is why they are the only training samples contributing to the decision function of the model:</p><formula xml:id="formula_50">SV = {i ∈ {1, . . . , n} | α i ̸ = 0} f (x) = n i=1 α i K(x, x (i) ) = i∈SV α i K(x, x (i) )</formula><p>The kernel trick and the representer theorem show that it is more practical to work with the kernel K instead of the mapping function ϕ. Popular kernel functions include:</p><p>• the linear kernel:</p><formula xml:id="formula_51">K(x, x ′ ) = x ⊤ x ′</formula><p>• the polynomial kernel:</p><formula xml:id="formula_52">K(x, x ′ ) = γ x ⊤ x ′ + c 0 d with γ &gt; 0, c 0 ≥ 0, d ∈ N *</formula><p>• the sigmoid kernel:</p><formula xml:id="formula_53">K(x, x ′ ) = tanh γ x ⊤ x ′ + c 0 with γ &gt; 0, c 0 ≥ 0</formula><p>• the radial basis function (RBF) kernel:</p><formula xml:id="formula_54">K(x, x ′ ) = exp -γ ∥x -x ′ ∥ 2 2</formula><p>with γ &gt; 0</p><p>Machine Learning for Brain Disorders, Chapter 2</p><p>The linear kernel yields a linear decision function and is actually identical to the original formulation of the SVM (one can show that there is a mapping between the α and w coefficients). Non-linear kernels allow for non-linear, more complex, decision functions. This is particularly useful when the data is not linearly separable, which is the most common use case. Figure <ref type="figure" target="#fig_11">12</ref> illustrates the decision function and the margin of a SVM classification model for four different kernels.</p><p>The SVM was also extended to regression tasks with the use of the ε-insensitive loss. Similarly to the hinge loss, which is equal to zero for points that are correctly classified and outside the margin, the εinsensitive loss is equal to zero when the error between the true target value and the predicted value is not greater than ε:</p><formula xml:id="formula_55">ℓ ε-insensitive (y, f (x)) = max(0, |y -f (x)| -ε)</formula><p>The objective function for the SVM regression method combines the values of ε-insensitive loss of the training points and the ℓ 2 penalty:</p><formula xml:id="formula_56">min w n i=1 max 0, y (i) -ϕ(x (i) ) ⊤ w -ε + 1 2C ∥w∥ 2 2</formula><p>Figure <ref type="figure">13</ref> illustrates the curves of three regression losses. The squared error loss takes very small values for small errors and very high values for high errors, whereas the absolute error loss takes small values for small errors and high values for high errors. Both losses take small but nonzero values when the error is small. On the contrary, the ε-insensitive loss is null when the error is small and otherwise equal to the absolute error loss minus ε.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="9.">Multiclass classification</head><p>The classification methods that we presented so far, logistic regression and support-vector machines, are binary classifiers: they can only be used when there are only two possible outcomes. However, in practice, it is common to have more than two possible outcomes. For instance, differential diagnosis of brain disorders is often between several, and not only two, diseases.</p><p>Several strategies have been proposed to extend any binary classification method to multiclass classification tasks. They all rely on transforming the multiclass classification task into several binary classification tasks. In this section, we present the most commonly used strategies: one-vs-rest, one-vs-one and error correcting output code <ref type="bibr" target="#b15">[15]</ref>. Figure <ref type="figure" target="#fig_12">14</ref> illustrates the main ideas of these approaches. But first, we present a Machine Learning for Brain Disorders, Chapter 2</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Linear kernel</head><p>Polynomial kernel -2.0 -1.5 -1.0 -0.5 0.0 0.5 1.0 1.5 2.0 yŷ 0 1 2 3 4 ℓ(y, ŷ) -ε +ε Mean squared error (MSE): ℓ MSE (y, ŷ) = (yŷ) 2 Mean absolute error (MAE): ℓ MAE (y, ŷ) = |y -ŷ| ε-insensitive loss: ℓ ε-insensitive (y, ŷ) = max(0, |y -ŷ|ε)</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>RBF kernel Sigmoid kernel</head><p>Figure <ref type="figure">13</ref>: Regression losses. The squared error loss takes very small values for small errors and very large values for large errors, whereas the absolute error loss takes small values for small errors and large values for large errors. Both losses take small but non-zero values when the error is small. On the contrary, the ε-insensitive loss is null when the error is small and otherwise equal the absolute error loss minus ε. When computed over several samples, the squared and absolute error losses are often referred to as mean squared error (MSE) and mean absolute error (MAE) respectively.</p><p>One-vs-rest {1} vs. {2, 3, 4, 5} {2} vs. {1, 3, 4, 5} {3} vs. {1, 2, 4, 5} {4} vs. {1, 2, 3, 5} {5} vs. {1, 2, 3, 4} One-vs-one {1} vs. {2} {1} vs. {3} {1} vs. {4} {1} vs. {5} {2} vs. {3} {2} vs. {4} {2} vs. {5} {3} vs. {4} {3} vs. {5} {4} vs. {5} Output code {1, 3} vs. {2, 4, 5} {1, 4, 5} vs. {2, 3} {2} vs. {1, 3, 4, 5} {1, 2, 3} vs. {4, 5} {2, 5} vs. {1, 3, 4} {2, 3, 4} vs. {1, 5} {4} vs. {1, 2, 3, 5} . . . . . . . . . In the one-vs-rest approach, each class is associated to a binary classification model that is trained to separate this class from all the other classes. In the one-vs-one approach, a binary classifier is trained on each pair of classes. In the error correcting output code approach, the classes are (randomly) split into two groups and a binary classifier is trained for each split.</p><p>natural extension of logistic regression to multiclass classification tasks which is often referred to as multinomial logistic regression <ref type="bibr" target="#b4">[5]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="9.1">Multinomial logistic regression</head><p>For binary classification, logistic regression is characterized by a hyperplane: the signed distance to the hyperplane is mapped into the probability of belonging to the positive class using the sigmoid function. However, for multiclass classification, a single hyperplane is not enough to characterize all the classes. Instead, each class C k is characterized by a hyperplane w k and, for any input x, one can compute the signed distance x ⊤ w k between the input x and the hyperplane w k . The signed distances are mapped into probabilities using the softmax function, de-fined as softmax (x 1 , . . . , x q ) = exp(x 1 ) q j=1 exp(x j ) , . . . , exp(xq) q j=1 exp(x j ) , as follows:</p><p>∀k ∈ {1, . . . , q}, P</p><formula xml:id="formula_57">(y = C k |x = x) = exp x ⊤ w k q j=1 exp (x ⊤ w j )</formula><p>The coefficients (w k ) 1≤k≤q are still estimated by maximizing the likelihood function:</p><formula xml:id="formula_58">L(w 1 , . . . , w q ) = n i=1 q k=1 P y = C k |x = x (i) 1 y (i) =C k</formula><p>which is equivalent to minimizing the negative log-likelihood:</p><formula xml:id="formula_59">-log(L(w 1 , . . . , w q )) = - n i=1 q k=1 1 y (i) =C k log P y = C k |x = x (i) = n i=1 - q k=1 1 y (i) =C k log exp x (i)⊤ w k q j=1 exp (x (i)⊤ w j ) = n i=1 ℓ cross-entropy y (i) , softmax x (i)⊤ w 1 , . . . , x (i)⊤ w q</formula><p>where ℓ cross entropy is known as the cross-entropy loss and is defined, for any label y and any vector of probabilities (π 1 , . . . , π q ), as:</p><formula xml:id="formula_60">ℓ cross-entropy (y, (π 1 , . . . , π q )) = - q k=1 1 y=C k π k</formula><p>This loss is commonly used to train artificial neural networks on classification tasks and is equivalent to the logistic loss in the binary case. Figure <ref type="figure" target="#fig_13">15</ref> illustrates the impact of the strategy used to handle a multiclass classification task on the decision function.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="9.2">One-vs-rest</head><p>A strategy to transform a multiclass classification task into several binary classification tasks is to fit a binary classifier for each class: the positive class is the given class, and the negative class consists of all the other classes merged into a single class. This strategy is known as one-vsrest. The advantage of this strategy is that each class is characterized by a single model, so that it is possible to gain deeper knowledge about the class by inspecting its corresponding model. A consequence is that</p><p>Machine Learning for Brain Disorders, Chapter 2 Multinomial One-vs.-rest One-vs.-one Output code the predictions for new samples take into account the confidence of the models: the predicted class for a new input is the class for which the corresponding model is the most confident that this input belongs to its class. The one-vs-rest strategy is the most commonly used strategy and usually a good default choice.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="9.3">One-vs-one</head><p>Another strategy is to fit a binary classifier for each pair of classes: this strategy is known as one-vs-one. The advantage of this strategy is that the classes in each binary classification task are "pure", in the sense that different classes are never merged into a single class. However, the number of binary classifiers that needs to be trained is larger for the one-vs-one strategy (<ref type="foot" target="#foot_2">foot_2</ref> 2 q(q -1)) than for the one-vs-rest strategy (q). Nonetheless, for the one-vs-one strategy, the number of training samples in each binary classification tasks is smaller than the total number of samples, which makes training each binary classifier usually faster. Another drawback is that this strategy is less interpretable compared to the onevs-rest strategy, as the predicted class corresponds to the class obtaining the most votes (i.e., winning the most one-vs-one matchups), which does not take into account the confidence in winning each matchup. 1 For instance, winning a one-vs-one matchup with 0.99 probability gives the same result as winning the same matchup with 0.51 probability, i.e. one vote.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="9.4">Error correcting output code</head><p>A substantially different strategy, inspired by the theory of error correction code, consists in merging a subset of classes into one class and the other subset into the other class, for each binary classification task. This data is often called the code book and can be represented as a matrix whose rows correspond to the classes and whose columns correspond to the binary classification tasks. The matrix consists only of -1 and +1 values that represent the corresponding label for each class and for each binary task. <ref type="foot" target="#foot_3">2</ref> For any input, each binary classifier returns the score (or probability) associated with the positive class. The predicted class for this input is the class whose corresponding vector is the most similar to the vector of scores, with similarity being assessed with the Euclidean distance (the lower, the more similar). There exist advanced strategies to define the code book, but it has been argued than a random code book usually gives as good results as a sophisticated one <ref type="bibr" target="#b16">[16]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="10.">Decision functions with normal distributions</head><p>Normal distributions are popular distributions because they are commonly found in nature. For instance, the distribution of heights and birth weights of human beings can be approximated using normal distributions. Moreover, normal distributions are particularly easy to work with from a mathematical point of view. For these reasons, a common model consists in assuming that the training input vectors are independently sampled from normal distributions. A possible classification model consists in assuming that, for each class, all the corresponding inputs are sampled from a normal distribution with mean vector µ k and covariance matrix Σ k :</p><formula xml:id="formula_61">∀i such that y (i) = C k , x (i) ∼ N (µ k , Σ k )</formula><p>Using the probability density function of a normal distribution, one can compute the probability density of any input x associated to the distribution N (µ k , Σ k ) of class C k :</p><formula xml:id="formula_62">p x|y=C k (x) = 1 (2π) p |Σ k | exp - 1 2 [x -µ k ] ⊤ Σ -1 k [x -µ k ]</formula><p>With such a probabilistic model, it is easy to compute the probability that a sample belongs to class C k using Bayes rule:</p><formula xml:id="formula_63">P (y = C k |x = x) = p x|y=C k (x)P (y = C k ) p x (x)</formula><p>With normal distributions, it is mathematically easier to work with logprobabilities:</p><formula xml:id="formula_64">log P (y = C k |x = x) = log p x|y=C k (x) + log P (y = C k ) -log p x (x) = - 1 2 [x -µ k ] ⊤ Σ -1 k [x -µ k ] - 1 2 log |Σ k | + log P (y = C k ) - p 2 log(2π) -log p x (x) = - 1 2 x ⊤ Σ -1 k x + x ⊤ Σ -1 k µ k - 1 2 µ ⊤ k Σ -1 k µ k - 1 2 log |Σ k | + log P (y = C k ) - p 2 log(2π) -log p x (x)<label>(4)</label></formula><p>Machine Learning for Brain Disorders, Chapter 2</p><p>It is also possible to make further assumptions on the covariance matrices that lead to different models. In this section, we present the most commonly used ones: Naive Bayes, linear discriminant analysis and quadratic discriminant analysis. Figure <ref type="figure" target="#fig_15">16</ref> illustrates the covariance matrices and the decision functions for these models in the two-dimensional case.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="10.1">Naive Bayes</head><p>The Naive Bayes model assumes that, conditionally to each class C k , the features are independent and have the same variance σ 2 k :</p><formula xml:id="formula_65">∀k, Σ k = σ 2 k I p</formula><p>Equation 4 can thus be further simplified:</p><formula xml:id="formula_66">log P (y = C k |x = x) = - 1 2σ 2 k x ⊤ x + 1 σ 2 k x ⊤ µ k - 1 2σ 2 k µ ⊤ k µ k -log σ k + log P (y = C k ) - p 2 log(2π) -log p x (x) = x ⊤ W k x + x ⊤ w k + w 0k + s</formula><p>where:</p><formula xml:id="formula_67">• W k = -1 2σ 2 k</formula><p>I p is the matrix of the quadratic term for class C k ,</p><formula xml:id="formula_68">• w k = 1 σ 2 k µ k is the vector of the linear term for class C k , • w 0k = -1 2σ 2 k µ ⊤ k µ k -log σ k + log P (y = C k ) is the intercept for class C k , and • s = -p 2 log(2π) -log p x (x) is a term that does not depend on class C k .</formula><p>Therefore, Naive Bayes is a quadratic model. The probabilities for input x to belong to each class C k can then easily be computed:</p><formula xml:id="formula_69">P (y = C k |x = x) = exp x ⊤ W k x + x ⊤ w k + w 0k k j=1 exp (x ⊤ W j x + x ⊤ w j + w 0j )</formula><p>With the Naive Bayes model, it is relatively common to have the conditional variances σ 2 k to all be equal:  A two-dimensional covariance matrix can be represented as an ellipse. In the Naive Bayes model, the features are assumed to be independent and to have the same variance conditionally to the class, leading to covariance matrices being represented as circles. When the covariance matrices are assumed to be identical, the decision functions are linear instead of quadratic.</p><formula xml:id="formula_70">∀k, Σ k = σ 2 k I p =</formula><p>In this case, Equation 4 can be even further simplified:</p><formula xml:id="formula_71">log P (y = C k |x = x) = - 1 2σ 2 x ⊤ x + 1 σ 2 x ⊤ µ k - 1 2σ 2 µ ⊤ k µ k -log σ k + log P (y = C k ) - p 2 log(2π) -log p x (x) = x ⊤ w k + w 0k + s</formula><p>where:</p><formula xml:id="formula_72">• w k = 1 σ 2 µ k is the vector of the linear term for class C k , • w 0k = -1 2σ 2 µ ⊤ k µ k + log P (y = C k )</formula><p>is the intercept for class C k , and</p><formula xml:id="formula_73">• s = -1 2σ 2 x ⊤ x -log σ -p 2 log(2π) -log p x (x) is a term that does not depend on class C k .</formula><p>In this case, Naive Bayes becomes a linear model.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="10.2">Linear discriminant analysis</head><p>Linear discriminant analysis (LDA) makes the assumption that all the covariance matrices are identical but otherwise arbitrary:</p><formula xml:id="formula_74">∀k, Σ k = Σ</formula><p>Therefore, Equation 4 can be further simplified:</p><formula xml:id="formula_75">log P (y = C k |x = x) = - 1 2 [x -µ k ] ⊤ Σ -1 [x -µ k ] - 1 2 log |Σ| + log P (y = C k ) - p 2 log(2π) -log p x (x) = - 1 2 x ⊤ Σ -1 x -x ⊤ Σ -1 µ k -µ ⊤ k Σ -1 x + µ ⊤ k Σ -1 µ k - 1 2 log |Σ| + log P (y = C k ) - p 2 log(2π) -log p x (x) = -x ⊤ Σ -1 µ k - 1 2 x ⊤ Σ -1 x - 1 2 µ ⊤ k Σ -1 µ k + log P (y = C k ) - 1 2 log |Σ| - p 2 log(2π) -log p x (x) = x ⊤ w k + w 0k + s</formula><p>where:</p><p>Machine Learning for Brain Disorders, Chapter 2</p><p>• w k = Σ -1 µ k is the vector of coefficients for class C k ,</p><formula xml:id="formula_76">• w 0k = -1 2 µ ⊤ k Σ -1 µ k + log P (y = C k )</formula><p>is the intercept for class C k , and</p><formula xml:id="formula_77">• s = -1 2 x ⊤ Σ -1 x --1 2 log |Σ| -p 2 log(2π) -log p x (x) is a term that does not depend on class C k .</formula><p>Therefore, linear discriminant analysis is a linear model. When Σ is diagonal, linear discriminant analysis is identical to Naive Bayes with identical conditional variances.</p><p>The probabilities for input x to belong to each class C k can then easily be computed:</p><formula xml:id="formula_78">P (y = C k |x = x) = exp x ⊤ w k + w 0k k j=1 exp (x ⊤ w j + w 0j )</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="10.3">Quadratic discriminant analysis</head><p>Quadratic discriminant analysis makes no assumption on the covariance matrices Σ k that can all be arbitrary. Equation 4 can be written as:</p><formula xml:id="formula_79">log P (y = C k |x = x) = - 1 2 x ⊤ Σ -1 k x + x ⊤ Σ -1 k µ k - 1 2 µ ⊤ k Σ -1 k µ k - 1 2 log |Σ k | + log P (y = C k ) - p 2 log(2π) -log p x (x) = x ⊤ W k x + x ⊤ w k + w 0k + s</formula><p>where:</p><formula xml:id="formula_80">• W k = -1 2 Σ -1 k is the matrix of the quadratic term for class C k , • w k = Σ -1 k µ k is the vector of the linear term for class C k , • w 0k = -1 2 µ ⊤ k Σ -1 k µ k -1 2 log |Σ k | + log P (y = C k ) is the intercept for class C k , and • s = -p 2 log(2π) -log p x (x) is a term that does not depend on class C k .</formula><p>Therefore, quadratic discriminant analysis is a quadratic model.</p><p>The probabilities for input x to belong to each class C k can then easily be computed:</p><formula xml:id="formula_81">P (y = C k |x = x) = exp x ⊤ W k x + x ⊤ w k + w 0k k j=1 exp (x ⊤ W j x + x ⊤ w j + w 0j )</formula><p>Machine Learning for Brain Disorders, Chapter 2</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Severity of symptoms</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Consult your general practitioner</head><p>M i l d Can you quickly consult a specialist? Consult a specialist Y e s Call for emergency services N o S e v e r e </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="11.">Tree-based methods</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="11.1">Decision tree</head><p>Binary decisions based on conditional statements are frequently used in everyday life because they are intuitive and easy to understand. Figure <ref type="figure" target="#fig_17">17</ref> illustrates a general approach when someone is ill. Depending on conditional statements (severity of symptoms, ability to quickly consult a specialist), the decision (consult your general practitioner or a specialist, or call for emergency services) is different. Models with such an architecture are often used in machine learning and are called decision trees.</p><p>A decision tree is an algorithm containing only conditional statements and can be represented with a tree <ref type="bibr" target="#b17">[17]</ref>. This graph consists of:</p><p>• decision nodes for all the conditional statements,</p><p>• branches for the potential outcomes of each decision node, and</p><p>• leaf nodes for the final decision.</p><p>Figure <ref type="figure" target="#fig_19">18</ref> illustrates a decision tree and its corresponding decision function. For a given sample, the final decision is obtained by following its corresponding path, starting at the root node.</p><p>A decision tree recursively partitions the feature space in order to group samples with the same labels or similar target values. At each  node, the objective is to find the best (feature, threshold) pair so that both subsets obtained with this split are the most pure, that is homogeneous. To do so, the best (feature, threshold) pair is defined as the pair that minimizes an impurity criterion.</p><p>Let S ⊆ X be a subset of training samples. For classification tasks, the distribution of the classes, that is the proportion of each class, is used to measure the purity of the subset. Let p k be the proportion of samples from class C k in a given partition:</p><formula xml:id="formula_82">p k = 1 |S| y∈S 1 y=C k</formula><p>Popular impurity criterion for classification tasks include:</p><p>• Gini index: 0.0 0.2 0.4 0.6 0.8 1.0 p k 0.0 0.1 0.2 0.3 Impurity Gini index Entropy into account the proportion of the most common class and tends to be even less discriminative against heterogeneous subsets than both entropy and Gini index.</p><formula xml:id="formula_83">k p k (1 -p k ) • Entropy: - k p k log(p k ) • Misclassification: 1 -max k p k</formula><p>For regression tasks, the mean error from a reference value (such as the mean or the median) is often used as the impurity criterion:</p><formula xml:id="formula_84">• Mean squared error: 1 |S| y∈S (y -ȳ) 2 with ȳ = 1 |S| y∈S y • Mean absolute error: 1 |S| y∈S |y -median S (y)|</formula><p>Theoretically, a tree can grow until every leaf node is perfectly pure. However, such a tree would have a lot of branches and would be very complex, making it prone to overfitting. Several strategies are commonly used to limit the size of the tree. One approach consists in growing the tree with no restriction, then pruning the tree, that is replacing subtrees with nodes <ref type="bibr" target="#b17">[17]</ref>. Other popular strategies to limit the complexity of the tree are usually applied while the tree is grown, and include setting:</p><p>• a maximum depth for the tree, Machine Learning for Brain Disorders, Chapter 2 Box 5: Random forest • Random forest: ensemble of decision trees with randomness introduced to build different trees.</p><p>• Decision tree: algorithm containing only conditional statements and represented with a tree.</p><p>• Regularization: maximum depth for each tree, minimum number of samples required to split a given partition, etc.</p><p>• a minimum number of samples required to be at an internal node,</p><p>• a minimum number of samples required to split a given partition,</p><p>• a maximum number of leaf nodes,</p><p>• a maximum number of features considered (instead of all the features) to find the best split,</p><p>• a minimum impurity decrease to split an internal node.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="11.2">Random forest</head><p>One limitation of decision trees is their simplicity. Decision trees tend to use a small fraction of the features in their decision function. In order to use more features in the decision tree, growing a larger tree is required, but large trees tend to suffer from overfitting, that is having a low bias but a high variance. One solution to decrease the variance without much increasing the bias is to build an ensemble of trees with randomness, hence the name random forest <ref type="bibr" target="#b18">[18]</ref>.</p><p>In a bid to have trees that are not perfectly correlated (thus building actually different trees), each tree is built using only a subset of the training samples obtained with random sampling. Moreover, for each decision node of each tree, only a subset of the features are considered to find the best split.</p><p>The final prediction is obtained by averaging the predictions of each tree. For classification tasks, the predicted class is either the most commonly predicted class (hard-voting) or the one with the highest mean probability estimate (soft-voting) across the trees. For regression tasks, the predicted value is usually the mean of the predicted values across the trees.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="11.3">Extremely randomized trees</head><p>Even though random forests involve randomness in sampling both the samples and the features, trees inside a random forest tend to be correlated, thus limiting the variance decrease. In order to decrease even more the variance of the model (while possibly increasing its bias) by growing less correlated trees, extremely randomized trees introduce more randomness <ref type="bibr" target="#b19">[19]</ref>. Instead of looking for the best split among all the candidate (feature, threshold) pairs, one threshold is drawn at random for each candidate feature and the best of these randomly generated thresholds is chosen as the splitting rule.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="12.">Clustering</head><p>So far, we have presented classic machine learning methods for classification and regression, which are the main components of supervised learning. Each input x (i) had an associated output y (i) . In this section we present clustering, which is an unsupervised machine learning task. In unsupervised learning, only the inputs x (i) are available, with no associated outputs. As the ground truth is not available, the objective is to extract information from the input data without supervising the learning process with the output data.</p><p>Clustering consists in finding groups of samples such that:</p><p>• samples from the same group are similar, and</p><p>• samples from different groups are different.</p><p>For instance, clustering can be used to identify disease subtypes for heterogeneous diseases such as Alzheimer's disease and Parkinson's disease.</p><p>In this section, we present two of the most common clustering methods: the k-means algorithm and the Gaussian mixture model.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="12.1">k-means</head><p>The k-means algorithm divides a set of n samples, denoted by X , into a set of k disjoint clusters, each denoted by X j , such that X = {X 1 , . . . , X k }.</p><p>Figure <ref type="figure" target="#fig_26">20</ref> illustrates the concept of this algorithm. Each cluster X j is characterized by its centroid, denoted by µ j , that is the mean of the samples in this cluster:</p><formula xml:id="formula_85">µ j = 1 |X j | x (i) ∈X j x (i)</formula><p>Machine Learning for Brain Disorders, Chapter 2 The objective of the algorithm is to find the centroids that minimize the within-cluster sumof-squares criterion. In this example, the inertia is approximately equal to 184.80 and is the lowest possible inertia, meaning that the represented centroids are optimal.</p><p>The centroids fully define the set of clusters because each sample is assigned to the cluster whose centroid is the closest. The k-means algorithm aims at finding centroids that minimize the inertia, also known as within-cluster sum-of-squares criterion:</p><formula xml:id="formula_86">min {µ 1 ,...,µ k } k j=1 x (i) ∈X j ∥x (i) -µ j ∥ 2 2</formula><p>The original algorithm used to find the centroids is often referred to as the Lloyd's algorithm <ref type="bibr" target="#b20">[20]</ref> and is presented in Algorithm 1. After initializing the centroids, a two-step loop is repeated until convergence (when the centroids are identical for two consecutive iterations) consisting of:</p><p>1. the assignment step, where the clusters are updated based on the current centroids, and 2. the update step, where the centroids are updated based on the current clusters.</p><p>When clusters are well-defined, a point from a given cluster is likely to stay in this cluster. Therefore, the assignment step can be sped up thanks to the triangle inequality by keeping track of lower and upper bounds for distances between points and centers, at the cost of higher memory usage <ref type="bibr" target="#b21">[21]</ref>.</p><p>Algorithm 1: Lloyd's algorithm (a.k.a. naive k-means algorithm).</p><p>Result: Centroids {µ 1 , . . . , µ k } Initialize the centroids {µ 1 , . . . , µ k } ;</p><p>while not converged do Assignment step: Compute the clusters (i.e., assign each sample to its nearest centroid):</p><formula xml:id="formula_87">∀j ∈ {1, . . . , k}, X j = {x (i) ∈ X | ∥x (i) -µ j ∥ 2 2 = min l ∥x (i) -µ l ∥ 2 2 }</formula><p>Update step: Compute the centroids of the updated clusters:</p><formula xml:id="formula_88">∀j ∈ {1, . . . , k}, µ j = 1 |X j | x (i) ∈X j x (i)</formula><p>Even though the k-means algorithm is one of the simplest and most used clustering methods, it has several downsides that should be kept in mind.</p><p>First, the number of clusters k is a hyperparameter. Setting a value much different from the actual number of clusters may yield poor clusters.</p><p>Second, the inertia is not a convex function. Although Lloyd's algorithm is guaranteed to converge, it may converge to a local minimum that is not a global minimum. Figure <ref type="figure" target="#fig_24">21</ref> illustrates the convergence to such centroids. Several strategies are often applied to address this issue, including sophisticated centroid initialization <ref type="bibr" target="#b22">[22]</ref> and running the algorithm numerous times and keeping the best run (i.e., the one yielding the lowest inertia).</p><p>Third, inertia makes the assumption that the clusters are convex and isotropic. The k-means algorithm may yield poor results when this assumption does not hold, such as with elongated clusters or manifolds with irregular shapes.</p><p>Fourth, the Euclidean distance tends to be inflated (i.e., the ratio of the distances of the nearest and farthest neighbors to a given target is close to 1) in high-dimensional spaces, making inertia a poor criterion in such spaces <ref type="bibr" target="#b23">[23]</ref>. One can alleviate this issue by running a dimensionality reduction method such as principal component analysis prior to the kmeans algorithm.  In the four other figures, the algorithm converged to a local minima that are not global minima because the inertias are higher than the minimum possible value, thus the obtained clusters are suboptimal.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="12.2">Gaussian mixture model</head><p>A mixture model makes the assumption that each sample is generated from a mixture of several independent distributions. Let k be the number of distributions. Each distribution F j is characterized by its probability of being picked, denoted by π j , and its density p j with parameters θ j , denoted by p j (•, θ j ). Let ∆ = (∆ 1 , . . . , ∆ k ) be a vector-valued random variable such that: k j=1 ∆ j = 1 and ∀j ∈ {1, . . . , k}, P (∆ j = 1) = 1 -P (∆ j = 0) = π j and (x 1 , . . . , x k ) be independent random variables such that x j ∼ F j . The samples are assumed to be generated from a random variable x with density p x such that:</p><formula xml:id="formula_89">x = k j=1 ∆ j x j ∀x ∈ X , p x (x, θ) = k j=1 π j p j (x; θ j )</formula><p>A Gaussian mixture model is a particular case of a mixture model in which each distribution F j is a Gaussian distribution with mean vector µ j and covariance matrix Σ j : ∀j ∈ {1, . . . , k}, F j = N (µ j , Σ j ) Figure <ref type="figure" target="#fig_30">22</ref> illustrates the learned distributions from a Gaussian mixture model.</p><p>The objective is to find the parameters θ that maximize the likelihood, with θ = {µ j } k j=1 , {Σ j } k j=1 , {π j } k j=1 :</p><formula xml:id="formula_90">L(θ) = n i=1 p X (x (i) ; θ)</formula><p>For computational reasons, it is easier to maximize the log-likelihood:</p><formula xml:id="formula_91">log(L(θ)) = n i=1 log(p X (x (i) ; θ)) = n i=1 log k j=1 π j p j (x; θ j )</formula><p>Because the density p X (•, θ) is a weighted sum of Gaussian densities, the expression cannot be further simplified. In order to solve this maximization problem, an algorithm called Expectation-Maximization (EM) is often applied <ref type="bibr" target="#b24">[24]</ref>. Algorithm 2 describes the main concepts of this algorithm. After initializing the parameters of each distribution, a two-step loop is repeated until convergence (when the parameters are stable over consecutive loops):</p><p>• the expectation step, in which the probability for each sample x (i)  to have been generated from distribution F j is computed, and</p><p>• the maximization step, in which the probability and the parameters of each distribution are updated.</p><p>Because it is impossible to know which samples have been generated by each distribution, it is also impossible to directly maximize the loglikelihood, which is why we compute its expected value using the posterior probabilities, hence the name expectation step. The second step simply consists in maximizing the expected log-likelihood, hence the name maximization step.</p><p>Lloyd's and EM algorithms have a lot of similarities. In the first step, the assignment step assigns each sample to its closest cluster, whereas the expectation step computes the probability for each sample to have been generated from each distribution. In the second step, the update step computes the centroid of each cluster as the mean of the samples in a given cluster, while the maximization step updates the probability and the parameters of each distribution as a weighted average over all the samples. For these reasons, the k-means algorithm is often referred to as a hard-voting clustering method, as opposed to the Gaussian mixture model which is referred to as a soft-voting clustering method. and probabilities {π j } k j=1 ; while not converged do E-step: Compute the posterior probability γ i (j) for each sample x (i) to have been generated from distribution F j : ∀i ∈ {1, . . . , n}, ∀j ∈ {1, . . . , k}, γ i (j) = π j p j (x (i) ; θ j , Σ j ) k l=1 π l p j (x (i) ; θ l , Σ l ) M-step: Update the parameters of each distribution F j :</p><formula xml:id="formula_92">∀j ∈ {1, . . . , k}, µ j = n i=1 γ i (j)x (i) n i=1 γ i (j) ∀j ∈ {1, . . . , k}, Σ j = n i=1 γ i (j)[x (i) -µ j ][x (i) -µ j ] ⊤ n i=1 γ i (j) ∀j ∈ {1, . . . , k}, π j = 1 n n i=1 γ i (j)</formula><p>The Gaussian mixture model has several advantages over the k-means algorithm.</p><p>First, the use of normal distribution densities instead of Euclidean distances dwindles the inflation issue in high-dimensional spaces. Second, the Gaussian mixture model includes covariance matrices, allowing for clusters with elliptical shapes, while the k-means algorithm only include centroids, forcing clusters to have circular shapes.</p><p>Nonetheless, the Gaussian mixture model also has several drawbacks, sharing a few with the k-means algorithm.</p><p>First, the number of distributions k is a hyperparameter. Setting a value much different from the actual number of clusters may yield poor clusters. Second, the log-likelihood is not a concave function. Like Lloyd's algorithm, the EM algorithm is guaranteed to converge but it may converge to a local maximum that is not a global maximum. Several strategies are often applied to address this issue, including sophis-Machine Learning for Brain Disorders, Chapter 2 ticated centroid initialization <ref type="bibr" target="#b22">[22]</ref> and running the algorithm numerous times and keeping the best run (i.e., the one yielding the highest loglikelihood). Third, the Gaussian mixture model has more parameters than the k-means algorithm. Therefore, it usually requires more samples to accurately estimate its parameters (in particular the covariance matrices) than the k-means algorithm.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="13.">Dimensionality reduction</head><p>Dimensionality reduction consists in finding a good mapping from the input space into a space of lower dimension. Dimensionality reduction can either be unsupervised or supervised.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="13.1">Principal component analysis</head><p>For exploratory data analysis, it may be interesting to investigate the variances of the p features and the 1 2 p(p -1) covariances or correlations. However, as the value of p increases, this process becomes growingly tedious. Moreover, each feature may explain a small proportion of the total variance. It may be more desirable to have another representation of the data where a small number of features explain most of the total variance, in other words to have a coordinate system adapted to the input data.</p><p>Principal component analysis (PCA) consists in finding a representation of the data through principal components <ref type="bibr" target="#b25">[25]</ref>. The principal components are a sequence of unit vectors such that the i-th vector is the best approximation of the data (i.e., maximizing the explained variance) while being orthogonal to the first i -1 vectors.</p><p>Figure <ref type="figure" target="#fig_27">23</ref> illustrates principal component analysis when the input space is two-dimensional. On the upper figure, the training data in the original space is plotted. Both features explain about the same amount of the total variance, although one can clearly see that both features are strongly correlated. Principal component analysis identifies a new Cartesian coordinate system based on the input data. On the lower figure, the training data in the new coordinate system is plotted. The first dimension explains much more variance than the second dimension.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="13.1.1.">Full decomposition</head><p>Mathematically, given an input matrix X ∈ R n×p that is centered (i.e., the mean value of each column X :,j is equal to zero), the objective is to find a matrix W ∈ R p×p such that: • W is an orthogonal matrix, i.e. its columns are unit vectors and orthogonal to each other,</p><p>• the new representation of the input data, denoted by T , consists of the coordinates in the Cartesian coordinate system induced by W (whose columns form an orthogonal basis of R p with the Euclidean dot product): T = XW</p><p>• each column of W maximizes the explained variance.</p><p>Each column w i = W :,i is a principal component. Each input vector x is transformed into another vector t using a linear combination of each feature with the weights from the W matrix:</p><formula xml:id="formula_93">t = x ⊤ W</formula><p>The first principal component w (1) is the unit vector that maximizes the explained variance:</p><formula xml:id="formula_94">w 1 = arg max ∥w∥=1 n i=1 x (i)⊤ w∥ = arg max ∥w∥=1 {∥Xw∥} = arg max ∥w∥=1 w ⊤ X ⊤ Xw∥ w 1 = arg max w∈R p w ⊤ X ⊤ Xw w ⊤ w</formula><p>As X ⊤ X is a positive semi-definite matrix, a well known result from linear algebra is that w (1) is the eigenvector associated with the largest eigenvalue of X ⊤ X.</p><p>The k-th component is found by subtracting the first k -1 principal components from X:</p><formula xml:id="formula_95">Xk = X - k-1 s=1 Xw (s) w (s)⊤</formula><p>and then finding the unit vector that explains the maximum variance from this new data matrix: One can show that the eigenvector associated with the k-th largest eigenvalue of the X ⊤ X matrix maximizes the quantity to be maximized.</p><formula xml:id="formula_96">w k = arg max</formula><p>Therefore, the matrix W is the matrix whose columns are the eigenvectors of the X ⊤ X matrix, sorted by descending order of their associated eigenvalues.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="13.1.2.">Truncated decomposition</head><p>Since each principal component iteratively maximizes the remaining variance, the first principal components explain most of the total variance, while the last ones explain a tiny proportion of the total variance. Therefore, keeping only a subset of the ordered principal components usually gives a good representation of the input data.</p><p>Mathematically, given a number of dimensions l, the new representation is obtained by truncating the matrix of principal components W to only keep the first l columns, resulting in the submatrix W :,:l : T = XW :,:l Figure <ref type="figure" target="#fig_29">24</ref> illustrates the use of principal component analysis as dimensionality reduction. The Iris flower dataset consists of 50 samples for each of three iris species (setosa, versicolor and virginica) for which four features were measured: the length and the width of the sepals and petals, in centimeters. The projection of each sample on the first two principal components is shown in this figure.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="13.2">Linear discriminant analysis</head><p>In Section 10, we introduced linear discriminant analysis (LDA) as a classification method. However, it can also be used as a supervised dimensionality reduction method. LDA fits a multivariate normal distribution for each class C k , so that each class is characterized by its mean vector µ k ∈ R p and has the same covariance matrix Σ ∈ R p×p . However, a set of k points lies in a space of dimension at most k -1. For instance, a set of 2 points lies on a line, while a set of 3 points lies on a plane. Therefore, the subspace induced by the k mean vectors µ k can be used as dimensionality reduction.</p><p>There exists another formulation of linear discriminant analysis which is equivalent and more intuitive for dimensionality reduction. Linear discriminant analysis aims to find a linear projection so that the classes are separated as much as possible (i.e., projections of samples from a same class are close to each other, while projections of samples from different classes are far from each other).</p><p>Machine Learning for Brain Disorders, Chapter 2 Mathematically, the objective is to find the matrix W ∈ R p×l (with l ≤ k -1) that maximizes the between-class scatter while also minimizing the within-class scatter:</p><formula xml:id="formula_97">max W tr W ⊤ S w W -1 W ⊤ S b W</formula><p>The within-class scatter matrix S w summarizes the diffusion between the mean vector µ k of class C k and all the inputs x (i) belonging to class C k , over all the classes:</p><formula xml:id="formula_98">S w = q k=1 y (i) =C k [x (i) -µ k ][x (i) -µ k ] ⊤</formula><p>The between-class scatter matrix S b summarizes the diffusion between all the mean vectors:</p><formula xml:id="formula_99">S b = q k=1 n k [µ k -µ][µ k -µ] ⊤</formula><p>where n k is the proportion of samples belonging to class C k and µ = q k=1 n k µ k = 1 n n i=1 x (i) is the mean vector over all the input vectors. One can show that the W matrix consists of the first l eigenvectors of the matrix S -1 w S b with the corresponding eigenvalues being sorted in descending order. Just as in principal component analysis, the corresponding eigenvalues can be used to determine the contribution of each dimension. However, the criterion for linear discriminant analysis is different from the one from principal component analysis: it is to maximizing the separability of the classes instead of maximizing the explained variance.</p><p>Figure <ref type="figure" target="#fig_26">25</ref> illustrates the use of linear discriminant analysis as a dimensionality reduction technique. We use the same Iris flower dataset as in Figure <ref type="figure" target="#fig_29">24</ref> illustrating principal component analysis. The projection of each sample on the learned two-dimensional space is shown and one can see that the first (horizontal) axis is more discriminative of the three classes with linear discriminant analysis than with principal component analysis.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="14.">Kernel methods</head><p>Kernel methods allow for generalizing linear models to non-linear models with the use of kernel functions.</p><p>As mentioned in Section 8, the main idea of kernel methods is to first map the input data from the original input space to a feature space, Machine Learning for Brain Disorders, Chapter 2 and then perform dot products in this feature space. Under certain assumptions, an optimal solution of the minimization problem of the cost function admits the following form:</p><formula xml:id="formula_100">f = n i=1 α i K(•, x (i) )</formula><p>where K is the kernel function which is equal to the dot product in the feature space: ∀x, x ′ ∈ I, K(x, x ′ ) = ϕ(x) ⊤ ϕ(x ′ )</p><p>As this term frequently appears, we denote by K the n × n symmetric matrix consisting of the evaluations of the kernel on all the pairs of training samples: ∀i, j ∈ {1, . . . , n}, K ij = K(x (i) , x (j) )</p><p>In this section we present the extension of two models previously introduced in this chapter, ridge regression and principal component analysis, with kernel functions.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="14.1">Kernel ridge regression</head><p>Kernel ridge regression combines ridge regression with the kernel trick, and thus learns a linear function in the space induced by the respective kernel and the training data <ref type="bibr" target="#b1">[2]</ref>. For non-linear kernels, this corresponds to a non-linear function in the original input space.</p><p>Mathematically, the objective is to find the function f with the following form:</p><formula xml:id="formula_101">f = n i=1 α i K(•, x (i) )</formula><p>that minimizes the sum of squared errors with a ℓ 2 penalization term:</p><formula xml:id="formula_102">min f n i=1 y (i) -f (x (i) 2 + λ∥f ∥ 2</formula><p>The cost function can be simplified using the specific form of the possible functions: for which a solution is given by: α ⋆ = (K + λI) -1 y Figure <ref type="figure" target="#fig_8">8</ref> illustrates the prediction function of a kernel ridge regression method with a radial basis function kernel. The prediction function is non-linear as the kernel is non-linear.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="14.2">Kernel principal component analysis</head><p>As mentioned in Section 13, principal component analysis consists in finding the linear orthogonal subspace in the original input space such that each principal component explains the most variance. The optimal solution is given by the first eigenvectors of X ⊤ X with the corresponding eigenvalues being sorted in descending order.</p><p>With kernel principal component analysis, the objective is to find the linear orthogonal subspace in the feature space such that each principal component in the feature space explains the most variance <ref type="bibr" target="#b26">[26]</ref>. The solution is given by the first l eigenvectors (α k ) 1≤k≤l of the K matrix with the corresponding eigenvalues being sorted in descending order. The eigenvectors are normalized in order to be unit vectors in the feature space.</p><p>Finally, the projection of any input x in the original space on the k-th component can be computed as:</p><formula xml:id="formula_103">ϕ(x) ⊤ α k = n i=1 α ki K(x, x (i) )</formula><p>Figure <ref type="figure" target="#fig_26">26</ref> illustrates the projection of some non-linearly separable classification data with principal component analysis and with kernel principal component analysis with a non-linear kernel. The projected input data becomes linearly separable using kernel principal component analysis, whereas the projected input data using (linear) principal component analysis remains non-linearly separable.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="15.">Conclusion</head><p>In this chapter, we described the main classic machine learning methods. Due to space constraints, the description of some of them was brief. The reader who seeks more details can refer to <ref type="bibr" target="#b4">[5,</ref><ref type="bibr" target="#b5">6]</ref>. All these approaches are implemented in the scikit-learn Python library <ref type="bibr" target="#b27">[27]</ref>. A common point of the approaches presented in this chapter is that they use as input a set of given or pre-extracted features. On the contrary, deep learning approaches often provide an end-to-end learning setup within which the features are learned. These techniques are covered in Chapters 3 to 6.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>•</head><figDesc>weights inversely proportional to the dissimilarity:∀i, w (x) i = 1 d(x (i) ,x) j 1 d(x (j) ,x) = 1 d(x (i) , x) j 1 d(x (j) ,x)Machine Learning for Brain Disorders, Chapter 2</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 2 :</head><label>2</label><figDesc>Figure2: Impact of the definition of the weights on the prediction function of a 3-nearest neighbor classification model. When the weights are inversely proportional to the dissimilarity, the classifier is more subject to outliers since the predictions in the close neighborhood of any input is mostly dedicated by the label of this input, independently of the number of neighbors used. With uniform weights, the prediction function tends to be smoother.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 4 -</head><label>4</label></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 4 :</head><label>4</label><figDesc>Figure4: Decision function of a logistic regression model. A logistic regression is a linear model, that is its decision function is linear. In the two-dimensional case, it separates a plane with a line.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><figDesc>n i=1 log P y = y (i) |x = x (i) ; w Machine Learning for Brain Disorders, Chapter 2 Box 3: Logistic regression • Main idea: best hyperplane (i.e., line) that separates two classes.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><head>Figure 5 :</head><label>5</label><figDesc>Figure 5: Illustration of underfitting and overfitting. Underfitting occurs when a model is too simple and does not capture well enough the characteristics of the training data, leading to high bias and low variance.Oppositely, overfitting occurs when a model is too complex and learns the noise in the training data, leading to low bias and high variance.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head>2 w 2 w 2 w 2 ℓ 2 Figure 7 :</head><label>222227</label><figDesc>Figure 7: Illustration of the minimization problem with a constraint on the penalty term. The plot represents the value of the loss function for different values of the two coefficients for a linear regression task. The black star indicates the optimal solution with no constraint. The green and orange stars indicate the optimal solutions when imposing a constraint on the ℓ 2 and ℓ 1 norms of the parameters w respectively.</figDesc><graphic coords="18,142.86,276.49,282.91,282.91" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_8"><head>Figure 8 :</head><label>8</label><figDesc>Figure 8: Illustration of regularization. A kernel ridge regression algorithm is fitted on the training data (blue points) with different values of λ, which is the weight of the regularization in the cost function. The smaller values of λ, the smaller the weight of the ℓ 2 regularization. The algorithm underfits (respectively overfits) the data when the value of λ is too large (respectively low).</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_9"><head>Figure 8</head><label>8</label><figDesc>Figure 8  illustrates the impact of the regularization term λ × Pen(w) on the prediction function of a kernel ridge regression algorithm (see Section 14 for more details) for different values of λ. For high values of λ, the regularization term is dominating the mean loss value, making the prediction function not fitting well enough the training data (underfitting). For small values of λ, the mean loss value is dominating the regularization term, making the prediction function fitting too well the training data (overfitting). A good balance between the mean loss value and the regularization term is required to learn the best function.Since linear regression is one of the oldest and best-known models, the aforementioned penalties were originally introduced for linear regression:</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_10"><head>Figure 10 :</head><label>10</label><figDesc>Figure 10: Decision function of a support-vector machine classifier with a linear kernel when both classes are not strictly linearly separable. The support vectors are the training points within the margin of the decision function and the misclassified training points. The support vectors are highlighted with a black circle surrounding them.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_11"><head>Figure 12 :</head><label>12</label><figDesc>Figure 12: Impact of the kernel on the decision function of a support vector machine classifier. A non-linear kernel allows for a non-linear decision function.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_12"><head>Figure 14 :</head><label>14</label><figDesc>Figure14: Main approaches to convert a multiclass classification task into several binary classification tasks. In the one-vs-rest approach, each class is associated to a binary classification model that is trained to separate this class from all the other classes. In the one-vs-one approach, a binary classifier is trained on each pair of classes. In the error correcting output code approach, the classes are (randomly) split into two groups and a binary classifier is trained for each split.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_13"><head>Figure 15 :</head><label>15</label><figDesc>Figure 15: Illustration of the impact of the strategy used to handle a multiclass classification task on the decision function of a logistic regression model.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_14"><figDesc>σ 2 I p Machine Learning for Brain Disorders, Chapter 2</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_15"><head>Figure 16 :</head><label>16</label><figDesc>Figure 16: Illustration of decision functions with normal distributions.A two-dimensional covariance matrix can be represented as an ellipse. In the Naive Bayes model, the features are assumed to be independent and to have the same variance conditionally to the class, leading to covariance matrices being represented as circles. When the covariance matrices are assumed to be identical, the decision functions are linear instead of quadratic.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_17"><head>Figure 17 :</head><label>17</label><figDesc>Figure17: A general thought process when being ill. Depending on conditional statements (severity of symptoms, ability to quickly consult a specialist), the decision (consult your general practitioner or a specialist, or call for emergency services) is different.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_18"><head>Machinex</head><figDesc>Learning for Brain Disorders, Chapter 2</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_19"><head>Figure 18 :</head><label>18</label><figDesc>Figure 18: A decision tree: (left) the rules learned by the decision tree, and (right) the corresponding decision function.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_20"><head>Figure 19 illustrates</head><label>19</label><figDesc>Figure 19  illustrates the values of the Gini index and the entropy for a single class C k and for different proportions of samples p k . One can see that the entropy function takes larger values than the Gini index, especially for p k &lt; 0.8. Since the sum of the proportions is equal to 1, most classes only represent a small proportion of the samples. Therefore, a simple interpretation is that entropy is more discriminative against heterogeneous subsets than the Gini index. Misclassification only takes</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_21"><head>Figure 19 :</head><label>19</label><figDesc>Figure19: Illustration of Gini index and entropy. The entropy function takes larger values than the Gini index, especially for p k &lt; 0.8, thus is more discriminative against heterogeneous subsets (when most classes only represent only a small proportion of the samples) than Gini index.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_22"><head>3 Figure 20 :</head><label>320</label><figDesc>Figure20: Illustration of the k-means algorithm. The objective of the algorithm is to find the centroids that minimize the within-cluster sumof-squares criterion. In this example, the inertia is approximately equal to 184.80 and is the lowest possible inertia, meaning that the represented centroids are optimal.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_23"><head>MachineInertia</head><figDesc>Learning for Brain Disorders, Chapter 2</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_24"><head>Figure 21 :</head><label>21</label><figDesc>Figure21: Illustration of the convergence of the k-means algorithm to bad local minima. In the upper figure, the algorithm converged to a global minimum because the inertia is equal to the minimum possible value (184.80), thus the obtained clusters are optimal. In the four other figures, the algorithm converged to a local minima that are not global minima because the inertias are higher than the minimum possible value, thus the obtained clusters are suboptimal.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_25"><head>2 Figure 22 :</head><label>222</label><figDesc>Figure22: Gaussian mixture model. For each estimated distribution, the mean vector and the ellipsis consisting of all the points within one standard deviation of the mean are plotted.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_26"><head>Algorithm 2 :</head><label>2</label><figDesc>Expectation-Maximization algorithm for Gaussian mixture models.Result: Mean vectors {µ j } k j=1 , covariance matrices {Σ j } k j=1 and probabilities {π j } k j=1 Initialize the mean vectors {µ j } k j=1 , covariance matrices {Σ j } k j=1</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_27"><head>FeatureFigure 23 :</head><label>23</label><figDesc>Figure 23: Illustration of principal component analysis. On the upper figure, the training data in the original space (blue points with black axes) is plotted. Both features explain about the same amount of the total variance, although one can clearly see a linear pattern. Principal component analysis learns a new Cartesian coordinate system based on the input data (red axes). On the lower figure, the training data in the new coordinate system is plotted (green points with red axes). The first dimension explains much more variance than the second dimension.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_28"><head>∥w∥=1∥</head><figDesc>Xk w∥ = arg max w∈R p w ⊤ X⊤ k Xk w w ⊤ w Machine Learning for Brain Disorders, Chapter 2</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_29"><head>Figure 24 :</head><label>24</label><figDesc>Figure 24: Illustration of principal component analysis as a dimensionality reduction technique. The Iris flower dataset consists of 50 samples for each of three iris species (setosa, versicolor and virginica) for which four features were measured: the length and the width of the sepals and petals, in centimeters. The projection of each sample on the first two principal components is shown in this figure. The first dimension explains most of the variance (92 .46 %).</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_30"><head>2 Machine∥y -Kα∥ 2 2 +</head><label>22</label><figDesc>i)f (x (i) ) 2 + λ∥f ∥ 2 = n i=1 y (i) -n j=1 α j k(x (j) , x (i) ) 2 + λ n i=1 α i K(•, x (i) )Learning for Brain Disorders, Chapter 2= n i=1 y (i)α ⊤ K :,i 2 + λα ⊤ Kα = ∥y -Kα∥ 2 2 + λα ⊤ KαTherefore, the minimization problem is:min α λα ⊤ Kα</figDesc></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_0"><p>Machine Learning for Brain Disorders, Chapter 2</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_1"><p>Machine Learning for Brain Disorders, Chapter 2</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_2"><p>The confidences are actually taken into account but only in the event of a tie.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_3"><p>The values are 0 and 1 when the classifier does not return scores but only probabilities.Machine Learning for Brain Disorders, Chapter 2</p></note>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>Acknowledgments</head><p>The authors would like to thank <rs type="person">Hicham Janati</rs> for his fruitful remarks. The authors would like to acknowledge the extensive documentation of the scikit-learn Python package, in particular its user guide, for the relevant information and references provided. We used the NumPy <ref type="bibr" target="#b28">[28]</ref>, matplotlib <ref type="bibr" target="#b29">[29]</ref> and scikit-learn <ref type="bibr" target="#b27">[27]</ref> Python packages to generate all the figures. This work was supported by the <rs type="funder">French government</rs> under management of <rs type="institution">Agence Nationale de la Recherche</rs> as part of the "<rs type="programName">Investissements d'avenir" program</rs>, reference <rs type="grantNumber">ANR-19-P3IA-0001</rs> (<rs type="projectName">PRAIRIE 3IA Institute</rs>) and reference <rs type="grantNumber">ANR-10-IAIHU-06</rs> (<rs type="affiliation">Agence Nationale de la Recherche-10-IA Institut Hospitalo-Universitaire-6</rs>), and by the <rs type="funder">European Union</rs> <rs type="grantNumber">H2020</rs> programme (grant number <rs type="grantNumber">826421</rs>, project <rs type="projectName">TVB-Cloud</rs>).</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funded-project" xml:id="_9fjCBst">
+					<idno type="grant-number">ANR-19-P3IA-0001</idno>
+					<orgName type="project" subtype="full">PRAIRIE 3IA Institute</orgName>
+					<orgName type="program" subtype="full">Investissements d&apos;avenir&quot; program</orgName>
+				</org>
+				<org type="funding" xml:id="_cyhF5gf">
+					<idno type="grant-number">ANR-10-IAIHU-06</idno>
+				</org>
+				<org type="funding" xml:id="_ZFQggnr">
+					<idno type="grant-number">H2020</idno>
+				</org>
+				<org type="funded-project" xml:id="_VbWt69q">
+					<idno type="grant-number">826421</idno>
+					<orgName type="project" subtype="full">TVB-Cloud</orgName>
+				</org>
+			</listOrg>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Dimension 1 (99.12%)  The projected training data using principal component analysis remains non-linearly separable (middle). The projected training data using kernel principal component analysis (with a non-linear kernel) becomes linearly separable (bottom).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Training data Projection with principal component analysis Projection with kernel principal component analysis</head><p>Machine Learning for Brain Disorders, Chapter 2</p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title level="m" type="main">Deep Learning</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Courville</surname></persName>
+		</author>
+		<ptr target="http://www.deeplearningbook.org" />
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>MIT Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">P</forename><surname>Murphy</surname></persName>
+		</author>
+		<title level="m">Machine Learning: A Probabilistic Perspective</title>
+		<meeting><address><addrLine>Cambridge, MA</addrLine></address></meeting>
+		<imprint>
+			<publisher>The MIT Press</publisher>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Multidimensional binary search trees used for associative searching</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">L</forename><surname>Bentley</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Communications of the ACM</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="issue">9</biblScope>
+			<biblScope unit="page" from="509" to="517" />
+			<date type="published" when="1975">1975</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">Five Balltree Construction Algorithms</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">M</forename><surname>Omohundro</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1989">1989</date>
+		</imprint>
+		<respStmt>
+			<orgName>International Computer Science Institute</orgName>
+		</respStmt>
+	</monogr>
+	<note type="report_type">Tech. rep</note>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">M</forename><surname>Bishop</surname></persName>
+		</author>
+		<title level="m">Pattern Recognition and Machine Learning</title>
+		<imprint>
+			<publisher>Springer-Verlag</publisher>
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<author>
+			<persName><forename type="first">T</forename><surname>Hastie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Tibshirani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Friedman</surname></persName>
+		</author>
+		<title level="m">The Elements of Statistical Learning: Data Mining, Inference, and Prediction</title>
+		<meeting><address><addrLine>New York</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer-Verlag</publisher>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+	<note>Second Edition, 2nd edn. Springer Series in Statistics</note>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">Solutions of Ill Posed Problems</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">N</forename><surname>Tikhonov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">Y</forename><surname>Arsenin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>John</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1977">1977</date>
+			<publisher>John Wiley &amp; Sons Inc</publisher>
+			<pubPlace>Washington : New York</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Regression Shrinkage and Selection via the Lasso</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Tibshirani</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the Royal Statistical Society Series B (Methodological)</title>
+		<imprint>
+			<biblScope unit="volume">58</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="267" to="288" />
+			<date type="published" when="1996">1996</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Regularization and variable selection via the elastic net</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Zou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Hastie</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the Royal Statistical Society: Series B (Statistical Methodology)</title>
+		<imprint>
+			<biblScope unit="volume">67</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="301" to="320" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Pattern recognition using generalized portrait method</title>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">N</forename><surname>Vapnik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Lerner</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Automation and Remote Control</title>
+		<imprint>
+			<biblScope unit="volume">24</biblScope>
+			<biblScope unit="page" from="774" to="780" />
+			<date type="published" when="1963">1963</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m">Machine Learning for Brain Disorders</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Support-vector networks</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Cortes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Vapnik</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Machine Learning</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="273" to="297" />
+			<date type="published" when="1995">1995</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">A training algorithm for optimal margin classifiers</title>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">E</forename><surname>Boser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">M</forename><surname>Guyon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">N</forename><surname>Vapnik</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the fifth annual workshop on Computational learning theory</title>
+		<meeting>the fifth annual workshop on Computational learning theory<address><addrLine>Pittsburgh, Pennsylvania, USA, COLT &apos;92</addrLine></address></meeting>
+		<imprint>
+			<publisher>Association for Computing Machinery</publisher>
+			<date type="published" when="1992">1992</date>
+			<biblScope unit="page" from="144" to="152" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Theoretical foundations of the potential function method in pattern recognition learning</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A</forename><surname>Aizerman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">A</forename><surname>Braverman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Rozonoer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Automation and Remote Control</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="page" from="821" to="837" />
+			<date type="published" when="1964">1964</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">A Generalized Representer Theorem</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Schölkopf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Herbrich</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">J</forename><surname>Smola</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computational Learning Theory</title>
+		<imprint>
+			<biblScope unit="page" from="416" to="426" />
+			<date type="published" when="2001">2001</date>
+			<publisher>Springer</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<title level="m" type="main">Survey on multiclass classification methods</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Aly</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">The Error Coding Method and PICTs</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>James</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Hastie</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Computational and Graphical Statistics</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="377" to="387" />
+			<date type="published" when="1998">1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<title level="m" type="main">Classification and Regression Trees</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Breiman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Friedman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">J</forename><surname>Stone</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">A</forename><surname>Olshen</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1984">1984</date>
+			<pubPlace>Taylor &amp; Francis</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Random Forests</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Breiman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Machine Learning</title>
+		<imprint>
+			<biblScope unit="volume">45</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="5" to="32" />
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Extremely randomized trees</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Geurts</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Ernst</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Wehenkel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Machine Learning</title>
+		<imprint>
+			<biblScope unit="volume">63</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="3" to="42" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Least squares quantization in PCM</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Lloyd</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Information Theory</title>
+		<imprint>
+			<biblScope unit="volume">28</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="129" to="137" />
+			<date type="published" when="1982">1982</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Using the triangle inequality to accelerate k-means</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Elkan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Twentieth International Conference on International Conference on Machine Learning</title>
+		<meeting>the Twentieth International Conference on International Conference on Machine Learning</meeting>
+		<imprint>
+			<date type="published" when="2003">2003</date>
+			<biblScope unit="page" from="147" to="153" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">k-means++: the advantages of careful seeding</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Arthur</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Vassilvitskii</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the eighteenth annual ACM-SIAM symposium on Discrete algorithms</title>
+		<meeting>the eighteenth annual ACM-SIAM symposium on Discrete algorithms</meeting>
+		<imprint>
+			<date type="published" when="2007">2007</date>
+			<biblScope unit="page" from="1027" to="1035" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">On the Surprising Behavior of Distance Metrics in High Dimensional Space</title>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">C</forename><surname>Aggarwal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Hinneburg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">A</forename><surname>Keim</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Database Theory</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2001">2001</date>
+			<biblScope unit="page" from="420" to="434" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Maximum Likelihood from Incomplete Data via the EM Algorithm</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">P</forename><surname>Dempster</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">M</forename><surname>Laird</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rubin</forename><surname>Db</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the Royal Statistical Society Series B (Methodological)</title>
+		<imprint>
+			<biblScope unit="volume">39</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="38" />
+			<date type="published" when="1977">1977</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<monogr>
+		<title level="m" type="main">Principal Component Analysis, 2nd edn</title>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">T</forename><surname>Jolliffe</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2002">2002</date>
+			<publisher>Springer Science &amp; Business Media</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Kernel principal component analysis</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Schölkopf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">J</forename><surname>Smola</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">R</forename><surname>Müller</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in kernel methods: support vector learning</title>
+		<imprint>
+			<publisher>MIT Press</publisher>
+			<date type="published" when="1999">1999</date>
+			<biblScope unit="page" from="327" to="352" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Scikit-learn: Machine learning in python</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Pedregosa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Varoquaux</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gramfort</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Michel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Thirion</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Grisel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Blondel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Prettenhofer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Weiss</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Dubourg</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of machine Learning research</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page" from="2825" to="2830" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Array programming with numpy</title>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">R</forename><surname>Harris</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">J</forename><surname>Millman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Van Der Walt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Gommers</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Virtanen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Cournapeau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Wieser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Taylor</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Berg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">J</forename><surname>Smith</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<biblScope unit="volume">585</biblScope>
+			<biblScope unit="issue">7825</biblScope>
+			<biblScope unit="page" from="357" to="362" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Matplotlib: A 2d graphics environment</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">D</forename><surname>Hunter</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computing in science &amp; engineering</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="issue">03</biblScope>
+			<biblScope unit="page" from="90" to="95" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

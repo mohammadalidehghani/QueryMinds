@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Seven Myths in Machine Learning Research</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2019-02">February 2019</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Oscar</forename><surname>Chang</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Hod</forename><surname>Lipson</surname></persName>
+						</author>
+						<title level="a" type="main">Seven Myths in Machine Learning Research</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2019-02">February 2019</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">45CDBDA1DC41A40F3935B1C9B63A6490</idno>
+					<idno type="arXiv">arXiv:1902.06789v2[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>We present seven myths commonly believed to be true in machine learning research, circa Feb 2019.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Here's another example, which is decidedly less trivial: c = det(A). We have ċ = tr(inv(A) Ȧ) for the forward mode, and Ā = ccinv(A) T for the reverse mode. In this case, it is clearly not possible to use the same expression tree for both modes, given that they are composed of different operations.</p><p>In general, the way TensorFlow and other libraries (e.g. Mathematica, Maple, Sage, SimPy, ADOL-C, TAPENADE, TensorFlow, Theano, PyTorch, HIPS autograd) implement automatic differentiation results in different and inefficient expression trees for the forward and reverse mode. Tensor calculus conveniently avoids these problems by having commutativity in multiplication as a result of its index notation. (Please read the actual paper to learn more about how this works.)</p><p>The authors tested their method of doing reverse-mode automatic differentiation, aka backpropagation, on three different problems and measured the amount of time it took to compute the Hessians.</p><p>The first problem involves optimizing a quadratic function like x T Ax. The second problem solves for logistic regression, while the third problem solves for matrix factorization.</p><p>On the CPU, their method was faster than popular automatic differentiation libraries like TensorFlow, Theano, PyTorch, and HIPS autograd by two orders of magnitude.</p><p>On the GPU, they observed an even greater speedup, outperforming these libraries by a factor of three orders of magnitude.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Implication:</head><p>Computing derivatives for quadratic or higher functions with current deep learning libraries is more expensive than it needs to be. This includes computing general fourth order tensors like the Hessian (e.g. in MAML and second-order Newton optimization). Fortunately, quadratic functions are not common in deep learning. But they are common in classical machine learning -dual of an SVM, least squares regression, LASSO, Gaussian Processes, etc.</p><p>Myth 2: Image datasets are representative of real images found in the wild</p><p>We like to think that neural networks are now better than humans at the task of object recognition. This is not true. They might outperform humans on select image datasets like ImageNet, but given actual images found in the wild, they are most definitely not going to be better than a regular adult human at recognizing objects. This is because images found in current image datasets are not actually drawn from the same distribution as the set of all possible images naturally occurring in the wild.</p><p>In an old paper <ref type="bibr" target="#b1">Torralba and Efros [2011]</ref>, the authors proposed to examine dataset bias in twelve popular image datasets by observing if it is possible to train a classifier to identify the dataset a given image is selected from.</p><p>The chance of getting it right by random is 1 12 ≈ 8%, while their lab members performed at &gt; 75%.</p><p>They trained an SVM on HOG features, and found that their classifier performed at 39%, way above chance. If the same experiment was repeated today with a state of the art CNN, we will probably see a further increase in classifier performance.</p><p>If image datasets are truly representative of real images found in the wild, we ought to not be able to distinguish which dataset a given image originates from.</p><p>But there are biases in the data that make each dataset distinctive. For example, there are many race cars in the ImageNet dataset, which cannot be said to represent the "platonic" concept of a car in general.</p><p>The authors further judged the value of a dataset by measuring how well a classifier trained on it performs on other datasets. By this metric, LabelMe and ImageNet are the least biased datasets, scoring 0.58 in a "basket of currencies."</p><p>The values are all less than one, which means that training on a different dataset always results in lower test performance. In an ideal world without dataset bias, some of these values should be above one.</p><p>The authors pessimistically concluded:</p><p>So, what is the value of current datasets when used to train algorithms that will be deployed in the real world? The answer that emerges can be summarized as: better than nothing, but not by In the hyper-competitive world of machine learning research, new algorithms and models are often evaluated using their performance on the test set. Thus, there is little reason for researchers to write or submit papers that propose methods with inferior test performance. This effectively means that the machine learning research community, as a whole, is using the test set for validation.</p><p>What is the impact of this "cheating"?</p><p>The authors of <ref type="bibr" target="#b2">Recht et al. [2018]</ref> investigated this by creating a new test set for CIFAR-10. They did this by parsing images from the Tiny Images repository, as was done in the original dataset collection process.</p><p>They chose CIFAR-10 because it is one of the most widely used datasets in machine learning, being the second most popular dataset in NeurIPS 2017 (after MNIST). The dataset creation process for CIFAR-10 is also well-documented and transparent, with the large Tiny Images repository having sufficiently finegrained labels that make it possible to replicate a new test set while minimizing distributional shift.</p><p>They found that across a wide range of different neural network models, there was a significant drop in accuracy (4% -15%) from the old test set to the new test set. However, the relative ranking of each model's performance remained fairly stable.</p><p>In general, the higher performing models experienced a smaller drop in accuracy compared to the lower performing models. This is heartening, because it indicates that the loss in generalization caused by the "cheating," at least in the case of CIFAR-10, becomes more muted as the research community invents better machine learning models and methods.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Myth 4: Every datapoint is used in training a neural network</head><p>Conventional wisdom says that data is the new oil and the more data we have, the better we can train our sample-inefficient and overparametrized deep learning models.</p><p>In <ref type="bibr" target="#b3">Toneva et al. [2018]</ref>, the authors demonstrate significant redundancy in several common small image datasets. Shockingly, 30% of the datapoints in CIFAR-10 can be removed, without changing test accuracy by much.</p><p>A forgetting event happens when the neural network makes a misclassification at time t+1, having already made an accurate classification at time t, where we consider the flow of time to be the number of SGD updates made to the network. To make the tracking of forgetting events tractable, the authors run their neural network over only the examples in the mini-batch every time an SGD update is made, rather than over every single example in the dataset. Examples On CIFAR-10, 30% of the dataset can be removed without affecting test accuracy, while a 35% removal causes a trivial 0.2% dip in test accuracy. If this 30% was selected by random instead of chosen by unforgettability, then its removal will result in a significant loss of around 1% in test accuracy.</p><p>Similarly, on CIFAR-100, 8% of the dataset can be removed without affecting test accuracy.</p><p>These findings show that there is significant data redundancy in neural network training, much like in SVM training where the non-support vectors can be taken away without affecting the decisions of the model.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Implication:</head><p>If we can determine which examples are unforgettable before the start of training, then we can save space by removing those examples and save time by not training the neural network on them.</p><p>Myth 5: We need (batch) normalization to train very deep residual networks It had been believed for a very long time that "training a deep network to directly optimize only the supervised objective of interest (for example the log probability of correct classification) by gradient descent, starting from random initialized parameters, does not work very well." <ref type="bibr" target="#b4">[Vincent et al., 2010]</ref> Since then, a host of clever random initialization methods, activation functions, optimization techniques, and other architectural innovations like residual connections <ref type="bibr" target="#b5">[He et al., 2016]</ref>, has made it easier to train deep neural networks with gradient descent.</p><p>But the real breakthrough came from the introduction of batch normalization <ref type="bibr" target="#b6">[Ioffe and Szegedy, 2015]</ref> (and other subsequent normalization techniques), which constrained the size of activations at every layer of a deep network to mitigate the vanishing and exploding gradients problem.</p><p>In a recent paper <ref type="bibr" target="#b7">Zhang et al. [2019]</ref>, it was shown remarkably that it is actually possible to train a 10, 000-layer deep network using vanilla SGD, without resorting to any normalization.</p><p>The authors compared training a residual network at varying depths for one epoch on CIFAR-10, and found that while standard initialization methods failed for 100 layers, both Fixup and batch normalization succeeded for 10, 000 layers.</p><p>They did a theoretical analysis to show that "the gradient norm of certain layers is in expectation lower bounded by a quantity that increases indefinitely with the network depth," i.e. the exploding gradients problem.</p><p>To prevent this, the key idea in Fixup is to scale the weights in the m layers for each of L residual branches by a factor that depends on m and L.</p><p>Fixup enabled the training of a deep residual network with 110 layers on CIFAR-10 with a large learning rate, at comparable test performance with the same network architecture that had batch normalization.</p><p>The authors show that these new convolutions match or exceed the selfattention baselines in machine translation, language modelling, and abstractive summarization tasks while using comparable or less number of parameters.</p><p>Myth 7: Saliency maps are robust ways to interpret neural networks While neural networks are commonly believed to be black boxes, there have been many, many attempts made to interpret them. Saliency maps, or other similar methods that assign importance scores to features or training examples, are the most popular form of interpretation.</p><p>It is tempting to be able to conclude that the reason why a given image is classified a certain way is due to particular parts of the image that are salient to the neural network's decision in making the classification. There are several ways to compute this saliency map, often making use of a neural network's activations on a given image and the gradients that flow through the network.</p><p>In <ref type="bibr" target="#b11">Ghorbani et al. [2017]</ref>, the authors show that they can introduce an imperceptible perturbation to a given image to distort its saliency map.</p><p>A monarch butterfly is thus classified as a monarch butterfly, not on account of the patterns on its wings, but because of some unimportant green leaves in the background.</p><p>High-dimensional images often lie close to the decision boundaries constructed by deep neural networks, hence their susceptibility to adversarial attacks. While adversarial attacks shift images past a decision boundary, adversarial interpretation attacks shift them along the contour of the decision boundary, while still remaining within the same decision territory.</p><p>The basic method employed by the authors to do this is a modification of <ref type="bibr" target="#b12">Goodfellow et al. [2014]</ref>'s fast gradient sign method, which was one of the first efficient adversarial attacks introduced. This suggests that other more recent and sophisticated adversarial attacks can also be used to attack neural network interpretations.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Implication:</head><p>As deep learning becomes more and more ubiquitous in high stakes applications like medical imaging, it is important to be careful of how we interpret decisions made by neural networks. For example, while it would be nice to have a CNN identify a spot on an MRI image as a malignant cancer-causing tumor, these results should not be trusted if they are based on fragile interpretation methods.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>much</head><figDesc>Myth 3: Machine Learning researchers do not use the test set for validationIn Machine Learning 101, we are taught to split a dataset into training, validation, and test sets. The performance of a model trained on the training set and evaluated on the validation set helps the machine learning practitioner tune his model to maximize its performance in real world usage. The test set should be held out until the practitioner is done with the tuning so as to provide an unbiased estimate of the model's actual performance in real world usage. If the practitioner "cheats" by using the test set in the training or validation process, he runs the risk of overfitting his model to biases inherent in the dataset that do not generalize beyond the dataset.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><figDesc>that do not undergo a forgetting event are called unforgettable examples. They find that 91.7% of MNIST, 75.3% of permutedMNIST, 31.3% of CIFAR-10, and 7.62% of CIFAR-100 comprise of unforgettable examples. This makes intuitive sense, since an increase in the diversity and complexity of an image dataset should cause the neural network to forget more examples. Forgettable examples seem to display more uncommon and peculiar features than unforgettable examples. The authors liken them to support vectors in SVM, because they seem to demarcate the contours of the decision boundary. Unforgettable examples, by contrast, encode mostly redundant information. If we sort the examples by their unforgettability, we can compress the dataset by removing the most unforgettable examples.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="5,148.71,124.80,343.73,225.37" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="6,148.71,124.80,343.72,311.06" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="9,148.71,124.80,343.71,161.97" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="11,148.71,124.80,343.72,180.72" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="11,148.71,392.14,343.72,181.70" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="12,148.71,420.07,343.71,149.08" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="13,148.71,388.75,343.72,158.67" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="14,148.71,345.94,343.72,166.08" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="15,148.71,124.80,343.73,227.19" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="15,133.77,352.99,343.71,227.00" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="16,148.71,297.00,343.71,175.39" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="17,148.71,124.80,343.73,222.73" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="19,148.71,185.52,343.72,272.06" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="20,133.77,124.80,343.72,274.52" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="21,133.77,124.80,343.73,275.32" type="bitmap" /></figure>
+		</body>
+		<back>
+
+			
+			<div type="acknowledgement">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>The authors also further showed comparable test results using a Fixuped network without any normalization on the ImageNet dataset and English-German machine translation tasks.</p></div>
+			</div>
+
+
+			<div type="availability">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>This is an archival copy of the blog post at <ref type="url" target="https://crazyoscarchang.github.io/2019/02/16/seven-myths-in-machine-">https://crazyoscarchang.github.io/2019/02/16/seven-myths-in-machine-</ref>learning-research/ Myth 1: TensorFlow is a Tensor manipulation library Myth 2: Image datasets are representative of real images found in the wild Myth 3: Machine Learning researchers do not use the test set for validation Myth 4: Every datapoint is used in training a neural network Myth 5: We need (batch) normalization to train very deep residual networks Myth 6: Attention &gt; Convolution Myth 7: Saliency maps are robust ways to interpret neural networks Myth 1: TensorFlow is a Tensor manipulation library</p></div>
+			</div>
+
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Myth 6: Attention &gt; Convolution</head><p>There is an idea gaining currency in the machine learning community that attention mechanisms are a superior alternative to convolutions now <ref type="bibr" target="#b8">[Vaswani et al., 2017]</ref>. Importantly, <ref type="bibr" target="#b8">Vaswani et al. [2017]</ref> noted that "the computational cost of a separable convolution is equal to the combination of a self-attention layer and a point-wise feed-forward layer."</p><p>Even state-of-the-art GANS find self-attention superior to standard convolutions in its ability to model long-range, multi-scale dependencies <ref type="bibr" target="#b9">[Zhang et al., 2018]</ref>.</p><p>The authors of <ref type="bibr" target="#b10">Wu et al. [2019]</ref> question the parameter efficiency and efficacy of self-attention in modelling long-range dependencies, and propose new variants of convolutions, partially inspired by self-attention, that are more parameterefficient.</p><p>Lightweight convolutions are depthwise-separable, softmax-normalized across the temporal dimension, shares weights across the channel dimension, and reuses the same weights at every time step (like RNNs). Dynamic convolutions are lightweight convolutions that use different weights at every time step.</p><p>These tricks make lightweight and dynamic convolutions several orders of magnitude more efficient that standard non-separable convolutions.</p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Computing higher order derivatives of matrix and tensor expressions</title>
+		<author>
+			<persName><forename type="first">Sören</forename><surname>Laue</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Matthias</forename><surname>Mitterreiter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joachim</forename><surname>Giesen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="2755" to="2764" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Unbiased look at dataset bias</title>
+		<author>
+			<persName><forename type="first">Antonio</forename><surname>Torralba</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexei</forename><forename type="middle">A</forename><surname>Efros</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<author>
+			<persName><forename type="first">Benjamin</forename><surname>Recht</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rebecca</forename><surname>Roelofs</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ludwig</forename><surname>Schmidt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vaishaal</forename><surname>Shankar</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1806.00451</idno>
+		<title level="m">Do cifar-10 classifiers generalize to cifar-10?</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">An empirical study of example forget-ting during deep neural network learning</title>
+		<author>
+			<persName><forename type="first">Mariya</forename><surname>Toneva</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alessandro</forename><surname>Sordoni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Remi</forename><surname>Tachet Des Combes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Adam</forename><surname>Trischler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yoshua</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Geoffrey</forename><forename type="middle">J</forename><surname>Gordon</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1812.05159</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Stacked denoising autoencoders: Learning useful representations in a deep network with a local denoising criterion</title>
+		<author>
+			<persName><forename type="first">Pascal</forename><surname>Vincent</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hugo</forename><surname>Larochelle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Isabelle</forename><surname>Lajoie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yoshua</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pierre-Antoine</forename><surname>Manzagol</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of machine learning research</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="page" from="3371" to="3408" />
+			<date type="published" when="2010-12">Dec. 2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Deep residual learning for image recognition</title>
+		<author>
+			<persName><forename type="first">Kaiming</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xiangyu</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shaoqing</forename><surname>Ren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jian</forename><surname>Sun</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the IEEE conference on computer vision and pattern recognition</title>
+		<meeting>the IEEE conference on computer vision and pattern recognition</meeting>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="770" to="778" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">Batch normalization: Accelerating deep network training by reducing internal covariate shift</title>
+		<author>
+			<persName><forename type="first">Sergey</forename><surname>Ioffe</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Christian</forename><surname>Szegedy</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1502.03167</idno>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<author>
+			<persName><forename type="first">Hongyi</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tengyu</forename><surname>Yann N Dauphin</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ma</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1901.09321</idno>
+		<title level="m">Fixup initialization: Residual learning without normalization</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Attention is all you need</title>
+		<author>
+			<persName><forename type="first">Ashish</forename><surname>Vaswani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Noam</forename><surname>Shazeer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Niki</forename><surname>Parmar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jakob</forename><surname>Uszkoreit</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Llion</forename><surname>Jones</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aidan</forename><forename type="middle">N</forename><surname>Gomez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lukasz</forename><surname>Kaiser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Illia</forename><surname>Polosukhin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="5998" to="6008" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<title level="m" type="main">Selfattention generative adversarial networks</title>
+		<author>
+			<persName><forename type="first">Han</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ian</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dimitris</forename><surname>Metaxas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Augustus</forename><surname>Odena</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1805.08318</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">Pay less attention with lightweight and dynamic convolutions</title>
+		<author>
+			<persName><forename type="first">Felix</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Angela</forename><surname>Fan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexei</forename><surname>Baevski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><surname>Yann N Dauphin</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Auli</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1901.10430</idno>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<monogr>
+		<author>
+			<persName><forename type="first">Amirata</forename><surname>Ghorbani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Abubakar</forename><surname>Abid</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">James</forename><surname>Zou</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1710.10547</idno>
+		<title level="m">Interpretation of neural networks is fragile</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<title level="m" type="main">Explaining and harnessing adversarial examples</title>
+		<author>
+			<persName><forename type="first">Ian</forename><forename type="middle">J</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jonathon</forename><surname>Shlens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Christian</forename><surname>Szegedy</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1412.6572</idno>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

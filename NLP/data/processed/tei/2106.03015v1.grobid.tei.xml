@@ -1,0 +1,605 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Learning proofs for the classification of nilpotent semigroups</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2021-06-06">6 Jun 2021</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Carlos</forename><surname>Simpson</surname></persName>
+						</author>
+						<title level="a" type="main">Learning proofs for the classification of nilpotent semigroups</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2021-06-06">6 Jun 2021</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">FD0C0CADC747F8E3258F9C938E479C3C</idno>
+					<idno type="arXiv">arXiv:2106.03015v1[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Machine learning is applied to find proofs, with smaller or smallest numbers of nodes, for the classification of 4-nilpotent semigroups.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>We are interested in the classification of finite semigroups. Distler <ref type="bibr" target="#b3">[4,</ref><ref type="bibr" target="#b4">5,</ref><ref type="bibr" target="#b5">6]</ref> has provided a list of isomorphism classes for sizes n ≤ 10, but at great computational expense. The question we pose here is whether artificial intelligence, in the form of deep learning, can learn to do a classification proof for these objects.</p><p>To be more precise, we are going to look at the question of whether a process designed to learn how to do proofs using neural networks can learn to do "better" proofs, as measured by the number of nodes in the proof tree.</p><p>Let's point out right away that the process will not, in its current state, be useful for improving in practical terms the computational time for a classification proof. Even though we are able to find proofs with small numbers of nodes, potentially close to the minimum, the training time necessary to do that is significantly bigger than the gain with respect to a reasonable benchmark process. Therefore, this study should be considered more for what it says about the general capacity of a deep learning process to learn how to do proofs.</p><p>Unsurprisingly, the motivation for this question is the recent phenomenal success obtained by Alpha Go and Alpha Zero <ref type="bibr" target="#b16">[17,</ref><ref type="bibr" target="#b17">18]</ref> at guiding complex strategy games. If we think of a mathematical proof as a strategy problem, then it seems logical to suppose that the same kind of technology could guide the strategy of a proof.</p><p>In turn, this investigation serves as a convenient and fun way to experiment with some basic Deep Learning programming. In recent years there have been an increasing number of studies of the application of machine learning to mathematics, starting from <ref type="bibr" target="#b10">[11,</ref><ref type="bibr" target="#b2">3]</ref> and continuing, to cite just a very few, with <ref type="bibr" target="#b0">[1,</ref><ref type="bibr" target="#b11">12,</ref><ref type="bibr" target="#b19">20]</ref>. The application we propose here has the property that it generates its own training data, providing a self-contained microcosm in which to test things like architecture of neural networks and sampling and training processes.</p><p>The problem at hand is that of determining the list of isomorphism classes of semigroups of a given kind. Recall that a semigroup consists of a set A and a binary operation A × A → A denoted (x, y) → x • y subject only to the axiom that it is associative, ∀x, y, z ∈ A, x • (y • z) = (x • y) • z. For us, the set A will be finite, typically having from 7 to 10 (or maybe 11) elements.</p><p>We envision a simple format of the classification proof, where at each step we make a cut, branching according to the possible hypotheses for the values of a single multiplication x i • y i .</p><p>The basic strategy question is which location (x i , y i ) to choose at each stage of the proof.</p><p>Once the possible cuts have been exhausted then we have a classification of the multiplication tables.</p><p>We don't look at the process of filtering according to isomorphism classes-for the sizes under examination, that doesn't pose any problem in principle but it would generate an additional programming task. Nonetheless the symmetry will be used by starting with an initial hypothesis about the possible multiplication operations; the set of these hypotheses is filtered by a sieve under the symmetric group action. Typically, our proof learning process will then concentrate on a single instance denoted σ of this collection of possible initial conditions.</p><p>The organization of the paper is to first describe the computational and learning setup used to try to learn proofs, then next make comments on the choice of network architecture and sampling and training processes. Then, we show some graphs of the results of the learning process on specific proof problems.</p><p>For a small initial condition corresponding to certain semigroups of size 7, we can find in another way the precise lower bound for the size of the proof, as is discussed in Section 11. Our learning framework is able to attain proofs of the minimal size. For larger cases it isn't practically possible to obtain a proven lower bound so we can only show that progress is attained, leaving it for speculation as to the question of how close we are getting to the theoretical lower bound.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.1">Classification framework: 4-nilpotent semigroups</head><p>We now discuss the framework in somewhat greater detail. We are going to be classifying nilpotent semigroups. It is useful to understand the role played by nilpotent semigroups in the classification of finite semigroups.</p><p>They are representative of the phenomena that lead to large numbers of solutions. In order to understand this, it is good to look at the 3-nilpotent case, one of the main constructions of a large number of semigroups.</p><p>Suppose given a filtered nilpotent semigroup A of size n ≥ 3 with filtration having three steps as follows:</p><formula xml:id="formula_0">F 1 A = A = {0, . . . , n -1}, F 2 A = {0, 1}, F 3 A = {0}.</formula><p>It means that x • y ∈ {0, 1}, and if x = 0 or x = 1 or y = 0 or y = 1 then x • y = 0.</p><p>Clearly, for any multiplication table satisfying these properties we have (x • y) • z = 0 and x•(y•z) = 0 for any x, y, z ∈ A. Therefore, any multiplication table satisfying these properties is automatically associative. To specify the table, we must just specify x • y ∈ {0, 1} for x, y ∈ F 1 A -F 2 A = {2, . . . , n -1}. There are 2 (n-2) 2 possibilities. For example with n = 6 this is 2 16 = 65536 possibilities. For n = 10 we have 2 64 possibilities. 1   This example illustrates an important phenomenon, and along the way shows that we can expect the nilpotent cases of all kinds to occupy a large piece in the general classification.</p><p>Well-known for some time, this was the motivation for Distler's paper <ref type="bibr" target="#b5">[6]</ref>.</p><p>In the present study we shall look at the 4-nilpotent case (as was highlighted to us by D. Alfaya). Namely, assume given a filtration A = F 1 A and F k A = A k with F 4 A = {0}. We are furthermore going to assume that the "associated-graded dimensions" |F k A -F k+1 A| are (a, b, 1, 1), and that A is its own associated-graded, meaning that if a product reduces the filtration level by more than expected then it is zero. These conditions may be seen to preserve the essential part of the classification question.</p><p>The terminology "associated-graded" comes from the interpretation of semigroups with absorbing element 0 as F 1 -algebras, i.e. algebras in the monoidal category of F 1 -modules, those just being pointed sets with tensor operation the smash product. The next step, in order to understand both the proof mechanism and the encoding of data to feed to the machine, is to discuss multiplexing. This is a very standard procedure. To give a simple example, suppose we want to make a neural network to predict traffic on a road. It will depend on the day of the week. If we give as input data a number d ∈ {0, . . . , 6} it probably isn't going to work very well since the numerical size of d has nothing a priori to do with the amount of traffic. A much better solution would be to give</p><formula xml:id="formula_1">as input data a vector v ∈ Z 7 with v = (v 0 , . . . , v 6 ), v i ∈ {0, 1}, v 0 + . . . + v 6 = 1.</formula><p>The last two conditions mean that there is exactly one value that equals 1, the rest are 0.</p><p>We have transformed our integer data from a quantity to a location. With the location data, the machine could make a different calculation for each day of the week and is much more likely to find a good answer.</p><p>In our situation, the analogous point is that we don't want to give the numerical data of the values x • y in the multiplication table. These are numerical values in {0, . . . , n -1} but their ordering is only somewhat canonical in the nilpotent case, and in the general nonnilpotent case it might be highly indeterminate. Therefore, we multiplex the multiplication</p><formula xml:id="formula_2">table into an n × n × n tensor m[x, y, z] with the rule m[x, y, z] = 1 ⇔ x • y = z, m[x, y, z] = 0 otherwise.</formula><p>Recall here that the indices x, y, z take values in 0, . . . , n -1.</p><p>We'll call the tensor m the mask. This representation has some nice properties. The first of them is that it allows us to encode not only the multiplication table itself, but also whole collections of multiplication tables. A mask is an n × n × n tensor m with entries denoted m[x, y, z], such that the entries are all either 0 or 1. A mask is transformed into a condition about multiplication tables as follows:</p><formula xml:id="formula_3">m[x, y, z] = 0 means x • y = z whereas m[x, y, z] = 1 means x • y might be z.</formula><p>Given a mask m, a table t (that is, an n × n array whose entries t[x, y] are in {0, . . . , n -1}) is said to satisfy m if, for all x, y ∈ {0, . . . , n -1} putting z := t[x, y] yields m[x, y, z] = 1.</p><p>Geometrically we may view the mask as a subset of a 3-dimensional grid (the subset of points where the value is 1) and a table, viewed as a section from the 2-dimensional space of the first two coordinates into the 3-dimensional space, has to have values that land in the subset in order to satisfy the mask.</p><p>For a given mask m there is therefore a set of associative multiplication tables t that satisfy m.</p><p>We could formulate our classification problem in this way: there is a mask Q(nil, n).m of size n corresponding to the 4-nilpotency conditions. We would like to classify associative tables that satisfy this mask.</p><p>That setup is rather general. For the 4-nilpotent case with given associated-graded dimensions (a, b, 1, 1) we will rather look at a collection of masks for the multiplication operations involving the two sets having a and b elements respectively, as discussed in Section 2.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.2">Cuts and the proof tree</head><p>Let us keep to the more general setting of the previous subsection in order to view the notion of a classification proof by cuts. A position of the proof is just some mask that we'll now call p. For this mask, there may be a certain number of available (x, y) locations. We'll say that (x, y) is available if the number of z such that p(x, y, z) = 1 is &gt; 1. Notice that if, for any (x, y) that number is 0 then the mask is impossible to realize, that is to say there are no tables that satisfy it, and if that number is 1 for all (x, y) then the classification proof is done at that position: the mask determines the multiplication table. Therefore, at any active position p in the proof, i.e. a position where there is still some proving to be done, there must be at least one available location.</p><p>If we fix some available location (x, y), then making the cut at (x, y) generates a collection of new proof positions p 1 , . . . , p k . Namely, with k the number of values z such that p(x, y, z) = 1, we take the mask p but replace the column corresponding to (x, y) by, sucessively, the k different columns with a single 1 and the rest 0's, that correspond to values of z where p(x, y, z) = 1. The new positions need to be processed to apply the logical implications of the associativity axiom, potentially adding new 0's (see Section 12 for the functions that implement this processing). This collection of new positions generated by the cut is going to be associated to the new nodes underneath the given node, thus creating incrementally the proof tree. Once a cut has been made at a given node, it acquires the label "passive". The nodes below it are labelled "active", except for those that are "done" or "impossible" as described above.</p><p>The root of the proof tree is the initial mask, such as Q(nil, n).m, corresponding to our classification problem. The classification proof is finished when there are no longer any active nodes.</p><p>Our measure of the size of the proof is to count the number of passive nodes. We decide not to count the impossible or done nodes, although that would also be a valid choice that could be made, leading to a different notion of minimality of a proof.</p><p>The strategic question for creating the proof is to decide which choice of available cut (x, y) to make starting from any given position. The aggregate collection of these choices determines the proof tree and hence the proof. We would like to train a deep learning machine to make these decisions.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.3">Reinforcement learning for proofs</head><p>We now discuss in a general way the problem of learning to do proofs. We would like to train a machine to predict what is the best next strategy to use at any stage of a proof. By "best" here we mean the strategy that will serve to minimize the number of steps needed to complete the proof. In our current framework, the proof is always going to finish in a bounded time, namely after we have done cuts at all the locations. This represents an important distinction from a more general theorem-proving setup where it might not be clear when or how to finish the proof at all. Having this feature simplifies the problem for us.</p><p>One main property of the "theorem-proving" goal, which is maintained in our situation, is the fact that the number of steps needed to complete the proof depends on the strategy that we are going to use. We are asking the machine to predict and minimize a quantity that depends on the configuration of the machine itself. Thus, the question falls into the domain of reinforcement learning.</p><p>The main recent advances in this direction are <ref type="bibr" target="#b16">[17,</ref><ref type="bibr" target="#b17">18]</ref>. Of course, the situation of doing a proof is easier than that of an adversarial game since one doesn't need to consider the possible moves of the adversary.</p><p>There are many online resources available to explain the general framework that should be used. I found the "Flappy Bird" tutorial <ref type="bibr" target="#b14">[15]</ref> to be particularly helpful. I would like to mention that that was only one of the literally hundreds of snippets of explanation, code samples, and general discussions found on the web on a daily basis, which were essential to learning about the materiel and programming environments used here. Unfortunately, these were too great in number to be able to record them all as references, and for that I heartily apologize to and thank the contributors.</p><p>We'll explain in more detail in Section 7 the utilisation of a pair of neural networks, trained to predict and minimize the size of proofs. Let us just recall here a few salient aspects of the reinforcement learning process.</p><p>As the machine is basically asked to predict quantities that it has a large hand in determining, one must be careful to avoid two main potential pitfalls:</p><p>• The machine could fall into a stable situation where very wrong predictions lead to very wrong strategies that nonetheless look optimal because of the wrong data that is thereby generated; and</p><p>• As the machine narrows the strategy, we hope, towards a good one, it tends to generate a lot of data on the particular positions that show up in this strategy, possibly making it look like other positions about which less is known, might be better.</p><p>These problems were first explained to me by D. Alfaya, in conversations that occurred well before the current project was envisioned.</p><p>Good exploration and sampling methods need to be chosen in order to mitigate these problems. We note that the second problem is probably always present to some degree, and it can be seen rather clearly in the results presented graphically at the end of the paper: when the networks get the node count down to some kind of small value it starts bouncing back a lot. Getting it to stabilize at the minimal value is much more challenging.</p><p>Mitigating the first problem requires the notion of exploration: when generating training data, we shouldn't try only to follow the apparently (by current knowledge of the machine) optimal strategy. Instead, we should generate training data by following different strategies with various degrees of randomness aiming to explore as much as possible the full space of possible positions.</p><p>Another question is how far we need to go towards the ends of a proof tree. In principle, with a perfect learning process, it should be sufficient to just simulate individual proof steps. Indeed, the network is trained to predict the number of remaining nodes, and this function should have the property that the current number of remaining nodes is the sum of the numbers of nodes below each of the subsequent positions generated by the best choice of cut, plus 1 for the upper node itself. We use this method of generating samples but augment it by running full proofs pruned by dropping certain branches along the way, giving a quicker approach to the node values for positions from early in a proof. See Section 8 for more details.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.4">The neural networks</head><p>Our machine is going to consist of two neural networks (N, N 2 ), each taking as input a multiplexed proof position p. The first is designed to give a prediction N (p) of the number of nodes in the proof tree starting from the position p. The second N 2 (p) is an array output consisting of N 2 (p; x, y), designed so that N 2 (p; x, y) predicts the sum of the N (p i ) where p 1 , . . . , p k are the positions generated from p by cutting at (x, y).</p><p>This division of labor is analogous to the value and policy networks of <ref type="bibr" target="#b16">[17,</ref><ref type="bibr" target="#b17">18]</ref>. The utility behind it is: (1) in doing a large proof N 2 provides a fast answer to the question of choosing an optimal cut at each stage; <ref type="bibr" target="#b1">(2)</ref> whereas N provides a fast way of creating training data for N 2 .</p><p>We program the neural networks using Pytorch. Numerous different options for network architecture were tried. In the current version of the program, most of the middle layers are convolutional on a 2d array <ref type="bibr" target="#b8">[9,</ref><ref type="bibr" target="#b12">13,</ref><ref type="bibr" target="#b13">14]</ref>. We note that the input tensors describing a position are multiplexed as described above, and they can have various dimensions. The choice of 2d was settled on as a space in which to do a reasonable amount of "thinking" while not making the number of trainable parameters explode too much. Grouped convolution is used to further control the number of parameters. Fully connected layers are used just before the output, so that the output array takes into account the full convolution result in its globality rather than just transfering the convolution result-array to the output array of N 2 .</p><p>See Section 9 for more details on the network architecture. The architecture we are currently using is something that can be changed pretty readily. Having already gone through numerous iterations, the process of settling on a good choice is by no means closed and this is an area for further work and experimentation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.5">Results and questions</head><p>Basically, the process is able to learn to do proofs. This can be seen in the graphs of the training and proof results given in Section 10. Furthermore, for a small first case where (a, b) = (3, 2) (and including some additional filters, see 4.1), we are able to calculate in Section 11 a proven lower bound for the number of nodes in the proof. The neural networks are able to find the best proofs, in other words proofs with that minimum number of nodes.</p><p>It should, however, be pointed out that these results are obtained by training the networks on the same proof task that is being measured. It is reasonable to ask how well the theoremproving knowledge generalizes. Some experiments were done with training on certain proofs and then testing on others (see 10.7 for an example), but those results were not all that great. The proofs on which the networks were not trained, were sometimes done with a small number of nodes, but on the other hand they sometimes oscillated with rather large node numbers in an apparently unpredictable way, and the oscillation didn't seem to go away with further training. One might even suspect that after a certain level of training, the machines were learning to memorize the proof positions on which they were training, to the detriment of success on not-trained-for proofs.</p><p>We could comment that such "memorization" might be possible for smaller cases such as <ref type="bibr" target="#b2">(3,</ref><ref type="bibr" target="#b1">2)</ref>, but for some of the larger cases that we were able to treat, the number of nodes occurring in a given proof was bigger than the number of trainable parameters of the model (see 10.8) so the results don't seem to be systematically ascribable to simple memorization of positions.</p><p>The question of obtaining machines that are better able to generalize from one proof situation to another, seems like a difficult question for further research. It doesn't seem clear, for example, what kind of training parameters could be used to favorize that. As a variant on the "generalization" question, one could ask whether training for certain proofs, then using the resulting network state as a "warm start" for training on different proofs, would produce a noticeable positive effect. There are very preliminary indications in that direction, but we don't have firm data. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.6">Acknowledgements</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Nilpotent semigroups</head><p>By a 0 semigroup we mean a semigroup with a distinguished element 0 having the properties 0x = x0 = 0 for all x. If it exists, 0 is unique. The case of semigroups (without 0) may be recovered by the operation of formally adding on a 0 denoted A → A 0 := A {0}.</p><p>If A is a set we denote by A 0 the set A {0} considered as an object of the category of pointed sets. Given pointed sets (A, 0) and (B, 0) we denote the product as</p><formula xml:id="formula_4">(A, 0) ⊗ (B, 0) := (A -{0}) × (B -{0}) {0}.</formula><p>This is the cartesian product in the category of pointed sets. The sum in that category is</p><formula xml:id="formula_5">(A, 0) ∨ (B, 0) := (A -{0}) (B -{0}) {0}.</formula><p>The category of pointed sets with these operations is sometimes known as the category of F 1 -modules and we follow the line of motivation implied by this terminology. In particular, an F 1 -algebra is going to be a pointed set (A, 0) together with an associative operation (A, 0) ⊗ (A, 0) → (A, 0). This is equivalent to the notion of a 0 semigroup so an alternate name for this structure is "F 1 -algebra".</p><p>Whereas conceptually we think primarily of pointed sets, in practical terms it is often useful to consider only the subset of nonzero elements, so these two aspects are blended together in the upcoming discussion. In particular, the "rank" of an F 1 -module is the number of nonzero elements.</p><p>A finite semigroup X is nilpotent if it has a 0 element and there is an n such that</p><formula xml:id="formula_6">x 1 • • • x n = 0 for any x 1 , . . . , x n . This condition implies that 0 • x = x • 0 = 0, so a nilpotent</formula><p>semigroup is also a 0 semigroup and we can say "nilpotent semigroup" in place of "nilpotent 0 semigroup". Suppose X is a nilpotent semigroup. We define X k to be the set of products of length k.</p><p>We have X i = {0} for i ≥ n (the smallest n above). By definition X 1 = X. We have</p><formula xml:id="formula_7">X i+1 ⊂ X i</formula><p>and these inclusions are strict for i &lt; n. That implies that n ≤ |X| in the nilpotency condition.</p><p>We introduce the associated-graded semigroup Gr(X) defined as follows: the underlying set is the same, viewed as decomposed into pieces</p><formula xml:id="formula_8">Gr(X) := X = {0} ∪ i≥1 (X i -X i+1 ).</formula><p>Put Gr i (X) := (X i -X i+1 ), and Gr i (X) 0 := Gr i (X) ∪ {0}. This notion keeps with the F 1 -module philosophy.</p><p>In the current version of this project, we classify semigroups that are already their own associated-gradeds. This amounts to saying that the product of two elements in (X i -X i+1 ) and (X i -X i+1 ) is either in (X i+j -X i+j+1 ) or is equal to zero. For the 4-nilpotent case, one can recover the general classification by just lifting all products that are equal to zero, into arbitrary elements of X 3 .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">The 4-nilpotent case</head><p>We consider the following situation: we have sets A and B of cardinalities denoted a and b respectively, and we look for a multiplication operation</p><formula xml:id="formula_9">m : A × A → B 0 , recall B 0 := B {0}.</formula><p>We require that B be contained in the image (it isn't necessary to have 0 contained in the image, that might or might not be the case).</p><p>Such an operation generates an equivalence relation on (A × A × A) 0 in the following way.</p><p>If m(x, y) = m(x , y ) then for any z we set (x, y, z) ∼ (x , y , z) and (z, x, y) ∼ (z, x , y ).</p><p>Furthermore, if m(x, y) = 0 then we set (x, y, z) ∼ 0 and (z, x, y) ∼ 0.</p><p>Let Q be the set of nonzero equivalence classes (it could be empty). We obtain a graded semigroup structure on</p><formula xml:id="formula_10">X = A 0 ∨ B 0 ∨ Q 0 = A B Q {0}.</formula><p>Suppose given a graded semigroup of the form A 0 ∨ B 0 ∨ P 0 . Let m be the multiplication operation from A × A to B 0 and suppose its image contains B. This yields Q 0 . There is a unique map Q 0 → P 0 inducing a morphism of graded semigroups.</p><p>Because of this observation, we would like to classify multiplication maps m : A×A → B 0 such that the quotient Q := A 3 / ∼ has at least two elements.</p><p>Given a multiplication operation satisfying the conditon |Q| ≥ 2, we can consider a quotient Q 0 → I 0 = {0, 1} that sends Q surjectively to I 0 . Roughly speaking, knowing Q 0 corresponds to knowing these quotients (there is certainly a form of Stone duality going on here). Therefore, we try to classify graded semigroups of the form</p><formula xml:id="formula_11">A 0 ∨ B 0 ∨ I 0</formula><p>which is to say, 4-nilpotent graded semigroups of size vector (a, b, 1, 1).</p><p>For b ≤ 2 and general a, we comment that D. Larsen has a sketch of classification leading to a formula for the cases (a, 1, 1, 1) and (a, 2, 1, 1).</p><p>We are going to assume b ≥ 2 (the case b = 2 being nonetheless an interesting one from the proof-learning perspective), and a few further restrictions to the classification setup will be imposed, as discussed in §4. Our structure is therefore given by the following operations:</p><formula xml:id="formula_12">µ : A × A → B 0 φ : A × B 0 → I 0 and ψ : B 0 × A → I 0</formula><p>with the last two satisfying φ(x, 0 B ) = 0 and ψ(0 B , x) = 0 I for all x ∈ A. They are subject to the condition that the combined multiplication operation should be associative.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">A sieve reduction</head><p>The classification proof setup that we have adopted is to fix the φ matrix and divide by permutations of A and B. That is to say, S a × S b acts on the set of matrices (i.e. a × b matrices with boolean entries) and we choose a representative for each orbit by a sieve procedure. This results in a reasonable number of cases, and the sieve procedure also gives a light property of ordering on the elements of A (resp. B) that seems somewhat relevant.</p><p>Once this matrix is fixed, we search for matrices µ. We get some conditions on the matrix ψ and these are combined into a ternary operation</p><formula xml:id="formula_13">τ : A × A × A → I 0 .</formula><p>The proof is by cuts on the possibilities for the matrix µ, and the leaf of the proof tree is declared to be 'done' when µ is determined. It doesn't seem to be necessary or particularly useful to make cuts on the possibilities for the matrices ψ or τ although this could of course be envisioned. <ref type="foot" target="#foot_0">2</ref>Another possibility, for absorbing the S a ×S b action, would be to declare that the values of µ in B should be lexicographically ordered as a function of (x, y) ∈ A×A, and then choose representatives for the initial elements under the S a action. Many attempts in this direction were made, but in the end, it seemed to be less useful than the current setup.</p><p>We therefore start with a set Σ of input data. Each datum in Σ consists of a representative for the equivalence class of a function φ : A×B 0 → I 0 (such that A×{0 B } maps to 0 I ) under the action of the group S a × S b . The equivalence class is chosen in a way that generally puts the 1's in this matrix towards lower indices in A and towards the higher indices in B (see for example the instances displayed in the next subsection).</p><p>The other blocks of the input datum, for the right multiplication ψ : B 0 × A → I and the product µ : A × A → B 0 , are left free at the root of the proof.</p><p>Here is a table of the sizes |Σ|, that is to say the numbers of equivalence classes, in terms of a and b. This is the table of <ref type="bibr" target="#b18">[19]</ref>, see the references on that page, and others such as <ref type="bibr" target="#b9">[10]</ref>.</p><p>For <ref type="bibr" target="#b5">(6,</ref><ref type="bibr" target="#b5">6)</ref>, the value is taken from <ref type="bibr" target="#b18">[19]</ref>.</p><formula xml:id="formula_14">a</formula><p>\ b 2 3 4 5 6 2 7 13 22 34 50 3 13 36 87 190 386 4 22 87 317 1053 3250 5 34 190 1053 5624 28576 6 50 386 3250 28576 251610</p><p>We are not very interested in the function that sends everything to 0 I . Furthermore we typically don't consider the first few elements of Σ that correspond to cases where φ(x, y) = 0</p><formula xml:id="formula_15">I</formula><p>for almost all values of x. These correspond to initial conditions with a large symmetry group, that are partially absorbed by the symmetry consideration that is explained next. The cases that aren't covered by the symmetry consideration should be treated by also specifying the matrix ψ; we don't pursue that at the present time. The remaining values of σ, constituting most of them, are considered as the "suggested instances", cf the end of 4.1.</p><p>We exploit the symmetry obtained by interchanging the order of multiplication: given a semigroup X one gets the opposite semigroup X o with the same set but composition * defined in terms of the composition • of X, by</p><formula xml:id="formula_16">x * y := y • x.</formula><p>This interchanges the matrices φ and ψ, notably. We define an additional filter "half-ones" (cf 4.1) to make the following assumption:</p><p>-That the number of nonzero entries of the matrix ψ is ≤ the number of nonzero entries of φ. (The latter number being fixed by the choice of element φ ∈ Σ).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Initial data for (3, 2)</head><p>For reference we record here the left multiplication matrices for the 13 initial instances in Σ given by the sieve for (a, b) = (3, 2). Recall that the left multiplication is the product A × B 0 → I, but the product with the zero element (numbered as 2 ∈ B 0 here) is zero so we only need to include the first two columns. This is a 3 × 2 matrix. The entry L ij is the product i • j for i ∈ A and j ∈ B (i ∈ {0, 1, 2} and j ∈ {0, 1}).</p><formula xml:id="formula_17">L(σ = 0) =    0 0 0 0 0 0    L(σ = 1) =    0 1 0 0 0 0    L(σ = 2) =    0 1 0 1 0 0    L(σ = 3) =    0 1 0 1 0 1    L(σ = 4) =    1 1 0 0 0 0    L(σ = 5) =    1 0 0 1 0 0    L(σ = 6) =    1 1 0 1 0 0    L(σ = 7) =    1 0 0 1 0 1    L(σ = 8) =    1 1 0 1 0 1    L(σ = 9) =    1 1 1 1 0 0    L(σ = 10) =    1 1 1 0 0 1    L(σ = 11) =    1 1 1 1 0 1    L(σ = 12) =    1 1 1 1 1 1   </formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">The classification task</head><p>Given three sets X, Y, Z, a mask for a function</p><formula xml:id="formula_18">X × Y → Z is a boolean tensor m : X × Y × Z → {0, 1}. A function f : X × Y → Z is covered by m, if m(x, y, f (x, y)) = 1 for all x, y.</formula><p>The statistic of m denoted stat(m) is the function X × Y → N sending (x, y) to the number of z with m(x, y, z) = 1, i.e. it is the sum of m along the Z axis.</p><p>If stat(m)(x, y) = 0 for any pair (x, y) then there doesn't exist a covered function. Thus, we say that m is possible if stat(m) &gt; 0 at all x, y.</p><p>If stat(m)(x, y) = 1 it means that there is a single value z such that m(x, y, z) = 1. This means that if f is a covered function, we know f (x, y) = z.</p><p>We say that the mask is done if stat(m)(x, y) = 1 for all x, y. In this case it determines a unique function f .</p><p>Given masks m, m we say that m ⊂ m if m(x, y, z) = 1 ⇒ m (x, y, z) = 1.</p><p>We now get back to our classification task. A position is a quadruple of masks p = (m, l, r, t) where m is a mask for the function µ : A × A → B 0 , l is a mask for φ, r is a mask for ψ, and t is a mask for τ : A × A × A → I 0 (a mask for a ternary function being defined analogously).</p><p>We say that a position p is a subset of another position p if m ⊂ m , l ⊂ l , r ⊂ r and</p><formula xml:id="formula_19">t ⊂ t .</formula><p>Given a point φ ∈ Σ, the mask l is required to be equal to the done mask determined by this function.</p><p>Let P be the set of positions and let P Σn be the set of positions corresponding to any subset Σ ⊂ Σ. Let P φ = P {φ} be the set of positions corresponding to a point φ ∈ Σ.</p><p>A position (m, l, r, t) ∈ P is impossible if any of the masks m, l, r, t are not possible i.e.</p><p>have a point where the statistics are 0.</p><p>A position is realized if there is a collection of functions covered by the masks that form a graded nilpotent semigroup. We may also impose other conditions on the realization such as discussed above.</p><p>We'll define a function process : P → P such that process(p) ⊂ p, and such any realization of p is also a realization of process(p). The process function is going to implement some basic steps of deductions from the associativity condition. The functions going into process will be shown in Section 12.</p><p>The function is repeated until it makes no further changes, so that process(process(p)) = process(p).</p><p>We also define a function filter : P → {active, done, impossible} by saying that filter(p) is impossible if:</p><p>-any of the masks in p is not possible (i.e. there is a column containing all F alse's);</p><p>-in §4.1 we introduce two additional filters that could also be imposed.</p><p>We say that filter(p) is done if the mask m is done. Note here that we aren't necessarily requiring r or t to be done (l is automatically done since it corresponds to the function φ).</p><p>We say that filter(p) if it is neither impossible or done.</p><p>The initial position corresponding to φ ∈ Σ consists of setting the mask l to be the done mask corresponding to the function φ, and setting m, r and t to be full masks i.e. ones all of whose values are 1.</p><p>The goal is to classify the done positions that are subsets of the initial position.</p><p>We do a proof by cuts. A cut at a position p corresponds to a choice of (x, y) ∈ A × A, leading to the position leaves p 1 , . . . , p k that correspond to choices of z 1 , . . . , z k such that m(x, y, z i ) = 1. In each position p i the column (x, y) of m is replaced by a column with a unique 1 at position z i , the rest of m remains unchanged. The generated positions are then processed.</p><p>Clearly we only want to do this if stat(m)(x, y) ≥ 2. Such a choice is available any time filter(p) is active.</p><p>A partial classification proof consists of making a series of cuts, leading to a proof tree (see below). Each leaf is filtered as active, done or impossible. The proof is complete when all the leaves are filtered as done or impossible. The data that is collected is the set of done position at leaves of the tree. These are the done positions subsets of the initial position.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Additional filters</head><p>In view of the size of certain proof trees that occur, it has shown to be useful to introduce some additional filters. They should be considered as acceptable in view of the classification problem.</p><p>One filter that we call the "profile filter" asks that there shouldn't be two elements that have the same multiplication profile, i.e. that provide the same answers for all multiplications with other elements. In other words, if there exist distinct elements x = x such that</p><p>x • y = x • y and y • x = y • x then this filter marks that case as "impossible". The reasoning is that such examples can be obtained from the classification for smaller values of n by simply doubling an object into two copies of itself as far as the multiplication table is concerned.</p><p>The other filter called "half-ones" imposes the condition that we discussed previously, saying the number of nonzero entries of the right-hand multiplication matrix ψ should be ≤ the number of nonzero entries of the left-hand one φ, which we recall is fixed by the choice of instance in Σ.</p><p>To impose the half-ones condition, this filter classifies a position as "impossible" if:</p><p>-the mask r contains uniquely defined entries with values = 0 I in number larger than the number of nonzero entries of φ, so that a realization would have to contradict our half-ones condition.</p><p>Entries are provided in the 'Parameters' section of the program to turn these filters off or on. By default they are turned on, and our discussion of numbers of proof nodes below will assume they are turned on unless otherwise specified. In a similar vein, the program initialization prints a piece of information about suggested values of the instance σ, namely it gives a list of values for which strictly more than half of the columns are identically zero. It is suggested that the treatment of these instances, using the symmetry to possibly interchange φ and ψ, should be done separately for the purposes of a general classification proof. The values of σ in this list are not viewed as cases that necessarily need to be done using the present proof machinery. Therefore, in some of the larger examples in Section 10, when speaking of "suggested locations" we means instances σ that aren't in this list, i.e. those for which ≤ half of the columns in φ are not identically zero.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Proof tree</head><p>A proof by cuts leads to a proof tree T . This is defined in the following way. The definition will be inductive: we define a notion of partial proof tree, how to extend it, and when it becomes complete.</p><p>The tree has nodes connected by edges, viewed in a downward manner: each node (apart from the root) has one incoming edge above it and some outgoing edges below. The leaf nodes are those having no outgoing edges.</p><p>Each node is going to have a position attached to it. Each non-leaf node, also called 'passive', has a pair (x, y) ∈ A × A called the 'cut' associated to it.</p><p>The root node corresponds to the initial position, which in our setup comes from the chosen matrix φ ∈ Σ. Call this position p root (φ).</p><p>The leaf nodes are classified into 'active', 'done' and 'impossible' cases. These depend on the position p associated to the node, via the function filter(p) that determines the case.</p><p>The proof tree is said to be complete if all the leaf nodes are either done or impossible.</p><p>If a partial proof tree is not complete, then it can be extended to a new tree in the following way. Choose an active leaf node corresponding to position p = (m, l, r, t) and choose a cut (x, y) ∈ A × A. This should be chosen so that k := stat(m)(x, y) ≥ 2, such a choice exists because if not then the position would be classified as impossible or done.</p><p>Let z 1 , . . . , z k be the values such that m(x, y, z i ) = 1.</p><p>The pair (x, y) is going to be the one associated to the corresponding node in the new tree. The new tree is the same as the previous one except for the addition of k new nodes below our chosen one, with positions p 1 , . . . , p k . These positions are determined as follows.</p><p>Let l i = l, r i = r and t i = t. Let m i be the same matrix as m but with the column m i (x, y, -)</p><p>replaced by a column with a single 1 at location z i . This defines positions p 1 , . . . , p k . We then set p i := process(p i ).</p><p>Proposition 5.1. Suppose M is a semigroup structure covered by a position p at a node of the tree. Then it is covered by exactly one of the new nodes p 1 , . . . , p k . Therefore, if M is a semigroup structure covered by the root position p root (φ), it is covered by exactly one of the positions corresponding to leaf nodes of the tree.</p><p>Proof. With the above notations at a node corresponding to position p, if M = (µ, φ, ψ, τ ) is a semigroup structure covered by p then µ(x, y) ∈ {z 1 , . . . , z k }. In view of the replacement of the column m(x, y, -) by k columns corresponding to the values z i , it follows that µ is covered by exactly one of the masks m i . As the other ones l , r , t are the same as before, we get that M is covered by exactly one of the positions p i . Then, the property of the process function implies that M is covered by exactly one of the positions p i . This proves the first statement; the second one follows recursively.</p><p>Remark: There is no semigroup structure satisfying our assumptions and covered by an impossible node. Thus, given a completed proof tree, the admissible semigroup structures with given φ are covered by the done nodes of the tree.</p><p>Remark: We note that a single done node could cover several structures, since we are only requiring that the mask m be done; the mask r could remain undone and correspond to several different functions ψ. This phenomenon is rare.</p><p>We will be interested in counting the cumulative number of nodes over the full tree when the proof is completed. By this, we mean to count the passive nodes, but not the done or impossible ones. <ref type="foot" target="#foot_1">3</ref> The count does include the root (assuming it isn't already done or impossible, which could indeed be the case for a small number of instances of our initial conditions usually pretty far down in the sieve).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">The best possible choice of cuts</head><p>In order to create a proof, one has to choose the cuts cut(p) = (x, y) for each position p.</p><p>The minimization criterion is that we would like to create a proof with the smallest possible number of total nodes. This count can be weighted in a distinct way for the done and impossible nodes. Let |T | denote this number, possibly with weights assigned to the done and impossible nodes. For the purposes of our discussion, these weights are assumed to be zero, although a very small weight is included in the implemented program with the idea that it could help the learning process.</p><p>If v is a node of the proof tree, let T (v) denote the part of the proof tree under v, including v as its root node.</p><p>If p is a position, let T min (p) denote a minimal proof tree whose root has position p.</p><p>(There could be more than one possibility.) We define the minimal criterion at p to be is a minimal proof tree for the position q.</p><p>If T min (p) is a minimal proof tree with root node having position p, which we assume is active, and if (x, y) is the cut at this root node, then</p><formula xml:id="formula_20">C min (p) = 1 + C min (p; (x, y)).</formula><p>Proof. For the first statement, if one of the sub trees were not minimal it could be replaced by a smaller one and this would decrease the global criterion for T , contradicting minimality of T . Thus, the sub-trees are minimal.</p><p>For the second part, say the nodes below p correspond to positions p 1 , . . . , p k . The tree T min (p) is obtained by joining together the sub-trees (that are minimal by the first part) Define the minimizing strategy as being a function cut min (p) = (x, y) where (x, y) is a choice that achieves the minimum value of C min (p; (x, y)) over allowable cuts (x, y) at p. We say "a function" here because there might be several choices of (x, y) that attain the minimum so the strategy could be non-unique.</p><p>The fact that the minimization criterion is additive in the nodes below a given node, implies the following-rather obvious-property that says that if you make a best possible choice at each step along the way then you get a best possible global proof. Corollary 6.2. If T is a proof tree obtained by starting with root node position p and following a minimizing strategy at each node, then T = T min (p) is a minimal proof tree for p.</p><p>Proof. We'll prove the following statement: suppose given two different proof trees T and T that both satisfy the property that they follow a minimizing strategy at each node, then |T | = |T | and both trees are minimal.</p><p>We prove this statement by induction. It is true tautologically at a position that is done or impossible. Suppose v is a position, and suppose v 1 , . . . , v k and v 1 , . . . , v k are the nodes below v in T and T respectively. Let p 1 , . . . , p k and p 1 , . . . , p k denote the corresponding positions. We know by the inductive hypothesis that T (v i ) and T (v j ) are minimal trees (because they follow the minimizing strategy), hence</p><formula xml:id="formula_21">|T (v i )| = |T min (p i )| = C min (p i )</formula><p>and the same for |T (v j )|. We conclude that</p><formula xml:id="formula_22">|T (v 1 )| + • • • + |T (v k )| = C min (p 1 ) + • • • + C min (p k ) = C min (p; (x, y)),</formula><p>and again similarly for the v j . But otherwise its value could be reduced which would contradict minimality of T min (p). Thus, it is equal to the values for (x, y) and (x , y ) above, that is to say</p><formula xml:id="formula_23">|T (v)| = 1 + |T (v 1 )| + • • • + |T (v k )|</formula><formula xml:id="formula_24">C min (p; (x , y )) = C min (p; (x, y)) = C min (p; (x , y )). Therefore |T min (p)| = |T (v)| = |T (v)|.</formula><p>This shows that T (v) and T (v) are also minimal trees. This completes the proof of the inductive statement.</p><p>The inductive statement at the root gives the statement of the corollary.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7">Neural networks</head><p>The model to be used for learning proofs will consist of a pair of networks (N, N 2 ) that aim to approximate the logarithm of the number of nodes in the best classificatino proof below a given position. The first network has a scalar output and aims to approximate the logarithm of the number of nodes below the input position, while the second network has as output an array of size a × a aiming to approximate, at position (x, y), the logarithm of the number of nodes below the position we get by cutting at (x, y) from the input position.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>This pair of networks corresponds to the pair of value and policy networks in Alpha</head><p>Go and Alpha Zero <ref type="bibr" target="#b16">[17,</ref><ref type="bibr" target="#b17">18]</ref>. We'll use N 2 to decide on the proof strategy, namely by choosing the cut (x, y) that has the smallest output N 2 (p; x, y) among the allowable cuts.</p><p>The network N is used, in turn, to train N 2 . These considerations are motivated by the fact that calculation of the processing that integrates the associativity axiom does take a nontrivial time so we wouldn't want, for example, to replace N 2 by just evaluating N over all the positions generated by the cuts.</p><p>In more symbolic terms, the networks N and N 2 aim to provide approximations to ideal functions N and N 2 defined as follows:</p><formula xml:id="formula_25">N (p) := log 10 C min (p)</formula><p>The possible proof trees have bounded depth, indeed after at most a 2 cuts all of the values in the multiplication table are determined and any resulting position must be done or impossible. Therefore the maximal value D(p) is well-defined and finite.</p><p>We may now proceed to prove the theorem by induction on the invariant D(p). For a given position p, consider all the cuts (x, y) allowable at p. For each cut, we obtain new positions p k (x, y). The tree</p><formula xml:id="formula_26">T N 2 (p k (x, y)) has size C N 2 (p k (x, y)) := |T N 2 (p k (x, y))|, the log 10 of which is equal to N [N 2 ](p k (x, y)) := log 10 C N 2 (p k (x, y)) = log 10 |T N 2 (p k (x, y))|.</formula><p>By the inductive hypothesis, which applies since D(p k (x, y)) &lt; D(p), we have</p><formula xml:id="formula_27">N [N 2 ](p k (x, y)) = N (p k (x, y)).</formula><p>Putting this into the definition of N 2 [N ] we get</p><formula xml:id="formula_28">N 2 [N ](p; (x, y)) := log 10 (1+10 N (p 1 (x,y)) +. . .+10 N (p k (x,y)) ) = log 10 1 + |T N 2 (p j (x, y))| .</formula><p>In other words, 10 N 2 [N ](p;(x,y)) is the size of the tree that is generated below position p if we choose the cut at (x, y).</p><p>As the target value for N 2 (p; x, y) is N 2 [N ](p; (x, y)), our hypothesis now says that the size of the tree generated by cutting at (x, y) is 10 N 2 (p;x,y) . This shows that</p><formula xml:id="formula_29">N 2 (p; (x, y)) = N 2 (p; (x, y)).</formula><p>Now, the strategy of the proof is to choose the (x, y) that minimizes N 2 (p; x, y). By the previous discussion, this is also the cut that minimizes the size of the proof tree. This shows that cut N 2 (p) = cut min (p).</p><p>Therefore, the proof tree created starting from p and following our strategy, is a minimal one. Therefore,</p><formula xml:id="formula_30">N [N 2 ](p) = N (p),</formula><p>and in turn by the hypothesis that N predicts its target value we get</p><formula xml:id="formula_31">N (p) = N (p).</formula><p>This completes the inductive proof of the statements of the theorem. It follows that the proof tree obtained by choosing cuts according to the values of N 2 , is a minimal one.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.1">Modification by adding the rank</head><p>In our current implementation, we modify the above definitions by an additional term in the function N 2 , hence in the training for N 2 . Let R(p; (x, y)) be the normalized rank of (x, y) among the available positions, ordered according to the value of N 2 [N ](p; (x, y)). The normalization means that the rank is multiplied by a factor so it extends from 0 (lowest rank) to 1 (highest rank). We then put</p><formula xml:id="formula_32">N R 2 [N ](p; (x, y))(p; (x, y)) := N 2 [N ](p; (x, y))(p; (x, y)) + R(p; (x, y)).</formula><p>The network N 2 is trained to try to approximate this function.</p><p>Clearly, the theorem works in the same way: if N 2 gives a correct approximation to the theoretical value then the element of rank 0 corresponds to the minimal value, and this will also be the minimal value of N R 2 [N ]. This modification is based on the idea of including an element of classification in our training for N 2 . We recall that the policy network of <ref type="bibr" target="#b16">[17,</ref><ref type="bibr" target="#b17">18]</ref> was supposed to predict the "best move", using a softmax output layer and being trained with a cross-entropy loss function.</p><p>For us, a pure classification training would be to try to train by cross-entropy to choose the value of (x, y) that is minimal for N [N 2 ](p). This was tried but not very successfully, the problem being that information about lower but non-minimal values, that could be of use to the model, is lost in this process. Adding the rank to the score includes a classification aspect, while also not neglecting the non-minimal but lower values, and expands the extent of the values of the function we are trying to approximate in the lower ranges. The smaller score values can group very near to the minimal value, meaning on the one hand that some error in approximating the values can lead to the wrong choice, however it also means that choosing a next-to-best value doesn't lose too much in terms of size of proof.</p><p>It turns out to be more difficult to approximate the function with addition of the rank, as reflected in the plots of network output along the training process and the higher loss values for the local network. But due to the combination of the two terms, we also need less accuracy in order to work towards a minimal proof.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="8">Samples</head><p>Once we are given N , obtaining the sample data for training N 2 to approximate N 2 (p; (x, y)) is relatively straightforward. Namely, we suppose given some sample positions p, then we choose samples (p; (x, y)) (it might not be necessary to include all values of (x, y) for a given p) and the calculation of N 2 [N ](p; (x, y)) then just requires applying N to the associated positions p 1 , . . . , p k . We note here that these are obtained from the raw positions p 1 , . . . , p k (column replacements) by an application of p i := process(p i ) so some computation is still involved but in a limited way.</p><p>On the other hand, given N 2 to obtain sample data for N [N 2 ](p) according to our definition, requires a lot of computation. This is because in the definition of N [N 2 ](p) we need to calculate C N 2 (p) := |T N 2 (p)| which means calculating the whole proof tree T N 2 (p). It isn't feasible to do this. We propose here two methods to get around this difficulty. They both involve further approximation and a recurrent or reinforcement-learning aspect.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="8.1">First method</head><p>The first method is to calculate a pruned proof tree T N 2 (p). Here, we only make a choice of cuts (according to the N 2 -determined strategy p → cut N 2 (p)) to extend the proof tree on some of the active nodes, and prune some other nodes at each stage. In the program it is called "dropout", in other words we drop some of the active nodes. Typically, we fix a number D and at each iteration, treat at most D active nodes and 'drop' the remaining ones. The main way of choosing these is to choose randomly, however we also envision an adaptive choice of the nodes to keep in order to address the issue of imbalanced properties of resulting positions, this will be discussed later.</p><p>The proof is then completed significantly faster in the bigger cases (i.e. when a and b are strictly bigger than 3). Along the way, this process could also permit to try to gain an estimate <ref type="foot" target="#foot_2">4</ref> of the size of the fully completed proof from doing only a very partial one. Now we have a proof T = T N 2 (p) in which each node v has a position p(v) and a subproof T (v). We would like to define N [N 2 ](p(v)) by estimating the value for the full proof</p><formula xml:id="formula_33">C N 2 (p(v)) = |T N 2 (p(v))|.</formula><p>The proof T (v) has a certain number of nodes that remain active since they were dropped; the idea of the estimation is to use the network N itself to provide an estimate. Namely, if</p><p>But problematic because it means that we don't see other positions p that might arise in a better strategy. Therefore, some exploration is needed.</p><p>The possibility of doing exploration is afforded by the second sampling method. Indeed, it can be done with the same computation cost starting at any position p. Therefore, we can add samples starting from a wide range of positions.</p><p>In practice what we do is to add to our pool of positions a random sampling of all the generated positions p i that come from various choices of cuts (x, y) that might not be the best possible ones. These may be obtained for example when we are doing the computations of samples for training N 2 .</p><p>The drawback of the second method is that it is entirely reinforcement-based, in other words it doesn't see to the end of the proof (the importance of doing that was first mentioned to me by D. Alfaya). Theoretically, in the long term after a lot of training, a pair of networks trained only using the second sampling method should generate the correct values, however it seems useful to include samples taken according to the first method too as a way of accelerating training.</p><p>The reader will be asking, why not combine the two methods and run a pruned proof for some steps starting from a position p and collect the sampling data from there. This is certainly another possibility, I don't know whether it can contribute an improvement to the training.</p><p>We next comment on the adaptive dropout mentioned above. In this problem, some positions generate a very significantly longer proof than others. Those are the ones that lead to large outcomes in the global proof, so it is better if the neural networks concentrate their training on these cases to some extent. Therefore, in making a pruned proof tree T it will be useful to prune in a way that keeps the nodes that are expected to generate larger sub-trees. This is measured using the existing network N . Thus, in pruning we prioritize (to a certain extent) keeping nodes v that have higher values of N (p(v)). These adaptive dropout proof trees are more difficult to use for estimating the global size of the proof, or at least I didn't come up with a good method to do that. Thus, the regular stochastic dropout method is also used, and sampling data is generating using the first sample method from both kinds of proofs.</p><p>Let us mention another technique to add exploration in the first method: we can use a randomized choice of proof strategy for the first part of a proof, then switch to the standard N 2 -based strategy in the middle, and only sample from nodes that are at or below the switching point.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="9">Network architecture</head><p>We describe here the architectures that are used for the neural networks N and N 2 . See <ref type="bibr" target="#b8">[9]</ref> for the fundamentals. We didn't do any systematic hyperparameter search over the possible architectures or possible parameters for the architectures. It could be said, however, that in the course of numerous iterations of this project, various architectures were tried and the one we present here seems to be a reasonably good choice with respect to some previous attempts. It is of course likely that a good improvement could be made.</p><p>The input in each case is the position p = (m, l, r, t) consisting of four boolean tensors of We remark that l is included even though it isn't the subject of any computation (as it corresponds to the fixed input φ at the root of the tree) because the neural network will be asked to treat several different initial values φ at the same time.</p><p>The tensors are taken of type torch.bool but are converted to torch.float at the start of N and N 2 .</p><p>We recall that the neural network treats a minibatch all at once, so the tensors have an additional dimension at the start of size L :=batchsize.</p><p>The output of N is a scalar value, so with the batch it is a tensor of size L. The output of N 2 is a tensor of size a × a whose value at (x, y) ∈ A × A represents the predicted value if the cut (x, y) is chosen. Here again an additional dimension of size L is appended at the start, so the output of N 2 is, in all, a tensor of size L × a × a.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="9.1">Input tensor</head><p>We would like to input the tensors m, l, r, t. These have sizes as follows, where L denotes the batchsize:</p><formula xml:id="formula_34">size m = L × a × a × (b + 1) size l = L × a × (b + 1) × 2 size r = L × (b + 1) × a × 2 size t = L × a × a × a × 2 .</formula><p>We would like to combine them together into an input vector that will make sense for learning.</p><p>Before doing so, they are converted from boolean values to float values, then normalized so that the sum of the values along the last dimension is 1. This normalization, corresponding to viewing the values more like probabilities than like booleans, was suggested by B. Shminke, see <ref type="bibr" target="#b1">[2]</ref>. It seems to improve performance.</p><p>As input into a fully connected layer, these tensors could just be flattened into vectors (i.e. tensors of size B × v) and concatenated. This would give an input of length v = a 2 (b + 1) + 4a(b + 1) + 2a 3 .</p><p>In order to preserve more of the tensor structure, we prepare the tensors for input into a 2-dimensional convolution layer. For this, we transform them into tensors of size L×f ×a×a by placing the dimensions that are different from a into the first "feature" variable, including the middle dimension of t here also, and expanding the l and r tensors by a factor of a to give them a size that is a multiple of a × a. We then concatenate these along the feature dimension.</p><p>More precisely, m will have (b + 1) features, l and r have 2(b + 1) features, and t has 2a features. Thus our input tensor is of size L × f × a × a where L is the batchsize and f = 5(b + 1) + 2a.</p><p>The choice of method to prepare the input tensor is the first necessary design choice.</p><p>Many possibilities were envisioned, including concatenation of various permutations of these tensors, and convolution layers of dimension 1, 2 or 3.</p><p>The method we choose to use depends of course on the processing to follow. The preparation method discussed above is not necessarily the best one but it seems to work pretty well.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="9.2">Data flow</head><p>The basic trade-offs that need to be considered are the question of how data flows through the layers, versus computational time for a forward pass, and also training time needed for calculation of the gradients and back-propagation.</p><p>We may illustrate this by looking at the idea of starting with a fully-connected or linear layer. Let's consider for example the case (a, b) = (5, 3). Then the fully flattened input dimension from above is v = a 2 (b + 1) + 4a(b + 1) + 2a 3 = 430. A fully connected layer towards n neurons that would be declared as follows:</p><p>self.linA = nn.Linear(430,n)</p><p>is going to involve 430n weight parameters (plus n bias parameters that we don't worry about). If we take, say n = 100 this gives 43000 parameters for this layer only. Furthermore, the problem of size of data goes down from 430 to 100 so it persists. On the other hand, we could take for example n = 32 and this would give 13760 weight parameters and yield a very manageable size of tensor to deal with further. The problem here is that it is trying to pack all the information from 430 values (that are either 0 or 1) into a 32 dimensional space. All further operations will depend only on the 32 parameters.</p><p>This constricts the flow of data into the network, something that we would like to avoid.</p><p>A similar consideration applies at the output stage. In the middle, some constriction might even be desireable as long as the data can also take a different path by "skip connections".</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="9.3">Convolution layers</head><p>It seems that we should be able to do better. If we start with a convolutional layer <ref type="bibr" target="#b8">[9,</ref><ref type="bibr" target="#b12">13,</ref><ref type="bibr" target="#b13">14]</ref>,</p><p>we notice (in the same example (a, b) = (5, 3)) that the number of features is f = 5(b + 1) + 2a = 30 spread over a 5 × 5 array. The first convolutional layers can therefore with no problem maintain or even increase this number of features.</p><p>The price here is that our set of a = 5 vectors has an ordering that is not based on any strong natural consideration. Therefore, the convolutional aspect needs to be higher in order to obtain a good mixing between the features at different locations (x, y).</p><p>It turns out that a weak ordering property is in fact obtained by our sieve process of choice of the initial matrix φ: the sieve process that we use will make a choice of ordering for each equivalence class of input, and our implementation has the property that it tends to put more 1's as we go towards one of the corners of φ. This is admittedly not a very convincing justification for why it would be natural to use a convolutional structure, so there is undoubtedly room for having a better architecture that takes into account the tensor property but without requiring an ordering ("graph neural networks" GNN could come to mind, see for example <ref type="bibr" target="#b7">[8]</ref> and the references therein).</p><p>In order to mix the values between different locations, we choose to use alternating convolution windows of sizes <ref type="bibr" target="#b4">[5,</ref><ref type="bibr" target="#b0">1]</ref> and <ref type="bibr" target="#b0">[1,</ref><ref type="bibr" target="#b4">5]</ref>. In a window of size <ref type="bibr" target="#b4">[5,</ref><ref type="bibr" target="#b0">1]</ref> it means that the output feature values at location (x, y) are obtained by combining together (using the convolution weight matrix) those of locations<ref type="foot" target="#foot_3">foot_3</ref> (x -2, y), (x -1, y), (x, y), (x + 1, y), (x + 2, y).</p><p>Window size <ref type="bibr" target="#b0">[1,</ref><ref type="bibr" target="#b4">5]</ref> means the same but with y. In our use cases, the number of values is a, usually ≤ 5, so convolution with these window values allows data to interact across the array.</p><p>An additional trick is available to reduce the number of parameters: grouped convolution.</p><p>That places the features into groups and applies a different convolution to each group. A grouped 2d convolution with a window of size [5, 1], with 8n input features, 8n output features and n groups, has n • 8 • 8 • 5 = 320n parameters, whereas the same non-grouped version would have 320n 2 parameters. The use of grouped convolution can allow us to maintain a good size of data flow through a layer, while diminishing the number of parameters and thereby improving the computational and training time. The grouped convolution layer of the previous paragraph is declared as follows: self.convA = nn.Conv2d(8*n,8*n,[5,1],padding = [2,0],padding_mode = 'circular',groups = n)</p><p>We note that the group idea can also be applied in a linear layer, by writing the linear layer as a 1d convolution that is going to be applied on a trivial one-element array.</p><p>The reader is referred to the program source for the precise specifications of the neural networks. Pytorch notation is sufficiently self-explanatory that it should be straightforward to understand.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="10">Examples</head><p>In this section we show the graphs of results of some runs of our networks on various cases.</p><p>The value of σ indicates the choice of initial instance φ ∈ Σ. The captions include information on the number of trainable parameters in the global and local networks, and the numbers of iterations in the loops of training operations and sample proofs.</p><p>Each graph is done from a "cold start", the networks beginning with their standard random initialization.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="10.1">Training segments</head><p>A given phase of training involves a succession of loops with various mini-batch sizes and numbers of gradient descent steps per minibatch. Such a "training segment" involves the good result is obtained by taking the following order: first (0, 0), then (1, 1), then (1, 0), then (0, 1), then continuing with the remaining (x, y) in lexicographic order starting with (0, 2).</p><p>That strategy was found almost by accident. It seems to give a reasonable baseline number for comparison, which in some cases is the minimum. The learning mechanism is able to do better (or just as well when it is the minimum). whereas the second graph gives various loss functions of the training as the machine evolves.</p><p>Several loss data points are taken in between each pair of proofs, so the horizontal labels aren't the same. The purple curve represents some noise that is added in the training process, as we imagine could be useful loosely following <ref type="bibr" target="#b1">[2]</ref>.</p><p>In  Here is a case for size (a, b) = (4, 2), with σ = 5.</p><p>Here the minimal value attained, at proof number 61, is 2773. We don't know how far that might be from the theoretical minimum. we saw in 10.3 above. It is natural to conjecture that this is in fact the theoretical minimum for the number of nodes in the proof.</p><p>In view of the small size of this example it was feasible to find the minimal size and show that it is indeed 37. We calculate the theoretical minima for all cases of size (a, b) = (3, 2).</p><p>Note that these proofs use the profile filter and half-ones filter (see 4.1). For certain values such as σ = 3 it wasn't possible to find the minimum without the filters, since the depth becomes too big, for example the benchmark number of nodes for σ = 3 without additional filters is 537.</p><p>Theorem 11.1. For the case a = 3 and b = 2, the minimal number of nodes ν min in a classification proof according to our scheme is given in the following table:</p><p>σ 0 1 2 3 4 5 6 7 8 9 10 11 12 ν min 9 21 23 37 11 5 3 5 3 11 3 3 17</p><p>Our pair of neural networks configured and trained as described in previous sections is able to find a minimal proof in each case. The minimum for all σ instances together is 151, and the model is able to find this value, although sparsely (see the graphics in 10.3 above).</p><p>Proof.</p><p>[Indication] We calculate the minimal size of proof ν min in the following way. We successively create a tree-like object where each vertex corresponds to the result of a succession of cuts with its associated mask. Below a vertex v are new vertices corresponding to each of the locations (x, y, p) that are available in the mask associated to v, and at which we place the masks resulting from cutting at (x, y, p) then processing. Vertices corresponding to done or impossible masks are not included. As this object is being created, we also run the proof model on each new set of vertices. This gives an upper bound for the number of nodes below a given one in the proof. The lower bound on new vertices is set to 1. The upper and lower bounds are then propagated upwards in the tree, by the rule that the number of nodes associated to the cut (x, y) at a vertex v, is the sum over p of the number of nodes at each available (x, y, p). Then, the number of nodes associated to v is equal to the minimum of these values over available (x, y), plus 1 for v itself. This propagation is the same for the lower and upper bounds.</p><p>The tree is furthermore pruned at each successive step by the following rules: if a vertex gets a lower bound equal to its upper bound then it is removed from play. Also, if a collection of vertices associated to (x, y) yield a lower bound that is greater than the minima of the upper bounds over all (x, y) under a given vertex, then that collection of vertices will not yield anything useful and they are pruned.</p><p>We note that the pruning is essential-otherwise the size of the tree needed to calculate the minimum would be way too big.</p><p>In the pruning process, a very small improvement may be seen by using our proving scheme and trained model, as opposed to using the benchmark heuristic strategy, to calculate the upper bounds. It is not essential to use this improvement, though.</p><p>The tree extension, proof computation, propagation and pruning steps are repeated until the lower bound and upper bound at the root vertex coincide, this is then the minimal value.</p><p>For runtime reasons, we calculated separately the bounds for the 27 vertices obtained after the first cut.</p><p>Warning: my implementation of the above strategy of proof is not certified to correct, so this should only be considered as an indication of proof. These minimal values do agree with the smallest values found by the neural networks, so it seems likely that they are correct.</p><p>To illustrate the procedure, and also to highlight what the the neural networks need to do to find a minimal proof, here are the matrices giving numbers of nodes depending on the initial cut location (x, y) at the root. The minimal value for the instance σ is then</p><formula xml:id="formula_35">ν min = k + 1</formula><p>where k is the minimal value of the entries in the matrix. The +1 is for the root node itself. The table entries refer to the number of nodes at the values p = 0, p = 1 and p = 2. Thus, 14 + 10 + 12 indicates 14 nodes for p = 0, 10 nodes for p = 1 and 12 nodes for p = 2. The table says, for example, that the count of nodes at (x, y, p) = (0, 0, 0) is 13, whereas the count for (x, y, p) = (1, 2, 0) is 14.</p><p>As pointed out before, the sums are 36 independently of (x, y). Adding one for the root node gives the desired value of 37 nodes for the full proof at σ = 3.</p><p>Continue by looking at the node values for the next choice of cuts in a sample case. We'll consider a node v obtained at location (x, y, p) from the first choice of cut. Recall that a choice of cut is a choice of (x, y) yielding in this case three vertices below corresponding to (x, y, 0),(x, y, 1) and (x, y, 2).</p><p>Here are some matrices (n x ,y ) that give the number of nodes (but not including 1 for v, that is added into ν min ) corresponding to a second cut (x , y ). The values (x , y ) corre-sponding to the previous cut are naturally unavailable.</p><p>• vertex from first cut at (0, 0, 0), lower bounds for next cut: These are going to enter into the full minimum value at the cut location (x, y) = (0, 0).</p><p>In the first and third cases, the neural network has to choose correctly the next cut in order to get a minimal value.</p><p>The program that does the minimality proof of Theorem 11.1 will obtain the analogous information at all nodes of the possible proof trees that aren't discarded as not being in the running for minimal ones. I don't have a good method for visualizing all the information. This completes our summary of the computations that go into the minimality proof.</p><p>12 Addendum: The process function</p><p>We record here the pytorch functions written to go into the process function of Section 4, the function that implements logical consequences of the associativity axiom on positions of a classification proof. As well as being things that one should verify, these programs serve to illustrate how to use boolean tensor manipulations under pytorch to replace for...next loops, a technique used systematically in order to improve the computation speed.</p><p>A few minor modifications are made for readability. The function arangeic is the function arange, that is to say the sequence of consecutive integer values starting from 0 of the given length, placed onto the required device (CPU or GPU if available). We note that prod, left, right and ternary are the tensors denoted m, l, r and t in Section 4, as contained in the position represented by a dictionary Data with length denoting the batchsize.</p><p>Dimension 0 of all tensors is the batch dimension.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><figDesc>This work has been supported by the French government, through the 3IA Côte d'Azur Investments in the Future project managed by the National Research Agency (ANR) with the reference number ANR-19-P3IA-0002. This project received funding from the European Research Council (ERC) under the European Unions Horizon 2020 research and innovation program (Mai Gehrke's DuaLL project, grant agreement 670624). This research was supported in part by the International Centre for Theoretical Sciences (ICTS) during a visit for participating in the program "Moduli of bundles and related structures" (ICTS/mbrs2020/02). This material is based upon work supported by a grant from the Institute for Advanced Study. The program in Pytorch was developed and run with the help of Google Colaboratory. I would like to thank the many people whose input into this work has been essential. This work fits into a global project with participation by, and/or discussions with: David Alfaya, Edouard Balzin, Boris Shminke, Samer Allouch, Najwa Ghannoum, Wesley Fussner, Tomáš Jakl, Mai Gehrke, Michael and Daniel Larsen, and other people. I would like to thank Sorin Dumitrescu for the connection to the 3ia project that started off this research. Discussions with Paul-André Melliès, Hugo Herbelin and Philippe de Groote provided important motivation. Other valuable comments have come from discussions with Geordie Williamson, Pranav Pandit, Daniel Halpern-Leistner, Charles Weibel, Paul Valiant, François-Xavier Dehon, Abdelkrim Aliouche, and André Galligo and his working group on AI, in particular talks by Pierre Jammes and Mohamed Masmoudi. I would like to thank Jean-Marc Lacroix and Roland Ruelle for their help. I would particularly like to thank Alexis Galland, Chloé Simpson and Léo Simpson for many discussions about machine learning, optimization, and programming.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><figDesc>1 below. A next question is the choice of ordering of the sets A and B. For the computer program, a set with a elements is A = {0, . . . , a -1}. Similarly B = {0, . . . , b -1}. We let the "zero" element of B 0 correspond to the integer b so B 0 = {0, . . . , b} containing the subset B indicated above. We'll denote this element by 0 B in what follows, in other words 0 B corresponds to the integer b ∈ {0, . . . , b}.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>C</head><figDesc>min (p) := |T min (p)|. Suppose p is an active position and (x, y) is an allowable cut for p. Let p 1 , . . . , p k be the new positions generated by this cut. Define C min (p; (x, y)) := C min (p 1 ) + • • • + C min (p k ). Lemma 6.1. If T = T min (p) is a minimal proof tree and v is a node of T with position q then T (v) = T min (q)</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><figDesc>so combining with the lemma we get |T (v)| = 1 + C min (p; (x, y)). Similarly |T (v)| = 1 + C min (p; (x , y )). The minimizing strategy says that these are both the smallest values among all choices of cuts (x, y). In particular they are equal, which shows that |T (v)| = |T (v)|. If we now consider a minimal tree T min (p) starting from the position p corresponding to v, it starts with a cut (x , y ) and we have |T min (p)| = 1 + C min (p; (x , y )) by the lemma. But this value has to be the smallest value among the choices of cuts (x, y)</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><figDesc>sizes a × a × (b + 1), a × (b + 1) × 2, (b + 1) × a × 2 and a × a × a × 2 respectively. Recall that we are interested in the set B 0 that has (b + 1) elements. Also, [I 0 | = 2 explaining the values of 2 in the last three tensors. In the program, the quadruple of tensors is packaged into a dictionary.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>10. 3</head><label>3</label><figDesc>Size<ref type="bibr" target="#b2">(3,</ref><ref type="bibr" target="#b1">2)</ref> We start by looking at size (a, b) = (3, 2). Consider an easy initial instance, σ = 4. The number of nodes stabilizes at 11, that will be shown to be the minimum in Theorem 11.1.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><figDesc>Section 11 we'll discuss in more detail all 13 instances σ for size (a, b) = (3, 2). The most difficult case is σ = 3: It looks like the theoretical minimum is 37, which is indeed the case, as we show in Theorem 11.1 below. The other values of σ are generally easier to treat individually, yielding pictures more akin to the ones for σ = 4. We record next the result of looking at the full collection of proofs with all the 13 initial values of σ simultaneously. The theoretical minimum value of 151 (see Theorem 11.1) is attained at several proofs (numbers 57, 63, 81, 90, 100), although the model has a tendency to stabilize around a slightly higher value.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head>10. 4</head><label>4</label><figDesc>Size<ref type="bibr" target="#b3">(4,</ref><ref type="bibr" target="#b1">2)</ref> </figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_8"><head>10. 6</head><label>6</label><figDesc>Size<ref type="bibr" target="#b3">(4,</ref><ref type="bibr" target="#b4">5)</ref> Here is a sample case for size (a, b) = (4, 5), namely σ = 22. Again, this 22 is the first in the range of suggested locations (cf 4.1). This training and proving process, for a cycle of 50 proofs, took 2 hours 35 minutes on a Google Colab GPU. global local Recall that training data for N 2 includes the rank plus the score, see the modification 7.1, that is why it doesn't appear all that accurate even at this stage. The (4, 5) case concerned semigroups of size 11. There are 1053 possible instances σ, but the later values are expected to correspond to shorter proofs, so the instance σ = 22 that was treated here should be at the high end of proof size.10.7 Generalization: skipping a value for training In order to test the capacity for generalization, we can also do the following: train on all the values in a certain segment, except skipping one value, then test this by doing proofs at the value that was skipped. Here is the result for the case of (a, b) = (3, 2), training on all values except σ = 5 and proving for σ = 5:</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_10"><figDesc>min = 17Note that for σ instances 0, 3 and 12 the of nodes doesn't depend on the first cut. Of course it depends on subsequent cuts.Let us consider this question in further detail for the case σ = 3. Node counts depending on the first cut location are as follows:</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_11"><head>ν min = 13 •ν min = 10 •</head><label>1310</label><figDesc>vertex from first cut at (0, 0, 1), lower bounds for next cut: vertex from first cut at (0, 0, 2), lower bounds for next cut:</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="37,89.56,125.80,398.40,210.40" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="37,89.56,337.19,404.80,210.40" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="39,89.56,125.80,408.40,210.40" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="39,89.56,337.19,404.80,210.40" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="40,89.56,479.27,398.40,210.40" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="41,89.56,125.80,404.80,210.40" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="42,89.56,125.80,403.60,210.40" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="42,89.56,337.19,406.00,210.40" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="43,89.56,125.80,406.00,210.40" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="43,89.56,337.19,408.40,210.40" type="bitmap" /></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_0"><p>We also don't count the potential steps that might be needed to determine ψ once µ is fixed, that seems to be mostly negligeable for the sizes under consideration.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="3" xml:id="foot_1"><p>Actually, the training segment of the program does include a small weight for the impossible or done nodes with the hope of improving stability, but this isn't counted in the official number of nodes for a proof.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="4" xml:id="foot_2"><p>Attempts to get such an estimate haven't currently worked very well at all, it seems to be a nontrivial question in highly unbalanced statistics. In case of success, the stochastic dropout proof trees could then be used to estimate the size of the N 2 -minimizing proof and trigger an "early stopping" of the training process.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="5" xml:id="foot_3"><p>With circular padding the locations in the window are taken modulo a.</p></note>
+		</body>
+		<back>
+
+			
+			<div type="acknowledgement">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>The program source is available at <ref type="url" target="https://github.com/carlostsimpson/sg-learn">https://github.com/carlostsimpson/sg-learn</ref> and might be bundled with this preprint.</p></div>
+			</div>
+
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>We then follow the strategy cut N 2 (p) := (x, y) attaining a minimum of N 2 (p; (x, y)).</p><p>Clearly, if N 2 accurately coincides with N 2 then cut N 2 (p) = cut min (p) and we obtain a minimizing strategy.</p><p>The neural networks are trained in the following manner. First suppose we are given N 2 .</p><p>Then, let T N 2 (p) be the proof tree obtained by following the cut strategy cut N 2 (p) (in case of a tie, unlikely because the values are floating-point reals, the computer determines the minimum here by some algorithm that we don't control). On the other hand, suppose we are given N . Then for any position p and allowable cut (x, y), let p 1 , . . . , p k be the generated positions. We define N 2 [N ](p; (x, y)) := log 10 (1 + 10 N (p 1 ) + . . . + 10 N (p k ) ).</p><p>We would like to train N and N 2 conjointly to approximate the values of N [N 2 ](p) and N 2 [N ](p; (x, y)) respectively. The training process is iterated to train N , then N 2 , then N , then N 2 and so forth. Theorem 7.1. If such a training is completely successful, that is to say if we obtain N, N 2 that give perfect approximations to their target values, then</p><p>and cut N 2 (p) = cut min (p). Then, the proof tree created using the strategy dictated by N 2 is a minimal one.</p><p>Proof. We define the following inductive invariant D(p) for any position p: let D(p) be the maximum depth of any proof tree starting from p. We note that if (x, y) is any cut allowable at p and if p k (x, y) denote the new positions after making that cut (and processing) then D(p k (x, y)) &lt; D(p). Indeed, given a proof tree for p k (x, y) with depth D(p k (x, y)) we can plug it into a proof tree for p that has depth D(p k (x, y)) + 1.</p><p>v is a dropped (hence still active) node in T (v) then we add</p><p>into the estimation of the size of T N 2 (p(v)). This is to say that</p><p>where the sum is over the dropped nodes v that are leaves of T (v). We now add the pair</p><p>as a sample point in the training data for N .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="8.2">Second method</head><p>The second method is a one-step version of the first method. Given a position p, we use N 2 to choose the N 2 -minimizing cut (x, y) for p. Let p 1 , . . . , p k be the positions that are generated from the cut (including doing processing i.e. p i = process(p i ) from the raw positions p 1 , . . . , p k ). Then we put</p><p>where more precisely if p i is either done or impossible then the term 10 N (p i ) is replaced by the corresponding weight value that we are assigning to this case. We then add the pair</p><p>as a sample point in the training data for N .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="8.3">Sampling issues</head><p>The first method of generating samples has the property that the generated samples are in the set of positions that are encountered in an N 2 -minimizing proof. Notice that the pruned proof tree T would be a part of a full proof tree made using the N 2 -minimizing choice of cuts cut N 2 (p) at each position p. This is both useful and problematic. Useful, because in calibrating a minimal proof we are most interested in the positions that occur in that proof. In all this gives, for each training segment, the following numbers:</p><p>• for the global network, 21 minibatches with 780 samples and 194 gradient descent steps</p><p>• for the local network, 19 minibatches with 660 samples and 135 gradient descent steps.</p><p>All of these choices are arbitrary. The basic idea is to overtrain at the start of the training segment, doing a high number of gradient descent steps on a small minibatch, then to train more gradually towards the end of the segment. The gradual part is included at the end because the networks will be used for further proofs (either sampling or doing the actual proofs) only at the end of the training segment. I couldn't say how good these choices are.</p><p>In the early stages of training, noise was added between the input layer and the network, and the network weights were perturbed slightly at the outset of each stage.</p><p>In the diagrams shown below, the caption gives the number of basic loop iterations per proof, and the number of training segments per basic loop. Therefore, the total number of gradient descent steps (resp. samples) in between each pair of proofs will be the product of the above values (194 or 135, resp. 780 or 660) by the number of basic loop iterations and then by the number of training segments per basic loop.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="10.2">Heuristic benchmark</head><p>For comparison, we give the results of an heuristic benchmark strategy (horizontal line on the graphs). This strategy is obtained by choosing an ordering of the locations (x, y) and just following the rule of making a cut at the first available location. It turns out that a pretty</p><p>We conjecture that the theoretical minimum in this case is the value 22 that is attained first at proof number 6 and often at the end.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="10.5">Size (5, 3)</head><p>Here is a sample case for size (a, b) = (5, 3), namely σ = 7, the first one in the range of "suggested locations" (cf 4.1).</p><p>We don't know how far that might be from the theoretical minimum.</p><p>The number of nodes in the proof tree is of the same order of magnitude as the number </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="10.8">Other sizes</head><p>We include here a few graphs of node numbers for various other sizes. See the captions of the diagrams to describe the individual cases. The loss graphs aren't included, as they look fairly similar to the ones above.</p><p>In the last case, concerning semigroups of size 10 with a segment of instances σ of length 10, the total number of parameters of both networks is 113814, whereas the number of nodes in the proof is more than 160000.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="11">Proof of minimality</head><p>We now go back to smaller values of (a, b), namely let's look at the case a = 3 and b = 2.</p><p>There are 13 instances of σ for initiating the proof. If we choose one of the ones with a larger proof size, namely σ = 3, the training process seems to lead to a minimum of nodes = 37 as 1. In the modifyternaryStep we insert 0 into ternary at location x, y, z, i (for x, y, z ∈ A and i ∈ I 0 ) whenever, for all p ∈ B 0 such that prod(x, y, p) = 1 we have right(p, z, i) = 0 and similarly using left. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>2.</head><p>In the modifyleftrightStep we insert 0 into right at location p, z, i (for p ∈ B 0 , z ∈ A and i ∈ I 0 ) whenever there exist x, y ∈ A such that the product x • y is uniquely defined equal to p and ternary(x, y, z, i) = 0, and similarly for left.</p><p>[Additional linebreaks are inserted at the nleft0, nleft1, nright0, nright1 lines below so it fits on the page.]  </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>3.</head><p>In the modifyprodStep we insert 0 into prod at location x, y, p (for x, y ∈ A and p ∈ B 0 ) whenever, there exists z ∈ A and i ∈ I 0 = {0, 1}, such that right(p, z, i) = 0 and ternary(x, y, z, (1 -i)) = 0 (we note that if those exist and if x • y = p then x • y • z can't be either i or (1 -i), ruling out that possibility so x • y = p). Similarly for left. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>4.</head><p>These functions, serving to add some additional 0's to our tensors due to the associativity axiom, are put together in the process function. The text below contains some previously defined things with relatively self-explanatory names for which we refer to the program source. Note that the process is repeated until no new 0's are found (measured by knowledge), and we do the repetition on subsets of the batch in order to save computation time (the batch size might start out as 500 but maybe only a few locations require multiple iterations of the process). </p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Learning selection strategies in Buchberger&apos;s algorithm</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Peifer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Stillman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Halpern-Leistner</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Machine Learning</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page" from="7575" to="7585" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<author>
+			<persName><forename type="first">E</forename><surname>Balzin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Shminke</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2103.07388</idno>
+		<title level="m">A neural network for semigroups</title>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Machine learning in the string landscape</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Carifio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Halverson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Krioukov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Nelson</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of High Energy Physics</title>
+		<imprint>
+			<biblScope unit="issue">9</biblScope>
+			<biblScope unit="page" from="1" to="36" />
+			<date type="published" when="2017">2017. 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">The monoids of orders eight, nine &amp; ten</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">T</forename><surname>Distler</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Kelsey</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Annals of Mathematics and Artificial Intelligence</title>
+		<imprint>
+			<biblScope unit="volume">56</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="3" to="21" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">The semigroups of order 10</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Distler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Jefferson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Kelsey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Kotthoff</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Principles and Practice of Constraint Programming</title>
+		<meeting><address><addrLine>Berlin; Heidelberg</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="883" to="899" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<author>
+			<persName><forename type="first">A</forename><surname>Distler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Mitchell</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1201.3529</idno>
+		<title level="m">The number of nilpotent semigroups of degree 3</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Algorithms for computing finite semigroups</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Froidure</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J.-E</forename><surname>Pin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Foundations of Computational Mathematics</title>
+		<imprint>
+			<biblScope unit="page" from="112" to="126" />
+			<date type="published" when="1997">1997</date>
+			<publisher>Springer</publisher>
+			<pubPlace>Berlin; Heidelberg</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">Application du deep learning pour la représentation de graphes à différentes échelles</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Galland</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">Doctoral dissertation</note>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Courville</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Deep learning</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<date type="published" when="2016">2016</date>
+			<publisher>MIT press</publisher>
+			<pubPlace>Cambridge</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">On the number of bi-colored graphs</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Harary</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Pacific J. Math</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="page" from="743" to="755" />
+			<date type="published" when="1958">1958</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<author>
+			<persName><forename type="first">Yang-Hui</forename><surname>He</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1706.02714</idno>
+		<title level="m">Deep-learning the landscape</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<monogr>
+		<author>
+			<persName><forename type="first">K</forename><surname>Heal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kulkarni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">C</forename><surname>Sertöz</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2007.13786</idno>
+		<title level="m">Deep learning Gauss-Manin connections</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<title level="m" type="main">A convolutional neural network for modelling sentences</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Kalchbrenner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Grefenstette</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Blunsom</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1404.2188</idno>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Imagenet classification with deep convolutional neural networks</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Krizhevsky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Sutskever</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Advances in neural information processing systems</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="page" from="1097" to="1105" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<author>
+			<persName><forename type="first">N</forename><surname>Pičuljan</surname></persName>
+		</author>
+		<ptr target="https://www.toptal.com/deep-learning/pytorch-reinforcement-learning-tutorial" />
+		<title level="m">Schooling Flappy Bird: A Reinforcement Learning Tutorial</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<author>
+			<persName><forename type="first">J.-E</forename><surname>Pin</surname></persName>
+		</author>
+		<title level="m">Mathematical Foundations of Automata Theory. Lecture notes LIAFA</title>
+		<imprint>
+			<publisher>Université Paris</publisher>
+			<date type="published" when="2010">2010</date>
+			<biblScope unit="page">7</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Mastering the game of Go with deep neural networks and tree search</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Silver</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">J</forename><surname>Maddison</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Guez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Sifre</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Van Den Driessche</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Schrittwieser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Antonoglou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Panneershelvam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lanctot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Dieleman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Grewe</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Nham</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Kalchbrenner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Sutskever</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Lillicrap</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Leach</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Kavukcuoglu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Graepel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Hassabis</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<biblScope unit="volume">529</biblScope>
+			<biblScope unit="issue">7587</biblScope>
+			<biblScope unit="page" from="484" to="489" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<title level="m" type="main">Mastering chess and shogi by self-play with a general reinforcement learning algorithm</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Silver</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Hubert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Schrittwieser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Antonoglou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Guez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lanctot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Sifre</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Kumaran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Graepel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Lillicrap</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Simonyan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Hassabis</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1712.01815</idno>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title level="m" type="main">The online encyclopedia of Integer sequences, entry A028657: Triangle read by rows: T(n,k) = number of n-node graphs with k nodes in distinguished bipartite block</title>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">J A</forename><surname>Sloan</surname></persName>
+		</author>
+		<imprint>
+			<biblScope unit="page">0</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<monogr>
+		<author>
+			<persName><forename type="first">A</forename><surname>Wagner</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2104.14516</idno>
+		<title level="m">Constructions in combinatorics via neural networks</title>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<title level="m" type="main">Université Côte d&apos;Azur, LJAD carlos.simpson@univ-cotedazur</title>
+		<author>
+			<persName><forename type="first">Carlos</forename><surname>Simpson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cnrs</forename></persName>
+		</author>
+		<imprint>
+			<pubPlace>Nice, France</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Optimal Algorithms for Ski Rental with Soft Machine-Learned Predictions</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Rohan</forename><surname>Kodialam</surname></persName>
+							<email>kodialam@mit.edu</email>
+							<affiliation key="aff0">
+								<orgName type="institution">Massachusetts Institute of Technology</orgName>
+								<address>
+									<settlement>Cambridge</settlement>
+									<region>MA</region>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Optimal Algorithms for Ski Rental with Soft Machine-Learned Predictions</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">049167595678E7BBA0E4B647ACDA3929</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>We consider a variant of the classic Ski Rental online algorithm with applications to machine learning. In our variant, we allow the skier access to a black-box machine learning algorithm that provides an estimate of the probability that there will be less than a threshold number of ski-days. We derive a class of optimal randomized algorithms to determine the strategy that minimizes the worst-case expected competitive ratio for the skier given a prediction from the machine learning algorithm, and analyze the performance and robustness of these algorithms.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Online decision-making problems fundamentally address the issue of dealing with the uncertainty inherently present in the future. In broad terms, these problems can be addressed in two ways. First, a predictive approach like a machine learning algorithm can be used to guess at future events and to act accordingly. This method, while clearly powerful, has the drawback that it is very difficult to make any guarantees about the performance of the algorithm.</p><p>Another paradigm for solving these problems is to use competitive analysis to guarantee a bound on the performance of a given algorithm. In this approach, we consider some cost function and note the cost that would be incurred by an omniscient algorithm that could access future data. Then, we compare this optimal omniscient cost to the worst-case cost of an online algorithm which cannot use future data. By bounding the ratio of these two costs, a guarantee can be made as to how well the online algorithm will perform in terms of the performance of an omniscient algorithm.</p><p>A classic problem in competitive analysis is the Ski Rental Problem. In this problem, a skier must decide whether to rent skis at a rate of $1 per day, or to buy skis at a price of $B. The uncertainty lies in the number of ski days left in the season -if there are very few days, it is optimal to rent the skis. On the other hand, if there are many ski days it may be more cost-effective to buy the skis outright. This simple paradigm extends to various practical problems, such as a firm deciding between purchasing servers or using an on-demand cloud computing solution to provide the computational power needed to satisfy an unknown future demand.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.1">Prior Work &amp; Our Contribution</head><p>Recent work has shown promising results in combining the predictive and competitive-analysis paradigms for approaching online problems, with applications to various fields <ref type="bibr" target="#b0">[1,</ref><ref type="bibr" target="#b1">2,</ref><ref type="bibr" target="#b4">5,</ref><ref type="bibr" target="#b7">8]</ref>. In this paper, we consider the problem of using predictions from a machine learning algorithm to improve the Ski Rental online algorithm in a novel way. Past work has dealt with the case of a direct prediction of the number of ski days and using this prediction to make a binary decision on whether there will be more or less than B ski days <ref type="bibr" target="#b0">[1]</ref>. This work also establishes a useful model in which the combination of a confidence parameter λ and a prediction of whether there will be more or less than B ski days is used to construct a strategy with guarantees on the expected competitive ratio both when the prediction is correct and when it is wrong -this paradigm effectively captures the need to measure the robustness of any algorithm that uses potentially erroneous data provided by a learning algorithm.</p><p>We note that many machine learning algorithms such as neural nets make hard predictions (i.e. there are at most B ski days) by thresholding a soft prediction. That is, in order to predict if event E will occur, a typical machine learning algorithm will estimate the probability that E occurs, and predict that E will occur if this probability is greater than 1 /2. In the context of the Ski Rental problem, predicting if there will be more or less than B ski days then necessitates predicting the probability that there will be at most than B ski days.</p><p>In this paper, we present a more general result in which we allow the skier to use a black-box machine learning algorithm to get a prediction on the probability that there will be at most B ski days. We then find the optimal randomized algorithm that the skier should use to minimize the expected worst-case competitive ratio as compared to an omniscient optimal algorithm. In section 2.1 we explicitly find the expected competitive ratio attained by our machine learning augmented algorithm. Furthermore in section 2.3, we address the issue of robustness and explicitly find worst-case bounds on the expected competitive ratio of our algorithm when it uses erroneous predictions.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.2">The Ski Rental Problem</head><p>The Ski Rental problem is often stated as a discrete problem -for ease of computation we define and use the following continuous analogue as our model. We consider a skier who chooses at each moment of time t whether to rent skis at a rate of 1 dollar per unit time, or to buy the skis for B dollars. We denote the moment the skier buys the skis by x. The skier's challenge is that the amount of time y that skiing is possible is unknown. In the offline case, we allow the skier access to y. By inspection, the optimal solution is then to rent until y if y &lt; B and to buy immediately (i.e. pick x = 0) otherwise -this strategy will incur a cost of OP T (y) = min(y, B).</p><p>To measure the performance of an online algorithm, we use the metric of the worst-case expected competitive ratio, which we can informally define as the expected ratio between the worst-case cost of our online algorithm and the cost incurred by an optimal omniscient algorithm that knows the future. While this is not the only metric possible and other metrics like the average-case competitive ratio of <ref type="bibr" target="#b6">[7]</ref> may give more optimistic results, this metric allows us to account for worst case behaviour and is thus very robust. We now formally define the worst-case competitive ratio.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.3">The Competitive Ratio</head><p>To get a worst-case measure of performance, we introduce an adversary who chooses y in order to maximize the skier's cost. We note that both the skier and the adversary may use probabilistic strategies to decide on x and y respectively. Thus, the spaces of strategies for the skier and the adversary are</p><formula xml:id="formula_0">P = p(x) such that p(x) ≥ 0 ∀ x, ∞ 0 p(x)dx = 1 and Q = q(y) such that q(y) ≥ 0 ∀ y, ∞ 0 q(y)dy = 1</formula><p>respectively. Let C(x, y) denote the cost incurred by the skier when the skier plays pure strategy x and the adversary plays pure strategy y -this cost will be</p><formula xml:id="formula_1">C(x, y) = x + B x &lt; y y x ≥ y<label>(1)</label></formula><p>and as before the optimal offline cost that could have been incurred will be</p><formula xml:id="formula_2">OP T (y) = B y ≥ B y y &lt; B .</formula><p>We measure the performance of an algorithm by the competitive ratio defined by the ratio of the cost incurred by the algorithm to the optimal offline cost, thus the competitive ratio for pure strategies x and y is given by</p><formula xml:id="formula_3">CR(x, y) = C(x, y) OP T (y) .<label>(2)</label></formula><p>The metric of interest for a strategy p is how well it fares in expectation against an optimal adversary. Thus, for any strategy p we define the worst case expected competitive ratio by J(p) = max q∈Q CR(x, y)p(x)q(y)dxdy.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.4">Reducing the Adversary's Strategy Space</head><p>In the previous section, we allowed the adversary to choose any strategy in the space Q, which is the space of all valid probability distributions with support [0, ∞). We now perform a brief game-theoretic analysis to find a smaller space of strategies that the adversary will always choose from. In doing so, we interpret the Competitive Ratio as the payoff of a zero sum game played by the adversary and the skier as in <ref type="bibr" target="#b5">[6]</ref>. Then, using techniques similar to those in <ref type="bibr" target="#b8">[9]</ref>, we can find pure strategies for the adversary that are strictly dominated by other pure strategies, and thereby eliminate these dominated pure strategies from the adversary's strategy space.</p><p>Consider y ≥ B, and some y &gt; y. Then,</p><formula xml:id="formula_4">CR(x, y) = 1 B x + B x &lt; y y x ≥ y and CR(x, y ) = 1 B x + B x &lt; y y x ≥ y = 1 B    x + B x &lt; y x + B y ≤ x &lt; y y x ≥ y</formula><p>We can thus observe that when x ∈ (0, y), CR(x, y ) = CR(x, y). When x ∈ [y, y ), CR(x, y ) =</p><p>x B + 1 ≥ y B + 1 &gt; y B = CR(x, y). Finally, for x ∈ [y , ∞), CR(x, y ) = y B &gt; y B = CR(x, y). Thus, for all x, CR(x, y ) ≥ CR(x, y) and for some x (namely, those in [y, ∞)), CR(x, y ) &gt; CR(x, y). We thus conclude that for the adversary, any strategy y ≥ B is dominated by a strategy y &gt; y and thus we can reduce the space of choices of y from distributions with support [0, ∞) to those with support [0, B) ∪ {∞}, where y = ∞ represents the case where there are infinite ski days.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Finding the Optimal Strategy with Information</head><p>Our model of the Ski Rental problem as a zero-sum game has the added benefit that constraints on the distribution of ski days can be interpreted as constraints on the strategy space Q of the adversary. As explained before, we constrain the probability of the number of ski days being at most B. Let this probability be α -then, the strategy space for the adversary becomes</p><formula xml:id="formula_5">Q α = q(y) such that q(y) ≥ 0 ∀ y ∈ [0, B], B 0 q(y)dy = α .</formula><p>That is, the adversary can choose a distribution with total probability α between 0 and B, and must allocate the remaining 1 -α probability to the case of y = ∞.</p><p>To find the best strategy for the skier, we seek to find p ∈ P that is the minimizer over all p ∈ P of</p><formula xml:id="formula_6">J(p; α) = max q∈Qα C(x, y) OP T (y)</formula><p>p(x)q(y)dxdy.</p><p>To do so, we first fix an arbitrary value of y ∈ [0, B]. Then, let C(p, y) be the expected cost incurred if there are y ski days and if the day x on which skis are bought is distributed as p:</p><formula xml:id="formula_7">C(p, y) = y 0 (x + B)p(x)dx + ∞ y yp(x)dx</formula><p>The expected competitive ratio will therefore be</p><formula xml:id="formula_8">B 0 C(p, y) y q(y)dy + q(∞) ∞ 0 x + B B p(x)dx</formula><p>We now use the constraint that B 0 q(y)dy = α and associate a Lagrange multiplier λ with this constraint. Since q must be a normalized PDF, this implies that q(∞) = 1 -α. Thus, the adversary's problem becomes</p><formula xml:id="formula_9">max q B 0 ( C(p, y) y -λ)q(y)dy + (1 -α) ∞ 0 x + B B p(x)dx + αλ</formula><p>The Lagrange dual to this problem will then be to minimize We note that this result should hold for all y ∈ [0, B], so we can take two derivatives of this relation with respect to y to find that ∂ 2 y C(p, y) = 0. This gives the differential equation B∂ x p(x) = p(x), which implies p(x) = Ke x B for some constant K. We note that in order for this p(x) to be a PDF, it must have support only in some interval [0, a). Then, we can write the distribution as</p><formula xml:id="formula_10">L = (1 -α) ∞ 0 x + B B p<label>(</label></formula><formula xml:id="formula_11">p(x) = e x B</formula><p>B(e a/B -1)</p><formula xml:id="formula_12">if 0 ≤ x &lt; a 0 otherwise<label>(3)</label></formula><p>We make the following observations about limiting cases of the problem: First, as α goes to 0, it is certain that there will be more than B snow days, and thus the optimal strategy is to buy skis immediately. This would mean a → 0. On the other hand, if α goes to 1 there will be less than B snow days, so the optimal strategy is to never buy. This effectively means that the designer will choose to buy on a very large day, and as such a should go to ∞. For ease of notation, we let z = a b . Then, we can rewrite the objective function value as</p><formula xml:id="formula_13">L(z) = e z (z + α(1 -z)) (e z -1) .<label>(4)</label></formula><p>The dual objective is minimized by varying z, and taking a derivative with respect to z gives</p><formula xml:id="formula_14">∂ z L(z) = - e z (-αz + (α -1)e z + z + 1) (e z -1) 2 .</formula><p>Thus, the minimizing z will solve (α -1)e z -(α -1)z + 1 = 0. While this is not solvable in terms of elementary functions, we note that it will always have a non-negative root so long as 1/(1 -α) &gt; 1, which will be the case for any valid α ∈ [0, 1]. Thus, for a given α, we can find a value z * (α) such that the value of the dual objective function is minimized. By strong duality, this same choice of z * will solve the primal and thus give the distribution p(x) with the optimal worst-case expected competitive ratio.</p><p>We can further confirm this result by noting in the limiting case α = 0, this equation reduces to e z -z -1 = 0, which is clearly solved by z * (0) = 0, giving a cutoff of a = Bz = 0. Likewise, as α → 1, we seek to solve e z -z =<ref type="foot" target="#foot_1">foot_1</ref> 1-α , which will be solved by z * (1) → ∞ as α → 1 since e z -z is an increasing function for positive z.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">Analysis of the Optimal Cutoff</head><p>We have found that an optimal skier will choose to buy skis at day x by drawing a value from the distribution</p><formula xml:id="formula_15">p(x) = e x B B(e z * (α) -1) if 0 ≤ x &lt; Bz * (α) 0 otherwise</formula><p>where z * (α) solves the equation (α -1)e z -(α -1)z + 1 = 0. The solution to this equation can be expressed in terms of the negative branch of the Lambert W function 1 as</p><formula xml:id="formula_16">z * (α) = 1 α -1 -W -1 (-e 1 α-1 ). (<label>5</label></formula><formula xml:id="formula_17">)</formula><p>The behaviour of this function can be seen in Figure <ref type="figure" target="#fig_2">1</ref>. Furthermore, plugging this value of z back into the expression for p(x), and then using p(x) to compute the optimal value of the objective function, i.e. the worst case expected competitive ratio, we find that as we vary α,</p><formula xml:id="formula_18">min p∈P J(p; α) = (α -1)W -1 (-e 1 α-1 ),<label>(6)</label></formula><p>as can be seen in Figure <ref type="figure">2</ref>.</p><p>Looking at figure 2, it is interesting to note that the highest (i.e. worst) competitive ratio occurs at a value of α less than 1 /2. Specifically, we can maximize the worst case expected competitive ratio from Equation 6 over all α ∈ [0, 1] to find that the maximizing α is e-2 e-1 ≈ 0.42 and that the maximum competitive ratio is e e-1 ≈ 1.58. As shown in previous works <ref type="bibr" target="#b2">[3]</ref>, the competitive ratio of e e-1 is the best possible competitive ratio attainable by any randomized algorithm for the ski rental problem without any additional information. Thus, we see that having α = e-2 e-1 is the same as having no information, and that in all other cases the competitive ratio decreases from this no-information value. Furthermore, we note that the maximizing α is not at 1 /2, and thus the results shown in works like <ref type="bibr" target="#b0">[1]</ref> are not as efficient as possible in the region of e-2 e-1 &lt; α &lt; 1 2 , where it is more likely that y is less than B, yet the optimal cutoff value for p(x) lies beyond B.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">The Adversary's Strategy</head><p>We can use a similar analysis to find the strategy that will be used by the adversary. Recall that the adversary is constrained to pick q(∞) = 1 -α, and is free to pick the remaining q(y) such that tive Ratio for different α B 0 q(y) = α. The expected competitive ratio if the skier buys on day x and if the adversary picks y according to the distribution q(y) is</p><formula xml:id="formula_19">C(x, q) = x 0 q(y)dy + ∞ x x + B y q(y)dy + (1 -α) x + B B</formula><p>We note that the skier is constrained to pick p(x) such that ∞ 0 p(x) = 1, and thus adding in a Lagrange multiplier for this constraint, the relevant terms in the expected competitive ratio will be</p><formula xml:id="formula_20">B 0 C(x, q) y -λ p(x)dx + λ</formula><p>and the dual problem will be to minimize λ while keeping λ ≥ C(x,q) y . As before, taking two derivatives gives q(y) = Kye -y/B . Furthermore, we know that this function should be normalized such that B 0 q(y)dy = α, so q(y) = αye 1-y B (e-2)B 2 .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3">Sensitivity of the Skier's Strategy to ML Errors</head><p>Our analysis so far has focused on the case where the probability α correctly reported. Most machine learning algorithms, of course, will not always report precise values and thus we now analyze the case where a mistake is made in the prediction of α.</p><p>Recall from Equation 4 that if a cutoff a = zB is chosen by the skier, the expected competitive ratio will be</p><formula xml:id="formula_21">L(z) = e z (z + α(1 -z)) (e z -1</formula><p>) .</p><p>Consider the case where an ML algorithm has reported a value α for the probability that y is at most B, and where the true value of α is between αand α + . Then, if the skier picks a cutoff based on the possibly faulty value α, the expected competitive ratio will lie between</p><formula xml:id="formula_22">e z * ( α) (z * (α) + ( α -)(1 -z * (α))) e z * ( α) -1 and e z * ( α) (z * (α) + ( α + )(1 -z * (α))) e z * ( α) -1 .</formula><p>Note that the deviation from the competitive ratio in either case can be expressed by</p><formula xml:id="formula_23">± e z * ( α) 1 -z * (α) e z * ( α) -1</formula><p>In the worst case, therefore, the increase in expected competitive ratio per unit increase in the error will be</p><formula xml:id="formula_24">∆( α) = (1 -z * (α)) e z * ( α) e z * ( α) -1 = 1 1 - α + W -1 (-e 1 α-1 ) + 1 ( α -1) 1 + W -1 (-e 1 α-1 )</formula><p>. While this function is quite complicated, it has several key properties. First, at α = 0 and α = 1, ∆( α) goes to infinity. Indeed, if the skier is told that it will certainly snow less than B days, they will choose to never buy. However, if there is an error of size then with probability there will be infinite ski days. Thus, the skier will pay a cost of ∞ when the optimal cost would have been B, incurring an infinite competitive ratio that will make the overall expected competitive ratio go to infinity as well. Likewise, if the skier is told it will certainly snow more than B days and there is an error, the skier will face an infinite competitive ratio if it snows zero days since buying incurs a cost of B yet the optimal scheme would incur a cost of 0.</p><p>Another key detail is that ∆( α) = 0 when α = e-2 e-1 . This means that even if there is error in the probability estimate, the competitive ratio will remain e e-1 . This lines up with the idea that α = e-2 e-1</p><p>actually does not give any information to the skier, who therefore picks the optimal strategy for the ski rental problem without any additional information. Thus, since the skier is agnostic to α, errors in this value will not worsen the strategy.</p><p>In practice, a skier can then get an upper-bound on the expected competitive ratio using only the prediction α and the error in this prediction, both of which can come from a black-boxed machine learning algorithm. In the worst case, is bounded by max(α, 1 -α), and as displayed in Figure <ref type="figure" target="#fig_3">3</ref> a skier can, given a prediction α, determine the best expected competitive ratio possible (i.e. when the prediction is correct) and the worst expected competitive ratio possible (i.e. when the prediction is as wrong as possible).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Experiments</head><p>We set B = 10. We consider a case where a machine learning algorithm provides a prediction α = 0.15 to the skier. Using Equation 5 in Section 2.1, we find numerically that z * (α) ≈ 0.541, and thus we set our cutoff for p(x) at Bz * (α) = 5.41. Based on sections 2.1 and 2.2, the skier will use a distribution</p><formula xml:id="formula_25">p(x) = e x<label>10</label></formula><p>10(e to pick the number of days to rent skis, and the adversary will use the distribution q(y) = 0.15ye 1-y 10 100(e-2)</p><p>when y ∈ [0, B], q(∞) = 0.85 to pick the number of ski days. We then take several draws of x and y from distributions p(x) and q(y) and calculate the competitive ratio in each case using Equation <ref type="formula" target="#formula_3">2</ref>.</p><p>For comparison, we also have the skier choose a cutoff using the optimal strategy without information, which is to pick x using the distribution</p><formula xml:id="formula_26">p(x) = e x<label>10</label></formula><p>10(e-1)</p><p>if 0 ≤ x &lt; 10 0 otherwise Furthermore, to visualize the robustness of the algorithm we also have the skier choose x using a distribution based on a faulty measurement α = 0.6. In this case, the skier will use a distribution</p><formula xml:id="formula_27">p(x) = e x 10</formula><p>10(e 1.347 -1)</p><p>if 0 ≤ x &lt; 13.47 0 otherwise to pick x.</p><p>We then find a distribution of realized competitive ratios for each of the three algorithms used by drawing x and y 10,000 times using each of these three distributions and calculating the competitive ratio for each trial. These results are summarized in Table <ref type="table" target="#tab_0">1</ref>.</p><p>As expected, we find that correct information allows the skier to reduce the competitive ratio from around 1.58 to around 1.45 -this is close to the theoretical lower-bound on the best possible expected competitive ratio. Furthermore, we see that if wrong information is provided, the competitive ratio does suffer, but this loss of performance is well within the bounds established in Section 2.3.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Conclusions</head><p>In this paper we present a method to construct a probabilistic algorithm to optimally solve a variation of the Ski Rental problem in which the skier consults a machine learning algorithm to predict the probability that there will be at most B ski days. This variant effectively utilizes the soft-threshold information that is the common output of many machine learning paradigms. We further establish how well this algorithm performs in the case of errors made by the machine learning algorithm, and provide performance guarantees in all cases.</p><p>Our result is a novel way to incorporate information from machine learning algorithms into a classical problem of online optimization. The Ski Rental problem has various applications ranging from cloud server pricing to snoopy caching <ref type="bibr" target="#b3">[4]</ref> -in many of these applications, predictive information is indeed available and thus our result provides a way to use this information while still preserving competitive guarantees.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><figDesc>x)dx + αλ over all p ∈ P and λ, with the constraint that C(p,y) y ≤ λ for all y ∈ [0, B]. Consider the case where the constraint is tight. This implies that C(p, y) = λy.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><figDesc>The constraint C(p,y) y ≤ λ for all y ∈ [0, B] will be tight if a ≥ B. On the other hand, the constraint is not tight for a &lt; B and thus we must explicitly find λ = max y∈[0,B] C(p,y) y . Using this truncated PDF, we find thatC(p, y) = 1 e a/B -1 + 1 y if y &lt; a a if y ≥ aand thus the maximum value max y∈[0,B] adding the terms together the value of the dual objective function can be expressed in terms of only the cutoff value a as L(a) = e a/B (a + α(B -a)) B e a/B -1 .</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Optimal Cutoff of p(x) for different α Figure 2: Optimal Expected Worst-Case Competitive Ratio for different α</figDesc><graphic coords="6,108.00,76.26,198.00,148.50" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 3 :</head><label>3</label><figDesc>Figure 3: Competitive Ratio Range in the case of ML Errors</figDesc><graphic coords="7,147.60,72.00,316.81,237.61" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 1 :</head><label>1</label><figDesc>Empirical Performance of Ski Rental with Additional Information</figDesc><table><row><cell>0.541 -1)</cell><cell>if 0 ≤ x &lt; 5.41</cell></row><row><cell>0</cell><cell>otherwise</cell></row></table></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_0"><p>Preprint. Work in progress.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_1"><p>Recall that the branches of the Lambert W function satisfy the equation W (x) W (x) = x</p></note>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Improving Online Algorithms via ML Predictions</title>
+		<author>
+			<persName><forename type="first">Manish</forename><surname>Purohit</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Svitkina</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">&amp;</forename><surname>Zoya</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ravi</forename><surname>Kumar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="volume">32</biblScope>
+			<biblScope unit="page" from="9684" to="9693" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Competitive caching with machine learned advice</title>
+		<author>
+			<persName><forename type="first">Thodoris</forename><surname>Lykouris</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sergei</forename><surname>Vassilvitskii</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICML</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="3302" to="3311" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Competitive randomized algorithms for nonuniform problems</title>
+		<author>
+			<persName><forename type="first">Anna</forename><forename type="middle">R</forename><surname>Karlin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mark</forename><forename type="middle">S</forename><surname>Manasse</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lyle</forename><forename type="middle">A</forename><surname>Mcgeoch</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Susan</forename><surname>Owicki</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">In Algorithmica</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="542" to="571" />
+			<date type="published" when="1994">1994</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">Competitive snoopy caching</title>
+		<author>
+			<persName><forename type="first">Anna</forename><forename type="middle">R</forename><surname>Karlin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mark</forename><forename type="middle">S</forename><surname>Manasse</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Larry</forename><surname>Rudolph</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Daniel</forename><forename type="middle">Dominic</forename><surname>Sleator</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1988">1988</date>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="page" from="77" to="119" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Revenue optimization with approximate bid predictions</title>
+		<author>
+			<persName><forename type="first">Andres</forename><surname>Muñoz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Medina</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sergei</forename><surname>Vassilvitskii</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="1856" to="1864" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Beyond competitive analysis</title>
+		<author>
+			<persName><forename type="first">Elias</forename><surname>Koutsoupias</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Christos</forename><surname>Papadimitriou</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. 35th IEEE FOCS</title>
+		<meeting>35th IEEE FOCS</meeting>
+		<imprint>
+			<date type="published" when="1994">1994</date>
+			<biblScope unit="page" from="394" to="400" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Average-case competitive analyses for ski rental problems</title>
+		<author>
+			<persName><forename type="first">Hiroshi</forename><surname>Fujiwara</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kazuo</forename><surname>Iwama</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Algorithmica</title>
+		<imprint>
+			<date type="published" when="2005">2005</date>
+			<biblScope unit="volume">42</biblScope>
+			<biblScope unit="page" from="95" to="107" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Competitive algorithms for online leasing problem in probabilistic environments</title>
+		<author>
+			<persName><forename type="first">Yinfeng</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Weijun</forename><surname>Xu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Networks (ISNN)</title>
+		<imprint>
+			<date type="published" when="2004">2004</date>
+			<biblScope unit="page" from="725" to="730" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Dynamic Noncooperative Game Theory</title>
+		<author>
+			<persName><forename type="first">Tamar</forename><surname>Basar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Geert</forename><forename type="middle">J</forename><surname>Olsder</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="s">SIAM Series in Classics in Applied Mathematics</title>
+		<imprint>
+			<date type="published" when="1999">1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

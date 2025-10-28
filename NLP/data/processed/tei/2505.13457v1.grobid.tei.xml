@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Tuning Learning Rates with the Cumulative-Learning Constant</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<title level="a" type="main">Tuning Learning Rates with the Cumulative-Learning Constant</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">E34B5BB60DD37425CEDACFF87B933E5C</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:07+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>This paper introduces a novel method for optimizing learning rates in machine learning. A previously unrecognized proportionality between learning rates and dataset sizes is discovered, providing valuable insights into how dataset scale influences training dynamics. Additionally, a cumulative learning constant is identified, offering a framework for designing and optimizing advanced learning rate schedules. These findings have the potential to enhance training efficiency and performance across a wide range of machine learning applications.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.">Introduction</head><p>The learning rate is a deep learning hyperparameter that is very important for training models efficiently. There has been a lot of research done on optimizing learning rates including sophisticated methods for adaptive learning rates as well as alternating learning rates <ref type="bibr" target="#b14">(Wu et al., 2019)</ref>. However, the learning rate selection is arbitrary -An optimal learning rate is found without understanding due to the belief that the learning rate is too sensitive to changes in other hyperparameters within the model. However, this paper will present that the learning rate follows some strict proportionality laws. Previous work has been done to compare proportionality of learning rates in reference to batch size <ref type="bibr" target="#b4">(Diego et al., 2020)</ref>. Therefore, this paper will not be exploring how batch size affects the optimal learning rate.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.1">Main Contributions</head><p>In this paper, we demonstrate that the optimal learning rate is inversely proportional to the size of the dataset. Notably, we show that this proportionality holds regardless of whether the dataset is expanded with new data or repeated data; for instance, doubling the number of epochs and doubling the dataset size are equivalent in this context. Additionally, we introduce the concept of a "cumulative learning constant," a value specific to a given model architecture. This constant can be calculated at smaller scales and used to determine the optimal learning rate for larger datasets. Furthermore, we explore how the cumulative learning constant establishes a relationship between various scheduled learning rates and a constant learning rate, enabling more efficient optimization of advanced learning rate schedules.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.">Related Work</head><p>Work is continuously being done to de-parameterize deep neural networks, as it would greatly improve computational efficiency and reduce the costs associated with hyperparameter tuning. One major focus has been on eliminating manual learning rate selection, as learning rate tuning remains one of the most sensitive and computationally expensive aspects of training deep learning models.</p><p>As stated before, related work has been done in establishing proportional relationships between learning rate and batch size for both SGD and Adam optimizers <ref type="bibr" target="#b4">(Diego et al., 2020)</ref>. Such research has been crucial in defining scaling laws that allow batch size adjustments to compensate for changes in learning rate without degrading convergence <ref type="bibr" target="#b5">(Goyal et al., 2017)</ref>. Additionally, theoretical work has examined how batch size influences gradient noise and optimization stability <ref type="bibr" target="#b12">(Shallue et al., 2019)</ref>, reinforcing the importance of proportional adjustments in learning rates.</p><p>Learning rate schedules have been shown to be critical for optimizing sophisticated models, such as speech recognition models <ref type="bibr" target="#b11">(Senior et al., 2013)</ref>. Studies have demonstrated that cyclical learning rates <ref type="bibr" target="#b13">(Smith, 2017)</ref> and cosine annealing schedules <ref type="bibr" target="#b8">(Loshchilov &amp; Hutter, 2017)</ref> significantly improve training efficiency by adapting the step size dynamically throughout the training process. The use of adaptive learning rate methods, such as Hypergradient Descent <ref type="bibr" target="#b1">(Baydin et al., 2017)</ref>, allows for real-time adjustment of learning rates based on gradient feedback.</p><p>Beyond learning rate schedules, research has explored theoretical optimizations of convergence rates, particularly for Lipschitz functions <ref type="bibr" target="#b3">(Defazio &amp; Mishchenko, 2023)</ref>. This research is crucial in determining the optimal way to decay learning rates to balance stability and convergence. Additionally, meta-learning techniques such as Learning to Optimize (L2O) <ref type="bibr" target="#b0">(Andrychowicz et al., 2016)</ref> and reinforcement learning-based optimization <ref type="bibr" target="#b6">(Li et al., 2017)</ref> have aimed to automate the tuning of hyperparameters, including learning rates. Furthermore, hyperparameter-free training approaches like AutoLR <ref type="bibr" target="#b9">(Mackay et al., 2019)</ref> and Hyperband <ref type="bibr" target="#b6">(Li et al., 2017)</ref> attempt to remove manual intervention in learning rate tuning.</p><p>A promising development in this direction is D-adaptation, which removes the need for manual learning rate tuning by dynamically adjusting the learning rate based on the distance traveled in parameter space <ref type="bibr" target="#b3">(Defazio, A., &amp; Mishchenko, K., 2023)</ref>. However, D-adaptation is not computationally efficient for sufficiently large models, as the overhead of dynamic step-size computation can outweigh its benefits when training transformers or diffusion models. Alternative gradient-based adaptation approaches, such as reversible learning rate optimization <ref type="bibr" target="#b10">(Maclaurin et al., 2015)</ref> and Bayesian learning rate adaptation <ref type="bibr" target="#b15">(Wu et al., 2018)</ref>, have also been proposed but remain computationally expensive.</p><p>While this work does not aim to fully de-parameterize scheduled learning rates, it provides an alternative theoretical framework by demonstrating fundamental relationships between constant and scheduled learning rates. These insights contribute to further optimizing learning rate selection and lay the groundwork for future research toward fully automated, parameter-free learning rate adaptation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">Experimentation and Contextualization</head><p>The data being used is the MNIST dataset. The training set size was initially set to 60000. The pixels have been normalized to values between -1 and 1. The input layer has 784 neurons and outputs to a hidden layer of 256 neurons. The hidden layer outputs to the output layer of 10 neurons, corresponding to the possible digits 0-9. There is a ReLu function after both the input layer and the hidden layer. The loss function is cross-entropy loss, and the optimizer used is the Adam optimizer. While the Adam optimizer is not ideal for testing learning rates initially, it will be observed that the methodology proposed works for stochastic gradient descents as well.</p><p>The control group will be used on 10 epochs. Loss measurements are taken in an evaluation function, where the model is no longer being trained. All the data presented was obtained by taking 3 data points at each timestep and calculating their average.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Initial Observations</head><p>Initially, rough data was taken to approximate the optimal constant learning rate for the model discussed in 2.1. This graph can be seen in figure (1) below. Here, the loss seems to minimize at a learning rate right under 0.001. Initial experiments were performed to determine the effects that certain hyperparameters had on learning the optimal learning rates. The epochs were changed to 5, and new results were produced, seen in figure (2) below. Here, the loss seemed to minimize at a learning rate of about 0.001, hinting that there may be a correlation between the number of epochs and the optimal learning rate. Next, the number of epochs was changed to 1. The results are shown in figure (3). Here, the learning rate that minimized loss seemed to occur at about 0.003. In order to better understand what is happening, the number of epochs was set back to 10 and the data was halved instead. The results are in figure (4) below. It appears from figure (4) that the optimal learning rate is identical to that shown in figure (2) where the number of epochs was halved. This hints at the idea that the total amount of data that a model is subject to is more important for optimizing the learning rate than the number of epochs or the amount of training data independentlythey may be congruent to each other.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.">Thorough Analysis of Optimal Learning Rates</head><p>From here on forward, the training dataset was cut in half to 30,000 figures per epoch to save computational resources. More precise measurements were taken to find the optimal learning rate while varying the number of epochs between 1-80. Larger datasets are ideal, but the computational power required was not feasible. Regardless, there is a clear trend, which can be seen in figure (5). This experiment was also done with a SGD optimizer. The results can be seen in figure (6) below. While the initial data at low epochs is choppy, it smooths out. We will compare data to develop a proportionality. Below is a table looking more closely at data obtained in figure (5).  Here, it is clear that every time the number of epochs is doubled, the optimal learning rate halves.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Inverse Proportionality Theorem</head><p>It can be seen there is a clear trend between the number of epochs and the optimal learning rate. More precisely,</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>η ∝ 1 𝑘</head><p>Where represents the change in optimal learning rate η and represents the change in number of epochs. This is 𝑘 only valid for a constant learning rate.</p><p>Proof: The standard SGD update rule is:</p><formula xml:id="formula_0">𝑥 𝑡 + 1 = 𝑥 𝑡 -η∇𝑓(𝑥 𝑡 )</formula><p>For an L-smooth function, the function value after one step is bounded by:</p><formula xml:id="formula_1">𝑓(𝑥 𝑡+1 )≤𝑓(𝑥 𝑡 ) -η∥∇𝑓(𝑥 𝑡 )∥ 2 + 𝐿 2 η 2 ∥∇𝑓(𝑥 𝑡 )∥ 2</formula><p>Taking expectations and summing over k steps:</p><formula xml:id="formula_2">𝐸[𝑓(𝑥 𝑘 )] -𝑓(𝑥 0 ) ≤ -η 𝑡=0 𝑘-1 ∑ 𝐸[∥∇𝑓(𝑥 𝑡 )∥ 2 ] + 𝐿 2 η 2 𝑡=0 𝑘-1 ∑ 𝐸[∥∇𝑓(𝑥 𝑡 )∥ 2 ]</formula><p>Rearranging:</p><formula xml:id="formula_3">η 𝑡=0 𝑘-1 ∑ 𝐸[∥∇𝑓(𝑥 𝑡 )∥2] ≤ 𝑓(𝑥 0 ) -𝐸[𝑓(𝑥 𝑘 )] + 𝐿 2 η 2 𝑡=0 𝑘-1 ∑ 𝐸[∥∇𝑓(𝑥 𝑡 )∥ 2 ]</formula><p>For sufficiently small η, the quadratic term is negligible, yielding:</p><formula xml:id="formula_4">η𝑘𝐸[∥∇𝑓(𝑥 𝑡 )∥ 2 ] ≤ 𝐶 1 where is a problem-dependent 𝐶1 = 𝑓(𝑥 0 ) -𝐸[𝑓(𝑥 𝑘 )] constant. Solving for : η η ≤ 𝐶 1 𝑘𝐸[∥∇𝑓(𝑥 𝑡 )∥ 2 ]</formula><p>From standard SGD convergence results, for an optimal choice of , the expected squared gradient norm satisfies:</p><formula xml:id="formula_5">η 𝐸[∥∇𝑓(𝑥 𝑡 )∥ 2 ] ≈ 𝑂(1)</formula><p>Thus, substituting this into the previous bound:</p><formula xml:id="formula_6">η 𝑘 = 𝐶 𝑘</formula><p>for some constant dependent on the function properties.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>𝐶</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Effect of Dataset Size on Learning Rates</head><p>In order to better understand the role the size of a dataset plays in the learning rate, an experiment was performed to determine if dataset sizes behave exactly like epochs. For every increase in epoch, the dataset size was decreased proportionally. For instance, in going from epoch 1 to 2, the dataset size was cut in half. The experiment was performed this way in order to be computationally efficient. The results are seen in figure (7) below.</p><p>Figure <ref type="figure">7</ref>. Optimal Learning Rate vs. Epochs while reducing dataset size proportionally to the increase in number of epochs. This experiment was performed using an Adam optimizer.</p><p>While choppy, the optimal learning rate is much more consistent than shown in figure (5). The conclusion to draw is that dataset sizes play the same role as epochs. The paper will refer to a term 'total data'. Precisely, this term is just the amount of data in the training dataset multiplied by the amount of epochs.</p><p>Theorem 4.1. The optimal learning rate is affected by the total amount of data a model will see during training. Theorem 4.2. For a constant learning rate, the change in the optimal learning rate is inversely proportional to the change in the size of total data the model is trained on.</p><p>Therefore, the more precise proportionality is η ∝</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">𝐷</head><p>Where is the learning rate and is the total data. Again, η 𝐷 this is a proportionality generalized for a constant learning rate only. The proof for this follows the same logic as proof 4.1 but it is generalized for all data instead of epochs specifically.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.">Cumulative Learning Equation</head><p>We will define an equation. The cumulative learning constant, , encapsulates the total κ step distance traveled by the model in parameter space to converge to the local minimum of the loss function. For a specific model architecture, depends on the properties of κ the loss landscape, including the distance to the minimum and the curvature of the loss surface, both of which are determined by the model's architecture and hyperparameters. While different datasets may influence the trajectory of the optimization process, the total step distance required for convergence remains constant for sufficiently large datasets because the overall shape of the loss landscape (as governed by the architecture) remains unchanged.</p><p>The theoretical analysis in these proofs is based on the assumption that the model is tested under a fixed seed and converges to the same local minimum across different runs. However, in the experimental setup, the model was initialized with a random seed, introducing stochastic variations in the optimization trajectory and convergence to different local minima. The assumption of a fixed seed is primarily used to ensure that the initial loss across different runs remains approximately identical, which holds in expectation under the assumption that the dataset is drawn from the same underlying distribution. Furthermore, in a sufficiently complex loss landscape, it is reasonable to assume that the optimizer encounters a statistically equivalent structure of peaks, troughs, and curvature variations across different runs, regardless of the specific trajectory taken in weight space. This follows from the assumption that the loss function exhibits a degree of ergodicity, meaning that for sufficiently large datasets, the optimizer traverses a representative subset of the loss landscape. Under this assumption, the expected total optimization distance required for convergence remains approximately constant, as formalized by Theorem 5.1.</p><p>Despite this theoretical invariance in total optimization distance, experimental results indicate that increasing the dataset size while decreasing the learning rate (as dictated by the inverse proportionality relationship) consistently resulted in a lower final evaluation loss. The experimental results not only confirm the validity of these theorems but also demonstrate that the model does not converge to the same minimum across different runs. This property can be leveraged to efficiently determine an optimal learning rate using a significantly smaller dataset. By applying the established proportionality relationships, the optimal learning rate can then be scaled appropriately for training on a much larger dataset, allowing the model to still benefit from the increased data while maintaining computational efficiency.</p><p>We now consider a scenario with a scheduled decaying learning rate. Regardless of the specific schedule, the total step distance required to minimize the loss remains .</p><p>κ This invariance arises because represents the total κ learning effort required to traverse the loss landscape to the minimum, which is determined solely by the architecture and not by the specific learning rate schedule. However, for this invariance to hold, the learning rate schedule must be chosen such that the optimization process converges to the minimum without overshooting or stagnation. Poorly designed schedules may lead to suboptimal convergence, but when properly optimized, they all yield the same cumulative step distance . κ</p><p>Theorem 5.1 has several implications. First, a more sophisticated model can have its datasets scaled down and the optimal learning rate can be found using much less computational power. Second, the optimal learning rate can be discovered using a constant learning rate. The constant can then be calculated and used to solve for the κ optimal learning rate on more sophisticated learning rate schedulers. For example, the data shown in figure <ref type="bibr">(5)</ref> demonstrates that under this specific model architecture, at 13 epochs an optimal learning rate is around 0.000423. The learning constant for this is: ℓ * 𝐷 = 0. 000423 * (13 * 30000) ≈ 165</p><p>The next experiment will involve a decaying learning rate in which the learning rate halves after each epoch. To solve for in this specific scenario, we can replace the κ integral with the geometric series  9 points were taken varying the learning rate from 0.000225 to 0.006. The optimal learning rate from these was in fact 0.00275. The same experiment was repeated for 5 epochs. The calculation for the optimal learning rate using the cumulative learning method was 0.00284. The results are shown in figure (9) below. Here, the loss minimized at a learning rate of 0.004. However, this is likely an issue with large variance at lower amounts of data. It can be seen from figure (5) that point 13 fits nearly perfectly on the line of best fit, while point 5 varies. This experiment was done on 22 epochs. The graph visualizing the expected optimal learning rate vs. the optimal learning rate can be seen in Figure ( <ref type="formula">10</ref>) below.</p><p>Figure <ref type="figure" target="#fig_0">10</ref>. The expected optimal learning rate and the experimentally obtained optimal learning rate are both plotted vs. epochs using the Adam optimizer and a decaying learning rate schedule.</p><p>At epochs &lt; 5, there appears to be a large variance in data. This is likely due to the lack of substantial data leading to testing inconsistency. Nonetheless, while the actual values seem far from the expected values, the coefficient of variation was calculated to be only 22.4%. This experiment was repeated with a decaying learning rate under a SGD optimizer. The results can be seen in figure <ref type="bibr">(11)</ref>.</p><p>Figure <ref type="figure" target="#fig_0">11</ref>. The expected optimal learning rate and the experimentally obtained optimal learning rate are both plotted vs. epochs using an SGD optimizer and a decaying learning rate schedule. <ref type="bibr">Figure (11)</ref> demonstrates that even when using SGD instead of Adam, the same correlation appears. This test was also performed with a cyclical learning rate schedule instead of a decaying learning rate schedule. The cyclical learning rate tripled at every even epoch and returned to its original value at every odd epoch. The results from this experiment may be seen in figure (12). At epochs &lt; 10, the results are very choppy. However, it can be seen that the optimal learning rate still converges to the expected value calculated using the learning rate constant under large datasets. This same experiment was also done with an SGD optimizer. This can be seen in figure (13) below. Once again, figure (13) demonstrates that for higher epochs there is a very close correlation between the expected optimal learning rate using the cumulative learning constant and the experimentally obtained optimal learning rate.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.">Conclusion</head><p>This work uncovers a fundamental inverse proportionality between the optimal learning rate and dataset size, a relationship that holds especially strong for both SGD and Adam optimizers and becomes even more pronounced as training data increases. This discovery provides a critical insight into scaling laws for deep learning, revealing a pattern that could reshape how learning rates are optimized in large-scale models.</p><p>Furthermore, we introduce the concept of a cumulative learning constant, a quantity that can be easily computed under a constant learning rate and leveraged to design more efficient and adaptive learning rate schedules. This breakthrough has the potential to streamline hyperparameter tuning, reducing the computational cost and inefficiencies associated with current learning rate selection methods. The implications of this research extend far beyond classification tasks. Future work should explore even larger datasets and alternative architectures, such as reinforcement learning agents, generative models, and large language models, to determine the full extent of these findings. If validated across broader applications, this framework could lay the groundwork for a new era of automated, parameter-free learning rate optimization, ultimately pushing the boundaries of deep learning efficiency and scalability.</p><p>The principles established in this study have the potential to accelerate the adoption of automated learning rate selection in deep learning. By reducing reliance on manual tuning, this approach could be incorporated into future AutoML frameworks, enabling faster, more efficient training of large-scale models without exhaustive hyperparameter sweeps. Further research could validate its application to architectures such as transformers, reinforcement learning agents, and generative models, potentially setting the stage for fully automated, self-optimizing neural networks.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 .</head><label>1</label><figDesc>Figure 1. Average Loss vs. Learning Rate on 10 epochs.</figDesc><graphic coords="2,307.50,308.46,234.00,144.75" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 2 .</head><label>2</label><figDesc>Figure 2. Average Loss vs. Learning Rate on 5 epochs using an Adam optimizer.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 3 .</head><label>3</label><figDesc>Figure 3. Average Loss vs. Learning Rate on 1 epoch using an Adam optimizer.</figDesc><graphic coords="3,55.50,178.38,234.00,144.75" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 4 .</head><label>4</label><figDesc>Figure 4. Average Loss vs. Learning Rate on a half-sized dataset using the Adam optimizer.</figDesc><graphic coords="3,55.50,432.47,234.00,144.75" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Figure 5 .</head><label>5</label><figDesc>Figure 5. Optimal Learning Rates vs. Number of Epochs using an Adam Optimizer.</figDesc><graphic coords="3,307.50,209.88,234.00,144.75" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Figure 6 .</head><label>6</label><figDesc>Figure 6. Optimal Learning Rates vs. Number of Epochs using the SGD Optimizer.</figDesc><graphic coords="3,307.50,425.57,234.00,144.75" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><figDesc>where represents the total learning effort in parameter κ space, denotes the total amount of data used in training, 𝐷 and represents the learning rate at a given training η(𝑥) step x. This integral reflects the total accumulated movement in weight space as the model is trained.Theorem 5.1. For a particular model architecture, must κ be constant.Proof: From Theorem 4.1 (Inverse Proportionality of Learning Rate), we established that for large datasets, the optimal learning rate follows:= 𝐶For some constant C. Thus, C is exactly equal to , the κ total learning effort required for convergence.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><figDesc>value the decaying learning rate should be set to in order to minimize loss. Figure (8) demonstrates different losses when varying the initial value of the decaying learning rate.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_8"><head>Figure 8 .</head><label>8</label><figDesc>Figure 8. Loss vs. Decaying Learning Rate on 10 epochs using an Adam optimizer.</figDesc><graphic coords="7,55.50,207.07,234.00,144.75" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_9"><head>Figure 9 .</head><label>9</label><figDesc>Figure 9. Loss vs. Decaying Learning Rate on 5 epochs using an Adam optimizer.</figDesc><graphic coords="7,55.50,477.96,234.00,144.00" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_10"><head>Figure 12 .</head><label>12</label><figDesc>Figure 12. Expected learning rate and actual learning rate for an Adam optimizer under a cyclical learning rate schedule.</figDesc><graphic coords="8,55.50,156.30,234.00,144.75" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_11"><head>Figure 13 .</head><label>13</label><figDesc>Figure 13. Expected learning rate and actual learning rate for an SGD optimizer under a cyclical learning rate schedule.</figDesc><graphic coords="8,55.50,456.56,234.00,144.75" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 1 .</head><label>1</label><figDesc>The table compares the number of epochs to the optimal learning rate under an Adam optimizer. It is set up such that it is easy to see the learning rate at epochs and epochs . This insinuates that the Adam optimizer may play a role. On the contrary, the table below shows some data points using the SGD optimizer.</figDesc><table><row><cell>𝑛</cell><cell>2𝑛</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>Table 2 .</head><label>2</label><figDesc>The table compares the number of epochs to the optimal learning rate under an SGD optimizer. It is set up such that it is easy to see the learning rate at epochs and epochs .</figDesc><table><row><cell></cell><cell></cell><cell>𝑛</cell><cell>2𝑛</cell></row><row><cell>Epochs</cell><cell>LR</cell><cell>Epochs</cell><cell>LR</cell></row><row><cell>5</cell><cell>0.14</cell><cell>10</cell><cell>0.1</cell></row><row><cell>6</cell><cell>0.1416666</cell><cell>12</cell><cell>0.0625</cell></row><row><cell></cell><cell>667</cell><cell></cell><cell></cell></row><row><cell>7</cell><cell>0.1285714</cell><cell>14</cell><cell>0.075</cell></row><row><cell></cell><cell>286</cell><cell></cell><cell></cell></row><row><cell>8</cell><cell>0.10625</cell><cell>16</cell><cell>0.0625</cell></row><row><cell>9</cell><cell>0.0833333</cell><cell>18</cell><cell>0.0583333</cell></row><row><cell></cell><cell>3333</cell><cell></cell><cell>3333</cell></row></table></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title level="m" type="main">Learning to learn by gradient descent by gradient descent</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Andrychowicz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Denil</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Gomez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">W</forename><surname>Hoffman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Pfau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Schaul</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>De Freitas</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Online Learning Rate Adaptation with Hypergradient Descent</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">G</forename><surname>Baydin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Cornford</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Wood</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<title level="m" type="main">Mechanic: A Learning Rate Tuner</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Cutkosky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Mehta</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<author>
+			<persName><forename type="first">A</forename><surname>Defazio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Mishchenko</surname></persName>
+		</author>
+		<title level="m">Learning-Rate-Free Learning by D-Adaptation</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<title level="m" type="main">Learning rates as a function of batch size: A random matrix theory approach to neural network training</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Diego</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Stefan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Stephen</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<author>
+			<persName><forename type="first">P</forename><surname>Goyal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Dollár</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Girshick</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Noordhuis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Wesolowski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kyrola</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Tulloch</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Jia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>He</surname></persName>
+		</author>
+		<title level="m">Accurate, Large Minibatch SGD: Training ImageNet in 1 Hour</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<author>
+			<persName><forename type="first">L</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Jamieson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Desalvo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Rostamizadeh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Talwalkar</surname></persName>
+		</author>
+		<title level="m">Hyperband: A Novel Bandit-Based Approach to Hyperparameter Optimization</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">Understanding and Improving Large Minibatch Training with Layer-wise Adaptive Learning Rates</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Chang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Yang</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<title level="m" type="main">SGDR: Stochastic Gradient Descent with Warm Restarts</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Loshchilov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Hutter</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<title level="m" type="main">AutoLR: Automatic Learning Rate Scheduling Using Reinforcement Learning</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Mackay</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Gamper</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Bauer</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<author>
+			<persName><forename type="first">D</forename><surname>Maclaurin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Duvenaud</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">P</forename><surname>Adams</surname></persName>
+		</author>
+		<title level="m">Gradient-Based Hyperparameter Optimization through Reversible Learning</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<monogr>
+		<title level="m" type="main">An Empirical Study of Learning Rates in Deep Neural Networks for Speech Recognition</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Senior</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Heigold</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Ranzato</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Yang</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<title level="m" type="main">Measuring the Effects of Data Parallelism on Neural Network Training</title>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">J</forename><surname>Shallue</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Antognini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Sohl-Dickstein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Frostig</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Dahl</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<title level="m" type="main">Cyclical Learning Rates for Training Neural Networks</title>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">N</forename><surname>Smith</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title level="m" type="main">Demystifying Learning Rate Policies for High Accuracy Training of Deep Neural Networks</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Bae</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Chow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Iyengar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Pu</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<title level="m" type="main">Bayesian Learning Rate Adaptation for Stochastic Gradient Descent</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Xu</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

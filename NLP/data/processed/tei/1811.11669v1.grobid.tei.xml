@@ -1,0 +1,851 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">TOWARDS IDENTIFYING AND MANAGING SOURCES OF UNCERTAINTY IN AI AND MACHINE LEARNING MODELS -AN OVERVIEW</title>
+				<funder ref="#_Mf2eU8b">
+					<orgName type="full">German Ministry of Education and Research (BMBF)</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<title level="a" type="main">TOWARDS IDENTIFYING AND MANAGING SOURCES OF UNCERTAINTY IN AI AND MACHINE LEARNING MODELS -AN OVERVIEW</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">ECE66DD46EE35233A144F1577BF088D7</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Quantifying and managing uncertainties that occur when data-driven models such as those provided by AI and machine learning methods are applied is crucial.</p><p>This whitepaper provides a brief motivation and first overview of the state of the art in identifying and quantifying sources of uncertainty for data-driven components as well as means for analyzing their impact.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>As a consequence, the functional behavior expected from data-driven components can only be specified in part on their intended domain, and we cannot assure that they will behave as expected in all cases. Moreover, their processing structure is usually difficult to trace and validate by humans because this structure rarely follows human intuition but is generated to provide the algorithmically generalized input-output relationship in an effective manner. Prominent representatives of models used by data-driven components are artificial neural networks and support vector machines <ref type="bibr" target="#b28">(Russell &amp; Norvig, 2016)</ref>.</p><p>Since data-driven models are an important source of uncertainty in embedded systems that collaborate in an open context, the uncertainty they introduce has to be appropriately understood and managed during design time and runtime.</p><p>Previous work <ref type="bibr" target="#b16">(Kläs &amp; Vollmer, 2018)</ref> proposes separating the sources of uncertainty in data-driven components into three major classes, distinguishing between uncertainty caused by limitations in terms of model fit, data quality, and scope compliance. Whereas model fit focuses on the inherent uncertainty in data-driven models, data quality covers the additional uncertainty caused by their application to input data obtained in suboptimal conditions and scope compliance covers situations where the model is likely applied outside the scope for which it was trained and validated.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Motivation</head><p>Data-driven models <ref type="bibr" target="#b33">(Solomatine &amp; Ostfeld, 2008)</ref>, <ref type="bibr" target="#b35">(Solomatine, See, &amp; Abrahart, 2009)</ref>, such as those provided by the application of AI and machine learning, are becoming components of increasing importance for complex software-intensive systems.</p><p>In particular, embedded systems that collaborate in an open context need to process various kinds of sensor input to recognize and interpret their situation in order to handle changes in their environment and collaborate with previously unknown agents. Unlike traditionally engineered software components, which are developed by software engineers who define their functional behavior using code or models, the behavior of datadriven components is automatically generalized by algorithms from a given data sample.</p><p>Fig. <ref type="figure">1</ref>: Onion layer model of uncertainty in data-driven model application outcomes <ref type="bibr" target="#b16">(Kläs &amp; Vollmer, 2018)</ref> </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Scope Compliance</head><p>Uncertainty caused by mismatch between target/test context and application context</p><p>The next sections will provide a short overview of the state of the art in identifying and quantifying sources of uncertainty in data-driven components as well as means for analyzing their impact.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Model Fit</head><p>Model fit uncertainty of a data-driven model is characterized by the degree of error in its outcomes <ref type="bibr" target="#b16">(Kläs &amp; Vollmer, 2018)</ref>. Thus, model fit uncertainty is related to a concept of model performance commonly named accuracy. Depending on the intended usage of the model, the cost of the model errors, the scale type (e.g., binary, nominal, ordinal, numeric), and the outcome distribution (e.g., degree of balancing), a variety of error measures exist that can be applied to quantify model performance <ref type="bibr" target="#b13">(Japkowicz &amp; Shah, 2011</ref>) <ref type="bibr" target="#b32">(Sokolova, Japkowicz, &amp; Szpakowicz, 2006</ref>) <ref type="bibr" target="#b6">(Fröhling, 2018)</ref>. Since the true error of a data-driven model cannot be determined on a data sample, a number of error estimation methods are applied in practice, with the most prominent one being cross-validation <ref type="bibr">(Witten, Frank, Hall, &amp; C., 2016)</ref>. In order to demonstrate a certain level of confidence in the error estimate, statistical techniques can be applied (e.g., statistical tests and confidence intervals) <ref type="bibr" target="#b10">(Hedderich &amp; Sachs, 2018)</ref>.</p><p>Independent of the specific outcome scale type, the error in a data-driven model regarding unseen data can be decomposed into bias, variance, and irreducible error <ref type="bibr" target="#b5">(Domingos, 2000)</ref>.</p><p>Whereas irreducible errors are independent of a specific model, model bias and variance are influenced by the available training data and the selected modeling approach. For example, increasing the amount of training data can reduce model variance, while increasing the complexity of the model can reduce bias.</p><p>However, because increasing model complexity also increases variance, the sweet spot is targeted by balancing both aspects in order to avoid underfitting (high bias) as well as overfitting (high variance) during model development.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Data Quality</head><p>In realistic settings, data is limited in its accuracy and potentially affected by various kinds of quality issues; therefore, datadriven models are not applied under optimal conditions. For example, the accuracy of a recognition model in identifying a specific object depends on a number of quality characteristics of the input image, such as resolution, light conditions, focus, etc. The delta between the level of uncertainty that can be explained by model fit and the actual level of uncertainty observed in a test situation can be attributed to data quality <ref type="bibr" target="#b16">(Kläs &amp; Vollmer, 2018)</ref>. Distinguishing between uncertainty related to model fit and uncertainty related to data quality can therefore help to explain variation in the accuracy of the model outcomes within a test dataset and thus provide more specific uncertainty estimates for a concrete application.</p><p>Uncertainty estimates are usually expressed by probabilities in the case of categorical outcomes and by prediction intervals together with a confidence level or probability distributions in the case of numerical outcomes <ref type="bibr" target="#b1">(Armstrong, 2001)</ref>. As the performance of data-driven models can be estimated based on a test dataset, the quality of related uncertainty estimates can also be determined. However, unlike specific model outcomes, which can be evaluated with regard to their individual accuracy, specific uncertainty estimates cannot be evaluated individually.</p><p>Instead, related evaluation statistics are used to investigate how well the actually measured errors in a set of outcomes are aligned with their corresponding uncertainty estimates. In the case of numerical outcomes, a frequently used evaluation statistic for this purpose is the hit rate <ref type="bibr" target="#b14">(Jorgensen, 2005)</ref>. For further modeling techniques, revisions have been proposed</p><p>to provide uncertainty estimates (e.g., for some neural network <ref type="bibr" target="#b15">(Khosravi, Nahavandi, Creighton, &amp; Atiya, 2011)</ref>, deep learning <ref type="bibr" target="#b7">(Gal, 2016</ref><ref type="bibr" target="#b25">) (McAllister, et al., 2017)</ref>, hybrid <ref type="bibr" target="#b19">(Kläs, et al., 2008)</ref>, and analogy techniques <ref type="bibr" target="#b0">(Angelis &amp; Stamelos, 2000)</ref>).</p><p>Moreover, some meta-techniques are available that can be  But there is uncertainty in this statement, since 17% in this group survived.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Fig. 2: Decision tree providing not only a binary outcome, but also the degree of uncertainty</head><p>uncertainty estimates when applied to new unseen data. In this case, evaluation strategies need to be defined that do not only evaluate the quality of the data-driven model with respect to its outcomes but also the corresponding uncertainty estimates.</p><p>A major drawback of integrating uncertainty estimates directly into data-driven models is that providing realistic uncertainty estimates and providing accurate outcomes does not necessarily require the same inputs. The reason is that information that allows determining situations with high inaccuracy in the current input can help to provide more accurate uncertainty estimates; however, these usually do not support the data-driven model in providing outcomes that are more accurate. For example, the information that the resolution of a specific image is low does not contribute to the recognition of a given object in this image, but may indicate that there is a higher degree of uncertainty in the outcome of the applied object recognition model. Many modeling techniques will therefore eliminate this kind of information during model building in order to reduce variance; however, this may reduce the accuracy of the provided uncertainty estimates. This limitation may be addressed by modeling outcome and uncertainty in two separate models <ref type="bibr" target="#b34">(Solomatine &amp; Shrestha, 2009)</ref> or by training one model following a multi-objective approach <ref type="bibr" target="#b30">(Sarro, Petrozziello, &amp; Harman, 2016)</ref>.</p><p>Since the relevant input for uncertainty estimates does not necessarily correspond to the input that is relevant for a datadriven model, data quality models can help to identify and quantify data quality factors that allow increasing the accuracy of uncertainty estimates. Most existing data quality models and standards, such as ISO/IEC 25012 (ISO/IEC, 2008), are, however, defined from the perspective of a human decision maker regarding the characterization and evaluation of data quality.</p><p>Moreover, existing quality models largely focus on the quality of structured data, missing measures that are applicable to unstructured data such as images, video recordings, or natural language, which are all common inputs in current data-driven models <ref type="bibr" target="#b17">(Kläs, Putz, &amp; Lutz, 2016)</ref>.</p><p>A relevant challenge in determining the impact of data quality on the uncertainty in the outcome of a data-driven model is that data points with specific data quality characteristics (i.e., the ones that can have a large impact on the accuracy of the model outcome) may be sparsely available in a representative data sample and difficult to collect in practice. Data augmentation techniques <ref type="bibr">(Wong, Gatt, Stamatescu, &amp; McDonnell, 2016</ref>) <ref type="bibr" target="#b3">(Baird, 1992)</ref> may provide means for generating synthetic (i.e., artificial but realistic) data. For example, Generative Adversarial Networks <ref type="bibr" target="#b8">(Goodfellow, et al., 2014)</ref> have been shown to make it possible to augment existing images with specific weather and lightning conditions <ref type="bibr" target="#b22">(Liu, Breuel, &amp; Kautz, 2017)</ref>  <ref type="bibr" target="#b23">(Luan, Paris, Shechtman, &amp; Bala, 2017)</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>UNCERTAINTY IN AI AND MACHINE LEARNING -AN OVERVIEW</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Scope Compliance</head><p>Even if both model-fit-and data-quality-related uncertainty is managed, the outcome of a data-driven model can become unreliable due to the fact that the model is applied in a setting for which it was not intended.</p><p>Data-driven models are created with a specific application scope in mind. An application scope can be defined as a (potentially infinite) set of entities or events satisfying a set of common properties and can thus be considered as a statistical population.</p><p>In statistics, populations are usually characterized by temporal, spatial, and factual aspects. Using traffic sign recognition as an example, one possible application scope could be the set of all valid traffic signs erected in Germany as perceived by passenger cars in 2016.</p><p>Given a dataset that is representative for the intended application scope, the uncertainty in the model outcomes can be determined with a certain level of statistical confidence for this application scope. In real applications, however, test datasets are not always representative; for example, due to sample selection bias (which is a subcategory of dataset shift (Sugiyama, Lawrence, &amp; Schwaighofer, 2009)), which falsifies the statistical results <ref type="bibr">(Zadrozny, 2004)</ref>.</p><p>Representative test datasets can be obtained by probabilistic sampling methods such as simple random sampling, sampling with unequal probability, systematic sampling, stratified random sampling, or cluster sampling <ref type="bibr" target="#b26">(Nassiuma, 2000)</ref>.</p><p>Despite the representativeness of the test dataset, statistically justified guarantees on previously determined uncertainties can only be provided if the model is applied within its inten-ded application scope. Therefore, scope compliance is defined as the likelihood that a given data-driven model is currently applied to observations within its intended application scope <ref type="bibr" target="#b16">(Kläs &amp; Vollmer, 2018)</ref>. For example, if a traffic sign recognition model tested with German traffic sign images is used on roads in the U.S., the model is applied outside its intended application scope.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Scope incompliance can be detected by monitoring known</head><p>properties of the intended application scope and respective thresholds (i.e., known boundaries of generalizability). In addition, the crossing of boundaries that were unknown or not considered at design time may be detected at runtime using novelty detection techniques <ref type="bibr" target="#b27">(Pimentel, Clifton, Clifton, &amp; Tarassenko, 2014)</ref>.</p><p>A specific type of scope incompliance that needs special consideration is concept drift. Concept drift describes the fact that the actual relationship between input and corresponding outcome, which the data-driven model is trying to capture, will change over time for any sufficiently complex setting that does not solely rely on stable, physical laws <ref type="bibr">(Webb, Hyde, Cao, Nguyen, &amp; Petitjean, 2016)</ref>. Since any test dataset can only comprise data collected in the past, concept drift is unavoidable in the long term and must be considered for most data-driven models if applied in practice. For example, referring to traffic sign recognition, more than 40 traffic signs were newly introduced, changed, or deprecated in Germany in the year 2017.</p><p>Methods addressing concept drift can be passive (i.e., they try to detect its occurrence <ref type="bibr" target="#b9">(Harel, Mannor, El-Yaniv, &amp; Crammer, 2014</ref>)) or active. Active methods adapt the model outcome, e.g., by retraining the model <ref type="bibr" target="#b20">(Klinkenberg, 2004)</ref> or by using an ensemble of several models based on data from different time frames <ref type="bibr" target="#b24">(Masud, Gao, Khan, Han, &amp; Thuraisingham, 2009)</ref>.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><figDesc>Forward uncertainty propagation is a common approach for dealing with uncertain model input in the context of computation and simulation and is covered by various methods<ref type="bibr" target="#b21">(Lee &amp; Chen, 2009)</ref>. Founded on the propagation of error theory, forward uncertainty propagation methods consider probability distributions instead of concrete values as model input to express corresponding uncertainty. Using techniques such as Monte Carlo simulation, they analyze the resulting uncertainty in the outcome of the model by computing an outcome probability distribution based on specific input probability distributions. In the context of data-driven models, forward uncertaintypropagation methods appear to be applicable in cases where the input is provided as structured data and a corresponding probability distribution can be approximated; for example, if the input data consists of values provided by calibrated sensors with known measurement errors. However, computation time requirements may limit their application in design time analysis. Some classes of data-driven models such as decision trees<ref type="bibr" target="#b29">(Safavian &amp; Landgrebe, 1991)</ref> are usually created by modeling techniques that, by default, provide an uncertainty estimate together with their categorical outcome. These estimates are commonly provided as probability values that are derived based on the data used to build the model (cf. Fig.2).</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><figDesc>applied on top of a variety of existing modeling techniques to obtain uncertainty estimates. Some of them use machine learning techniques for this purpose (e.g., a combination of fuzzy c-means clustering or decision trees with linear regression)<ref type="bibr" target="#b31">(Shrestha &amp; Solomatine, 2006)</ref> <ref type="bibr" target="#b34">(Solomatine &amp; Shrestha, 2009)</ref>. If the applied modeling technique includes means to provide uncertainty estimates, cases need to be carefully differentiated into those where the uncertainty estimates are based on data used during model development and those where estimates are derived based on a previously unseen test dataset. If estimates are based on data used during model development, they may suffer from overfitting, which may lead to overconfident</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><figDesc>are male and older than 9 years, if you have been at the Titanic, you would have most likely died.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="1,-1.04,348.54,597.46,494.47" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="5,0.00,-1.00,596.33,212.08" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="7,0.00,-1.09,596.34,212.19" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0"><graphic coords="9,0.00,-1.04,596.33,212.13" type="bitmap" /></figure>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>Acknowledgments</head><p>Parts of this work are funded by the <rs type="funder">German Ministry of Education and Research (BMBF)</rs> under grant number <rs type="grantNumber">01IS16043E</rs> (CrESt).</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_Mf2eU8b">
+					<idno type="grant-number">01IS16043E</idno>
+				</org>
+			</listOrg>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>UNCERTAINTY IN AI AND MACHINE LEARNING -AN OVERVIEW</head></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">A simulation tool for efficient analogy based cost estimation</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Angelis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Stamelos</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Empirical software engineering</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="35" to="68" />
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Chapter</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">S</forename><surname>Armstrong</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2001">2001</date>
+			<publisher>The Forecasting Dictionary</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<title level="m" type="main">Principles of forecasting: a handbook for researchers and practitioners</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">S</forename><surname>In</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Armstrong</surname></persName>
+		</author>
+		<imprint>
+			<publisher>Springer Science &amp; Business Media</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Document Image Defect Models</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Baird</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Structured Document Image Analysis</title>
+		<editor>
+			<persName><forename type="first">H</forename><surname>Baird</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">H</forename><surname>Bunke</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">K</forename><surname>Yamamoto</surname></persName>
+		</editor>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="1992">1992</date>
+			<biblScope unit="page" from="546" to="556" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Linking software development and business strategy through measurement</title>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">R</forename><surname>Basili</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computer</title>
+		<imprint>
+			<biblScope unit="volume">43</biblScope>
+			<biblScope unit="page" from="57" to="65" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<title level="m" type="main">A unified bias-variance decomposition for zero-one and squared loss</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Domingos</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2000">2000</date>
+			<publisher>AAAI/IAAI</publisher>
+			<biblScope unit="page" from="564" to="569" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">A guidance map for the evaluation of binary classifiers in machine learning</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Fröhling</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+		<respStmt>
+			<orgName>TU Kaiserslautern</orgName>
+		</respStmt>
+	</monogr>
+	<note type="report_type">Master Thesis</note>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">Uncertainty in deep learning</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Gal</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+		<respStmt>
+			<orgName>University of Cambridge</orgName>
+		</respStmt>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Generative adversarial nets</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Pouget-Abadie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Mirza</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Warde-Farley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ozair</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in neural information processing systems</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="2672" to="2680" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<author>
+			<persName><forename type="first">M</forename><surname>Harel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Mannor</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>El-Yaniv</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Crammer</surname></persName>
+		</author>
+		<title level="m">Concept drift detection through resampling. International Conference on Machine Learning</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="1009" to="1017" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<author>
+			<persName><forename type="first">J</forename><surname>Hedderich</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Sachs</surname></persName>
+		</author>
+		<title level="m">Hypothesentest. Angewandte Statistik</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="445" to="795" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<monogr>
+		<title level="m" type="main">ISO/IEC 25012:2008 --Quality Requirements and Evaluation (SQuaRE) --Data quality model</title>
+		<author>
+			<persName><surname>Iso/Iec</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<author>
+			<persName><surname>Iso/Iec</surname></persName>
+		</author>
+		<title level="m">ISO/IEC 25000:2014 --Systems and software engineering --Systems and software Quality Requirements and Evaluation</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note>Guide to SQuaRE</note>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<title level="m" type="main">Evaluating learning algorithms: a classification perspective</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Japkowicz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Shah</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+			<publisher>Cambridge University Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Evidence-based guidelines for assessment of software development cost uncertainty</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Jorgensen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Software Engineering</title>
+		<imprint>
+			<biblScope unit="volume">31</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<biblScope unit="page" from="942" to="954" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Comprehensive review of neural network-based prediction intervals and new advances</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Khosravi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Nahavandi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Creighton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Atiya</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on neural networks</title>
+		<imprint>
+			<biblScope unit="volume">22</biblScope>
+			<biblScope unit="issue">9</biblScope>
+			<biblScope unit="page" from="1341" to="1356" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Uncertainty in Machine Learning Applications -A Practice-Driven Classification of Uncertainty</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kläs</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">M</forename><surname>Vollmer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">First International Workshop on Artificial Intelligence Safety Engineering</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2018">2018. 2018</date>
+			<biblScope unit="page" from="431" to="438" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Quality evaluation for big data -A scalable assessment approach and first evaluation results</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kläs</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Putz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Lutz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Joint Conference of the International Workshop on Software Measurement and the International Conference on Software Process and Product Measurement</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="115" to="124" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">In Ai And Machine Learning -An</forename><surname>Uncertainty</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Overview</surname></persName>
+		</author>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">The use of simulation techniques for hybrid software cost estimation and risk analysis</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kläs</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Trendowicz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Wickenkamp</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Münch</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Kikuchi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Ishigai</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Advances in computers</title>
+		<imprint>
+			<biblScope unit="volume">74</biblScope>
+			<biblScope unit="page" from="115" to="174" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<title level="m" type="main">Learning drifting concepts: Example selection vs. example weighting. IDA</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Klinkenberg</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2004">2004</date>
+			<biblScope unit="page" from="281" to="300" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">A comparative study of uncertainty propagation methods for black-box-type problems</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Chen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Structural and Multidisciplinary Optimization</title>
+		<imprint>
+			<biblScope unit="volume">37</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page">239</biblScope>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Unsupervised imageto-image translation networks</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">Y</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Breuel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Kautz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="700" to="708" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Deep Photo Style Transfer</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Luan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Paris</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Shechtman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Bala</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Conference on Computer Vision and Pattern Recognition (CVPR)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="6997" to="7005" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">A multi-partition multi-chunk ensemble technique to classify concept-drifting data streams</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Masud</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Gao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Khan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Han</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Thuraisingham</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Pacific-Asia Conference on Knowledge Discovery and Data Mining</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2009">2009. 2009</date>
+			<biblScope unit="page" from="363" to="375" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Concrete problems for autonomous vehicle safety: Advantages of Bayesian deep learning</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Mcallister</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Gal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kendall</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Van Der Wilk</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Shah</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Cipolla</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Weller</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">International Joint Conferences on Artificial Intelligence</title>
+		<imprint>
+			<biblScope unit="page" from="4745" to="4753" />
+			<date type="published" when="2017">2017</date>
+			<publisher>AAAI Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<monogr>
+		<title level="m" type="main">Survey sampling. Theory and methods</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Nassiuma</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2000">2000</date>
+			<publisher>CRC Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">A review of novelty detection</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Pimentel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Clifton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Clifton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Tarassenko</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Signal Processing</title>
+		<imprint>
+			<biblScope unit="volume">99</biblScope>
+			<biblScope unit="page" from="215" to="249" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<monogr>
+		<title level="m" type="main">Artificial intelligence: a modern approach</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Russell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Norvig</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>Pearson Education Limited</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">A survey of decision tree classifier methodology</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Safavian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Landgrebe</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Systems, Man, and Cybernetics</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="660" to="674" />
+			<date type="published" when="1991">1991</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<monogr>
+		<author>
+			<persName><forename type="first">F</forename><surname>Sarro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Petrozziello</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Harman</surname></persName>
+		</author>
+		<title level="m">Multi-objective software effort estimation. International Conference on Software Engineering (ICSE)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="619" to="630" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Machine learning approaches for estimation of prediction interval for the model output</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Shrestha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Solomatine</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural Networks</title>
+		<imprint>
+			<biblScope unit="volume">19</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="225" to="235" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Beyond accuracy, F-score and ROC: a family of discriminant measures for performance evaluation</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Sokolova</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Japkowicz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Szpakowicz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Australasian Joint Conference on Artificial Intelligence</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2006">2006</date>
+			<biblScope unit="page" from="1015" to="1021" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Data-driven modelling: some past experiences and new approaches</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Solomatine</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Ostfeld</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Hydroinformatics</title>
+		<imprint>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="3" to="22" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">A novel method to estimate model uncertainty using machine learning techniques</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Solomatine</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Shrestha</surname></persName>
+		</author>
+		<idno>W00B11</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Water Resoures Research</title>
+		<imprint>
+			<biblScope unit="volume">45</biblScope>
+			<biblScope unit="issue">12</biblScope>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<monogr>
+		<title level="m" type="main">Data-driven modelling: concepts, approaches and experiences. Practical Hydroinformatics</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Solomatine</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>See</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Abrahart</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+			<biblScope unit="page" from="17" to="30" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<monogr>
+		<title level="m" type="main">Dataset shift in machine learning</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Sugiyama</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">D</forename><surname>Lawrence</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Schwaighofer</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+			<publisher>The MIT Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">S</forename><surname>Wagner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">&amp;</forename></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+	<note>Operationalised product quality</note>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

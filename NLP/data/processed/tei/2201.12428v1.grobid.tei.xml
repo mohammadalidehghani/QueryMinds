@@ -1,0 +1,792 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Systematic Training and Testing for Machine Learning Using Combinatorial Interaction Testing</title>
+				<funder ref="#_hCHkq5y">
+					<orgName type="full">Army Research Laboratory</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2022-01-28">28 Jan 2022</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Tyler</forename><surname>Cody</surname></persName>
+							<email>tcody@vt.edu</email>
+							<affiliation key="aff0">
+								<orgName type="institution">National Security Institute</orgName>
+								<address>
+									<addrLine>Arlington Virginia</addrLine>
+									<region>Virginia Tech</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Erin</forename><surname>Lanus</surname></persName>
+							<affiliation key="aff1">
+								<orgName type="institution">The MITRE Corporation</orgName>
+								<address>
+									<region>McLean Virginia</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Daniel</forename><forename type="middle">D</forename><surname>Doyle</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">National Security Institute</orgName>
+								<address>
+									<addrLine>Arlington Virginia</addrLine>
+									<region>Virginia Tech</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Laura</forename><surname>Freeman</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">National Security Institute</orgName>
+								<address>
+									<addrLine>Arlington Virginia</addrLine>
+									<region>Virginia Tech</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Systematic Training and Testing for Machine Learning Using Combinatorial Interaction Testing</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2022-01-28">28 Jan 2022</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">CCF23403441D3FF48C6DB8CBAD830F0A</idno>
+					<idno type="arXiv">arXiv:2201.12428v1[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>combinatorial interaction testing</term>
+					<term>machine learning</term>
+					<term>black-box testing</term>
+					<term>test set construction</term>
+					<term>training set construction</term>
+					<term>data labeling</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>This paper demonstrates the systematic use of combinatorial coverage for selecting and characterizing test and training sets for machine learning models. The presented work adapts combinatorial interaction testing, which has been successfully leveraged in identifying faults in software testing, to characterize data used in machine learning. The MNIST handwritten digits data is used to demonstrate that combinatorial coverage can be used to select test sets that stress machine learning model performance, to select training sets that lead to robust model performance, and to select data for fine-tuning models to new domains. Thus, the results posit combinatorial coverage as a holistic approach to training and testing for machine learning. In contrast to prior work which has focused on the use of coverage in regard to the internal of neural networks, this paper considers coverage over simple features derived from inputs and outputs. Thus, this paper addresses the case where the supplier of test and training sets for machine learning models does not have intellectual property rights to the models themselves. Finally, the paper addresses prior criticism of combinatorial coverage and provides a rebuttal which advocates the use of coverage metrics in machine learning applications.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>I. INTRODUCTION</head><p>Combinatorial interaction testing has been widely used in software testing to understand code coverage, fault location, and to develop pseudo-exhaustive test strategies. Testing machine learning (ML), however, introduces new challenges. Namely, ML depends on learning from data and has nondeterministic faults.</p><p>When a system function is learned from data, instead of, e.g., hard-coded or hand-engineered, it introduces questions regarding how much data is needed, and regarding what data is needed, e.g., what domain should the data be collected from? Are there enough distinguishing features for class separation? What data surrounds a class and what data is needed to further distinguish it? Moreover, it is unclear how we ensure test data is adequate. That is, do we use a single, held-out set of testing data, or a leave-n-out procedure, or k-fold crossvalidation, or both? Those procedures may be progressively more statistically rigorous, but they only test performance in independent and identically distributed settings. In realworld settings, operational environments are expected to differ from training environments. To address robustness to such differences, adequate testing may require an amount of out-of-distribution testing, and adequate training may require an amount of out-of-distribution training.</p><p>A system function that has non-deterministic faults means that its faults are not necessarily reproducible, even with exhaustive testing. And to the extent that they are reproducible, the stochastic nature of outputs given by many ML models means that testing unique combinations one time may be inadequate. Moreover, outputs are dependent on the domain of the inputs, and the domains during testing and operation may differ from each other and from that seen in training. This nonstationarity challenges traditional combinatorial interaction testing, which typically focuses on comparing interactions seen in testing to an exhaustive universe of possible interactions <ref type="bibr" target="#b0">[1]</ref>.</p><p>Combinatorial coverage has been extended to help address these challenges <ref type="bibr" target="#b1">[2]</ref>. However, Li et al. criticize recent applications of coverage to deep learning <ref type="bibr" target="#b2">[3]</ref>- <ref type="bibr" target="#b4">[5]</ref> for its weakness to adversarial inputs, claiming that discretization creates a space where natural inputs are sparse and adversarial inputs are abundant <ref type="bibr" target="#b5">[6]</ref>. Furthermore, Li et al. claim that coverage is not correlated to test error on natural inputs. The results presented herein provide falsifying evidence of the latter claim, namely, that there is a correlation between test error on natural inputs and coverage.</p><p>This paper contributes a study of new systematic approaches to training and testing offered by combinatorial interaction testing using deep learning and the MNIST handwritten digit data set <ref type="bibr" target="#b6">[7]</ref>. This paper demonstrates new approaches for using combinatorial interaction testing in machine learning for (1) constructing test sets, (2) constructing training sets, and (3) directing labeling efforts. While previous works have demonstrated specific uses of combinatorial coverage in deep learning <ref type="bibr" target="#b2">[3]</ref>- <ref type="bibr" target="#b4">[5]</ref>, this paper demonstrates its use in training and testing broadly-agnostic to the particular machine learning solution method. Thus, this paper posits combinatorial interaction testing as a holistic approach to training and testing in ML, spanning white-box and black-box. Additionally, the presented results clearly refute criticisms in the literature that coverage is not correlated to test error on natural inputs. This paper is structured as follows. First, a background and preliminaries are given on combinatorial interaction testing and on training and testing in machine learning. Then, methods using combinatorial coverage to address the identified concerns are presented using deep learning and MNIST. Subsequently, the presented results are used as the basis for a discussion of criticisms of combinatorial interaction testing in the training and testing of ML. Lastly, the paper closes with a synopsis and conclusions.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>II. BACKGROUND A. Training and Testing in Machine Learning</head><p>ML algorithms need data from which to learn concepts, features, and hidden patterns in order to develop models for prediction. This training data must be collected and/or synthetically generated, and it should represent that which the trained ML model will encounter in testing and in the real world. To achieve this, training data is often randomized, supplemented, and/or augmented to fill gaps and increase prediction performance <ref type="bibr" target="#b7">[8]</ref>- <ref type="bibr" target="#b10">[11]</ref>.</p><p>Despite the complexity of constructing sets of training data, testing ML models often takes on a singular focus of how accurate is a given model in predicting the class or value of a specific item, object, etc. In the extreme, this singular focus considers rigour in testing to be achieved by training and evaluating on different but identically distributed subsets of data, as in k-fold cross-validation and leave-one-out stability <ref type="bibr" target="#b11">[12]</ref>, <ref type="bibr" target="#b12">[13]</ref>.</p><p>However, there are multiple factors to consider when testing <ref type="bibr" target="#b13">[14]</ref>- <ref type="bibr" target="#b15">[16]</ref>. What is the accuracy of the model given training, validation, and test data? Are the training and test data accurate, i.e., are inputs measured correctly and outputs labeled correctly? Literature on testing in ML is concerned with these and related questions, and with their great variety of answers. In a survey of the ML testing literature, an initial search found 1305 related papers that were subsequently down-selected to a relevant 37 publications between 2007 to 2019 <ref type="bibr" target="#b16">[17]</ref>.</p><p>Braiek and Khomh consider testing as either black-box or white-box, where the latter indicates that test procedures have access to or full-view of ML models' inner-workings and the former indicates that test procedures only have access to the input-output functionality of ML models <ref type="bibr" target="#b16">[17]</ref>. Common black-box methods include generative models, which leverage probability distributions fit to data, and adversarial ML, which considers the effect of alterations to inputs on performance.</p><p>White-box methods are numerous and varied. Common white-box methods related to this paper include metamorphic testing. Metamorphic testing uses structural properties of the relation between the inputs and outputs of a ML model to detect incorrect outputs without labels <ref type="bibr" target="#b17">[18]</ref>. Combinatorial coverage also has a focus on structure.</p><p>There are various uses of coverage in white-box testing. In deep learning, recent work considers notions of coverage within layers of deep neural networks <ref type="bibr" target="#b2">[3]</ref>- <ref type="bibr" target="#b4">[5]</ref>. Whereas methods such as DeepGauge <ref type="bibr" target="#b3">[4]</ref> and DeepCT <ref type="bibr" target="#b4">[5]</ref> consider coverage with respect to the internal layers of neural networks, sometimes termed the neuron-or layer-levels, the presented work considers coverage over the latent space of an auto-encoder trained on the data and its relation to the performance of a neural network classifier. Thus, in comparison to prior work involving combinatorial interaction testing and deep learning, the methodology presented herein is black-box with respect to the classifier. This is advantageous, as many times classifiers are proprietary or otherwise have inaccessible inner-workings. Consider, customers of ML services, e.g., governments, acquire ML models without acquiring full intellectual property rights to those models, and so cannot access algorithms. Also, in contrast to prior work, the work presented herein uses a variant of coverage that compares relative coverage between testing and training data <ref type="bibr" target="#b1">[2]</ref>, as will be explained in the following.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Combinatorial Interaction Testing</head><p>Combinatorial interaction testing concerns the empirical testing of the interfaces between components of systems. It has been empirically shown that, in software, a limited number of interactions among components are responsible for nearly all failures <ref type="bibr" target="#b0">[1]</ref>. This finding supports the claim that high levels of assurance in component integration does not require exhaustive testing, and, thus, empirically supports the use of combinatorial approaches <ref type="bibr" target="#b18">[19]</ref>.</p><p>In ML, combinatorial interaction testing offers an approach to testing that can scale to large input spaces and capture phenomena that emerge at the integration and systems levels, thereby addressing key challenges to testing in machine learning <ref type="bibr" target="#b19">[20]</ref>. It has been used for testing machine learning components in autonomous driving <ref type="bibr" target="#b20">[21]</ref>, studying hidden layers in deep learning <ref type="bibr" target="#b4">[5]</ref>, and for explainability of machine learning <ref type="bibr" target="#b21">[22]</ref>. MNIST has been widely used in studies of combinatorial coverage for deep learning <ref type="bibr" target="#b2">[3]</ref>- <ref type="bibr" target="#b5">[6]</ref>.</p><p>In contrast to the traditional use of probability theory in machine learning, combinatorial interaction testing uses set theory. In testing and evaluation for machine learning, this results in a focus on set differences instead of distances between probability distributions.</p><p>In combinatorial interaction testing for ML, factors are the dimensions of the input space X and output space Y. For example, an unmanned aerial vehicle may have factors from sensor readings in X such as ground speed, radar, and GPS. The values of those factors are their events, e.g., '5 meters per second' is a value of the ground speed factor. In combinatorial interaction testing, continuous-valued factors must be discretized to a finite set of values.</p><p>A t-way value combination is a t-tuple of (factor, value) pairs. If there are k factors in X × Y, then each element (x, y) ∈ X × Y contains k t t-way value combinations. A 3-way value combination in an unmanned aerial vehicle could be a specific combination of values for ground speed, radar, and GPS, e.g., '5 meters per second' with 'no obstruction within 10 meters' in 'region A'. A 2-way value combination could be a specific combination of values for radar and GPS, e.g., 'no obstruction within 10 meters' in 'region A'.</p><p>Combinatorial coverage, also referred to as total t-way coverage, is a metric for the proportion of valid t-way value combinations that appear in a set <ref type="bibr" target="#b22">[23]</ref>. Value combinations that appear are considered covered. Those that do not are considered not covered. Combinatorial coverage is defined formally as follows.</p><p>Definition 1. t-way Combinatorial Coverage. Consider a universe with k factors such that U is the set of all valid k-way value combinations. Let U t be the set of valid t-way combinations. Given a set of data D ⊆ U, let D t define the set of t-way value combinations appearing in D. The t-way combinatorial coverage of D is</p><formula xml:id="formula_0">CC t (D) = |D t | |U t | ,</formula><p>where |D| denotes the cardinality of D.</p><p>In comparing training and test sets of data, we cannot necessarily treat them as D t and U t because training and test data may not be subsets of each other. A metric of coverage developed explicitly for ML, set difference combinatorial coverage (SDCC), is alternatively tasked with comparing value combinations seen in training, to those seen in testing, to those seen in operation-all relative to each other, not relative to all possible value combinations. SDCC extends combinatorial coverage with set difference as follows <ref type="bibr" target="#b1">[2]</ref>.</p><p>Definition 2. t-way Set Difference Combinatorial Coverage. Let D S and D T be sets of data, and D S t and D T t be the corresponding t-way sets of data. The set difference D T t \D S t gives the value combinations that are in D T t but that are not in D S t . The t-way set difference combinatorial coverage is SDCC t (D T , D S ) = |D T t \ D S t | |D T t | . Restated, it is the proportion of t-way value combinations appearing in D T but not D S . SDCC t is bounded [0, 1] where 1 indicates no overlap, i.e., D T t ∩D S t = ∅, and 0 indicates that D T t ⊆ D S t . In other words, if D T is the testing data and D S is the training data, 0 indicates that all testing combinations are present in the training data and 1 indicates that none are present. Note, we use t = 2 throughout the paper and denote SDCC 2 as SDCC.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>III. METHODS</head><p>In the following, correlations between accuracy and SDCC are demonstrated. Then, SDCC's use for constructing test sets, constructing training sets, and directing labeling efforts is investigated.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. SDCC on MNIST</head><p>SDCC is demonstrated on the MNIST handwritten digits data <ref type="bibr" target="#b6">[7]</ref>. The data consists of 28×28 pixel grayscale images of digits 0-9 and has been canonical for research in combinatorial interaction testing for deep learning <ref type="bibr" target="#b2">[3]</ref>- <ref type="bibr" target="#b5">[6]</ref>. Herein, 1k images of each digit serve as the basis for several studies. Images are rotated counter-clockwise by 15, 30, 45, 60, 75, and 90 degrees, without resizing, as shown in Figure <ref type="figure" target="#fig_0">1</ref>. This creates 60k rotated images.</p><p>Instead of pixel values, four discrete factors are used in order to study SDCC on MNIST. These factors are simple, general, and tractable, and avoid issues with meaningless interactions in the space of pixel values. The factors are as follows. • Digit. The digit label is a discrete factor: 0, 1, ..., 8, 9. • Circle. Images with digit 0, 6, 8, and 9 are assigned True for their closure and other images are assigned False. • Density. Images are separated into four bins using the 0.25, 0.50, and 0.75 quantiles of their average pixel value. • AE Region. Images are assigned values corresponding to partitioned regions in the latent space of an autoencoder (AE) [24]. The circle and density factors are more or less invariant to rotation. So, in order to have a factor dependent on rotation, the AE region factor is introduced. Since t = 2, each image has six 2-way value combinations. The choice of t = 2 is made because in initial experiments, the digit and AE region factors were in most 3-way and 4-way combinations. The AE region factor merits further explanation.</p><p>To create the AE region factor, we train an AE using 1k images of each non-rotated digit for 20 epochs. The AE consists first of a network which encodes images into a low-dimensional latent space, and second of a network that reconstructs images given samples from the low-dimensional latent space. Details on architecture can be found in the Appendix.</p><p>Discrete AE regions are created in two steps. First, images from all rotations are encoded in the AE's latent space, the encoded images are transformed into their first two principal components <ref type="bibr" target="#b24">[25]</ref>, and the resulting data are scaled [0, 1]. Second, the [0, 1] × [0, 1] square is partitioned into 25 equal regions as shown in Figure <ref type="figure" target="#fig_1">2</ref>.</p><p>Herein, convolutional neural networks (CNNs) are used to classify digits. Details on architecture can be found in the Appendix. In order to conduct a basic investigation of the correlation between SDCC and accuracy, a CNN termed CNN 0 is trained to classify non-rotated digits using 9k non-rotated images. Then, CNN 0 is evaluated on a test set of 1k nonrotated images and on 10k images associated with all other angles.</p><p>Additionally, SDCC(0, θ) and SDCC(θ, 0) are computed for each angle θ. Recall, the former describes the number of value combinations for non-rotated digits that do not appear in the rotated data, and the latter describes the number of value combinations for rotated digits that do not appear in the nonrotated data, based on the four defined factors. The results are shown in Table <ref type="table">I</ref>.</p><p>The SDCC(0, θ) monotonically increases as the accuracy Angle θ Accuracy SDCC (0, θ) (θ, 0) 0 .99 0 0 15 .95 .04 .07 30 .75 .06 .05 45 .44 .09 .10 60 .27 .15 .07 75 .20 .25 .07 90 .17 .28 .09</p><p>TABLE I: Accuracy of CNN 0 on 1k held-out, non-rotated images and on 10k images rotated for each angle θ, alongside corresponding SDCC values.</p><p>of CNN 0 decreases. In other words, when the test data covers less of the training data, the accuracy decreases. Note, initial experiments found that if the AE region factor is excluded, there is no correlation between coverage and error. This is because the circle and density factors are more or less invariant to rotation. As will be highlighted, the role of the AE region factor varies depending on the use of SDCC, e.g., for constructing test or training sets, or directing labeling. In the following subsections, the relationship between SDCC and accuracy is explored further by considering these various uses.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Constructing Test Sets</head><p>As noted, testing classifiers on data that is identically distributed to that which they are trained on is inadequate to assess real-world performance. Instead, before testing, SDCC can be used to partition data into samples whose images have covered value-combinations and samples whose images have at least one not covered value-combination. In essence, SDCC uses interactions between factors to identify the types of images that one would expect to be more difficult to classify because they are dissimilar in composition from those seen in training. This provides a kind of worst-case analysis for the classifier, offering a new mechanism for testing robustness to</p><p>Angle θ Covered Images Not Covered Images # Images Accuracy # Images Accuracy Strict 15 9839 .96 161 .81 30 9625 .76 375 .51 45 8317 .49 1683 .18 60 7874 .31 2126 .10 75 7543 .24 2547 .09 90 6848 .21 3152 .09 Relaxed 15 7127 .96 2873 .92 30 5415 .80 4585 .69 45 3172 .55 6828 .39 60 2155 .31 7845 .26 75 1975 .17 8025 .21 90 1394 .14 8606 .18</p><p>TABLE II: Accuracy of CNN 0 on samples of images whose value-combinations are covered and not covered by CNN 0 's training sample. The top concerns images corresponding to the strict definition of covered from SDCC and the bottom concerns relaxed definition involving the AE's latent space. machine learning engineers. Instead of focusing on the stability of a classifier to samples of different composition drawn from the same distribution, SDCC-based testing focuses on separating samples into those with structurally representative and structurally challenging compositions.</p><p>To investigate the use of SDCC in constructing test sets, the accuracy of CNN 0 is evaluated on samples from each angle of rotation which (1) have value combinations that are covered by the non-rotated data <ref type="foot" target="#foot_0">1</ref> and which (2) have value combinations that are not covered by the non-rotated data. The process of partitioning images as covered or not covered is as follows. For each angle θ, SDCC(θ, 0) is used to identify those rotated images with value combinations that are not in the non-rotated data. Images have six 2-way value combinations, so any individual image may have many value combinations that are not in the non-rotated data. An image only needs one missing value combination to be considered not covered. All other images are considered covered.</p><p>CNN 0 is evaluated on samples of covered and not covered images. First, images are considered covered in the strict sense defined above. Second, the strict definition of covered is relaxed. The relaxed notion of covered considers an image as not covered if it belongs to an AE region that has a not covered image. The motivation behind this relaxation is to test if the strict focus on testing unseen value combinations is significantly different than constructing tests by sampling from regions in AE's latent space that have images with unseen value combinations. The results are shown in Table <ref type="table">II</ref>.</p><p>There is a drastic difference in classification accuracy between samples of covered images and samples of not covered Fig. <ref type="figure">3</ref>: Accuracy difference on samples of covered and not covered images for each angle with percent differences.</p><p>images. Figure <ref type="figure">3</ref> plots the two sets of accuracies for each angle, as well as denotes the percent difference between the two. For rotation angle 15, which had a relatively high performance on the randomly sampled test set as shown in Table <ref type="table">I</ref>, the accuracy was only 16% different. But across the other angles, the maximum difference was 67% and the minimum was 32%. This confirms the assertion that SDCC can be used to identify challenging test sets.</p><p>Furthermore, in comparing the strict and relaxed definitions of covered, the results show that constructing test sets by sampling from AE regions which have not covered images does not create nearly as challenging a test as sampling images with not covered value combinations directly. This illustrates the value of the interaction in defining set differences rather than univariate summaries of covered versus not covered. The bottom half of Table <ref type="table">II</ref> shows that, under the relaxed definition, CNN 0 has similar accuracy on covered and not covered images. Thus, while the AE region factor is needed to correlate SDCC with accuracy, the other factors are needed to add the necessary detail to identify difficult-to-classify edge cases.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. Constructing Training Sets</head><p>Because of the unknowns associated with real-world deployment, defining notions of adequacy for training sets is difficult. Clearly, if the distributions of inputs or outputs are expected to change, then adequacy does not equate to a percentage size of held-out training data or a number of folds to train and evaluate over. In the following, the use of SDCC to construct training sets is investigated.</p><p>Consider a setting where CNNs are trained on images with a rotation angle of 15 degrees. Two CNNs are trained: (1) CNN 15 , a CNN trained on images with a rotation angle of 15 degrees and (2) CNN 0,15,30 , a CNN trained on images with rotation angles of 0, 15, and 30 degrees. Whereas CNN 15 is trained on 9k images with the same rotation, CNN 0,15,30 is trained on 4k images from three different angles, for a total of 12k images. The idea is that CNN 0,15,30 samples from nearby rotation angles during training for the sake of having a better coverage property.</p><p>CNN 15 and CNN 0,15,30 are trained for 20 epochs. Both classifiers are achieve an accuracy of 99% on 1k held-out images with a rotation angle of 15 degrees. However, this does not hold when the distribution changes. Specifically, consider a case where CNN 15 and CNN 0,15,30 used to classify images with rotation angles 30, 45, and 60. Both models are tested on 10k images from each new angle.</p><p>The SDCC({30, 45, 60}, 15) and SDCC(15, {30, 45, 60}) are 0.078 and 0.053, respectively. The SDCC({30, 45, 60}, {0, 15, 30}) and SDCC({0, 15, 30}, {30, 45, 60}) are slightly lower at 0.070 and 0.048, respectively. However, recall that SDCC is based on the presence or absence of value-combinations, where each image has 6 combinations of factors. While the SDCC values may be similar between the rotation angle 15 training set and the rotation angle 0, 15, and 30 training set, the number of images of rotation angle 30, 45, or 60 with value-combinations that are not covered varies greatly.</p><p>Table <ref type="table">III</ref> shows that the CNN 15 training set has nearly 6fold more uncovered images than the CNN 0,15,30 training set. While the classification accuracy of CNN 0,15,30 on rotation angles 30, 45, and 60 is slightly lower than CNN 15 for uncovered images, that lower accuracy applies to a much smaller fraction of the test set. Additionally, CNN 0,15,30 outperforms on covered images. So, other than the slightly lower accuracy on the far fewer uncovered images, CNN 0,15,30 dominates CNN 15 with higher accuracy on images with rotation angles 30, 45, and 60, lower SDCC scores for rotation angles 30, 45, and 60, and a lower number of uncovered images. All while having equal accuracy on images with rotation angle 15. This suggests that constructing training sets to have certain coverage-based properties has favorable trade-offs.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>D. Directing Labeling Efforts</head><p>Based on the results presented thus far, it seems SDCC has a role to play in directing labeling efforts, e.g., as a metric in active or optimal learning <ref type="bibr" target="#b25">[26]</ref>, <ref type="bibr" target="#b26">[27]</ref>. In other words, it seems that, given a set of unlabeled data, SDCC can help identify where algorithms will benefit the most from labeling efforts. Transfer learning from a source domain of non-rotated digits to target domains of various rotation angles is used to investigate this use of SDCC. Specifically, we consider the classification accuracy of CNN 0 on images with rotation angles of 60, 75, and 90 after fine-tuning CNN 0 with samples from corresponding angles.</p><p>The fine-tuning process follows a conventional transfer learning procedure of (1) initializing a new CNN θ using the weights of CNN 0 and (2) training CNN θ with images with a rotation angle of θ, i.e., fine-tuning CNN 0 to a new angle θ. For angle 60, 75, and 90, when the samples used in finetuning are drawn exclusively from images with not covered value combinations, classifier performance does not improve from the results reported in Table <ref type="table">I</ref>. It may be that images Train Set Covered Images Not Covered Images # Images Accuracy # Images Accuracy CNN 15 28663 0.75 1337 0.30 CNN 0,15,30 29768 0.85 232 0.23</p><p>TABLE III: Accuracy of CNN 15 and CNN 0,15,30 on samples of images that are not covered by their respective training sets, as well as corresponding the corresponding number of images in those samples.</p><p>with not covered value combinations represent edge cases, and that training on edge cases alone does not improve average performance.</p><p>Alternatively, not covered images can be mixed into a random sample. The top row of Figure <ref type="figure" target="#fig_2">4</ref> shows the result of this alternative. The y-axis denotes classification accuracy on 1k held-out images and the x-axis denotes the size of the random sample. The lines represent cases where 0, 50, and 100 not covered images are mixed with the random sample. By observing the total ordering of each case, it is clear that mixing not covered images into the random sample decreases sample efficiency and reduces the maximum accuracy.</p><p>The bottom row of Figure <ref type="figure" target="#fig_2">4</ref> shows the results when the relaxed definition of covered is used in an otherwise identical experiment. Now, random samples mixed with SDCC samples outperform. They have a higher initial performance and they appear to converge faster. The left and middle plot of the bottom row show that this trend holds for larger random sample sizes. This suggests that while strict notions of SDCC can be used to construct difficult test sets and to construct robust training sets, the same capability of SDCC to select edge cases for training and testing may limit its use in directing labeling. However, using SDCC to guide which regions of the data space to sample from, as opposed to which exact pieces of data to sample, addresses this short-coming. It appears as if adding strictly not covered samples attempts to stretch the decision boundary over a disjoint set of points which degrades the global decision boundary. However, including weakly not covered samples helps maintain connectedness, so the decision boundary doesn't break.</p><p>A lack of utility from sampling of edge cases is highly dependent on the informativeness of factors, and could perhaps be assuaged with better factors, e.g., by using additional factors that are not invariant to rotation. Moreover, this shortcoming may be a symptom of assessing average performance, rather than performance on edge cases.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>IV. REBUTTAL OF CRITICISMS</head><p>Coverage metrics have recently been criticized by Li et al. <ref type="bibr" target="#b5">[6]</ref>. Li et al. argue that the vast majority of the set of all possible value-combinations, i.e., the universal set U , consists of adversarial examples. Otherwise put, a vast minority of U consists of so-called natural inputs. In the words of Li et al., "This observation intuitively contradicts the effectiveness of the structural coverage criteria for neural networks."</p><p>While this criticism may be true for DeepGauge <ref type="bibr" target="#b3">[4]</ref> or DeepCT <ref type="bibr" target="#b4">[5]</ref>, here, we demonstrate the richness of coverage by adjusting our concern away from notions of coverage relative to the universal set of value combinations U to notions of set differences between the value-combinations in two different domains-that is, we use SDCC <ref type="bibr" target="#b1">[2]</ref>. SDCC is a relative comparison between the presence of value-combinations in natural inputs, and therefore, is not based on comparisons to artificial, adversarial value-combinations.</p><p>Li et al. continue by claiming that, "Our initial experiments with natural inputs denied the correlation between the number of misclassified inputs in a test set and its structural coverage on the associated neural networks." To the extent that natural inputs correspond to non-adversarial value-combinations in the set U , the results presented herein clearly falsify the initial experiments of Li et al., as shown explicitly in Table <ref type="table">I</ref>.</p><p>Although Li et al. focus their criticisms on coverage methods which consider the neurons or layers of neural networks, the results presented herein rebut their criticisms by using methods which consider the data directly. Since this is equivalent to considering the input-layer of a neural network, this is a valid rebuttal of the criticisms quoted above.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>V. CONCLUSION</head><p>This paper presents adaptions and new methods for using combinatorial interaction testing in ML. The results show that SDCC correlates to test error, that model performance varies greatly between test sets with covered and not covered value combinations, that training sets constructed to satisfy coverage properties are more robust than identically distributed training sets, and that relaxed notions of coverage can improve label and sample efficiency. With these extensions, combinatorial interaction testing treats pressing issues in the training and testing in ML.</p><p>This and past works have used MNIST extensively, and, given the promising results, future work should extend the use of combinatorial interaction testing in machine learning to larger data sets and data sets with extensive meta-data. Also, while neuron-and layer-level notions of coverage may be powerful white-box testing methods, as demonstrated here, input-level notions of coverage can be powerful black-box testing methods. The use of combinatorial interaction testing as a spanning paradigm for both white-and black-box testing should be explored further.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>APPENDIX</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Autoencoder Architecture</head><p>The AE takes flattened 28×28 pixel images as input, has a single layer to encode to a dimension of 32 with a rectified linear unit activation function, and a single layer to decode back to a dimension of 784 with a sigmoid activation function. The model is trained using a batch size of 256, binary crossentropy and Adam <ref type="bibr" target="#b27">[28]</ref>. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. CNN Architecture</head><p>The CNNs used take 28×28 pixel images as input, have hidden layers consisting of a 2-dimensional convolution layer with 32 filters of kernel size 3×3, a layer of max pooling of size 2×2, a 2-dimensional convolution layer with 64 filters of kernel size 3×3, and another layer of 2×2 max pooling. Dropout with a rate of 0.5 is used before the 10-dimensional output layer. The convolution layers use rectified linear units as activation functions and the output layer uses softmax. The model is trained using categorical cross-entropy and Adam <ref type="bibr" target="#b27">[28]</ref>. In training, the batch size was 128, except in the directing labeling study, which had smaller samples and used a batch size of 10.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Fig. 1 :</head><label>1</label><figDesc>Fig. 1: Example digits rotated 0, 15, 30, 45, 60, 75, and 90 degrees from left to right.</figDesc><graphic coords="3,311.98,50.54,257.04,85.68" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Fig. 2 :</head><label>2</label><figDesc>Fig. 2: Principal components of AE's latent space, colored by digit, with region divisions shown by grey, dashed lines.</figDesc><graphic coords="4,48.96,50.54,257.05,171.37" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Fig. 4 :</head><label>4</label><figDesc>Fig. 4: Impact of directed labeling on classification accuracy.</figDesc><graphic coords="7,48.96,50.54,514.09,270.52" type="bitmap" /></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0"><p>i.e., CNN 0 's training data</p></note>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>ACKNOWLEDGEMENTS</head><p>This research was sponsored by the <rs type="funder">Army Research Laboratory</rs> and was accomplished under Cooperative Agreement Number <rs type="grantNumber">W911NF-18-2-0218</rs>. The views and conclusions contained in this document are those of the authors and should not be interpreted as representing the official policies, either expressed or implied, of the <rs type="institution">Army Research Laboratory</rs> or the <rs type="institution">U.S. Government</rs>. The U.S. Government is authorized to reproduce and distribute reprints for Government purposes notwithstanding any copyright notation herein.</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_hCHkq5y">
+					<idno type="grant-number">W911NF-18-2-0218</idno>
+				</org>
+			</listOrg>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Software fault interactions and implications for software testing</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">R</forename><surname>Kuhn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">R</forename><surname>Wallace</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">M</forename><surname>Gallo</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE transactions on software engineering</title>
+		<imprint>
+			<biblScope unit="volume">30</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="418" to="421" />
+			<date type="published" when="2004">2004</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Combinatorial testing metrics for machine learning</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Lanus</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">J</forename><surname>Freeman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">R</forename><surname>Kuhn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">N</forename><surname>Kacker</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2021 IEEE International Conference on Software Testing, Verification and Validation Workshops (ICSTW)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2021">2021</date>
+			<biblScope unit="page" from="81" to="84" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Deepxplore: Automated whitebox testing of deep learning systems</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Pei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Cao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Jana</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">proceedings of the 26th Symposium on Operating Systems Principles</title>
+		<meeting>the 26th Symposium on Operating Systems Principles</meeting>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="1" to="18" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Deepgauge: Multi-granularity testing criteria for deep learning systems</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Juefei-Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Xue</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Su</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Liu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 33rd ACM/IEEE International Conference on Automated Software Engineering</title>
+		<meeting>the 33rd ACM/IEEE International Conference on Automated Software Engineering</meeting>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="120" to="131" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Deepct: Tomographic combinatorial testing for deep learning systems</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Juefei-Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Xue</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Zhao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2019 IEEE 26th International Conference on Software Analysis, Evolution and Reengineering (SANER)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="614" to="618" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Structural coverage criteria for neural networks could be misleading</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Cao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2019 IEEE/ACM 41st International Conference on Software Engineering: New Ideas and Emerging Results (ICSE-NIER)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="89" to="92" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">The mnist database of handwritten digits</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lecun</surname></persName>
+		</author>
+		<ptr target="http://yann.lecun.com/exdb/mnist/" />
+		<imprint>
+			<date type="published" when="1998">1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">A survey on image data augmentation for deep learning</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Shorten</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">M</forename><surname>Khoshgoftaar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Big Data</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="48" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Synthetic data generation for the internet of things</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">W</forename><surname>Anderson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">E</forename><surname>Kennedy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">B</forename><surname>Ngo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Luckow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">W</forename><surname>Apon</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2014 IEEE International Conference on Big Data (Big Data</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="171" to="176" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Synsys: A synthetic data generation system for healthcare applications</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Dahmen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Cook</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Sensors</title>
+		<imprint>
+			<biblScope unit="volume">19</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page">1181</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Synthetic data</title>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">E</forename><surname>Raghunathan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Annual Review of Statistics and Its Application</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="page" from="129" to="140" />
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">A survey of cross-validation procedures for model selection</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Arlot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Celisse</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Statistics surveys</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="page" from="40" to="79" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Practical bayesian model evaluation using leave-one-out cross-validation and waic</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Vehtari</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gelman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Gabry</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Statistics and computing</title>
+		<imprint>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="1413" to="1432" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<title level="m" type="main">An approach to software testing of machine learning applications</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Murphy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Kaiser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Arias</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">The challenge of verification and testing of machine learning</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Papernot</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Cleverhans-blog</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Machine learning testing: Survey, landscapes and horizons</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">M</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Harman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Liu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Software Engineering</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">On testing machine learning programs</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">B</forename><surname>Braiek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Khomh</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Systems and Software</title>
+		<imprint>
+			<biblScope unit="volume">164</biblScope>
+			<biblScope unit="page">110542</biblScope>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Testing and validating machine learning classifiers by metamorphic testing</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Xie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">W</forename><surname>Ho</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Murphy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Kaiser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">Y</forename><surname>Chen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Systems and Software</title>
+		<imprint>
+			<biblScope unit="volume">84</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="544" to="558" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">A survey of combinatorial testing</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Nie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Leung</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM Computing Surveys (CSUR)</title>
+		<imprint>
+			<biblScope unit="volume">43</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="1" to="29" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Challenges of testing machine learning based systems</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Marijan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gotlieb</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">K</forename><surname>Ahuja</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2019 IEEE International Conference On Artificial Intelligence Testing (AITest)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="101" to="102" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Simulationbased adversarial test generation for autonomous vehicles with machine learning components</title>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">E</forename><surname>Tuncali</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Fainekos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Ito</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Kapinski</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2018 IEEE Intelligent Vehicles Symposium (IV)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="1555" to="1562" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Combinatorial methods for explainable ai</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">R</forename><surname>Kuhn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">N</forename><surname>Kacker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">E</forename><surname>Simos</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2020 IEEE International Conference on Software Testing, Verification and Validation Workshops (ICSTW)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page" from="167" to="170" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Combinatorial coverage measurement concepts and applications</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">R</forename><surname>Kuhn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">D</forename><surname>Mendoza</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">N</forename><surname>Kacker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lei</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2013 IEEE Sixth International Conference on Software Testing, Verification and Validation Workshops</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="page" from="352" to="361" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Autoencoders, unsupervised learning, and deep architectures</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Baldi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of ICML workshop on unsupervised and transfer learning. JMLR Workshop and Conference Proceedings</title>
+		<meeting>ICML workshop on unsupervised and transfer learning. JMLR Workshop and Conference Proceedings</meeting>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="37" to="49" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Principal component analysis</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Wold</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Esbensen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Geladi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Chemometrics and intelligent laboratory systems</title>
+		<imprint>
+			<date type="published" when="1987">1987</date>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="page" from="37" to="52" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<monogr>
+		<title level="m" type="main">Active learning literature survey</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Settles</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<monogr>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">B</forename><surname>Powell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">O</forename><surname>Ryzhov</surname></persName>
+		</author>
+		<title level="m">Optimal learning</title>
+		<imprint>
+			<publisher>John Wiley &amp; Sons</publisher>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="volume">841</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Adam: A method for stochastic gradient descent</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">P</forename><surname>Kingma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">L</forename><surname>Ba</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICLR: International Conference on Learning Representations</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="page" from="1" to="15" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

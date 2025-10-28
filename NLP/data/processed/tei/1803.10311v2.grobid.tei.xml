@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">How Developers Iterate on Machine Learning Workflows A Survey of the Applied Machine Learning Literature</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Doris</forename><surname>Xin</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Illinois</orgName>
+								<address>
+									<settlement>Urbana-Champaign (UIUC</settlement>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Litian</forename><surname>Ma</surname></persName>
+							<email>litianm2@illinois.edu</email>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Illinois</orgName>
+								<address>
+									<settlement>Urbana-Champaign (UIUC</settlement>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Shuchen</forename><surname>Song</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Illinois</orgName>
+								<address>
+									<settlement>Urbana-Champaign (UIUC</settlement>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Aditya</forename><surname>Parameswaran</surname></persName>
+							<email>adityagp@illinois.edu</email>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Illinois</orgName>
+								<address>
+									<settlement>Urbana-Champaign (UIUC</settlement>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">How Developers Iterate on Machine Learning Workflows A Survey of the Applied Machine Learning Literature</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">88CC3E01C1E3A828EE6DCEF86292FD7C</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Machine learning workflow development is anecdotally regarded to be an iterative process of trial-and-error with humans-in-the-loop. However, we are not aware of statistics-based evidence corroborating this popular belief. A statistical characterization of iteration can serve as a benchmark for machine learning workflow development in practice, and can aid the development of human-in-the-loop machine learning systems. To this end, we conduct a small-scale survey of the applied machine learning literature from five distinct application domains. We use statistics collected from the papers to estimate the role of iteration within machine learning workflow development, and report preliminary trends and insights from our investigation, as a starting point towards this benchmark. Based on our findings, we finally describe desiderata for effective and versatile human-in-the-loop machine learning systems that can cater to users in diverse domains.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">INTRODUCTION</head><p>Development of machine learning (ML) applications is governed by an iterative process: starting with an initial workflow, developers iteratively modify their workflow, based on previous results, to improve performance. They may add or modify data sources, features, hyperparameters, and training algorithms, among others. These iterations of trial-and-error are necessary due to data variability, algorithmic complexity, and overall unpredictability of ML. A detailed, statistical characterization of how developers iteratively modify ML workflows can serve as a benchmark for human-in-theloop ML systems. At present, due to the lack of such studies, we are forced to resort to anecdotal evidence to identify usage patterns and motivate design decisions.</p><p>To this end, we conduct a statistical study of iteration by surveying the applied ML literature across five application domains. The statistics collected in this study provide the first quantitative evidence of how developers iterate on ML workflows, beyond anecdotal ones. Moreover, the insights and trends discovered from our survey provide concrete guidelines on desired human-in-the-loop ML system properties, while the models and statistics provide a starting point for the development of benchmarks for standardized and automatic evaluation of human-in-the-loop ML systems.</p><p>Statistical studies of end-to-end ML workflow development pose several challenges. First, it is difficult to gather data that captures the entire process, and not just the final snapshot. One approach, for example, may involve examining code repositories over time to determine what has changed-one downside of this approach is that developers may not commit intermediate iterations, leading to less transparency for the overall process. Moreover, this approach will require understanding code, and mapping code fragments to classes of iterative modifications, both of which are extremely challenging to do. Second, we need to ensure that our study captures a diverse set of application domains. Surveys <ref type="bibr" target="#b0">[1,</ref><ref type="bibr" target="#b2">3,</ref><ref type="bibr" target="#b8">9,</ref><ref type="bibr" target="#b11">12]</ref> often end up focusing on industry-relevant application areas (e-commerce, recommendations), and data-types (language, vision). Since our eventual goal is to develop a benchmark for general-purpose human-in-the-loop ML systems, this limited view may hinder our ability to adequately support all application domains. Third, once the data is collected, we need to devise methods to analyze the data and collect statistics related to iteration. Finally, we need to turn the raw statistics into models that capture iteration and relate trends and insights discovered from these models to ML system design.</p><p>Our study includes an analysis of 105 applied machine learning papers sampled from multiple conferences in 2016 and across five application domains, including social sciences, natural sciences, web application, computer vision, and natural language processing. We collect statistics from each paper that capture iterative development and use these statistics to infer common practices in each application domain surveyed. We describe the statistics collected, how they are used to estimate iteration counts, and discuss the limitations of our approach in the next section. To ensure the quality of our statistics, we take consensus over results collected by multiple surveyors, and open-source the final aggregated data for further studies by interested readers, as well as development of formal benchmarks. We conduct data analysis on our survey results to highlight key insights unearthed by our survey and propose system requirements suggested by our analysis.</p><p>Related Work. To the best of our knowledge, our survey is the first effort in conducting a statistical study of machine learning model development from empirical evidence. However, the pursuit of understanding iterative ML development is not singularly ours. Several surveys have been conducted in recent years to profile industry and academic ML users <ref type="bibr" target="#b0">[1,</ref><ref type="bibr" target="#b2">3,</ref><ref type="bibr" target="#b8">9,</ref><ref type="bibr" target="#b11">12]</ref>. These surveys differ from ours in that they were self-reported responses from a select set of industry and academic users. Findings from self-reporting surveys are known to suffer from response bias <ref type="bibr" target="#b12">[13]</ref>. Many articles discuss general trends and design patterns in ML workflows <ref type="bibr" target="#b1">[2,</ref><ref type="bibr" target="#b5">6,</ref><ref type="bibr" target="#b6">7]</ref>, while a number of articles focus on providing guidance and taxonomies for novice users to perform iteration better <ref type="bibr" target="#b13">[14,</ref><ref type="bibr" target="#b14">15,</ref><ref type="bibr" target="#b17">18]</ref>. Other works such as <ref type="bibr" target="#b3">[4]</ref> and <ref type="bibr" target="#b10">[11]</ref> study general trends and needs in data science using NLP techniques to study a large corpus en masse. Vartak et al. <ref type="bibr" target="#b15">[16]</ref> describe a system-building vision for iterative human-in-the-loop ML. Kery et al. <ref type="bibr" target="#b7">[8]</ref> specifically study the versioning aspect of iterative development, whereas Koesten et al. <ref type="bibr" target="#b9">[10]</ref> analyze in-depth surveys to understand the typical workflow for data scientists.</p><p>The rest of paper is organized as follows: In Section 2, we describe the data, the statistics collected from the data, and the methods to study iteration using the statistics. In Section 3, we report interesting results and insights discovered from our survey and propose concrete system requirements to support human-in-the-loop ML based on the survey analysis.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">DATA &amp; METHODOLOGY</head><p>In this section we describe the dataset and the methods used to collect the statistics that enable analyses of iteration in publications.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">Corpus</head><p>We surveyed 105 papers published in 2016 on applied data science.</p><p>To ensure relevance, we selected four venues that specifically publish applied machine learning studies: KDD Applied Data Science Track, Association for Computational Linguistics (ACL), Computer Vision and Pattern Recognition (CVPR), and Nature Biotechnology (NB). We randomly sample 20 papers from ACL, CVPR, and NB each, and 45 papers from KDD. These papers span applications in social sciences (SocS), web applications (WWW), natural sciences (NS), natural language processing (NLP), and computer vision (CV). Paper topics were determined using the ACM Computing Classification System (CCS) 1 . Keywords in each paper are matched with entries in the CCS tree, and each paper is assigned as its domain the most appropriate high level entry containing its keywords. Figure <ref type="figure" target="#fig_0">1</ref> illustrates the domain composition of the conferences surveyed. While ACL, CVPR, and Nature specialize in a single domain, KDD embraces many domains, with a focus on web applications and social science. Limitations. Our approach is limited in its ability to accurately model iterations due to several characteristics of the corpus: 1) While the corpus spans multiple domains, the number of paper in each domain is small, which can lead to spurious trends. 2) Papers provide an incomplete picture of the overall iterative process. Machine learning papers are results-driven and focus more on modeling than data pre-processing by convention. Due to space constraints, authors often omit a large number of iterative steps and report only on the small subset that led to the final results. 3) Papers often present results side by side instead of the order they were obtained, making it difficult to determine the exact transitions between the variants studied in the iterative process. We attempt to overcome some of these limitations by</p><p>• Having multiple surveyors and aggregating the results to reduce the change of spurious results, to be elaborated in Section 2.3;</p><p>1 <ref type="url" target="https://www.acm.org/publications/class-2012">https://www.acm.org/publications/class-2012</ref> </p><p>• Devising estimators that do no rely on information about the order of operations, to be elaborated in Section 2.4.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">Brief Overview of ML Workflows</head><p>ML workflows commonly consist of three major components: Data Pre-processing (DPR). This stage contains all the data manipulation operations, such as data cleaning and feature extraction, used to turn raw data into a format compatible with ML algorithms.</p><p>Learning/Inference (L/I). Once the data is transformed into a learnable representation, such as feature vectors, learning takes place, using the transformed data to derive an ML model via optimization. Inference refers to the processing by which the learned model is used to make predictions on unseen data, and is often performed after learning.</p><p>Post Processing (PPR). Post processing is the all-encompassing term for operations following learning and inference. Bruha et al. <ref type="bibr" target="#b4">[5]</ref> classifies PPR operations in to four categories: 1) rule-based knowledge filtering, 2) and knowledge integration, 3) interpretation and explanation, 4) evaluation. While 1) and 2) involve transformations of the L/I output, 3) and 4) are about the analysis of the L/I output. Mentions of 1) and 2) are sparse in our corpus and thus excluded from our study.</p><p>In the context of ML application development, an iteration involves creating a version of the workflow, either from scratch or by copying/modifying a previous version, and executing this version end to end to obtain some results. Program termination marks the end of an iteration, and any results that are not written to disk during execution can only be obtained by modifying the workflow to explicitly save the results and rerunning the workflow.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3">Statistics Collection</head><p>Our goal in this survey is to collect statistics on how users iterate on ML workflows. However, iterations are often not explicitly reported in publications. To overcome this challenge, we design a set of statistics that allow us to infer the iterative process leading to the results reported in each paper. We introduce the statistics for each individual component of the ML workflow below. DPR. As mentioned above, DPR encompasses all operations involved in transforming raw data into learnable representations, such as feature engineering, data cleaning, and feature value normalization. We record D, the set of distinct DPR operation types found in each paper and collect n D = |D|. Mentions of DPR operations are usually found in the data and methods sections in the paper. L/I. Workflow modifications concerning L/I fall into one of three categories: 1) hyperparameter tuning for a model (e.g., increasing learning rate, changing the architecture of a neural net) and 2) switching between model classes (e.g., from decision tree to SVM). For each paper, we record M, the set of all model classes and P, the set of distinct hyperparameters tuned across all model classes, and collect n M = |M| and n P = |P |. Evidence for these statistics is usually found in the algorithms section, as well as result tables and figures. PPR. Of the four types of PPR operations enumerated above, evaluation and interpretation/explanation are the most commonly reported in papers, often presented in tables or figures. For each paper, we record E, the set of evaluation metrics used, and collect n E = |E |. In addition, we collect n t abl e and n f iдur e , the number of tables and figures containing results and case studies, respectively.</p><p>We refer to D, M, P, E collectively as entity sets in the rest of the paper<ref type="foot" target="#foot_0">foot_0</ref> .</p><p>To ensure the quality of the statistics collected, we had three graduate students in data mining, henceforth referred to as surveyors, perform the survey independently on the same corpus. We reference the results collected by each surveyor with a subscript, e.g., M 1 is the set of model classes recorded by surveyor 1. To increase the likelihood of consensus, we first had the surveyors discuss and agree on a seed set for each entity set, e.g., E = {Accuracy, RMSE, NDCG}. Surveyors were then asked to remove from and add to this set as they see fit for each paper. Let n ′</p><p>x be the aggregated value of the statistic n x . We aggregate the three sets of results as follows:</p><p>• For an entity set S (e.g., M, the set of model classes), let S a = S 1 ∪ S 2 ∪ S 3 . We filter S a to obtain S ′ ⊆ S a such that s ∈ S ′ is identified by at least two surveyors. That is, a paper is considered to contain an operation only if it is identified to be in the paper by at least two surveyors independently. We define n ′ S for the corresponding statistic as |S ′ |. • For n t abl e and n f iдur e , we define n ′ t abl e/f iдur e to be the average of the values obtained by the three surveyors.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.4">Estimating Iterations using Statistics</head><p>The information collected above indicate versions of the workflow studied but not the iterative modifications themselves. To infer the number of iterations using the statistics collected above, we make the following assumptions:</p><p>• Each iteration involves a single change. While it is possible for multiple changes to be tested in a single iteration, it is unlikely the case since the interactions can obfuscate the contribution of individual changes. • Each element in an entity set is tested exactly once. For the authors to report on a variant, there must have been at least one version of the workflow containing that variant. Although it is likely for a variant to be revisited in multiple iterations in the actual research process, papers, by convention, provide little information on this aspect. Due to this lack of evidence, we take the conservative approach by taking the minimum value. Let t DP R , t LI , t P P R be the number of iterations containing changes to the DPR, L/I, and PPR components of the workflow, respectively. Using the two assumptions above, we estimate t DP R , t LI , and t P P R as follows:</p><formula xml:id="formula_0">• tDP R = n ′ D • tLI = (n ′ M -1) + (n ′ P -1) • tP P R = min n ′ E , n ′ t abl e + n ′ f iдur e</formula><p>For tDP R , we assume that the authors start with the raw data and incrementally add more data pre-processing operations in each iteration. We subtract one from n ′ M and n ′ P in tLI to account for the fact that the initial version of the workflow must contain a model, a set of hyperparameters, and an optimization algorithm.</p><p>The estimator tP P R assumes that in a PPR iteration, the authors can either gather all information on a single metric or generate an entire figure/table.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">RESULTS AND INSIGHTS</head><p>In this section we share interesting trends about ML workflow development discovered from our survey.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Iteration Count</head><p>0 1 2 3 4 5 tDPR 0.0 0.2 0.4 0.6 0.8 1.0 Num. Papers 0 1 2 3 4 5 tLI 0.0 0.2 0.4 0.6 0.8 1.0 0 1 2 3 4 5 tPPR 0.0 0.2 0.4 0.6 0.8 1.0 Estimator Value Histograms for All Papers 0 1 2 3 4 5 tDPR 0.0 0.2 0.4 0.6 0.8 1.0 Num. Papers 0 1 2 3 4 5 tLI 0.0 0.2 0.4 0.6 0.8 1.0 0 1 2 3 4 5 tPPR 0.0 0.2 0.4 0.6 0.8 1.0 Estimator Value Histograms for Social Sciences 0 1 2 3 4 5 tDPR 0.0 0.2 0.4 0.6 0.8 1.0 Num. Papers 0 1 2 3 4 5 tLI 0.0 0.2 0.4 0.6 0.8 1.0 0 1 2 3 4 5 tPPR 0.0 0.2 0.4 0.6 0.8 1.0 Estimator Value Histograms for Natural Sciences 0 1 2 3 4 5 tDPR 0.0 0.2 0.4 0.6 0.8 1.0 Num. Papers 0 1 2 3 4 5 tLI 0.0 0.2 0.4 0.6 0.8 1.0 0 1 2 3 4 5 tPPR 0.0 0.2 0.4 0.6 0.8 1.0 Estimator Value Histograms for Web Applications 0 1 2 3 4 5 tDPR 0.0 0.2 0.4 0.6 0.8 1.0 Num. Papers 0 1 2 3 4 5 tLI 0.0 0.2 0.4 0.6 0.8 1.0 0 1 2 3 4 5 tPPR 0.0 0.2 0.4 0.6 0.8 1.0 Estimator Value Histograms for NLP 0 1 2 3 4 5 tDPR 0.0 0.2 0.4 0.6 0.8 1.0 Num. Papers 0 1 2 3 4 5 tLI 0.0 0.2 0.4 0.6 0.8 1.0 0 1 2 3 4 5 tPPR 0.0 0.2 0.4 0.6 0.8 1.0 Estimator Value Histograms for Computer Vision 0 1 2 3 4 5 6 7 CV NLP Web App Natural Sciences Social Sciences E[ tDPR ] E[ tLI ] E[ tPPR ] Figure <ref type="figure" target="#fig_2">2</ref> shows the histograms for the three iteration estimators tDP R , tLI , tP P R across the entire corpus (top row) and by domain (rows 2-6). A bin in every histogram represents an integral value for the estimators, and bin heights equal the fraction of papers with the bin value as their estimates. The mean values for the estimators by domains are shown in the stacked bar chart in Figure <ref type="figure" target="#fig_4">3</ref>, where the total bar length is equal to the average number of iterations in each domain. From these two figures, we see that 1) most papers use ≥ 1 evaluation methods, evident from the fact that histograms in the third column in Figure <ref type="figure" target="#fig_2">2</ref> are skewed towards tP P R ≥ 2; 2) PPR is the most common iteration type across all domains, evident from the length of the E[ tP P R ] bars in Figure <ref type="figure" target="#fig_4">3</ref>; and 3) on average, more DPR iterations are reported than L/I iterations in every domain except computer vision, as illustrated by the relative lengths of the E[ tDP R ] and E[ tLI ] bars in Figure <ref type="figure" target="#fig_4">3</ref>.</p><p>When grouped by domains, we see that the distributions for certain domains deviate a great deal from the overall trends in Figure <ref type="figure" target="#fig_2">2</ref>. Domains dominated by deep neural nets (DNNs), which are designed to replace manual feature engineering for higher order features, tend to skew towards fewer DPR and more L/I iterations, such as NLP and CV. Additionally, there are only a few highly processed datasets studied in all NLP and CV papers, further reducing the need for data pre-processing in these domains. On the other hand, social and natural sciences exhibit the opposite trend in the histograms in Figure <ref type="figure" target="#fig_2">2</ref>, biasing towards more DPR iterations. This is largely due to the fact that both domains rely heavily on domain knowledge to guide ML and strongly prefer explainable models. In addition, a large amount of data is required to enable training of DNNs. The scale of data is often much smaller for SocS and NS than NLP and CV, thus preventing effective application of DNNs and requiring more manual features.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Data Pre-processing by Domain</head><p>Table <ref type="table" target="#tab_0">1</ref> shows the most popular DPR operations in each application domain, ordered top to bottom by popularity, with abbreviations expanded in the caption. While the table reaffirms common knowledge such as feature normalization is important, Table <ref type="table" target="#tab_0">1</ref> also shows two striking results: 1) joining multiple data sources is common in four of the five domains surveyed; 2) 1  3 of the papers contain fine-grained features defined using domain knowledge across all domains. Result 1) suggest that unlike classroom and data competition settings in which the input data resides conveniently in a single file, data in real-world ML applications is aggregated from multiple sources (e.g., user database and event logs). Result 2) contradicts the common belief that ML applications have collectively progressed beyond handcrafted features thanks to the advent of deep learning (DL). In addition to the incompatibilities with DL in some domains mentioned in Section 3.1, the efficacy of features designed using domain knowledge versus using DL to search for the same features without domain knowledge is possibly another contributing factor.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Learning/Inference by Domain</head><p>Table <ref type="table" target="#tab_1">2</ref> lists the most popular model classes for each application domain, with abbreviations expanded in the caption. We have already discussed the disparity between the popularity of DL in CV/NLP and other domains in Section 3.1. Most traditional approaches such as GLM, SVM, and Random Forest are still in favor with most domains, since the large additional computation cost for DL often fails to justify the incremental model performance gain. Matrix factorization, which is highly amenable to parallelization, is popular in web applications for supporting recommendation engines. Interestingly, SVM is the most popular method in natural sciences by a large margin (100% more popular than the second most popular option), possibly due to its ability to support higher order functions through kernels. NS applications experimenting with DL are mostly computer vision related.</p><p>Table <ref type="table" target="#tab_2">3</ref> shows the most popular model tuning operations by domains. The top two operations, learning rate and batch size, are both concerned with the training convergence rate, suggesting that training time is an important factor in all domains. Cross validation and regularization are both mechanisms to control model complexity and overfitting to observed data. Lower complexity models usually result in faster inference time and better ability to generalize to more unseen data.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.4">Post Processing by Domain</head><p>Of the evaluation methods listed in Table <ref type="table">4</ref>, P/R, accuracy, correlation, and DCG are summary evaluations of model performance while case study, feature contribution, human evaluation, and visualization are fine-grained methods towards insights to improve upon the current model. While the former group can be used automatically such as in grid search, the latter group is aimed purely for human understanding.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.5">System Desiderata</head><p>The results in Section 3 suggest a number of properties that a versatile and effective human-in-the-loop ML system should possess:</p><p>• Iteration. Developers iterate on their workflows in every application domain and test out changes to all components of the workflow. Understanding the most frequent changes helps us develop systems that anticipate and respond rapidly to iterative changes. • Fine-grained feature engineering. Handcrafted features designed using domain knowledge is still an indispensable part of the workflow development systems in all domains and should therefore be adequately supported instead of dismissed as an outdated practice.  <ref type="table">4</ref>: Most popular evaluation methods by domain. P/R = precision/recall; Acc. = accuracy; Vis. = visualization; Feat. Contrib. = feature contribution to model performance; NCG = discounted cumulative gain, popular in ranking tasks; Case = case studies of individual results.</p><p>• Explainable models. Many domains have yet to embrace deep learning due to their needs for explainable models. The system should provide ample support to help developer interpret model behaviors.</p><p>• Fast model training. The fact that the most tuned model parameters are related to training time suggests that developers are in need of systems that have fast model training, but also low latency for the end-to-end workflow execution in general. • Fine-grained results analysis. Fine-grained and summary evaluation methods are equally popular across all domains. Thus, model management systems should provide support for not only summary metrics but also more detailed model characteristics. We are in the process of developing a system, titled Helix <ref type="bibr" target="#b16">[17]</ref>, that is aimed at accelerating iterations in human-in-the-loop ML workflow development, using many of the properties listed above as guiding principles.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">CONCLUSION AND FUTURE WORK</head><p>We conduct a statistical study on the iterative development process for ML applications in multiple domains. Our approach involves collecting carefully designed statistics from applied machine learning literature in order to reconstruct the iterative process that led to the results reported. We present our survey findings across domains and discuss desired ML system properties as suggested by the trends discovered from our survey data. The statistics and estimators described in our work can be further developed into a benchmark for systems specifically designed to address human-in-the-loop ML needs.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Paper count per domain by conference.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: Distribution of number of iterations by workflow component.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Figure 3 :</head><label>3</label><figDesc>Figure 3: Mean iteration count by domains.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 1 :</head><label>1</label><figDesc>Data is often pooled from multiple sources, thus requiring systems to support efficient joins in the data pre-processing component.Common DPR operations ordered top to bottom by popularity. Join = joining multiple data sources; Feat. def. = custom logic for fine-grained feature extraction; Univer. FS = univariate feature selection, using criteria such as support and correlation per feature; BOW = bag of words; PCA = principal component analysis, a common dimensionality reduction technique.</figDesc><table><row><cell>SocS</cell><cell>NS</cell><cell>WWW</cell><cell>NLP</cell><cell>CV</cell></row><row><cell>Join (31.0%)</cell><cell cols="4">Feature def. (40.6%) Feature def. (36.1%) Feature def. (32.1%) Feature def. (37.5%)</cell></row><row><cell>Feature def. (27.6%)</cell><cell>Univar. FS (18.8%)</cell><cell>Join (22.2%)</cell><cell>BOW (17.9%)</cell><cell>BOW (25.0%)</cell></row><row><cell>Normalize (17.2%)</cell><cell>Normalize (12.5%)</cell><cell>Normalize (13.9%)</cell><cell>Join (14.3%)</cell><cell>Interaction (25.0%)</cell></row><row><cell>Impute (6.9%)</cell><cell>PCA (9.4%)</cell><cell>Discretize (8.3%)</cell><cell>Normalize (10.7%)</cell><cell>Join (12.5%)</cell></row><row><cell>SocS</cell><cell>NS</cell><cell>WWW</cell><cell>NLP</cell><cell>CV</cell></row><row><cell>GLM (36.0%)</cell><cell>SVM (32.7%)</cell><cell>GLM (37.0%)</cell><cell cols="2">RNN (32.4%) CNN (38.2%)</cell></row><row><cell>SVM (28.0%)</cell><cell>GLM (15.4%)</cell><cell>RF (11.1%)</cell><cell cols="2">GLM (14.7%) SVM (17.6%)</cell></row><row><cell>RF (20.0%)</cell><cell>RF (13.5%)</cell><cell>SVM (11.1%)</cell><cell cols="2">SVM (11.8%) RNN (17.6%)</cell></row><row><cell cols="4">Decision Tree (12.0%) DNN (13.5%) Matrix Factorization (11.1%) CNN (8.8%)</cell><cell>RF (5.9%)</cell></row></table><note><p>• Efficient joins.</p></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>Table 2 :</head><label>2</label><figDesc>Common model classes ordered top to bottom by popularity per domain. GLM = generalized linear models (e.g., logistic regression); RF = random forest; SVM = support vector machine; R/CNN = recursive/convolutional neural networks.</figDesc><table><row><cell>SocS</cell><cell>NS</cell><cell>WWW</cell><cell>NLP</cell><cell>CV</cell></row><row><cell>Regularize (40.0%)</cell><cell>CV (31.8%)</cell><cell>Regularize (41.2%)</cell><cell>LR (39.4%)</cell><cell>LR (46.2%)</cell></row><row><cell>CV (30.0%)</cell><cell>LR (22.7%)</cell><cell>LR (23.5%)</cell><cell cols="2">Batch size (24.2%) Batch size (30.8%)</cell></row><row><cell>LR (10.0%)</cell><cell cols="4">DNN arch. (18.2%) Batch size (11.8%) DNN arch. (18.2%) DNN arch. (11.5%)</cell></row><row><cell>Batch size (10.0%)</cell><cell>Kernel (9.1%)</cell><cell>CV (11.8%)</cell><cell>Kernel (6.1%)</cell><cell>Regularize (11.5%)</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_2"><head>Table 3 :</head><label>3</label><figDesc>Most popular model tuning operations by domain. CV = cross validation; LR = learning rate; DNN arch. = DNN architecture modification; Kernel specifically applies to SVM.</figDesc><table><row><cell>SocS</cell><cell>NS</cell><cell>WWW</cell><cell>NLP</cell><cell>CV</cell></row><row><cell>P/R (25.7%)</cell><cell>Acc. (28.6%)</cell><cell>Acc. (20.8%)</cell><cell>P/R (29.2%)</cell><cell>Vis. (33.3%)</cell></row><row><cell>Acc. (20.0%)</cell><cell>P/R (18.6%)</cell><cell>P/R (20.8%)</cell><cell>Acc. (27.1%)</cell><cell>Acc. (29.8%)</cell></row><row><cell>Feat. Contrib. (17.1%)</cell><cell>Vis. (15.7%)</cell><cell>Case (13.2%)</cell><cell>Case (14.6%)</cell><cell>P/R (17.5%)</cell></row><row><cell>Vis. (14.3%)</cell><cell cols="2">Correlation (11.4%) DCG (9.4%)</cell><cell cols="2">Human Eval. (8.3%) Case (12.3%)</cell></row><row><cell>Table</cell><cell></cell><cell></cell><cell></cell><cell></cell></row></table></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_0"><p>The complete entity sets and statistics can be found at https://github.com/gestaltml/AppliedMLSurvey/blob/master/data/combinedCounts.tsv</p></note>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<ptr target="https://s3.amazonaws.com/files.technologyreview.com/whitepapers/MITTR_GoogleforWork_Survey.pdf" />
+		<title level="m">Machine Learning: The New Proving Ground for Competitive Advantage</title>
+		<imprint>
+			<date type="published" when="2017">2017. 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Machine learning: the power and promise of computers that learn by example</title>
+		<ptr target="https://royalsociety.org/~/media/policy/projects/machine-learning/publications/machine-learning-report.pdf" />
+		<imprint>
+			<date type="published" when="2017">2017. 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<title level="m" type="main">The State of Data Science and Machine Learning</title>
+		<ptr target="https://www.kaggle.com/surveys/2017" />
+		<imprint>
+			<date type="published" when="2017">2017. 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Trends and Trajectories for Explainable, Accountable and Intelligible Systems: An HCI Research Agenda</title>
+		<author>
+			<persName><forename type="first">Ashraf</forename><surname>Abdul</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jo</forename><surname>Vermeulen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Danding</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Brian</forename><forename type="middle">Y</forename><surname>Lim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mohan</forename><surname>Kankanhalli</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2018 CHI Conference on Human Factors in Computing Systems</title>
+		<meeting>the 2018 CHI Conference on Human Factors in Computing Systems</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page">582</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Postprocessing in machine learning and data mining</title>
+		<author>
+			<persName><forename type="first">Ivan</forename><surname>Bruha</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Famili</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM SIGKDD Explorations Newsletter</title>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="page" from="110" to="114" />
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">A few useful things to know about machine learning</title>
+		<author>
+			<persName><forename type="first">Pedro</forename><surname>Domingos</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Commun. ACM</title>
+		<imprint>
+			<biblScope unit="volume">55</biblScope>
+			<biblScope unit="page" from="78" to="87" />
+			<date type="published" when="2012">2012. 2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Machine learning: Trends, perspectives, and prospects</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">I</forename><surname>Jordan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">M</forename><surname>Mitchell</surname></persName>
+		</author>
+		<ptr target="http://science.sciencemag.org/content/349/6245/255" />
+	</analytic>
+	<monogr>
+		<title level="j">Science</title>
+		<imprint>
+			<biblScope unit="volume">349</biblScope>
+			<biblScope unit="page" from="255" to="260" />
+			<date type="published" when="2015">2015. 2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Variolite: Supporting Exploratory Programming by Data Scientists</title>
+		<author>
+			<persName><forename type="first">Mary</forename><surname>Beth Kery</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Amber</forename><surname>Horvath</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Brad</forename><surname>Myers</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2017 CHI Conference on Human Factors in Computing Systems</title>
+		<meeting>the 2017 CHI Conference on Human Factors in Computing Systems</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="1265" to="1276" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<title level="m" type="main">Data science salary survey: tools, trends, what pays (and what doesn&apos;t) for data professionals</title>
+		<author>
+			<persName><forename type="first">John</forename><surname>King</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Roger</forename><surname>Magoulas</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016. 2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">The Trials and Tribulations of Working with Structured Data:-a Study on Information Seeking Behaviour</title>
+		<author>
+			<persName><forename type="first">Emilia</forename><surname>Laura M Koesten</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jenifer</forename><surname>Kacprzak</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Elena</forename><surname>Fa Tennison</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Simperl</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2017 CHI Conference on Human Factors in Computing Systems</title>
+		<meeting>the 2017 CHI Conference on Human Factors in Computing Systems</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="1277" to="1289" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">CHI 1994-2013: mapping two decades of intellectual progress through co-word analysis</title>
+		<author>
+			<persName><forename type="first">Yong</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jorge</forename><surname>Goncalves</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Denzil</forename><surname>Ferreira</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bei</forename><surname>Xiao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Simo</forename><surname>Hosio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vassilis</forename><surname>Kostakos</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">proceedings of the SIGCHI conference on human factors in computing systems</title>
+		<meeting>the SIGCHI conference on human factors in computing systems</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="3553" to="3562" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">A study on the importance of and time spent on different modeling steps</title>
+		<author>
+			<persName><forename type="first">Arthur</forename><surname>Munson</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM SIGKDD Explorations Newsletter</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="page" from="65" to="71" />
+			<date type="published" when="2012">2012. 2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Methods of coping with social desirability bias: A review</title>
+		<author>
+			<persName><forename type="first">Anton</forename><forename type="middle">J</forename><surname>Nederhof</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">European journal of social psychology</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="page" from="263" to="280" />
+			<date type="published" when="1985">1985. 1985</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">A survey of machine learning for big data processing</title>
+		<author>
+			<persName><forename type="first">Junfei</forename><surname>Qiu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Qihui</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Guoru</forename><surname>Ding</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yuhua</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shuo</forename><surname>Feng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">EURASIP Journal on Advances in Signal Processing</title>
+		<imprint>
+			<biblScope unit="volume">2016</biblScope>
+			<biblScope unit="page">67</biblScope>
+			<date type="published" when="2016">2016. 2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title level="m" type="main">Preparing and Architecting for Machine Learning</title>
+		<author>
+			<persName><forename type="first">Carlton</forename><forename type="middle">E</forename><surname>Sapp</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017. 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Supporting fast iteration in model building</title>
+		<author>
+			<persName><forename type="first">Manasi</forename><surname>Vartak</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pablo</forename><surname>Ortiz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kathryn</forename><surname>Siegel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Harihar</forename><surname>Subramanyam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Samuel</forename><surname>Madden</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Matei</forename><surname>Zaharia</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">NIPS Workshop LearningSys</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<monogr>
+		<title level="m" type="main">Helix: Holistic Optimization for Accelerating Iterative Machine Learning</title>
+		<author>
+			<persName><forename type="first">Doris</forename><surname>Xin</surname></persName>
+		</author>
+		<ptr target="http://data-people.cs.illinois.edu/helix-tr.pdf" />
+		<imprint>
+			<date type="published" when="2018">2018. 2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">Technical Report</note>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<title level="m" type="main">Rules of Machine Learning: Best Practices for ML Engineering</title>
+		<author>
+			<persName><forename type="first">Martin</forename><surname>Zinkevich</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017. 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

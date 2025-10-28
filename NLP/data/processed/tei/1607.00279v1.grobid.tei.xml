@@ -1,0 +1,728 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Meaningful Models: Utilizing Conceptual Structure to Improve Machine Learning Interpretability</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2016-07-01">1 Jul 2016</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Nick</forename><surname>Condry</surname></persName>
+							<email>nscondry@gwmail.gwu.edu</email>
+							<affiliation key="aff0">
+								<orgName type="institution">The George Washington University</orgName>
+								<address>
+									<addrLine>2121 I St. NW</addrLine>
+									<postCode>20052</postCode>
+									<settlement>Washington</settlement>
+									<region>DC</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Meaningful Models: Utilizing Conceptual Structure to Improve Machine Learning Interpretability</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2016-07-01">1 Jul 2016</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">45A6E0D5D921A2530DBF6A69B5F25422</idno>
+					<idno type="arXiv">arXiv:1607.00279v1[stat.ML]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:04+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>The last decade has seen huge progress in the development of advanced machine learning models; however, those models are powerless unless human users can interpret them. Here we show how the mind's construction of concepts and meaning can be used to create more interpretable machine learning models. By proposing a novel method of classifying concepts, in terms of 'form' and 'function', we elucidate the nature of meaning and offer proposals to improve model understandability. As machine learning begins to permeate daily life, interpretable models may serve as a bridge between domain-expert authors and non-expert users.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.">Introduction</head><p>In the last decade, machine learning algorithms have made huge strides, producing state-of-the-art results across a number of domains including image recognition, speech recognition, and natural language processing. However, while such results are exciting, there currently exists a gap between data modeling and knowledge extraction <ref type="bibr" target="#b27">(Vellido et al., 2012)</ref>. Machine learning models are rendered powerless unless they can be interpreted, thus in order for knowledge to be extracted from a model, we must account for the human cognitive factors involved in such a process. Interpretation must therefore be accounted for in machine learning processes, as shown in Figure <ref type="figure">1</ref>. In addition to promoting more transparent results, interpretable models enable non-experts to utilize machine learning tools. For example, a business manager is more likely to accept a model's recommendations if its results can be presented in business terms <ref type="bibr" target="#b3">(Bose &amp; Mahapatra, 2001)</ref>. As an ever-growing number of professionals come to rely on machine learning tools, the most successful models will provide an elegant 2016 ICML Workshop on Human Interpretability in Machine Learning <ref type="bibr">(WHI 2016)</ref>, New York, NY, USA. Copyright by the author(s). user experience, presenting users with information and intelligence that are easily interpretable.</p><p>Figure <ref type="figure">1</ref>. This illustration demonstrates the role of human interpretability in the development of a machine learning model. Without interpretable results, a human expert will not be able to accurately or efficiently modify their model or their datasets. This illustration is based on a diagram presented in <ref type="bibr" target="#b27">(Vellido et al., 2012)</ref>.</p><p>In the formal logic sense, an interpretation is a mapping of a formal construct to the entities and their relations it represents <ref type="bibr" target="#b23">(Rüping, 2006)</ref>. Less formally, interpretability can be seen as a signaling problem; a model must present its output such that a specific meaning is conveyed to its user. To understand how to convey meaning, we must first understand the nature of meaning itself. Therefore, in order to design models for interpretability, we must first investigate the processes by which humans assign meaning to symbols, and how the mind extracts knowledge from information.</p><p>Whereas previous investigations into machine learning interpretability have largely focused on the relation between accuracy and interpretability, algorithm and feature selection, and model visualizations (e.g. <ref type="bibr" target="#b23">(Rüping, 2006;</ref><ref type="bibr" target="#b14">Ishibuchi &amp; Nojima, 2007)</ref>, we will instead focus on the psychology of human concept learning. Using a relational model of meaning, we will propose a novel method of classifying concepts according to their structure and function within a given context. Based upon that method, we will offer several proposals to improve non-expert understanding of machine learning tools at a conceptual level.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.">Implicit Learning and Feature Extraction</head><p>Humans are organisms that have evolved to learn from experience, evaluating novel stimuli through a process of comparison to previously stored stimuli. While learning, in the traditional sense of schooling and education, is an active process, in order to investigate the basis of knowledge, we'll have to begin at the sub-conceptual and subconscious level.</p><p>The mind constantly and implicitly processes complex information in an incidental manner, without direct awareness of what has been learned <ref type="bibr" target="#b26">(Seger, 1994)</ref>. This process of passive knowledge acquisition is known as implicit learning.</p><p>Implicit learning began as a field of study with A.S. Reber's work in the late 1960's, and has been proposed as an evolutionary ancestor of explicit thought <ref type="bibr" target="#b21">(Reber, 1967;</ref><ref type="bibr" target="#b22">1992)</ref>. This process occurs automatically, and represents the subtle yet constant re-wiring of a brain's neurons as they adapt in response to new stimuli <ref type="bibr" target="#b24">(Sanders et al., 1987)</ref>. Most importantly, implicit learning occurs at the subconscious, or preconscious level; therefore, the knowledge gained is subconceptual, which is to say, the patterns learned are not immediately associated with a reference symbol <ref type="bibr" target="#b17">(Kihlstrom, 1987)</ref>. Instead, this process extracts relevant features from the local environment via the mind's lower level perceptual processes <ref type="bibr" target="#b25">(Schyns et al., 1998)</ref>. A feature is an individual measurable property of a phenomenon being observed <ref type="bibr" target="#b2">(Bishop, 2006)</ref>. Features may be continuous or categorical, and they comprise the most basic building block of human knowledge <ref type="bibr" target="#b25">(Schyns et al., 1998)</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">From Features to Concepts</head><p>The process of feature extraction is constant and unconscious; to bring this knowledge into the conscious domain requires conceptualization <ref type="bibr" target="#b12">(Goodman et al., 2008)</ref>. A concept is an abstract system composed of a set of features paired with a symbolic representation. In many ways, conceptualization mirrors a simple dictionary structure, where the symbol acts as the key, and its associated feature set is the value. The symbolic representation can be any real or abstract token, including images, sounds, and smells. However, the most common form of symbolic representation is a word, a character or combination of characters. For example, the concept of a dog might contain the features [furry: yes, ears: 2, legs: 4, tail: yes] and would be denoted by the character string: 'dog'. Since concepts are composed of a multi-dimensional set of features, they are inherently complex symbolic objects.</p><p>Concepts are abstract, meaning they can be applied to novel stimuli, and concept learning relies on incremental assumptions <ref type="bibr" target="#b16">(Katz et al., 2007)</ref>. The mind, as a concept formation system, accepts a stream of observations (i.e. events, objects, instances), and discovers a classification scheme over the data stream. Learning occurs not as a single event but as a continuous process; the mind's classification scheme evolves and changes as new observations are processed <ref type="bibr" target="#b8">(Fisher et al., 2014)</ref>. Figure 2 <ref type="bibr" target="#b7">(Dietterich et al., 1982)</ref> demonstrates this incremental learning process by which an agent adapts to its environment, organizing experiences to improve its performance <ref type="bibr" target="#b8">(Fisher et al., 2014)</ref>. This view of learning demonstrates that learning is not a discrete act, but rather a continuous process by which new information contributes to the evolution of existing concepts and the formation of new concepts. Furthermore, it aligns with <ref type="bibr" target="#b23">(Rüping, 2006)</ref> heuristic of interpretability, which states, people tend to find those things understandable, that they already know. Thus, when building a meaningful model, the intended audience must be taken into account when structuring output. If the output can be phrased or structured in a familiar way, subjects will be more likely to implicitly trust and utilize the information.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.">From Concepts to Meaning</head><p>Having established concepts as a system composed of a [key, value] pair, where the key is a symbol and the value is the associated feature set, we can look at meaning. The word meaning is often used in a variety of ways, from Plato's physically irreducible mystical essences to ideas of how words are used <ref type="bibr" target="#b19">(Ludwig, 1953)</ref>. Here, I will offer a view which finds its roots in connectionist psychological models, but until recently was unrealized at scale <ref type="bibr" target="#b20">(O'Reilly &amp; Munakata, 2000)</ref>. This view holds that since words simply denote clusters of features, words themselves have no inherent meaning; stripped of its associated features, a word is simply a meaningless symbol. Instead, meaning arises from the cognitive mapping of a word (or symbol) onto an underlying feature map <ref type="bibr" target="#b18">(Landauer et al., 2013)</ref>. For example, to someone with no knowledge of the English language, the word 'tree' would mean nothing, as their mind has not mapped the symbol to a set of features. However, to a native speaker, not only would 'tree' have meaning, but they could likely identify 'forest' as a similar concept, due to their overlapping feature sets. This theory of meaning has gained validation from the rise of latent semantic analysis (LSA) techniques, which construct models from the implicit relational mapping of a text. This 'map' does not exist in itself, it is an abstraction an infinite number of point-to-point distances computed by triangulation from earlier established points <ref type="bibr" target="#b18">(Landauer et al., 2013)</ref>. However, models created in the manner have proven highly accurate, and overlaying word-symbols on top of such maps have produced highly intuitive results.</p><p>Using this approach, we can view 'meaning' as a fundamentally relational property, as a word's relation to the semantic system in which it exists defines its meaning. Importantly, this leads us to realize that to efficiently convey meaning, we must start at the sub-conceptual level by identifying the specific information we hope to convey, then crafting a message such that it conveys the intended features given the context of audience. Given this theory, I will use the word "meaning" shorthand for "the set of features associated with a symbol, given context".</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.">The Form and Function of Concepts</head><p>The relational theory of meaning holds that a symbol, say, a word or an image, may hold different meanings in different contexts, given that it interacts with those contexts differently. While this might seem to imply that words cannot be assigned any true meaning, in practice this is not the case. Through shared communication protocols such as language, individually relative meanings solidify into a statistically canonical cultural form <ref type="bibr" target="#b11">(Goldstone &amp; Rogosky, 2002)</ref>.</p><p>Nevertheless, this theory lacks a direct explanation of the relationship between a symbol and meaning. We posit that this relationship can be best understood in terms of form and function. The function of a concept is its meaning, given context, and it represents how the concept interacts with its larger semantic context. Concepts that share their function are synonyms <ref type="bibr" target="#b15">(Kao &amp; Poteet, 2007)</ref>. The form is the specific instance of the class of objects defined by the object's function. For example, compare the following three phrases, "I'm going to the store", "I'm heading to the store", and "I'm heading the soccer ball". Given the context of the first two phrases, "going" and "heading" share the same meaning, and can thus be considered different forms, or instances, of the same conceptual function, or class. Given the context of the second two phrases, the conceptual form, "heading", is the same, but its function differs.</p><p>In some aspects, this categorization of concepts by form and function represents an extension of the "theory theory" of concepts in which concepts are composed of core and peripheral features (see: <ref type="bibr" target="#b4">(Carey, 1985;</ref><ref type="bibr" target="#b13">Gopnik &amp; Meltzoff, 1997</ref>). An object's core features are its causally deepest properties, whereas peripheral features refer to incidental features of a concept that do not directly define its nature. These descriptions of features as either core or peripheral are useful in qualitative description, but are difficult to translate into more technical contexts. Instead, we propose that function best encapsulates the meaning of core features, and form best encapsulates the meaning of peripheral features. The essence, or core of a concept, is its meaning, defined by the concept's function within a given context. Peripheral qualities, or form, are in turn best understood as the characteristics of a specific object. For example, within the simple context presented in Figure <ref type="figure">3</ref>, the rock interacts with a piece of paper by resting on top of it. While the form of the rock may be a small, grey, 2lb stone, within the given context, its function is to apply downward force on the paper, therefore its meaning is 'paper weight'. Similarly, as the paper supports the rock, from the rock's perspective, the function of the paper is support, so its meaning is ground. Forms can change without altering the operation of a system, so long as the object retains it's function.</p><p>Since an object's meaning is defined by interaction with its context, and the interaction can be viewed as a function, a relationship between inputs and output, meaning can be understood as a function within a larger process of interaction.</p><p>Figure <ref type="figure">3</ref>. This diagram displays how meaning arises through interaction. This diagram also reveals that meaning is a function of perspective: from the perspective of the paper, the rock is simply a weight whereas to the rock, the paper may as well be the ground.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.">Proposals to Improve Meaningful Models</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.1.">Clearly Outline a Model's Function</head><p>The function of a concept is defined by the change it enacts on its context, and thus represents a transition from an initial state to an output state. Thus, to improve model interpretability, models should have very clearly defined requirements for input and the goals of the output. For example, doctors might be supplied with a few models that perform different tasks, including quality-of-life (QOL) assessments, anomaly detection, and DNA sequence mining <ref type="bibr" target="#b6">(Cleophas &amp; Zwinderman, 2013)</ref>. Authors of such models should clearly state the purpose and intended applications of their work. If the model is only intended to perform exploratory data analysis, the author should emphasize in their discussion that confirmatory data analysis is required <ref type="bibr" target="#b10">(Foster et al., 2014)</ref>. Furthermore, authors should directly address the transportability of the model, i.e. which aspects of the method can be directly used in novel situations, and which aspects must be tuned for further application.</p><p>Additionally, authors should minimize the number of attributes in their classifiers. Minimizing attributes creates a simpler, and therefore more interpretable, form of the model, and also decreases the risk of overfitting, especially in smaller studies. One approach to limit attributes might involve variable ranking (see: <ref type="bibr" target="#b1">(Bekkerman et al., 2003;</ref><ref type="bibr" target="#b5">Caruana &amp; De Sa, 2003;</ref><ref type="bibr" target="#b9">Forman, 2003;</ref><ref type="bibr" target="#b29">Weston et al., 2003)</ref>). Another viable method proposed by <ref type="bibr" target="#b28">(Weigend et al., 1990)</ref> pares down variables using a weight elimination algorithm.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.2.">Place the Model in Context</head><p>In addition to specifying the purpose and scope-of-use of a model, authors should attempt to construct models such that they complement and expedite existing processes. In doing so, the meaning of their model will be elucidated by its context in the existing process. For example, in the early stages of developing a medical diagnostic imaging application, it is impossible to conclusively prove that the application works, but possible to prove that it does not work <ref type="bibr" target="#b10">(Foster et al., 2014)</ref>. If the latter is the case, it is best to discover such quickly, so that new processes and applications may be developed. A model in this process would become more meaningful, by virtue of having a clearly defined function within the scope of a larger system. Additionally, incorporating models into existing processes forces those models to incorporate some level of domain knowledge, and serve as useful tools rather than complete solutions unto themselves.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.3.">Design for User Experience</head><p>Finally, when developing models that aim to solve specific problems within a given domain area, thought should be given to preparing a front-end for users within that domain. A well-designed front-end would ideally accomplish the above proposals by clearly specifying required inputs, presenting coherent outputs, and positioning the model as a tool within a larger process or framework. Current developments of machine learning platforms such as Google Cloud Platform, Amazon Machine Learning, Microsoft Azure, and H20.ai have made strong progress in this regard, com-bining powerful models with intuitive representations.</p><p>While the algorithms and structure of the model itself accounts for the model's function, a cohesive front-end provides an overlaid form for the information conveyed. Essentially, this front-end can be viewed as a translation between the direct model output and a non-expert user. This translation should capitalize on the fundamentals of human concept acquisition by providing both information in a familiar format, and context. To this end, authors should focus on key user experience metrics, such as: will the users recommend the tool? Does this tool create a more efficient or effective process? What are the most significant usability problems with the tool? Are usability improvements being made from one version to the next <ref type="bibr" target="#b0">(Albert &amp; Tullis, 2013)</ref>? These questions place an emphasis on considering the understandability of a model in the design of the algorithms. Interpretability is difficult to achieve as a postprocessing step; the relationship between understandability and accuracy must be accounted for from the start <ref type="bibr" target="#b23">(Rüping, 2006)</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.">Conclusion</head><p>We have analyzed the psychology of human concept learning, and identified how the mind's construction of concepts and meaning can be used to create more interpretable machine learning models. Meaning arises from the interaction of a concept within a specified context. Furthermore, the identity of an object and its meaning can be fully described by two traits: form and function. Form describes the exact qualities and structure of an object, while function describes the object's meaning as a function of its interaction in its context. Furthermore, this promotes a view of concepts as functions in context, which allows them to be conceptualized as a relationship between input and output. Thus, the interpretability of a model on a conceptual level can be bolstered by clearly indicating the model's input requirements and output goals, and providing context for the model within a larger process. Additionally, these goals may be combined through the development of a cohesive front-end to present information in a familiar format and expand the usability of a model to non-expert users.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 2 .</head><label>2</label><figDesc>Figure2. This flow chart illustrates the act of learning as a continuous incremental process, by which an organism adapts to improve its fitness within a given environment.</figDesc><graphic coords="2,307.44,201.23,234.00,75.93" type="bitmap" /></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title level="m" type="main">Measuring the user experience: collecting, analyzing, and presenting usability metrics</title>
+		<author>
+			<persName><forename type="first">William</forename><surname>Albert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Thomas</forename><surname>Tullis</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<pubPlace>Newnes</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Distributional word clusters vs. words for text categorization</title>
+		<author>
+			<persName><forename type="first">Ron</forename><surname>Bekkerman</surname></persName>
+		</author>
+		<author>
+			<persName><surname>El-Yaniv</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ran</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Tishby</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Naftali</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yoad</forename><surname>Winter</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="page" from="1183" to="1208" />
+			<date type="published" when="2003">2003</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Pattern recognition</title>
+		<author>
+			<persName><forename type="first">Christopher</forename><forename type="middle">M</forename><surname>Bishop</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning</title>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Business data mining: a machine learning perspective</title>
+		<author>
+			<persName><forename type="first">Indranil</forename><surname>Bose</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Mahapatra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Radha</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Information &amp; management</title>
+		<imprint>
+			<biblScope unit="volume">39</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="211" to="225" />
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<title level="m" type="main">Conceptual change in childhood</title>
+		<author>
+			<persName><forename type="first">Susan</forename><surname>Carey</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1985">1985</date>
+			<publisher>MIT press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Benefitting from the variables that variable selection discards</title>
+		<author>
+			<persName><forename type="first">Rich</forename><surname>Caruana</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">De</forename><surname>Sa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Virginia</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="page" from="1245" to="1264" />
+			<date type="published" when="2003">2003</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">Machine learning in medicine</title>
+		<author>
+			<persName><forename type="first">Ton</forename><forename type="middle">J</forename><surname>Cleophas</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Zwinderman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Aeilko</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<publisher>Springer</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">The Handbook of Artificial Intelligence, chapter XIV</title>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">G</forename><surname>Dietterich</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">L</forename><surname>London</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Clarkson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Dromey</surname></persName>
+		</author>
+		<editor>Feigenbaum, E. and Barr, Avron</editor>
+		<imprint>
+			<date type="published" when="1982">1982</date>
+			<publisher>W. Kaufmann</publisher>
+			<biblScope unit="page" from="323" to="512" />
+			<pubPlace>Los Altos, CA</pubPlace>
+		</imprint>
+	</monogr>
+	<note>Learning and inductive inference</note>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<title level="m" type="main">Concept formation: Knowledge and experience in unsupervised learning</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">H</forename><surname>Fisher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">J</forename><surname>Pazzani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Langley</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<publisher>Morgan Kaufmann</publisher>
+		</imprint>
+	</monogr>
+	<note>1st edition</note>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">An extensive empirical study of feature selection metrics for text classification</title>
+		<author>
+			<persName><forename type="first">George</forename><surname>Forman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Journal of machine learning research</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="page" from="1289" to="1305" />
+			<date type="published" when="2003">2003</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Machine learning, medical diagnosis, and biomedical engineering research-commentary</title>
+		<author>
+			<persName><forename type="first">Kenneth</forename><forename type="middle">R</forename><surname>Foster</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Robert</forename><surname>Koprowski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joseph</forename><forename type="middle">D</forename><surname>Skufca</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Biomedical engineering online</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page">94</biblScope>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Using relations within conceptual systems to translate across conceptual systems</title>
+		<author>
+			<persName><forename type="first">Robert</forename><forename type="middle">L</forename><surname>Goldstone</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Brian</forename><forename type="middle">J</forename><surname>Rogosky</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Cognition</title>
+		<imprint>
+			<biblScope unit="volume">84</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="295" to="320" />
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">A rational analysis of rule-based concept learning</title>
+		<author>
+			<persName><forename type="first">Noah</forename><forename type="middle">D</forename><surname>Goodman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joshua</forename><forename type="middle">B</forename><surname>Tenenbaum</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jacob</forename><surname>Feldman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Thomas</forename><forename type="middle">L</forename><surname>Griffiths</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Cognitive Science</title>
+		<imprint>
+			<biblScope unit="volume">32</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="108" to="154" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<title level="m" type="main">Words, thoughts, and theories</title>
+		<author>
+			<persName><forename type="first">Alison</forename><surname>Gopnik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><forename type="middle">N</forename><surname>Meltzoff</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1997">1997</date>
+			<publisher>Mit Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Analysis of interpretability-accuracy tradeoff of fuzzy systems by multiobjective fuzzy genetics-based machine learning</title>
+		<author>
+			<persName><forename type="first">Hisao</forename><surname>Ishibuchi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yusuke</forename><surname>Nojima</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">International Journal of Approximate Reasoning</title>
+		<imprint>
+			<biblScope unit="volume">44</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="4" to="31" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<title level="m" type="main">Natural language processing and text mining</title>
+		<author>
+			<persName><forename type="first">Anne</forename><surname>Kao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Steve</forename><forename type="middle">R</forename><surname>Poteet</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2007">2007</date>
+			<publisher>Springer Science &amp; Business Media</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Issues in the comparative cognition of abstract-concept learning</title>
+		<author>
+			<persName><forename type="first">Jeffrey</forename><forename type="middle">S</forename><surname>Katz</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Wright</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Anthony</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Bodily</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Kent</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Comparative Cognition &amp; Behavior Reviews</title>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="page">79</biblScope>
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">The cognitive unconscious</title>
+		<author>
+			<persName><forename type="first">John</forename><forename type="middle">F</forename><surname>Kihlstrom</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Science</title>
+		<imprint>
+			<biblScope unit="volume">237</biblScope>
+			<biblScope unit="issue">4821</biblScope>
+			<biblScope unit="page" from="1445" to="1452" />
+			<date type="published" when="1987">1987</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title level="m" type="main">Handbook of latent semantic analysis</title>
+		<author>
+			<persName><forename type="first">Thomas</forename><forename type="middle">K</forename><surname>Landauer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Danielle</forename><forename type="middle">S</forename><surname>Mcnamara</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Simon</forename><surname>Dennis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Walter</forename><surname>Kintsch</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<publisher>Psychology Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<monogr>
+		<title level="m" type="main">Philosophical investigations. London</title>
+		<author>
+			<persName><forename type="first">Wittgenstein</forename><surname>Ludwig</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1953">1953</date>
+			<pubPlace>Basic Blackw</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<title level="m" type="main">Computational explorations in cognitive neuroscience: Understanding the mind by simulating the brain</title>
+		<author>
+			<persName><forename type="first">Randall</forename><forename type="middle">C</forename><surname>O'reilly</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yuko</forename><surname>Munakata</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2000">2000</date>
+			<publisher>MIT press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Implicit learning of artificial grammars</title>
+		<author>
+			<persName><forename type="first">Arthur</forename><forename type="middle">S</forename><surname>Reber</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of verbal learning and verbal behavior</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="855" to="863" />
+			<date type="published" when="1967">1967</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">The cognitive unconscious: An evolutionary perspective</title>
+		<author>
+			<persName><forename type="first">Arthur</forename><forename type="middle">S</forename><surname>Reber</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Consciousness and cognition</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="93" to="133" />
+			<date type="published" when="1992">1992</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<monogr>
+		<title level="m" type="main">Learning interpretable models</title>
+		<author>
+			<persName><forename type="first">Stefan</forename><surname>Rüping</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+		</imprint>
+		<respStmt>
+			<orgName>University of Dortmund</orgName>
+		</respStmt>
+	</monogr>
+	<note type="report_type">PhD thesis</note>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Frequency of occurrence and the criteria for automatic processing</title>
+		<author>
+			<persName><forename type="first">Raymond</forename><forename type="middle">E</forename><surname>Sanders</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Gonzalez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Eulalio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Martin</forename><forename type="middle">D</forename><surname>Murphy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cherie</forename><forename type="middle">L</forename><surname>Liddle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">John</forename><forename type="middle">R</forename><surname>Vitina</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Experimental Psychology: Learning, Memory, and Cognition</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page">241</biblScope>
+			<date type="published" when="1987">1987</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">The development of features in object concepts</title>
+		<author>
+			<persName><forename type="first">Philippe</forename><forename type="middle">G</forename><surname>Schyns</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Goldstone</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Robert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Thibaut</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jean-Pierre</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Behavioral and brain Sciences</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="issue">01</biblScope>
+			<biblScope unit="page" from="1" to="17" />
+			<date type="published" when="1998">1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title/>
+		<author>
+			<persName><surname>Seger</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Carol Augart. Implicit learning. Psychological bulletin</title>
+		<imprint>
+			<biblScope unit="volume">115</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page">163</biblScope>
+			<date type="published" when="1994">1994</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Making machine learning models interpretable</title>
+		<author>
+			<persName><forename type="first">Alfredo</forename><surname>Vellido</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jose</forename><surname>Martin-Guerrero</surname></persName>
+		</author>
+		<author>
+			<persName><surname>David</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Paulo</forename><forename type="middle">Jg</forename><surname>Lisboa</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ESANN</title>
+		<imprint>
+			<publisher>Citeseer</publisher>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page" from="163" to="172" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Generalization by weight-elimination with application to forecasting</title>
+		<author>
+			<persName><forename type="first">Andreas</forename><forename type="middle">S</forename><surname>Weigend</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Rumelhart</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>David</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bernardo</forename><forename type="middle">A</forename><surname>Huberman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">NIPS</title>
+		<imprint>
+			<date type="published" when="1990">1990</date>
+			<biblScope unit="volume">90</biblScope>
+			<biblScope unit="page" from="875" to="882" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Use of the zero norm with linear models and kernel methods</title>
+		<author>
+			<persName><forename type="first">Jason</forename><surname>Weston</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Elisseeff</surname></persName>
+		</author>
+		<author>
+			<persName><surname>André</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bernhard</forename><surname>Schölkopf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mike</forename><surname>Tipping</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="page" from="1439" to="1461" />
+			<date type="published" when="2003">2003</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

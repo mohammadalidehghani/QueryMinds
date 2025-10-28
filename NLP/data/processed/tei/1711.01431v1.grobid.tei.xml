@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">The Case for Meta-Cognitive Machine Learning: On Model Entropy and Concept Formation in Deep Learning</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2017-11-04">4 Nov 2017</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Johan</forename><surname>Loeckx</surname></persName>
+							<email>jloeckx@ai.vub.ac.be</email>
+							<affiliation key="aff0">
+								<orgName type="laboratory">Artificial Intelligence Lab</orgName>
+								<orgName type="institution">Vrije Universiteit Brussel</orgName>
+								<address>
+									<addrLine>Pleinlaan 2</addrLine>
+									<postCode>1050</postCode>
+									<settlement>Brussel</settlement>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">The Case for Meta-Cognitive Machine Learning: On Model Entropy and Concept Formation in Deep Learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2017-11-04">4 Nov 2017</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">973E4D08076DAB5F868061925D582816</idno>
+					<idno type="arXiv">arXiv:1711.01431v1[cs.AI]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Machine learning is usually defined in behaviourist terms, where external validation is the primary mechanism of learning. In this paper, I argue for a more holistic interpretation in which finding more probable, efficient and abstract representations is as central to learning as performance. In other words, machine learning should be extended with strategies to reason over its own learning process, leading to so-called meta-cognitive machine learning. As such, the de facto definition of machine learning should be reformulated in these intrinsically multiobjective terms, taking into account not only the task performance but also internal learning objectives. To this end, we suggest a "model entropy function" to be defined that quantifies the efficiency of the internal learning processes. It is conjured that the minimization of this model entropy leads to concept formation. Besides philosophical aspects, some initial illustrations are included to support the claims.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Machine learning is often approached from a behaviourist perspective, in which external feedback in the form of a reinforcement signal is the major driving force of improvement. Though this method has lead to many successes, it is confronted with interesting and unsolved challenges like tackling overfitting, providing comprehensibility, building reusable abstractions and concept formation, among many other <ref type="bibr" target="#b11">[Kotsiantis et al., 2007;</ref><ref type="bibr" target="#b3">Bengio, 2009]</ref>. The problem with these behaviourist approaches is that they ignore the central importance of internal processes when considering learning. Model internals are often regarded just as a means to achieve higher performance. Analogous to studying human behaviour, however, appreciating the mechanisms of learning boils down to the question: "when have we really learnt?" In this paper, we argue that a computer has learnt when:</p><p>• the programme becomes better at the task at hand;</p><p>• the programme can perform the task more efficiently;</p><p>• the code becomes "more structured" and simpler.</p><p>One possible analogy to better understand the above statements can be found in software engineering. When considering code that performs a specific task, we do not care only about its functionality, but also about its execution speed/efficiency and other so-called "non-functional requirements". Furthermore, a carefully modularized design probably reflects more understanding than an endless enumeration of IF-ELSE clauses.</p><p>In other words, finding a more efficient and structured way to represent/reproduce information and to perform a learning task, is as central to machine learning as the reproduction of results. Different to humans, of course, machines are measurable. This provides us with a unique opportunity to study the nature of learning in principle, at the same time improving Machine Intelligence. We are not claiming that model complexity/efficiency has not been subject to past research efforts. On the contrary, many techniques and design principles have attempted to improve exactly these properties -like Occam's razor, Bayesian structure learning, pruning, the use of prototypes to compact information, regularization as a strategy to reduce energy, weight sharing in RNNs or CNNs to decrease model complexity, etc.</p><p>Indeed, the whole evolution of Deep Learning can be seen as one specific approach in the quest to find models that are more structured (i.e. have a lower entropy), by organizing and training them in a layer-wise fashion <ref type="bibr" target="#b3">[Bengio, 2009]</ref>. The focus has been mainly on training algorithms and designing model architectures that are adapted to these kinds of "deep" structures <ref type="bibr" target="#b7">[Deng and Yu, 2014]</ref>. Similar to efforts in multiobjective machine learning, these techniques are considered as a means to improve (externally measured) performance rather than a goal in itself <ref type="bibr">[Jin and Sendhoff, 2008]</ref>. We, however, do believe that minimizing the model's structural complexity and optimizing its efficiency of representation, is not only a means to improve (externally validated) performance, but a central pillar to machine intelligence that leads to concept formulation and should be made explicit. In this sense, our vision aligns to that of Ray Kurzweil, who claimed that "the theory behind deep learning. . . is that you have a model that reflects the hierarchy in the natural phenomenon you're trying to learn <ref type="bibr" target="#b9">[Hof, 2013]</ref>."</p><p>This paper is structured as follows. The theoretical ideas are laid out and the case for a new operational definition of machine learning is made. We put forward the conjecture that the optimization of model entropy, leads to concept formation. Last, conclusions and further steps to operationalize these concepts are formulated.</p><p>2 Central assertions 2.1 Learning can not be explained in extrinsic terms only</p><p>Conventional wisdom depicts machine learning as the optimization of a (non-)parametric model with respect to some performance measure. This view is clearly reflected in the de facto definition of machine learning by Mitchell <ref type="bibr" target="#b12">[Mitchell, 1997]</ref>: "A computer program is said to learn from an experience X with respect to some class of tasks T and performance measure P , if its performance at tasks in T , as measured by P , improves with experimental data D".</p><p>Traditional machine learning techniques typically exploit shallow-structured, and often fixed, architectures. Nevertheless, there is a general consensus that the learning of "higherorder" concepts is problematic, and that the solution to this issue is somehow connected to deep architectures that create ever higher forms of abstraction. Experimental research as well as neurological evidence on the organization of the brain, supports this finding <ref type="bibr" target="#b4">[Bianchini and Scarselli, 2014]</ref>. The limitation of architecture complexity is preferred, primarily because their behaviour could be understood and the training of more complex or adaptive architectures leads to a explosion of complexity.</p><p>That was until recently. The recent advanced in so-called "Deep Learning", have focused on training algorithms that are adapted to new kinds of deep architectures <ref type="bibr" target="#b7">[Deng and Yu, 2014]</ref>, and heuristic strategies to attain specific structural properties like sparse coding that lead to higher forms of abstractions. With the exception of studies on "interpretability" <ref type="bibr">[Jin and Sendhoff, 2008]</ref>, structural properties are mainly considered a by-product, a (desirable) side effect of the applied training mechanisms. Though the organization and complexity of model topologies is acknowledged to be crucial, current approaches are mainly limited to analysing the data space, i.e. the implemented regression functions or decision boundaries <ref type="bibr" target="#b4">[Bianchini and Scarselli, 2014]</ref>.</p><p>There is a problem with this approach. Consider an neural network algorithm that needs to learn a simple concept like an "XOR" function depicted in Fig. <ref type="figure" target="#fig_0">1</ref>. An infinite number of neural networks with very similar or identical decision boundaries can be constructed -of which two are shown in Fig. <ref type="figure" target="#fig_1">2</ref>. From an external point of view, there is no way to discriminate between these two models: describing the difference between these two models can only occur in terms of the model internals. Of course the weight space, which represents the model of a neural network, is related to the data space, as it performs calculations on the data. In other words:</p><p>Data representation and model computation should be considered as two sides of the same coin. As a result the structural properties of both the model and data space are key to the modelling of higher abstractions.</p><p>Sparse coding is a perfect example of this. Without sparse coding, although the information is intrinsically "present" in the data, neural networks become intractable to train due to the extremely volatile and complex decision surface. From this perspective we follow the observations that have been made by Bengio in <ref type="bibr" target="#b2">[Bengio et al., 2013]</ref> on representation learning.</p><p>One of the interesting phenomena is "information entanglement" <ref type="bibr" target="#b8">[Glorot et al., 2011]</ref>. In this case, the model space is of a lower dimensionality or complexity than the data space. The projection of the data onto a high-dimensional space using sparse coding, then, has the advantage that the representations are more likely to be linearly separable, or at least less nonlinear. On the other hand, when the model complexity is increased considerably (e.g. by adding layers), the neural network becomes untrainable using traditional techniques, because the dimensionality of the search space explodes. Deep learning techniques tackle this issue by -among other techniques -pre-initializing the model-space of particular layer in a maximum-likelihood/minimal-energy state.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">Machine learning regards strategies that optimize performance, model structure and data modelling efficiency/likelihood</head><p>Though the energy-based approach has proven very successful, the choice to divide and train a network layer-wise, is rather arbitrary. Instead, we would like to have some kind of process that optimizes the model structure according to the data and leads to representation learning. For example, by driving weights to stimulate the formation of sparse representations and promote disentanglement. In this vision, learning by machines transforms into the implementation and execution of strategies that optimize, not only the external performance and inner energetic properties of the model, but as well the model entropy. In other words, Machine learning is an intrinsically multiobjective process that trades off task perfor- mance for model complexity and data modelling efficiency/energy or model likelihood. There are many advantages to moving away from a purely "extrinsic" definition of Machine Learning towards a cognitively inspired operational definition <ref type="bibr" target="#b16">[Turing, 1950]</ref>. To start, the artificial distinction between supervised and unsupervised learning evaporates as a particular model can still being optimized, but towards minimal entropy rather than minimal error. This also opens the door towards learning from few symbolic data. The multi-objective approach allows a more deep comparison between different machine learning models, and even between different kinds of algorithms. It allows a more focused approach towards deep learning techniques and lastly, it opens up new opportunities to quantize biases in machine learning algorithms.</p><p>(Machine) Learning implements strategies to optimize performance as well as model likelihood and entropy. We will now briefly discuss these three criteria or objectives.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Extrinsic performance (P)</head><p>P determines how well a model scores when performing an externally defined task. Often not only the raw performance counts, but also additional desirable properties like noiseimmunity, smoothness, generalization to unseen data, etc. These qualities can only be measured in terms of the externally defined problem.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Data modelling efficiency (E)</head><p>A model that requires less energy to represent the data to be "learnt", probably demonstrates superior insight. Modelling efficiency can thus be interpreted as the likelihood that a particular model has generated particular data. The optimization of the margin in Support Vector Machines is an example. Maximum likelihood models are related to "maximal entropy models". These models attempt to minimize the a-priori assumptions imposed by the model on the data. Minimal entropy models and maximal entropy modelling are not contradictory nor similar. In the latter case, entropy is measured in the data space (the output of the model), and not in the metaspace of model parameters (e.g. weights). Especially in the presence of uncertainty (for example in the case of noise or sub-sampling), data modelling efficiency is essential to improve the robustness of a model. We will elaborate on this in later sections.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Model entropy (S)</head><p>Considering model complexity dates back to the beginning of computational modelling <ref type="bibr" target="#b0">[Barron, 1991;</ref><ref type="bibr" target="#b1">Bartlett, 1998;</ref><ref type="bibr" target="#b13">Myung, 2000;</ref><ref type="bibr" target="#b15">Spiegelhalter et al., 2002;</ref><ref type="bibr" target="#b10">Kon and Plaskota, 2006]</ref>. It makes indeed sense to believe that models that have a lower entropy or complexity (e.g. by exploiting hierarchy, symmetry or other regularities) without losing expressive power, provide superior abstraction. It therefore makes sense to optimize model structures for minimal entropy with respect to the data. Model entropy is determined not only by the network topology, but also the value and patterns in the weights values and their interaction with data (more on this later).</p><p>It is tempting to confuse minimizing model entropy with methods assuming "smoothness" of the input/output data distribute or impose structural constraints on the data. While they are clearly connected, there is a crucial difference. While minimal entropy models elevate the abstraction of a model for a given set of data, they do not assume a low data entropy as is the case for example in the methods referred to by <ref type="bibr" target="#b3">[Bengio, 2009]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3">The definition of (machine) learning needs to be extended</head><p>A lot of algorithms already implicitly employ these kind of optimization strategies. The usage of prototypes or nearestneighbours are strategies to compact information and implicitly improve modelling efficiency as the class of a sample is determined by the distance to the closest neighbour; regularization a strategy to reducing energy consumption; weight sharing to decrease the complexity/entropy of a model; penalty functions to constrain model complexity; Occam's razor or pruning in decision trees.</p><p>However, to acknowledge the equal importance of all three aspects, the definition of machine learning should be extended:</p><p>"A computer program is said to learn from experience X if its performance at task in T, as measured by P, improves with experience X or when the model entropy S or its modelling efficiency or model likelihood E decreases with respect to the training data D associated with experience X".</p><p>2.4 An "entropy function" needs to be defined Similar to the "energy function" in traditional deep learning, an entropy function should be defined that measures the complexity of the process to construct higher-order abstract representations and represents the efficiency of the learning processes. Existing research has explored similar ideas, in which, for example, neural networks are characterized by the impact of the topology on the reduction of information theoretic content through the network [Tishby and Zaslavsky, 2015]. However, it is crucial to realize that this complexity depends on both model characteristics like topology and weight patterns, and properties of sample configurations (a configuration is the combined representation of all internal and external signals, for example the outputs of all neurons). Though one could be tempted to think the entropy fixed for a given set of training data D, this is not the case in the process of abstraction. Indeed, new, more abstract representations are produced from old ones using computation and thus the complexity of this calculation matters. On the other side, the complexity of this computation depends on the data representation as well. This, of course, is in line with previous investigations into the nature of complexity <ref type="bibr" target="#b5">[Braha and Maimon, 1998]</ref>.</p><p>In other words, the entropy function quantifies the complexity of the computational process needed to produce a configuration. For example, in a Cartesian coordinate system (Fig. <ref type="figure" target="#fig_4">3a</ref>), the decision boundary of the double spiral problem is nonlinear, while in a polar coordinate system, it is linear (Fig. <ref type="figure" target="#fig_4">3b</ref>. Another very minimalistic example of representation and computation are two sides of the same coin, is the XOR function. Encoding inputs &amp; outputs on the domain [0, 1] requires a hidden layer of 3 neurons, while coding on [-1, 1] requires only two. The representation thus clearly impacts the model entropy.</p><p>In this line of thought, constructs like structure (organisation in layers), hierarchy (connectivity only between layers), and drop-out are not essential to learning on themselves, but rather strategies that have been implemented to lower the entropy.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.5">Minimizing model entropy leads to concept formation</head><p>According to Wikipedia, "a concept is an abstract idea representing the fundamental characteristics of what it represents. Concepts arise as abstractions or generalisations from experience or the result of a transformation of existing ideas." <ref type="bibr">[con]</ref>.</p><p>It thus makes sense to hypothesize that the minimization of entropy accomplishes to capture the structural identities of concepts in the outside world (i.e. the training data). For example, the model structure with optimal entropy to discriminate between hand-written numbers, is more probable to reflect the true nature of these concepts. Empirical evidence supports this interpretation <ref type="bibr" target="#b17">[Zahavy et al., 2016]</ref>, especially in the context of so-called one-shot generalization <ref type="bibr" target="#b14">[Rezende et al., 2016]</ref>.</p><p>Finding or constructing such a entropy function is not an easy task and subject to further fundamental research. More interesting, finding effective strategies to minimize this function, may prove even harder and deeper investigation into the complexity of models is needed. Today, often ad-hoc solutions are chosen like enforcing structural limitations (like Decision trees), pruning, regularization, weight sharing, kernel tricks, sparse representations etc. In conclusion,</p><p>The minimization of the entropy function is a necessary condition for concept formation. In this process strategies like hierarchy, symmetry and other regularities can be exploited.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Conclusion</head><p>In this paper, I argue for a more holistic view on machine learning that takes a distance from the prevailing behaviourist perspective in which external validation is the major force to learning. The work is centred around 5 conjectures:</p><p>1. Learning can not be explained in extrinsic terms only and data representation and model computation should be considered as two sides of the same coin. As a result the structural properties of both the model and data space are key to the modelling of higher abstractions.</p><p>2. Machine learning regards strategies that optimize performance, model structure and data modelling efficiency/likelihood. As a result, Machine learning is an intrinsically multi-objective process that trades off task performance for model complexity and data modelling efficiency/energy or model likelihood.</p><p>3. The definition of (machine) learning needs to reflect this vision: "A computer program is said to learn from experience X if its performance at task in T, as measured by P, improves with experience X or when the model entropy S or its modelling efficiency or model likelihood E decreases with respect to the training data D associated with experience X."</p><p>4. An entropy function needs to be defined. This entropy function quantifies the complexity of the computational process needed to produce a configuration.   </p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Very basic example of a concept to be learnt. The XOR function above represents an anti-symmetric function in two variables x1 and x2. We expect a good model to reflect this anti-symmetry in the model structure or parameters.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: Model internals matter. Example zero-test-error neural network topologies that characterize an XOR gate. The inputs and outputs were defined on the domain {0,1}. Figure (a) shows a minimal entropy model, (b) a non-minimal entropy one. Both networks have an identical decision surface, and therefore identical generalization and noise-robustness properties. However, the surfaces were constructed from substantially different model structures.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>5.</head><figDesc>Minimizing model entropy leads to concept formation. Hierarchy building, symmetry and exploitation of other regularities are strategies that drive optimization.Future work includes research on the entropy function and scientific and a quantitative validation of the postulated hypotheses on prototype examples. In a later phase, it should be investigated how the proposed extensions can improve existing Deep Learning techniques.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><figDesc>Problem stated in a polar coordinate system.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Figure 3 :</head><label>3</label><figDesc>Figure 3: The same "double spiral" learning problem starting from different input data abstraction (qualitative view). The complexity of a model depends on properties of both model as data. Computation and representations are two sides of the same coin.</figDesc><graphic coords="5,118.03,107.93,128.26,112.23" type="bitmap" /></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Complexity regularization with application to artificial neural networks</title>
+		<author>
+			<persName><surname>Andrew R Barron</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Nonparametric functional estimation and related topics</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="1991">1991</date>
+			<biblScope unit="page" from="561" to="576" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">The sample complexity of pattern classification with neural networks: the size of the weights is more important than the size of the network</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Peter</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Bartlett</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE transactions on Information Theory</title>
+		<imprint>
+			<biblScope unit="volume">44</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="525" to="536" />
+			<date type="published" when="1998">1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Representation learning: A review and new perspectives</title>
+		<author>
+			<persName><forename type="first">Yoshua</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aaron</forename><surname>Courville</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pascal</forename><surname>Vincent</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE transactions on pattern analysis and machine intelligence</title>
+		<imprint>
+			<biblScope unit="volume">35</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="1798" to="1828" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<author>
+			<persName><forename type="first">Yoshua</forename><surname>Bengio</surname></persName>
+		</author>
+		<title level="m">Learning deep architectures for AI. Foundations and trends R in Machine Learning</title>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="page" from="1" to="127" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">On the complexity of neural network classifiers: A comparison between shallow and deep architectures</title>
+		<author>
+			<persName><forename type="first">Monica</forename><surname>Bianchini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Franco</forename><surname>Scarselli</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE transactions on neural networks and learning systems</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="1553" to="1565" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">The measurement of a design structural and functional complexity</title>
+		<author>
+			<persName><forename type="first">Dan</forename><surname>Braha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Oded</forename><surname>Maimon</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">A Mathematical Theory of Design: Foundations, Algorithms and Applications</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="1998">1998</date>
+			<biblScope unit="page" from="241" to="277" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title/>
+		<author>
+			<persName><surname>Concept</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016-11">Nov-2016</date>
+			<biblScope unit="volume">22</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">Deep Learning</title>
+		<author>
+			<persName><forename type="first">Li</forename><surname>Deng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dong</forename><surname>Yu</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<publisher>Now Publishers Incorporated</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Deep sparse rectifier neural networks</title>
+		<author>
+			<persName><forename type="first">Xavier</forename><surname>Glorot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Antoine</forename><surname>Bordes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yoshua</forename><surname>Bengio</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">In AISTATS</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="page">275</biblScope>
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Yaochu Jin and Bernhard Sendhoff. Pareto-based multiobjective machine learning: An overview and case studies</title>
+		<author>
+			<persName><forename type="first">Robert</forename><surname>Hof</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Systems, Man, and Cybernetics, Part C: Applications and Reviews</title>
+		<imprint>
+			<biblScope unit="volume">38</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="397" to="415" />
+			<date type="published" when="2008">April 2013. 2008</date>
+		</imprint>
+	</monogr>
+	<note>Interview: How ray kurzweil plans to revolutionize search at google. Forbes blog IEEE Transactions on</note>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Complexity of predictive neural networks</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mark</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Leszek</forename><surname>Kon</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Plaskota</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Unifying Themes in Complex Systems</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2006">2006</date>
+			<biblScope unit="page" from="181" to="191" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Supervised machine learning: A review of classification techniques</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Sotiris</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Kotsiantis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Zaharakis</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Pintelas</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Emerging Artificial Intelligence Applications in Computer Engineering</title>
+		<editor>
+			<persName><forename type="first">I</forename><surname>Maglogiannis</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">K</forename><surname>Karpouzis</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">B</forename><forename type="middle">A</forename><surname>Wallace</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">J</forename><surname>Soldatos</surname></persName>
+		</editor>
+		<imprint>
+			<publisher>IOS Press</publisher>
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<author>
+			<persName><forename type="first">Tom</forename><forename type="middle">M</forename><surname>Mitchell</surname></persName>
+		</author>
+		<title level="m">Machine Learning</title>
+		<meeting><address><addrLine>McGraw-Hill Boston, MA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="1997">1997</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">The importance of complexity in model selection</title>
+		<author>
+			<persName><forename type="first">In</forename><surname>Jae</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Myung</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Mathematical Psychology</title>
+		<imprint>
+			<biblScope unit="volume">44</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="190" to="204" />
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title level="m" type="main">One-shot generalization in deep generative models</title>
+		<author>
+			<persName><forename type="first">Danilo</forename><surname>Jimenez Rezende</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shakir</forename><surname>Mohamed</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ivo</forename><surname>Danihelka</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Karol</forename><surname>Gregor</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Daan</forename><surname>Wierstra</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1603.05106</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Naftali Tishby and Noga Zaslavsky. Deep learning and the information bottleneck principle</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>David</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nicola</forename><forename type="middle">G</forename><surname>Spiegelhalter</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Best</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Angelika</forename><surname>Bradley P Carlin</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Van Der Linde</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE Information Theory Workshop (ITW)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2002">2002. 2015</date>
+			<biblScope unit="volume">64</biblScope>
+			<biblScope unit="page" from="1" to="5" />
+		</imprint>
+	</monogr>
+	<note>Bayesian measures of model complexity and fit</note>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Computing machinery and intelligence</title>
+		<author>
+			<persName><forename type="first">Alan</forename><forename type="middle">M</forename><surname>Turing</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Mind</title>
+		<imprint>
+			<biblScope unit="page" from="433" to="460" />
+			<date type="published" when="1950">1950</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<author>
+			<persName><forename type="first">Tom</forename><surname>Zahavy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nir</forename><surname>Ben Zrihem</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shie</forename><surname>Mannor</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1602.02658</idno>
+		<title level="m">Graying the black box: Understanding dqns</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">A Comparison of First-order Algorithms for Machine Learning</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2014-04-26">26 Apr 2014</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Wei</forename><surname>Yu</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="laboratory">Computer Graphics and Vision</orgName>
+								<orgName type="institution">Graz University of Technology</orgName>
+								<address>
+									<country key="AT">Austria</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Thomas</forename><surname>Pock</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="laboratory">Computer Graphics and Vision</orgName>
+								<orgName type="institution">Graz University of Technology</orgName>
+								<address>
+									<country key="AT">Austria</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">A Comparison of First-order Algorithms for Machine Learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2014-04-26">26 Apr 2014</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">26A97756567AA5B0C972CEBDDA7D0F5C</idno>
+					<idno type="arXiv">arXiv:1404.6674v1[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:04+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Using an optimization algorithm to solve a machine learning problem is one of mainstreams in the field of science. In this work, we demonstrate a comprehensive comparison of some state-of-the-art firstorder optimization algorithms for convex optimization problems in machine learning. We concentrate on several smooth and non-smooth machine learning problems with a loss function plus a regularizer. The overall experimental results show the superiority of primal-dual algorithms in solving a machine learning problem from the perspectives of the ease to construct, running time and accuracy.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Optimization is the key of machine learning. Most machine learning problems can be cast as optimization problems. Furthermore, practical applications of machine learning usually involve a massive and complex data set. Thus, efficiency, accuracy and generalization of the optimization algorithm (solver) should be regarded as a crucial issue <ref type="bibr" target="#b1">[2]</ref>. Many papers present dedicated optimization algorithms for specific machine learning problems. However, little attention has been devoted to the ability of a solver for a specific class of machine learning problems. The most common structure of machine learning problems is a loss function plus a regularizer. The loss function calculates the disparity between the prediction of a solution and the ground truth. This term usually involves the training data set. For example, the well known square loss is for the purpose of regression problems and hinge loss is for the purpose of maximum margin classification. The regularizer usually uses a norm function. For example, group lasso is an extension of the lasso for feature selection. It can lead to a sparse solution within a group.</p><p>In general, we consider convex optimization problems of the following form minimize E(x) = F (x) + λG(x) such that x ∈ C</p><p>where F and G are continuous, convex functions and C is a convex set. E denotes the energy of a machine learning problem. By convention, F usually denotes a loss function and G denotes a regularization term. λ is a parameter controlling the tradeoff between a good generalization performance and overfitting. This kind of problems frequently arise in machine learning. A substantial amount of literature assumes that either F or G is smooth and cannot be used to optimize the case where F and G are both non-smooth. Some solvers provide an upper bound N on the number of iterations n such that E n -E ≤ e, n ≥ N , where e is an error tolerance and E is the minimum of E. Sometimes this estimation is too pessimistic which means the resultant N is excessive large. In this case, it is hard to evaluate the performance of a solver by this upper bound. On the other side, convergence rate describes the speed of converging when a solver approaches the optimal solution. But it is unpredictable to know when n is large enough. Therefore, the performance of solvers is still difficult to tractable.</p><p>In this paper, we compare four state-of-the-art first-order solvers (Fobos <ref type="bibr" target="#b4">[5]</ref>, FISTA <ref type="bibr" target="#b0">[1]</ref>, OSGA <ref type="bibr" target="#b6">[7]</ref> and primal-dual algorithms <ref type="bibr" target="#b2">[3]</ref>) by the following properties: convergence rate, running time, theoretically known parameters, robustness in practice for machine learning problems. We present tasks within dimensionality reduction via compressive sensing, SVMs, group lasso regularizer for grouped feature selection, ℓ 1,∞ regularization for multi-task learning, trace norm regularization for max-margin matrix factorization. The last three machine learning problems are chosen from <ref type="bibr" target="#b9">[10]</ref>. Unlike other literature which plots energy versus the number of iterations, in this paper we illustrate the results by log-log figures which clearly show the convergence rate in applications of machine learning.</p><p>The paper is organized as follows. Section 2 introduces four solvers. Then it summarizes primal-dual algorithm of Chambolle and Pock <ref type="bibr" target="#b2">[3]</ref> and describes heuristic observations. Section 3 gives an introduction about the general structure (a loss function plus a regularizer) of machine learning problems we focus on in this paper. Section 4 demonstrates the performance of different solvers and the conclusion is presented at the end.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Solvers</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">Review</head><p>Fobos <ref type="bibr" target="#b4">[5]</ref> and fast iterative shrinkage-thresholding algorithm <ref type="bibr" target="#b0">[1]</ref> (FISTA) aim to solve a convex problem which is a sum of two convex functions. Neumaier <ref type="bibr" target="#b6">[7]</ref> proposes a fast subgradient algorithm with optimal complexity for minimizing a convex function named optimal subgradient algorithm (OSGA). Chambolle and Pock <ref type="bibr" target="#b2">[3]</ref> propose a primal-dual algorithm (hereinafter referred as PD CP) and applied it to several imaging problems. Tianbao Yang et al. <ref type="bibr" target="#b9">[10]</ref> propose another primal-dual algorithm and applied it to machine learning tasks. However, PD CP is more general in the following aspects. The step size of PD CP is √ 2 times larger than <ref type="bibr" target="#b9">[10]</ref> and PD CP makes steps in both primal and dual variables.</p><formula xml:id="formula_0">Solver Convergence rate F G E Fobos O(1/ √ n) convex convex - FISTA O(1/n 2 ) C 1,1 convex - OSGA O(1/ √ n) - - convex PD CP O (1/n) convex convex - Table 1: Tab Comparison of solvers</formula><p>We summarize four solvers by Table <ref type="table">1</ref>. Each solver can achieve the convergence rate under the property of F, G, E given by each row of Table <ref type="table">1</ref>. When we solve machine learning problems using four solvers, we need to set the value of parameters and format the machine learning problems to a suitable model for a solver. Setting the initial step size C in Fobos for a problem with non-smooth function is an open question. For PD CP, we do not know the best ratio a = τ /σ. When solving a problem with a non-smooth function by FISTA, we have to smooth the non-smooth loss function. This rises a problem of selecting the value of smoothness parameter ǫ in smoothing techniques. To make the comparison convincing, we examine several values for the above three parameters C, a, ǫ and choose the best one.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">The general PD CP</head><p>In this section, we review the primal dual algorithm proposed in <ref type="bibr" target="#b2">[3]</ref>. Let X, Y be two finite dimensional real vector spaces with an inner product •, • and norm</p><formula xml:id="formula_1">• = •, • 1 2 . The map K : X → Y is a continuous linear operator with induced norm K = max { Kx 2 : x ∈ X, x 2 ≤ 1} .</formula><p>PD CP is to solve the generic saddle-point problem</p><formula xml:id="formula_2">min x∈X max y∈Y { Kx, y + G(x) -F * (y)} (<label>1</label></formula><formula xml:id="formula_3">)</formula><p>where x is the primal variable and y is the dual variable. G and F * both are proper convex, lower-semicontinuous functions. The primal form of Equation ( <ref type="formula" target="#formula_2">1</ref>) is min</p><formula xml:id="formula_4">x∈X F (Kx) + G(x).</formula><p>To introduce the dual variable y, one way is using Lagrange multipliers, e.g., applicable when the function represents hard constraints. The other way is to calculate the convex conjugate F * of loss function F . Then the loss function can be expressed by its convex conjugate. Take the hinge loss for example. We simplify the definition of hinge loss as</p><formula xml:id="formula_5">f (z) = max(0, z) 1 , z ∈ R N . Its convex conjugate is, f * (y) = 0 y ∈ P +∞ y / ∈ P where P = y ∈ R N : ∀y i ∈ [0, 1] , y i is the i th component of y. Let z = 1 -Kx, x ∈ R d and K ∈ R N ×d . Then according to f (z) = max y z, y -f * (y), f (1 -Kx) can be defined as, f (1 -Kx) = max y 1 -Kx, y -f * (y).</formula><p>Therefore in the primal-dual model, F * should be formulated as -</p><formula xml:id="formula_6">N i=1 y i +f * (y).</formula><p>Before summarizing PD CP, we introduce the proximal operator. Let G : X → R ∪ {+∞} be a proper convex, lower-semicontinuous function. The proximal operator of G with parameter τ is defined by</p><formula xml:id="formula_7">prox τ G (v) = (I + τ ∂G) -1 (v) = arg min x∈X (τ G(x) + x -v 2 2 2 )</formula><p>Since Euclidean norm is strong convex, prox τ G (v) is unique. PD CP proceeds by iteratively maximizing with respect to the dual variable and minimizing with respect to the primal variable by proximal operators. Now we summarize PD CP as follows,</p><p>• Initialization:</p><formula xml:id="formula_8">τ σ ≤ 1 K 2 ,θ ∈ [0, 1],(x 0 , y 0 ) ∈ X × Y ,x 0 = x 0 , λ ∈ R • Iterations n ≥ 0: Update x n , y n as follows, y n+1 = (I + σ∂F * ) -1 (y n + σKx n ) x n+1 = (I + τ λ∂G) -1 (x n -τ K * y n+1 ) x n+1 = x n+1 + θ(x n+1 -x n )</formula><p>PD CP conducts proximal operators of σF * and τ λG respectively and then PD CP makes its scheme semi-implicit by letting</p><formula xml:id="formula_9">x n+1 = x n+1 + θ(x n+1 -x n ).</formula><p>This operation equals to making one more step in the direction of x n+1 -x n . We refer to <ref type="bibr" target="#b2">[3]</ref> for more information. The condition of the convergence of PD CP is τ σ ≤ 1 K 2 .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3">Heuristics for the primal dual algorithm</head><p>In this section, we introduce two heuristic observations of the primal-dual algorithm proposed by Chambolle and Pock <ref type="bibr" target="#b2">[3]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.4">Heuristics for the ratio of the primal step size to the dual step size</head><p>In PD CP, we define a = τ /σ. How to choose a to achieve the best performance is still an unsolved problem. However, Chambolle and Pock <ref type="bibr" target="#b2">[3]</ref> show that</p><formula xml:id="formula_10">[ Kx N , y -F * ( y) + G(x N )] -[ K x, y N -F * (y N ) + G( x)] ≤ 1 N ( y -y 0 2 2σ + x -x 0 2 2τ )<label>(2)</label></formula><p>where</p><formula xml:id="formula_11">x N = ( N n=1 x n )/N , y N = ( N n=1</formula><p>y n )/N and ( x, y) is the saddle point. The RHS of Equation ( <ref type="formula" target="#formula_10">2</ref>) is non-negative because</p><formula xml:id="formula_12">[ Kx N , y -F * ( y) + G(x N )] ≥ [ K x, y -F * ( y) + G( x)] ≥ [ K x, y N -F * (y N ) + G( x)] .</formula><p>And when (x N , y N ) is a saddle point, the LHS of Equation ( <ref type="formula" target="#formula_10">2</ref>) equals zero. To minimize the upper bound of [</p><formula xml:id="formula_13">Kx N , y -F * ( y) + G(x N )]-[ K x, y N -F * (y N ) + G( x)],</formula><p>we plug τ = 1 K 2 σ , the largest value that guarantees convergence, into the RHS of Equation ( <ref type="formula" target="#formula_10">2</ref>) and get</p><formula xml:id="formula_14">1 N ( y -y 0 2 2σ + x -x 0 2 K 2 σ 2 ).<label>(3)</label></formula><p>Equation ( <ref type="formula" target="#formula_14">3</ref>) is a convex function of σ. We take the derivative of Equation ( <ref type="formula" target="#formula_14">3</ref>) with respect to σ, σ = y -y 0 x -x 0 K .</p><p>Thus we can conclude that 1 N (</p><formula xml:id="formula_15">y-y 0 2 2σ + x-x 0 2 2τ</formula><p>) reaches its minimum when a = τ σ =</p><p>x-x 0 y-y 0 . However, x and y are not available because they are what we want to calculate.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.5">Heuristics for the adaption of step sizes</head><p>We observe that the convergence condition <ref type="bibr" target="#b2">[3]</ref> τ σ ≤ 1 K 2 can be relaxed to accelerate the algorithm. We refer to the resulting scheme as Online PD CP. Although Online PD CP converges in the experiments of this paper, we do not prove its convergence theoretically. Online PD CP try to seek a larger step size. Once it finds one, it is faster than PD CP in the experiments of this paper. The difference between PD CP and Online PD CP is that Online PD CP starts with a larger step size (τ σ &gt; 1 K 2 ) and decreases it according to a certain rule. We employ the following scheme,</p><formula xml:id="formula_16">       L n+1 = K(x n -x n-1 ),y n+1 -y n x n-1 -x n y n+1 -y n L n+1 = max L n , L n+1 τ n+1 = a L n+1 , σ n+2 = 1 aL n+1 (4)</formula><p>Thus how to choose a proper L is the main concern of Online PD CP. As shown in Equation ( <ref type="formula">4</ref>), we let L n+1 = max L n , L n+1 . If L n &lt; L n+1 , we increase L n+1 to L n+1 . Thus, K is a upper bound of L. Chambolle and Pock <ref type="bibr" target="#b2">[3]</ref> proves the convergence when L = K .</p><p>Another observation is that the larger step size may lead to a large L. If L n+1 is smaller than L n , Online PD CP does not update L n+1 . It is a sign of convergence and stability. That is, inappropriate large step sizes lead to divergence and a large L which may be close to K . This obeys the principle of Online PD CP. To explore more possible step sizes, we decrease the step size to an appropriate degree rather than choose the maximum between L n and L n+1 . This is the reason that we smooth L. We can devise different rules to smooth L. For example, we let L = (L + κ max(L, L n+1 ))/(1 + κ), κ &gt; 0. We set κ = 0.618 for all experiments. The other use of Online PD CP is the case that K is non-calculable, e.g., K is not known explicitly.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">The machine learning problems</head><p>Machine learning problems in this paper can be formulated as a convex minimization problem consisting of a loss function F and a regularizer G. We summarize machine learning problems in Table <ref type="table">2</ref>. In each row of table 2, the last two columns show the loss function and regularizer we used in the machine learning problem given by column 1. For more information about each machine learning problem, refer to the literature given by column 2.</p><p>In Table <ref type="table">2</ref>, Q, H, Ĥ are positive-semidefinite matrices and δ is an indicator function. In experiment of Kernel SVM, we calculate the dual form of the primal form <ref type="bibr" target="#b3">[4]</ref> such that F becomes a smooth convex function as shown in row 5 of Table <ref type="table">2</ref>. And we solve this dual form by Fobos, FISTA and PD CP. Because this dual form is a constrained optimization problem which is not easy to be solved by OSGA, we use OSGA to solve the primal form <ref type="bibr" target="#b3">[4]</ref> as shown in row 4 of Table <ref type="table">2</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Machine learning problem Ref.</head><p>F G</p><formula xml:id="formula_17">Dimensionality Reduction 1 [6] square ℓ 2,1 Linear SVM 2 [8] hinge x T Qx Kernel SVM 2 [4] hinge x T Hx Kernel SVM 2 - x T Ĥx -x i + δ(x) Feature Selection 3 [9] absolute loss group lasso Multi-Task Learning 1 [10] ǫ-insensitive ℓ 1,∞ Matrix Factorization 4 [10] hinge trace norm</formula><p>Table <ref type="table">2</ref>: Machine learning problems 4 Results</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Experimental settings</head><p>When ∇F is with a Lipschitz constant L, the convergence rate of Fobos can be O(1/n) <ref type="bibr" target="#b0">[1]</ref>. Thus, we only compare Fobos with FISTA, OSGA and PD CP in the machine learning problems where F and G are both non-smooth. In all experiments, we initialize the primal variable and the dual variable to a null vector. All algorithms were implemented in Matlab and executed on a 2.66 GHz CPU, running a 64 Bit Windows system.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Covergence and time comparison</head><p>Figure <ref type="figure" target="#fig_1">1</ref> compares the practical convergence rate. During the different ranges of iterations, solvers can have different performances. For example, normally FISTA is faster within the first ten iterations but only reaches the optimal solution in the experiment of dimensionality reduction. When loss function and regularizer are both smooth as in Kernel SVM, FISTA shows exactly convergence rate O(1/n 2 ). If we prolong the line of FISTA in Figure <ref type="figure" target="#fig_1">1c</ref>, we can see FISTA needs about 10 7.8 iterations to reach the optimal solution. However, PD CP only needs about 10 4 iterations. For the last three experiments where loss functions and regularizers are both non-smooth, Fobos shows a convergence rate O(1/ √ n). But for all experiments, PD CP is the fastest to reach the optimal solution. Although the performances of PD CP with different values of a are different, they show a similar practical convergence rate as shown in Figure <ref type="figure" target="#fig_1">1a</ref> and <ref type="figure" target="#fig_1">1b</ref>. PD CP has a much better practical convergence rate which is even better than O(1/n 2 ). The experimental results show that FISTA is less capable to handle the case of two non-smooth terms. Furthermore, we may not get the optimal values by FISTA since we use the smoothing techniques. In all experiments, Online PD CP is better than or equal with PD CP. Refer the supplementary material for more results of machine learning problems. From Table <ref type="table" target="#tab_0">3</ref>, we can observe PD CP is still very competitive. Only in Multi-Task Learning, the running time per iteration of PD CP is slower than OSGA's. However, by observing Figure <ref type="figure" target="#fig_1">1e</ref>, PD CP needs much less number of iterations to approach the optimal solution. Overall, PD CP have the superior performance among all machine learning problems considered in this paper. 1 MNIST is available at <ref type="url" target="http://yann.lecun.com/exdb/mnist/">http://yann.lecun.com/exdb/mnist/</ref>. 2 'svmguide1' is available at <ref type="url" target="http://www.csie.ntu.edu.tw/">http://www.csie.ntu.edu.tw/</ref> cjlin/libsvmtools/datasets/. 3 MEMset Donar is available at <ref type="url" target="http://genes.mit.edu/burgelab/maxent/ssdata/">http://genes.mit.edu/burgelab/maxent/ssdata/</ref>. 4 '100K MovieLens' is available at <ref type="url" target="http://www.grouplens.org/node/12">http://www.grouplens.org/node/12</ref>.  </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Conclusion</head><p>This paper compares the performance of different optimization algorithms applied to six benchmark problems of machine learning. The primal dual algorithm <ref type="bibr" target="#b2">[3]</ref> has the best perform with a fast empirical convergence rate in all problems concerned in this paper. Moreover, we give two heuristic suggestions for the primal dual algorithm. We hope that machine learning problems can make good use of the progress in optimization. When we use an optimization algorithm to solve a machine learning problem, we need to set the value of parameters both in machine learn problem and optimization algorithm. Our future concern is how to set them automatically. Our experiments show that PD CP is an efficient and robust solver for machine learning problems. Future work is to give theoretical explanation about the empirical convergence rate of PD CP and the convergence of Online PD CP. </p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><figDesc>Matrix Factorization using λ = 10 -5</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Comparison of convergence rate</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 3 :</head><label>3</label><figDesc>Running time</figDesc><table><row><cell>per iteration (s)</cell><cell>Dimensionality</cell><cell>Linear SVM</cell><cell>Kernel SVM</cell></row><row><cell></cell><cell>Reduction</cell><cell></cell><cell></cell></row><row><cell cols="2">PD CP OSGA FISTA per iteration (s) Feature Selection 4.164 × 10 -4 6.25 × 10 -4 5 × 10 -4</cell><cell>11.1427 × 10 -3 12.1379 × 10 -3 21.5387 × 10 -3 Multi-Task</cell><cell>0.1009 0.3 0.1052 Matrix Factorization</cell></row><row><cell></cell><cell></cell><cell>Learning</cell><cell></cell></row><row><cell>PD CP OSGA FISTA</cell><cell>1.7648 × 10 -2 4.4 × 10 -2 6.4 × 10 -2</cell><cell>0.6214 × 10 -3 0.3381 × 10 -3 0.8014 × 10 -3</cell><cell>4.69386 16.80799 11.113636</cell></row></table></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">A fast iterative shrinkage-thresholding algorithm for linear inverse problems</title>
+		<author>
+			<persName><forename type="first">Amir</forename><surname>Beck</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Marc</forename><surname>Teboulle</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">SIAM J. Img. Sci</title>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="183" to="202" />
+			<date type="published" when="2009-03">March 2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">The interplay of optimization and machine learning research</title>
+		<author>
+			<persName><forename type="first">Kristin</forename><forename type="middle">P</forename><surname>Bennett</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Emilio</forename><surname>Parrado-Hernández</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Mach. Learn. Res</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="page" from="1265" to="1281" />
+			<date type="published" when="2006-12">December 2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">A first-order primal-dual algorithm for convex problems with applications to imaging</title>
+		<author>
+			<persName><forename type="first">Antonin</forename><surname>Chambolle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Thomas</forename><surname>Pock</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Mathematical Imaging and Vision</title>
+		<imprint>
+			<biblScope unit="volume">40</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="120" to="145" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Training a support vector machine in the primal</title>
+		<author>
+			<persName><forename type="first">Olivier</forename><surname>Chapelle</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural Computation</title>
+		<imprint>
+			<biblScope unit="volume">19</biblScope>
+			<biblScope unit="page" from="1155" to="1178" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Efficient online and batch learning using forward backward splitting</title>
+		<author>
+			<persName><forename type="first">John</forename><surname>Duchi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yoram</forename><surname>Singer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Mach. Learn. Res</title>
+		<imprint>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="page" from="2899" to="2934" />
+			<date type="published" when="2009-12">December 2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Dimensionality reduction via compressive sensing</title>
+		<author>
+			<persName><forename type="first">Junbin</forename><surname>Gao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Qinfeng</forename><surname>Shi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tibério</forename><forename type="middle">S</forename><surname>Caetano</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Pattern Recogn. Lett</title>
+		<imprint>
+			<biblScope unit="volume">33</biblScope>
+			<biblScope unit="issue">9</biblScope>
+			<biblScope unit="page" from="1163" to="1170" />
+			<date type="published" when="2012-07">July 2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">Osga: A fast subgradient algorithm with optimal complexity</title>
+		<author>
+			<persName><forename type="first">Arnold</forename><surname>Neumaier</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note>Unpublished manuscript</note>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">The pairwise piecewise-linear embedding for efficient non-linear classification</title>
+		<author>
+			<persName><forename type="first">Ofir</forename><surname>Pele</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ben</forename><surname>Taskar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Amir</forename><surname>Globerson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><surname>Werman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICML</title>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Online learning for group lasso</title>
+		<author>
+			<persName><forename type="first">Haiqin</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zenglin</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Irwin</forename><surname>King</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><forename type="middle">R</forename><surname>Lyu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICML</title>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">An efficient primal-dual prox method for non-smooth optimization</title>
+		<author>
+			<persName><forename type="first">Tianbao</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mehrdad</forename><surname>Mahdavi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rong</forename><surname>Jin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shenghuo</forename><surname>Zhu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Mach Learn</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

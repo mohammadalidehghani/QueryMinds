@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Mathematical Perspective of Machine Learning</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2020-07-06">July 6, 2020</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><roleName>PhD</roleName><forename type="first">Yarema</forename><surname>Boryshchak</surname></persName>
+						</author>
+						<title level="a" type="main">Mathematical Perspective of Machine Learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2020-07-06">July 6, 2020</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">694F4B481FBF24CB2D09A4363A4851BD</idno>
+					<idno type="arXiv">arXiv:2007.01503v1[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>We take a closer look at some theoretical challenges of Machine Learning as a function approximation, gradient descent as the default optimization algorithm, limitations of fixed length and width networks and a different approach to RNNs from a mathematical perspective.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>In the nutshell the idea of training a neural network (NN) is equivalent to the problem approximation of a given function, f, with the domain, D, and codomain, C,</p><formula xml:id="formula_0">f : D → C<label>(1)</label></formula><p>which depends on some data of size N ∈ N of k-dimensional input vectors, x j ∈ D ⊆ R k and l-dimensional output (label) vectors, y j ∈ C ⊆ R l , by a composition of functions of the form</p><formula xml:id="formula_1">P i ( z i-1 • w i ) = (P i ( z i-1 • w i ) , ... , P i ( z i-1 • w i )) ,<label>(2)</label></formula><p>where P i is called an activation function of layer i, z i-1 is an output vector of the layer i -1, and w i is called the weight vector of layer i. Once the size of each layer and the choice of each activation function is made, one usually uses, so called, back propagation algorithm, adjusting the values of each weight vector according to some type of gradient descent rule. In other words, one is trying to solve an optimization problem, minimizing the "difference norm"</p><formula xml:id="formula_2">C := f -f d , where f = P r P r-1 (. . . P 1 )<label>(3)</label></formula><p>and r ∈ N is the number of layers of the neural network. So apriori, we are making a choice of the function f of weights w 1 , . . . , w r . Note that the dimension of each vector w i is the size of the layer i. To simplify the problem we may always find the maximum, m, of the size layers, and assume that each w i ∈ R m . We are implicitly assuming that for each i = 1, ..., r, P i ( 0) = 0.<ref type="foot" target="#foot_0">foot_0</ref> 2 Existence of function f and the toll of cost function C First thing to consider, given a labeled data set {( x j , y j ) : j = 1, . . . , N }, if there is a representation function f such that f( x j ) = y j for all j = 1, . . . , N . This important step is often overlooked in practice. In theory, if there is</p><formula xml:id="formula_3">x j = x k such that y j = y k (4)</formula><p>then no such function exist. In other words f is a function of more variables than provided in the data set and the idea approximation by f is meaningless. One may always assume some measurement error ε &gt; 0 (noise) of the data set and consider instead a weaker condition</p><formula xml:id="formula_4">x j = x k =⇒ y j -y k l 2 &lt; ε (5)</formula><p>necessary for existence of a function f. In such case one may look at the average values of duplicate points</p><formula xml:id="formula_5">f ave = x j = x k y k x j = x k 1<label>(6)</label></formula><p>and choose to approximate f ave instead of f. There is no guarantee that a good approximation f of function f ave is a good approximation of f itself. One should also consider the norm • d of the approximation function f. It is well known that various classes of "nice" functions are dense in L p spaces. In particular, the class of functions f defined in (3) are dense with respect to convergence in measure and L p norm (see <ref type="bibr" target="#b0">[1]</ref>). This important fact implies that given any functions f and any ε &gt; 0, there is a function</p><formula xml:id="formula_6">f s.t. f -f L p &lt; ε.<label>(7)</label></formula><p>The approximation function f is a function of weights vectors w i . The pursuit of such function f is a two part problem. The first part, defining the structure of the neural network, is done by a human. The methodology behind the choice of NN structures is at the stage of experimental science. The second part, weights optimization, is done by a computer, usually capable of trillions of operations per second. Needless to say that the effectiveness of latter part depends heavily on the former.</p><p>In practice one usually does not use an approximation with respect to L p norm. Computationally one may only evaluate the function f at finitely many points and approximate it by f at such points, often with respect to the • l p norm. Since for all 0 &lt; p &lt; q &lt; ∞,</p><formula xml:id="formula_7">f(y j ) -f (y j ) l q f(y j ) -f (y j ) l p ,<label>(8)</label></formula><p>one can choose any p &gt; 0 to obtain the approximation for all q p.<ref type="foot" target="#foot_1">foot_1</ref> </p><p>Here is an interesting question. Given f ∈ L p (R k ), does it follow that the sequence {f ( y j )} ∞ j=1 ∈ l p for any choice y j ∈ R k ? One can easily show it is not the case. What about a sequence of randomly chosen points y j ∈ R k ? In this case the answer is affirmative.</p><p>What about the converse statement? Given a sequence {f ( y j )} ∞ j=1 ∈ l p , does it follow that f ∈ L p (R k )? What if for any sequence of points { y j } ∞ j=1 in the domain of f , the sequence {f ( y j )} ∞ j=1 belongs to l p ? What if the measure µ of the domain D of f is not a Lebesgue measure?</p><p>Things get even more bizarre if the set function µ is only finitely additive. In some cases L p spaces may not be complete for any p &gt; 0. In Measure Theory, "functions" that agree almost everywhere are indistinguishable. In case of finitely additive measures the equivalence classes of a "function" are often more complex. Why would anyone care about finitely (and not countably) additive measure on D? From the point of view of Constructive Mathematics, it is impossible to verify countable additivity of µ in the first place.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Some Considerations of feed forward neural networks</head><p>Using a gradient descent method, also known as back-propagation, to optimize weights w j , one obtains critical points of the function C = ff d . Statistically speaking, saddle points in R n are more probable than maxima and minima if n &gt; 2. Thus clever enough gradient descent algorithm will not yield a saddle point. There is no guaranty that the function C does not have more than one local minimum, in which case such algorithm may converge to a local instead of the global minimum of C.</p><p>It is also important to know weather a gradient descent algorithm converges to a local minimum of C. One may think that should not be a problem. Unfortunately most variable learning rate algorithms (keras optimizers) are designed to increase the convergence rate without a guarantee of asymptotic convergence to a local minimum. The are a few computational problems with such algorithms. One problem comes from the fact that all weights are updated simultaneously after each instance (epoch) which may cause the subsequent set of weights to yield a larger value of C. Another problem arises from the choice of the learning rate w j 2 for each instance. It is often proportional to the absolute value of the gradient of P j . If function C is concave up near local minimum, the value w j 2 is likely to be too large.</p><p>Another common practice in supervised machine learning is to partition given labeled data set into the training and validation subsets. The validation set is only used to estimate the accuracy of the model at each stage. The goal of the algorithm is to minimize both training and validation error. This idea implicitly assumes some similarity of the function f on these two sets.</p><p>Assume, for example, we are trying to approximate the function</p><formula xml:id="formula_8">f(x) = sin 1 x , x &gt; 0 (9)</formula><p>Try to approximate this function using a neural network of any size so that the mean square error on 10 3 random points of the interval (0, 0.01) is less than 0.1. Using Tensorflow 2 with four fully connected layers of size 800, activation function LeakyReLU(alpha=0.01), on 10 5 randomly generated points in the interval (0.001, 0.011) after 10 4 epochs with Adam optimizer and validation split 0.2 I obtained the following approximation and mean square error.</p><p>(a) (b) With with sixteen fully connected layers of size 200 and other parameters unchanged, the approximation and mean square error are as follows.  The following example is somewhat challenging, but even more pathological. </p><p>Let f be the characteristic function of such set,</p><formula xml:id="formula_10">f(x) = I S (x), x ∈ [0, 1].<label>(11)</label></formula><p>Approximation of f by a function f in (3) on any infinite countable subset of [0, 1] with respect to l 2 norm is computationally impossible because for each x ∈ [0, 1] the probability of {f (x) = 0} is equal the probability of {f (x) = 1}.</p><p>Each domain D of the above examples is one dimensional, and it is well known that approximation problem becomes more challenging as the dimension increases.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Simple functions and Adaptive Neural Networks</head><p>Let us take another look at the machine learning problem of approximation of a function f given its values at a countable set of points S = { x 1 , x 2 , ...} ⊆ D ⊆ R k . If we only assume that f ∈ L p (D), it may be impossible to approximate f on S with respect to mean square error (see example 3.1). On the other hand, if we assume some smoothness conditions (like bounded variation), to predict the value of f at x ∈ D \ S, one could take the average of values of f in S in some neighborhood of x. In such case, do we really need deep neural networks to construct f approximation of f, or is it just an excuse to own the latest Nvidia graphics card?</p><p>Note that the current methods in neural networks are using approximation of a given measurable function f by almost everywhere continuous function f . In Measure Theory one first approximates a measurable function f by simple functions. The whole point of Lebesgue integration is to use simple functions instead of piece-wise continuous (step) functions. Neural networks representing simple functions would not consume as much computational power required by matrix multiplication. Some work in this direction <ref type="bibr" target="#b1">[2]</ref> is known as Lookup Tables, but no connection between simple functions and lookup tables have been made explicitly.</p><p>Another interesting direction would be an algorithm which designs the structure of a neural network. To implement this approach, such algorithm would have to control the width of layers and the depth of the network.</p><p>To address the width control, one could partition each layer, i, of neurons into two subsets, A i and B i , with zero weights of neurons in A i , and non-zero weights of neurons in B i . Here is where the condition P i ( 0) = 0 (12) of an activation function P i becomes significant. If (12) holds, the neurons from A i contribute nothing to the value of f . One could think of neurons in A i as auxiliary neurons.</p><p>As long as weight optimization algorithm does not compute gradients of neurons in A i , the computational complexity of the network is equivalent to one containing only the neurons in B i 's.</p><p>To adapt the depth of a neural network, one could partition all layers of neurons into two sets, S and T , such that the layers in S precede the layers in T . If all but one neurons in layer i from T belongs to A i , and the remaining neuron in B i assigned w i consisting of ones, as long as P i (x) = x, such layer acts as an identity function. If one does not compute the gradients and update the values w i for layer i in T , the computational burden of such layers is negligible.</p><p>In other words, the layers in set T are dormant and act as the identity function and each neuron that belongs to set A i acts as a place holder. Increasing the size of A i 's and size T would increases the maximum approximation accuracy with little increase in computations.</p><p>One could then implement a rule for a "switch" of a layer of neurons in T to a layer in S based on a threshold of the gradient of C. One could similarly implement a rule for a "switch" of neurons from A i to B i . Implementation of such switches automates the growth of width and depth of neural networks to accommodate the approximation accuracy without any human interference.</p><p>The above described adaptive algorithm is somewhat similar to a learning process of an adult human brain. Such brain contains constant number of neurons, but the number of neural connections is changing while learning a new skill. One could also consider a reverse switch from class B i to A i to implement the ability to "forget" no longer needed skill. Going a step further, one could allow the neurons in each A i to be shared by multiple networks working in parallel.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Computer Vision</head><p>One of the promising areas of neural network application is so called computer vision. In recent years convolutional neural networks had a significant progress in object detection and recognition from images and video data. One of the challenges of object classification is a consequence of so-called "curse of dimensionality". Each m × n pixels image of an object is often treated as (m • n)-dimensional vector. Even a moderate size picture of 1024 × 1024 pixels without some reprocessing presents a computational challenge for modern machines</p><p>There is another problem with the idea of representing m × n pixels images as (m • n)dimensional vectors. By converting 2D objects into vectors, one loses the internal structure of the underlying Cartesian space. Assume, for example, we have a gray scale n × n pixel image of a single object O. Let f (x, y) ∈ [0, 1] be the grayness intensity value the pixel with Cartesian coordinates (x, y), with x, y = 1, 2, ..., n. If ε &gt; 0 is small, one can usually assume that functions</p><formula xml:id="formula_11">f (x ± 1, y), f (x, y ± 1), f (n -x, y), f (x, n -y), f (x -1, y), f (x, y) ± ε (13)</formula><p>which correspond to shifts, reflections and intensity change, would also represent the same object O. One could similarly define a small rotation and noise invariance of the function representation of the given object. Enforcing such invariance rules on the structure of neural networks is far more difficult.</p><p>We think of objects as three dimensional, so one could assume that dimension of the solution space of object classification should be of same order of magnitude. Perhaps some difficulties of object classification follow from the complexity of equivalence relation defining each class of objects. Often times such relation is not based only on the three dimensional space. How, for example, would you recognize a bottle? Since bottles come in various shapes sizes, even if we had a rigorous definition of shape, equivalence rule of the "bottle" class would be complicated. Yet, when an adult human is presented with a previously unseen and even unusual bottle, would recognise it without much effort. Our notion of bottles comes from their extensive use in daily life. It seems unlikely that the problem of computer vision would have a computationally feasible solution by a narrow AI algorithm trained only on images.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">Recurrent Neural Networks</head><p>Another class of networks, called recurrent NNs, are designed to predict the n-the value, y n , of a sequence of vectors { y n } n∈N , given all previous values y 1 , . . . , y n-1 . One would think this type of problem requires different approach, yet the common practice is to modify the connections of feed forward neural network and use good old gradient descent.</p><p>Fourier series was fist thing came to my mind when looking at the above problem. If the sequence is periodic we would discover this fact within two periods of the sequence. Since not all functions are periodic, one could next assume the sequence function is almost periodic. For example, the class of Besicovich almost periodic functions on C consist of trigonometric polynomials of the form</p><formula xml:id="formula_12">P (x) = n k=1 a(η k )e iη k x , η k ∈ R, a(η k ; P ) ∈ C<label>(14)</label></formula><p>and their completion with the norm</p><formula xml:id="formula_13">P B 2 ap = lim τ →∞ 1 2τ τ -τ |P (x)| 2 dx 1/2 . (<label>15</label></formula><formula xml:id="formula_14">)</formula><p>This is a large set of functions that need not be periodic. Even very easy almost periodic function f (x) = e ix + e i √ 2x is not periodic. It would be interesting to use recurrent neural networks to approximate this function.</p><p>One can easily generalize Fourier series to this class of functions and use a computational power to estimate the Fourier series instead of using gradient descent. Since Only recently Fourier series were used in the new design of recurrent neural network called "Transformers" introduced by authors of the paper "Attention is all you need" <ref type="bibr" target="#b2">[3]</ref>.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Model History and Evaluation (a) and (b).</figDesc><graphic coords="4,123.80,431.91,171.36,121.52" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: Model History and Evaluation (a) and (b).</figDesc><graphic coords="5,123.80,106.52,171.36,119.39" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Example 3 . 1 .</head><label>31</label><figDesc>One can construct a measurable subset S of [0, 1] with the following properties. Both S and its complement, S c , in [0, 1] are totally disconnected (contain no interval) and µ(S) = µ(S c ) = 1 2 .</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>ee</head><figDesc>iη j x , e iη k x = limiη j x • e -iη k x dx = 1 η j = η k 0 η j = η k (16)the set of functions functions {e iη k x } k∈N form an orthonormal system and the completion of trigonometric polynomials in (14) is a Hilbert space. One may compute generalized Fourier coefficients of a Besicovich almost periodic function f using a(η; f ) = lim can take advantage of Harmonic Analysis theory, by first defining a finitely additive measure γ with• B 2ap in (15) as the usual L 2 norm with the measure γ.</figDesc></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0"><p>We shall return to the importance of this condition later to discuss the design and structure of NN</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_1"><p>Since for any sequence x = {xi} i∈N of complex numbers xi, x l</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_2"><p>x l 1 , "l1 weights regularization" is also an "l2 regularization", so "(l1 and l2)-regularization" is redundant.</p></note>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<author>
+			<persName><forename type="first">M</forename><surname>Hornik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Stinchcombe</surname></persName>
+		</author>
+		<author>
+			<persName><surname>White</surname></persName>
+		</author>
+		<title level="m">Multilayer Feedforward Networks are Universal Approximators Neural Networks</title>
+		<imprint>
+			<date type="published" when="1989">1989</date>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="page" from="359" to="366" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Neural Networks and Lookup Tables for Identification Identification of Dynamic Systems Springer</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Isermann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Münchhof</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+			<pubPlace>Berlin, Heidelberg</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<author>
+			<persName><forename type="first">A</forename><surname>Vaswani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Shazeer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Parmar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Uszkoreit</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Jones</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gomez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Kaiser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Plosukhin</surname></persName>
+		</author>
+		<title level="m">Attention is All You Need 31st Conference on Neural Information Processing Systems</title>
+		<meeting><address><addrLine>Long Beach, CA, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

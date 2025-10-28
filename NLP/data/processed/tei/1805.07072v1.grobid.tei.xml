@@ -1,0 +1,563 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Optimizing for Generalization in Machine Learning with Cross-Validation Gradients</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2018-05-18">18 May 2018</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Shane</forename><surname>Barratt</surname></persName>
+							<email>sbarratt@stanford.edu</email>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Electrical Engineering</orgName>
+								<orgName type="institution">Stanford University</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Rishi</forename><surname>Sharma</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Electrical Engineering</orgName>
+								<orgName type="institution">Stanford University</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Optimizing for Generalization in Machine Learning with Cross-Validation Gradients</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2018-05-18">18 May 2018</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">2BC437C4DA34E8B1FC29E73E938902AF</idno>
+					<idno type="arXiv">arXiv:1805.07072v1[stat.ML]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Cross-validation is the workhorse of modern applied statistics and machine learning, as it provides a principled framework for selecting the model that maximizes generalization performance. In this paper, we show that the cross-validation risk is differentiable with respect to the hyperparameters and training data for many common machine learning algorithms, including logistic regression, elastic-net regression, and support vector machines. Leveraging this property of differentiability, we propose a cross-validation gradient method (CVGM) for hyperparameter optimization. Our method enables efficient optimization in high-dimensional hyperparameter spaces of the cross-validation risk, the best surrogate of the true generalization ability of our learning algorithm.</p><p>1 Nonparametric learning algorithms exist, e.g., k-nearest neighbor, but are challenging to analyze with our method.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>The ultimate aim of a supervised learning method is generalization, that is, achieving good prediction ability on unseen test data given only a finite set of training data. The generalization capability of learning algorithms should be the primary criterion for model selection, yet an algorithm's generalization capability is a somewhat elusive quantity that is challenging to optimize for. In this paper we introduce a method to optimize directly for the closest available proxy to generalization performance: cross-validation loss.</p><p>We begin with a formal description of the overall goal in predictive learning, which also serves as an introduction to notation used throughout the paper. The task of predictive learning involves deriving a prediction function from a finite set of training data. More formally, suppose that (x, y) ∈ X × Y have some joint probability distribution. We have access to a finite dataset of N training examples z i ∈ Z = X × Y drawn i.i.d. from the joint distribution, denoted S = {z 1 , z 2 , . . . , z N }. We are given (or specify ourselves) a cost function c(ŷ, y) : Y × Y → R + that quantifies the displeasure incurred when ŷ is predicted instead of y. Denoting the function space from input to outputs as F = Y X , we define the loss of a function on a training example z = (x, y) as l(f, z) = c(f (x), y). Then, given a prediction function f ∈ F, we define the population risk as</p><formula xml:id="formula_0">E z [l(f, z)],</formula><p>and the target function f * ∈ F as the function that minimizes the population risk. The population risk represents how much loss we incur, on average, on the full joint distribution, and is the quantity we would like as small as possible. In this paper, we consider parametric prediction functions, that is, f is parameterized by a vector θ, denoted f (x; θ) 1 . For example, in linear regression, X = R n , Y = R, c(ŷ, y) = (ŷ -y) 2 , and F is the set of all affine functions parameterized as f (x; θ) = θ T x + θ 0 .</p><p>We are then tasked with designing a learning algorithm A : Z N → F, which is a function that maps a dataset S to a prediction function. Without substantial knowledge of the actual joint distribution, or assumptions about the target function f * , it is extremely unlikely that A will ever reproduce the exact target function. However, our goal is to minimize the population risk of the learning algorithm</p><formula xml:id="formula_1">R(A, S) = E z [l(A(S), z)]<label>(1)</label></formula><p>which is a random variable that depends on S, our dataset. To make this problem of searching for learning algorithms tractable, we similarly parameterize our learning algorithm A by a vector α ∈ R d , denoted A α . These are known as the "hyperparameters" or "meta-parameters" of the learning algorithm, and can play many important roles: they can perform regularization, enforce sparsity, or even guide feature selection <ref type="bibr" target="#b0">[1]</ref>. The quantity we would then like to optimize is the expected population risk, or</p><formula xml:id="formula_2">L(α) = E S [R(A α , S)] .<label>(2)</label></formula><p>It is impossible to exactly calculate (2) with a finite dataset S, as there are two expectations that both involve an unknown probability distribution. What we can do is construct a Monte Carlo estimate of the an algorithm's expected population risk using a technique known as cross-validation. We first partition S into K partitions T j , V j , j = 1, . . . , K (that is, T j ∩ V j = ∅ and T j ∪ V j = [n]). Then our cross-validation risk, as a function of α, is</p><formula xml:id="formula_3">L cv (α) = 1 K K j=1 1 |V j | i∈Vj l(A α (T j ), z i )<label>(3)</label></formula><p>and is readily calculated. We first apply the algorithm to each training set and then average the loss on each corresponding validation set. The first sum in (3) corresponds to the expectation in <ref type="bibr" target="#b1">(2)</ref>, and the second sum corresponds to the expectation in <ref type="bibr" target="#b0">(1)</ref>. Setting K = 1 reduces to simple out-of-sample validation and an arbitrary K reduces to the common K-fold cross-validation estimate (provided T j form a partition of {1, . . . , N } and |T j | = N -N K ). Thus, this formulation can be viewed as a generalization of cross-validation. (See <ref type="bibr" target="#b1">[2]</ref> for a longer discussion about this general framework.) In cases where the class of models to be used for learning are known, we have reduced the predictive learning problem to the problem of selecting of a hyperparameter vector α to minimize the cross-validation loss. Even in the simplest cases, however, the objective in (3) is nonconvex in α, and in many cases not even continuous (e.g., the 0 -1 classification loss), which can make optimization of this quantity tricky.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.1">Summary of Results</head><p>Our first result is to demonstrate that we can find ∇ α L cv (α) for many common convex machine learning algorithms (e.g., logistic regression, elastic-net regression, support vector machines), provided the cross-validation loss function is differentiable (Section 3). In those algorithms, α often plays the role of regularizer or defines a feature map (in the case of SVM kernels). In the case where α is low-dimensional, (3) can be optimized by exhaustive search without incurring too much cost. However, if we want to design our machine learning algorithms with more expressive regularizations or feature maps, exhaustive search over our hyperparameter space becomes prohibitive.</p><p>Our second contribution is to propose the cross-validation gradient method (CVGM), which makes it possible to optimize cross-validation loss over high-dimensional hyperparameter spaces via gradient descent techniques (Section 4). We test the CVGM on an elastic-net regression problem to optimize two hyperparameters and on a more ambitious synthetic classification problem to optimize an entire neural network that serves as a kernel function. In this case, the parameters of the neural network are the hyperparameters (Section 5).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Related Work</head><p>There have been many proposed approaches for the problem of hyperparameter optimization, which roughly fall into two camps based on whether or not they use gradients.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">Gradient-Free Methods</head><p>Exhaustive Search Exhaustive search, also known as grid search, restricts the possible set of α to a (finite) set {α 1 , . . . , α n }, usually by discretizing the parameter search space into a regular grid. Then one exhaustively computes (3) for each α i and chooses the argmin. The main disadvantage of exhaustive search is that its complexity (to find an approximate minimum) scales exponentially with the dimension d, making it prohibitive for practitioners to successfully apply exhaustive search to d greater than 5 or 6.</p><p>Random Search Random search for hyperparameters involves repeatedly specifying a probability distribution over R d , sampling from it, and evaluating (3). Quite unintuitively, random search can be more efficient than exhaustive search, even with a simple probability distribution. This is because, in practice, only a few of the hyperparameter dimensions matter <ref type="bibr" target="#b2">[3]</ref>.</p><p>Bayesian Optimization Bayesian regression allows us to predict a distribution over L cv (α), further allowing us to query α that maximize a surrogate function, e.g., probability of improvement or expected improvement <ref type="bibr" target="#b3">[4,</ref><ref type="bibr" target="#b4">5]</ref>. The regression is usually carried out with Gaussian processes (GPs) <ref type="bibr" target="#b5">[6]</ref>. However, random search still remains a fierce competitor to the (substantially more complicated) Bayesian optimization approach.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">Gradient-Based Methods</head><p>Implicit Differentiation Most learning algorithms A α are solving some parameterized optimization problem, that is, optimizing some objective function. Under certain conditions, one can apply the well-known implicit function theorem <ref type="bibr" target="#b6">[7]</ref> to the optimality conditions of the objective function, and calculate the gradients of the loss function. Larsen et al. <ref type="bibr" target="#b7">[8]</ref> were the first to propose this, in the context of neural networks, when the objective function includes a regularization term that is linear in the regularization parameters. Bengio <ref type="bibr" target="#b8">[9]</ref> further derived the gradients for a general (unconstrained and differentiable) training criterion along with an efficient way of calculating the gradient for a quadratic training criterion, and applied the algorithm to weight decays for linear regression. These results were then extended to support vector machines (SVMs) <ref type="bibr" target="#b9">[10,</ref><ref type="bibr" target="#b10">11]</ref> and applied to log-linear models <ref type="bibr" target="#b11">[12]</ref> and ridge regression <ref type="bibr" target="#b12">[13]</ref>.</p><p>This paper seeks to generalize these methods and provide exact conditions under which A α is actually differentiable. In short, when A α is a convex optimization problem parameterized by α, under certain conditions that are satisfied by many common learning algorithms, we can find exact cross-validation gradients.</p><p>Iterative Differentiation In addition to approaches based on implicit differentiation, there are also approaches based on iterative differentiation, i.e., they unroll the optimization procedure in A to calculate gradients. Many large-scale machine learning algorithms perform a variation of gradient descent, and since gradient descent is a sequence of analytic updates to the parameters, A α can be unrolled (or "reverse-mode" differentiated) with respect to α by recursively applying the chain rule to the updates in backwards order. Domke <ref type="bibr" target="#b13">[14]</ref> was the first to propose this, deriving backpropagation rules for the heavy-ball method and LBFGS. Since most large-scale machine learning problems in practice are (approximately) solved using variations of the stochastic subgradient method (also known as SGD), the "learning rate" parameter has a large impact on the convergence and training speed of nonconvex models, e.g., neural networks. Maclaurin et al. <ref type="bibr" target="#b14">[15]</ref> extended the results of Domke to the case of stochastic gradient methods, and as a result, the authors were able to update the learning rate throughout the learning process. The advantage of these methods are that they can be applied to any large-scale machine learning problem that uses a stochastic subgradient method. The main limitations of these methods, however, are that the use of finite precision arithmetic when recursively applying the chain rule can lead to inaccuracies in the gradient calculation and that one can encounter exploding or vanishing gradients from repeated application of the chain rule.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Exact Differentiability of Learning Algorithms</head><p>Recent work by Barratt provided necessary and sufficient conditions for a parameterized convex optimization problem to be differentiable <ref type="bibr" target="#b15">[16]</ref>. We review the results here, and refer the reader to the paper for more details. The setting is a parameterized convex optimization problem</p><formula xml:id="formula_4">minimize f 0 (x, α) subject to f (x, α) 0, h(x, α) = 0. (4)</formula><p>where x ∈ R n is the optimization variable, the functions f 0 and f are convex for fixed α and h is affine for fixed α. Let s(α) = (x, λ, ν) T denote the optimal x, λ, ν for a given α in (4), where λ and ν are Lagrange multipliers, i.e., that satisfy the Karush-Kuhn-Tucker (KKT) conditions. Then define the vector-valued function</p><formula xml:id="formula_5">g(x, λ, ν, α) =   ∇ x L(x, λ, ν, α) diag( λ)f (x, α) h(x, α)   . (<label>5</label></formula><formula xml:id="formula_6">)</formula><p>where L is the Lagrangian. The main result of the paper is that, for an optimal z = (x, λ, ν),</p><formula xml:id="formula_7">∇ α s(α) = -∇ z g(x, λ, ν, α) -1 ∇ α g(x, λ, ν, α). (<label>6</label></formula><formula xml:id="formula_8">)</formula><p>under the assumption that both f i and g are twice differentiable in x and α, strong duality holds, and</p><formula xml:id="formula_9">∇ α g(x, λ, ν, α) ∈ R(∇ x g(x, λ, ν, α)).</formula><p>In other words, we can get the derivative of (x, λ, ν) with respect to α. We will focus on the derivative of x with respect to α in this paper, however, it would be interesting to consider the derivative with respect to the dual variables λ and ν.</p><p>Since most parametric machine learning procedures can be expressed as parameterized convex programs that satisfy these conditions<ref type="foot" target="#foot_0">foot_0</ref> , we can conclude that, in many cases, A α is in fact differentiable.</p><p>In fact, many machine learning procedures can even be expressed as quadratic programs (QPs)quadratic objectives with affine inequality and equality constraints -and satisfy the conditions for differentiability, as shown in Amos and Kolter <ref type="bibr" target="#b16">[17]</ref> (assuming a positive definite quadratic). Further, if l is differentiable with respect to the parameters of f , we can use the chain rule to find the gradient of the cross-validation loss with respect to the hyperparameters. We now present several examples of predictive learning algorithms that are in fact differentiable with respect to their hyperparameters.</p><p>(Additional examples, including the support vector machine, can be found in the Supplementary Materials.)</p><p>Example 3.1 (Logistic regression). In logistic regression, X = R n and Y = {-1, 1}. As is standard in classification, we model Prob(x = 1). This probability is represented by the "sigmoid" function p(x; θ) = 1 1+exp(-θ T x) and we minimize a loss function that is proportional to the likelihood of the dataset under this model plus a regularization term</p><formula xml:id="formula_10">L(θ, C) = 1 2 θ T θ + C N i=1 log(exp(-y i x T i θ) + 1).</formula><p>This (convex) optimization problem is unconstrained, so the derivative of the optimal solution with respect to the hyperparameter C is just</p><formula xml:id="formula_11">∇ C A = -∇ 2 θ L(θ, C) -1 ∇ C [∇ θ L(θ, C)]. Letting π i = 1 1+exp(-yiθ T xi) , the gradient is ∇ θ L(θ, C) = θ + C N i=1 (π i -1)y i x i</formula><p>and the Hessian is</p><formula xml:id="formula_12">∇ 2 θ L(θ, C) = I + CX T DX where D is a diagonal matrix with D ii = π i (1 -π i )</formula><p>and the rows of X are x i , and is guaranteed to be positive definite. The righthand side is just Calculate the gradient</p><formula xml:id="formula_13">∇ C ∇ θ f (θ, C) = N i=1 (π i -1)y i x i .</formula><formula xml:id="formula_14">g ← ∇ α   1 K K j=1 1 |V j | i∈Vj l(A α k (T j ), z i )   5:</formula><p>Update α k+1 using a gradient method with the gradient g 6:</p><p>Project α k+1 onto the constraint set 7: end while We can also take the derivative with respect to the training examples x i (or y i with a similar derivation) using the fact that</p><formula xml:id="formula_15">∇ xi ∇ θ f (θ, C) = C(π i -1)y i I.</formula><p>Example 3.2 (Elastic-net regression). In regression, X = R n , Y = R, and c(ŷ, y) = (ŷ -y) 2 . The function f (x; θ) = θ T x, where the intercept term is omitted for illustration. Let the ith row of the data matrix X be equal to x i and the ith entry of the vector y be equal to y i . Elastic-net regression generalizes ridge and LASSO regression and optimizes the squared penalty with a weighted combination of ℓ 1 and ℓ 2 regularizers <ref type="bibr" target="#b17">[18]</ref>, or solves the optimization problem</p><formula xml:id="formula_16">minimize 1 2N Xθ -y 2 2 + λ 1 θ 1 + 1 2 λ 2 θ 2 2 .<label>(7)</label></formula><p>The objective is convex, but not differentiable. To transform this into a differentiable parameterized convex optimization problem, we introduce two variables to represent the positive and negative parts of θ, denoted θ p and θ n . Then, letting v = [θ p θ n ] T , elastic-net can be expressed as the following quadratic program (QP) with 2n variables minimize</p><formula xml:id="formula_17">1 2 v T 1 N X T X + λ 2 I -1 N X T X -1 N X T X 1 N X T X + λ 2 I v + -1 N X T y + λ 1 I 1 N X T y + λ 1 I T v subject to v 0.<label>(8)</label></formula><p>Since we can differentiate the solution to positive-definite QPs, we can find the gradient of the optimal solution θ = θ p -θ n with respect to the hyperparameters λ 1 and λ 2 , provided λ 2 &gt; 0. To the best knowledge of the authors, this is the first derivation of the gradients of the elastic-net solution with respect to elastic-net's hyperparameters.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Cross-Validation Gradient Method (CVGM)</head><p>Building off our findings that the solution to many parametric machine learning procedures are differentiable with respect to their hyperparameters, we can now design an algorithm to minimize (3).</p><p>The algorithm is summarized in Algorithm 1. The algorithm essentially performs projected gradient descent on (3), restricting α to a pre-defined constraint set. It runs the learning algorithm on the training part of each cross-validation split (line 3), then calculates the loss on the held-out part of each cross-validation split, and then uses the chain rule to calculate their gradients, which are then averaged (line 4). This averaged gradient is then used to update α in a first-order gradient method (line 5), and then α is projected back onto the constraint set (line 6). Once we run the CVGM to find α * , we then run the learning algorithm on the full dataset to find the final prediction function A α * (S).</p><p>There are several advantages to this method. First, it directly optimizes the quantity of interest using a gradient-based method, which can be much faster than exhaustive search. Second, if one is smart with their implementation, computing the gradient in line 4 of the algorithm costs little on top of evaluating the function L cv (α) itself. (See <ref type="bibr" target="#b15">[16]</ref> and <ref type="bibr" target="#b16">[17]</ref> for a discussion of this.) Third, our method plays well with parallel computation. The majority of computation time is spent finding the gradient in line 4 of the algorithm. Since the gradient operation is linear, we can split up K runs of the learning algorithm on the K datasets over K processors or compute nodes and then average the resulting gradients. Also, the algorithm can be run in parallel with different random initializations of α to find multiple hyperparameter settings.</p><p>There are several immediate improvements that can be made to the CVGM as stated. One improvement would be to make the sampling of cross-validation splits uniform, that is, each index appears an equal number of times in all of the V j and V j . This ensures that each data point shows up an equal number of times in the cross-validation loss. Another improvement would be to use a more sophisticated optimization method, e.g., accelerated or adaptive methods, but in our experiments we just use a gradient method with constant step size and found that it works quite well.</p><p>Our method requires two parameters: the number of partitions K (the batch size), and the fraction of samples to include in the training set partition p. We expect that a value of K between 16 and 128 and p &gt; 1 2 should work well in almost all scenarios. A larger K leads to reduced variance, and a larger p leads to a reduced number of examples held out for validation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Numerical Experiments</head><p>We evaluate our method on synthetic regression and classification data, noting that further in-depth comparison on real datasets is needed in future work. One benefit of small synthetic experiments is that the true population risk is readily calculated, and it is easy to the method in the low-data regime. All of the code to run our experiments is freely available online<ref type="foot" target="#foot_1">foot_1</ref> .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1">Synthetic Regression Data</head><p>First, we evaluate our method on synthetic regression data. There are N = 30 observations and n = 10 features. However, only 8 of the features have non-zero coefficients. We generate data via the following scikit-learn <ref type="bibr" target="#b18">[19]</ref> command: X, y, coef = make_regression(N, n, n_informative=8, noise=100., \ tail_strength=0., coef=True)</p><p>We also generate a test set of 1000 examples with the same command for evaluation. As is standard practice in machine learning, we normalize the features-that is, we normalize each feature to mean 0 and standard deviation 1 across the training set and then this same normalization is applied to the validation/test set before prediction.</p><p>We run an elastic-net regression (see Example 3.2) to learn a linear prediction function. For simplicity, the (unpenalized) intercept is learned using standard linear regression and then subtracted from y. For our projection step (line 6 of the algorithm), we require λ 2 ≥ , where = 1 × 10 -7 , and λ 1 ≥ 0.</p><p>We use K = 128, p = .95, and a gradient descent step size of 2 × 10 -4 . The method is implemented in PyTorch using the qpth library, which is a fast, batched, and differentiable QP library, making the algorithm efficient and scalable <ref type="bibr" target="#b16">[17]</ref>. The authors note, however, that one could create a much faster implementation by making the solver specialized for elastic-net regression.</p><p>We compared the CVGM with exhaustive and random search, noting, however, that the hyperparameter optimization problem is in two dimensions and exhaustive/random search are likely to be quite competitive. We ran CVGM with an initial λ 1 = 1 × 10 -2 and λ 2 = 1 × 10 -4 for 100 steps.</p><p>For exhaustive search, we did a grid search over a log scale for</p><formula xml:id="formula_18">λ 1 ∈ [1 × 10 -4 , 1 × 10 -1 ] and λ 2 ∈ [1 × 10 -4 , 1 × 10 -1 ],</formula><p>and kept the hyperparameters that achieved the lowest cross-validation loss. For random search, we sampled uniformly at random in a log scale from the same variable ranges as exhaustive search. The resulting final test losses (at iteration 100) of this experiment are in Table <ref type="table" target="#tab_0">1</ref> and we also included a plot of the (test loss) progress of the algorithms in Figure <ref type="figure" target="#fig_3">3</ref> in the Supplementary Materials. CVGM ultimately achieves a test loss of 1.080, lower than the other two methods, and the test loss (which CVGM has no access to but we do compute during training) is for the most part monotonically decreasing throughout the procedure.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2">Synthetic Classification Data</head><p>Next, we experiment with CVGM's ability to learn kernels from scratch on two dimensional synthetic classification data. We first generate a two dimensional dataset of N examples in polar coordinates from two classes that form rings of different radii and have significant overlap. One class has the distribution r ∼ N (1, .4) and θ ∼ Unif(-π, π), and the other class has the distribution r ∼ N (2, .4) and θ ∼ Unif(-π, π). The data is then transformed into Cartesian coordinates using the transformation (x, y) = (r cos θ, r sin θ). A training dataset of size N = 60 is displayed in the top part of Figure <ref type="figure" target="#fig_1">1</ref>. Clearly, the Bayes decision rule for this dataset is to separate the classes at x 2 = 1.5, and the best a linear classifier can do is 50 % test error. But for the sake of illustration of our method, we seek to learn a (parameterized) kernel φ that transforms x into a space where the data is linearly separable, or at least to a space where we can achieve low misclassification loss by learning a linear classifier with logistic regression.</p><p>We will use a one-layer neural network kernel φ α : R 2 → R 2 , or</p><formula xml:id="formula_19">φ α (x) = W 2 σ(W 1 x + b 1 ) + b 2 with parameters α = [W 1 , b 1 , W 2 , b 2 ].</formula><p>In our experiments, we use σ(x) = max(0, x), where the maximum is taken element-wise, and W 1 ∈ R 64×2 and W 2 ∈ R 2×64 . We will transform the data into the new two dimensional space using the neural network, and then fit a linear classifier there using logistic regression (see <ref type="bibr">Example 3.1)</ref>. In other words, given φ α , we minimize the following objective where v i = φ α (x i ). We can then find the Jacobian of the optimal solution θ of this objective ∂θ vi using arguments in Example 3.1, and then using the chain rule to find derivatives of the optimal solution with respect to the neural network's parameters. We use the (differentiable) soft-margin loss for the cross-validation loss function l, thereby allowing us to find the derivatives of the crossvalidation loss with respect to the neural network parameters. A nice interpretation is that we are learning a two-layer neural network that first is fed to φ α and then to the logistic regression layer, but the first part of the neural network is trained using the CVGM, and the second is learned through (standard) logistic regression. The (differentiable) logistic regression layer is implemented as a modular PyTorch Function, and is in the source code. In our experiments, we fix C = 10, K = 256, p = .95, and use a gradient descent step size of 1 × 10 -1 . For the rest of the details of the experiments, we refer the reader to the source code.</p><formula xml:id="formula_20">L(θ) = 1 2 θ T θ + C N i=1 log(exp(-y i v T i θ) + 1).</formula><p>The kernel manifold at select iterations of the CVGM is displayed in the bottom part of Figure <ref type="figure" target="#fig_1">1</ref>. After about 10 iterations, the method is able to learn a manifold under which the data is (approximately) linearly separable and achieves a test accuracy of 86.5 %, in comparison to the Bayes-optimal accuracy on that test set of 89.2 %.</p><p>In a separate experiment, we compared three separate methods: CVGM method with the neural network kernel as described above, a two-layer neural network with the same architecture as the CVGM method, and logistic regression. Training was done on dataset sizes from 8 to 200 over 25 random seeds. The CVGM model was trained using gradient descent on the binary cross entropy loss with a step size of 1 × 10 -2 for 100 steps, as we found that optimizing to convergence led to severe overfitting-this overfitting is more pronounced when there is less data and is likely a consequence of the low-data regime of this experiment. The mean test accuracies of the various learning algorithms over the random seeds, as well as the Bayes accuracy, are displayed in Figure <ref type="figure" target="#fig_2">2</ref>. CVGM outperforms the two other methods, especially in the low-data regime.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">Conclusion</head><p>By showing that we can in fact differentiate the optimal solution to most convex machine learning algorithms, we have made the cross-validation loss, which is commonly viewed as a black-box function, a differentiable objective function. This opens up the possibility of optimizing over large hyperparameter spaces, as demonstrated by our second experiment, where we optimized 322 hyperparameters with as few as 20 training examples.</p><p>Practitioners know that of the most important parts of machine learning pipelines is feature engineering, which involves applying some function to raw data before feeding it to a machine learning algorithm. Typically, the optimal features are problem-dependent, requiring experts to spend time constructing and experimenting with hand-crafted functions. However, with the CVGM, practitioners can design differentiable parameterized feature engineering functions for their class of problems, and optimize the feature engineering pipeline directly for generalization capability using gradient descent. Hence, we believe that the CVGM we present is a step towards robust automatic feature learning, a prized goal of machine learning research.</p><p>The last two terms cancel, leaving us with E[l(A(S), z i )], which we approximate with (3). Hence, our CVGM algorithm is implicitly choosing the hyperparameters to optimize the stability of the learning algorithm.   </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>D Supplementary Figures for Numerical Experiments</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>E XOR Experiment</head></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Algorithm 1 CVGM 3 :</head><label>13</label><figDesc>Require: α 0 : Initial hyperparameter vector Require: K: Number of partitions Require: p: Fraction of samples in training set 1: Sample K partitions T j , V j , j = 1, . . . , K uniformly at random, where |T j | = pN 2: while α k not converged do Run the algorithm A α k (T j ) separately on each training set 4:</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Top: Synthetic classification training data in two dimensions, along with the learned decision boundary (black). Bottom: Visualization of kernel applied to 1000 (unseen) test data points in iterations 1, 10, 20, and 100 from left to right, along with the linear classifier in that space (black). Note that the kernel quickly learns a manifold where the data is (approximately) linearly separable. The CVGM achieves 89.8 % test accuracy on the test set with only 60 training examples, and the Bayes (optimal) accuracy is 89.4 %.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: Test loss of the CVGM method, a neural network, and vanilla logistic regression for various dataset sizes.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 3 :</head><label>3</label><figDesc>Figure 3: Synthetic regression data. Test loss of random search, CVGM, and exhaustive search, each run for 100 iterations.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><figDesc>We also experimented with learning a two-dimensional XOR function. The data (N = 100) comes from two classes. One class comes from(x, y) ∼ U[-3, 0.6], U[-0.6, 3] or (x, y) ∼ U[-0.6, 3], U[-3, 0.6] with equal probability. The other class comes from (x, y) ∼ U[-3, 0.6], U[-3, 0.6] or (x, y) ∼ U[-0.6, 3], U[-0.6, 3]with equal probability. The details are similar to our classification experiment, but instead we use a two-layer neural network, with 64 hidden units in the first layer, and 64 hidden units in the second. (This corresponds to 4482 hyperparameters.) The results of this experiment are displayed in Figure4.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Figure 4 :</head><label>4</label><figDesc>Figure 4: XOR classification experiment. Top: Synthetic training data in two dimensions, along with the learned decision boundary (black). Bottom: Visualization of kernel applied to 1000 (unseen) test data points in iterations 1, 2, 5, and 50 from left to right, along with the linear classifier in that space (black). The classifier achieves 72 % test accuracy, where the Bayes accuracy is 85.1 %.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 1 :</head><label>1</label><figDesc>Synthetic Regression Results.</figDesc><table><row><cell>Name</cell><cell cols="2">Test Loss Cross-Validation Steps</cell></row><row><cell cols="2">CVGM Exhaustive search 1.207 1.080 Random search 1.084</cell><cell>100 100 100</cell></row></table></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_0"><p>Two notable exceptions to this are neural networks and decision trees, which both have nonconvex training criterions and thus one cannot guarantee finding a global minimum.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="3" xml:id="foot_1"><p>www.github.com/sbarratt/crossval</p></note>
+		</body>
+		<back>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Supplementary Materials</head><p>A Support Vector Machine Example Support vector machines perform classification, where X = R n and Y = {0, 1}. The function class is again linear, or f (x; θ) = θ T x. The loss function used in SVMs is the hinge loss, or c(ŷ, y) = max(0, 1 -y ŷ). In the ℓ1 and ℓ2-regularized SVM, we optimize</p><p>Introducing the vectors θp, θn (where θ = θp -θn), variables ti, i = 1, . . . , N , we can rewrite the problem as</p><p>which is a QP with considerable structure. Thus the solution θ is differentiable with respect to λ1 and λ2, again provided λ2 &gt; 0. A similar method, i.e., replacing xi with φ(xi) can be used to show that kernel-based SVMs are also differentiable with respect to the kernel parameters.sectionB: Learning Loss Functions</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B Learning Loss Functions</head><p>Much of classification can be viewed as optimizing a convex surrogate of the 0 -1 loss function <ref type="bibr" target="#b19">[20]</ref>. Thus, a reasonable loss function is a convex combination of such convex surrogates. Four common loss functions are:</p><p>• hinge: l h (ŷ, y) = max(0, 1 -y ŷ).</p><p>• exponential: le(ŷ, y) = exp(-y ŷ).</p><p>• truncated quadratic: lt(ŷ, y) = max{1 -y ŷ, 0} 2 .</p><p>• logistic: l l (ŷ, y) = ln(1 + exp(-2y ŷ)).</p><p>Except for the hinge loss, all of these loss functions are differentiable. Thus we can define the optimization problem</p><p>that is convex and differentiable in α. We can then run a projected gradient method over α in the probability simplex.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C Connections to Stability</head><p>Bousquet and Elisseeff <ref type="bibr" target="#b20">[21]</ref> introduced several mathematically precise notions of the "stability" of a learning algorithm. They consider a modified dataset, constructed by replacing one element:</p><p>S i = {z1, . . . , zi-1, z i , zi+1, . . . , zN .} The stability of a learning algorithm A is then defined as</p><p>Roughly, this corresponds to the difference in the expected loss between A not having access to z i and the algorithm having access to z i . The main theorem of the paper relates the empirical risk to population risk</p><p>Because our goal is to optimize E[R], we can achieve this by optimizing the quantity ∆ + E[Remp], or ∆ + E[Remp] = E l(A(S), z i ) -l(A(S i ), z i ) + l(A(S), z i ) .</p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">The Elements of Statistical Learning</title>
+		<author>
+			<persName><forename type="first">Trevor</forename><surname>Hastie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Robert</forename><surname>Tibshirani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jerome</forename><surname>Friedman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="s">Springer Series in Statistics New York</title>
+		<imprint>
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Automatic parameter selection by minimizing estimated error</title>
+		<author>
+			<persName><forename type="first">Ron</forename><surname>Kohavi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">George</forename><forename type="middle">H</forename><surname>John</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. Intl. Conf. on Machine Learning (ICML)</title>
+		<meeting>Intl. Conf. on Machine Learning (ICML)</meeting>
+		<imprint>
+			<date type="published" when="1995">1995</date>
+			<biblScope unit="page" from="304" to="312" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Random search for hyper-parameter optimization</title>
+		<author>
+			<persName><forename type="first">James</forename><surname>Bergstra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yoshua</forename><surname>Bengio</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="page" from="281" to="305" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">On Bayesian methods for seeking the extremum</title>
+		<author>
+			<persName><surname>Močkus</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. Optimization Techniques IFIP Technical Conference</title>
+		<meeting>Optimization Techniques IFIP Technical Conference</meeting>
+		<imprint>
+			<date type="published" when="1975">1975</date>
+			<biblScope unit="page" from="400" to="404" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Practical Bayesian optimization of machine learning algorithms</title>
+		<author>
+			<persName><forename type="first">Jasper</forename><surname>Snoek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hugo</forename><surname>Larochelle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ryan</forename><forename type="middle">P</forename><surname>Adams</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems (NIPS)</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="2951" to="2959" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<author>
+			<persName><forename type="first">Carl</forename><surname>Edward</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rasmussen</forename></persName>
+		</author>
+		<title level="m">Gaussian Processes in Machine Learning</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2004">2004</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">Implicit Functions and Solution Mappings</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Asen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Dontchev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rockafellar</forename><surname>Tyrrell</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<publisher>Springer-Verlag</publisher>
+			<pubPlace>New York</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Adaptive regularization in neural network modeling</title>
+		<author>
+			<persName><forename type="first">Jan</forename><surname>Larsen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Claus</forename><surname>Svarer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lars</forename><forename type="middle">Nonboe</forename><surname>Andersen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lars</forename><forename type="middle">Kai</forename><surname>Hansen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Neural Networks: Tricks of the Trade</title>
+		<imprint>
+			<date type="published" when="1998">1998</date>
+			<biblScope unit="page" from="113" to="132" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Gradient-based optimization of hyperparameters</title>
+		<author>
+			<persName><forename type="first">Yoshua</forename><surname>Bengio</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural Computation</title>
+		<imprint>
+			<biblScope unit="page" from="1889" to="1900" />
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Choosing multiple parameters for support vector machines</title>
+		<author>
+			<persName><forename type="first">Olivier</forename><surname>Chapelle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vladimir</forename><surname>Vapnik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Olivier</forename><surname>Bousquet</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sayan</forename><surname>Mukherjee</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning</title>
+		<imprint>
+			<date type="published" when="2002">2002</date>
+			<biblScope unit="page" from="131" to="159" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">An efficient method for gradient-based adaptation of hyperparameters in SVM models</title>
+		<author>
+			<persName><forename type="first">Vikas</forename><surname>Sathiya Keerthi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Olivier</forename><surname>Sindhwani</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Chapelle</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems (NIPS)</title>
+		<imprint>
+			<date type="published" when="2007">2007</date>
+			<biblScope unit="page" from="673" to="680" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Efficient multiple hyperparameter learning for log-linear models</title>
+		<author>
+			<persName><forename type="first">Chuan-Sheng</forename><surname>Foo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chuong</forename><forename type="middle">B</forename><surname>Do</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><forename type="middle">Y</forename><surname>Ng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems (NIPS)</title>
+		<imprint>
+			<date type="published" when="2008">2008</date>
+			<biblScope unit="page" from="377" to="384" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Hyperparameter optimization with approximate gradient</title>
+		<author>
+			<persName><forename type="first">Fabian</forename><surname>Pedregosa</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. Intl. Conf. on Machine Learning (ICML)</title>
+		<meeting>Intl. Conf. on Machine Learning (ICML)</meeting>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="737" to="746" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Generic methods for optimization-based modeling</title>
+		<author>
+			<persName><forename type="first">Justin</forename><surname>Domke</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. Intl. Conf. Artificial Intelligence and Statistics (AISTATS)</title>
+		<meeting>Intl. Conf. Artificial Intelligence and Statistics (AISTATS)</meeting>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="318" to="326" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Gradient-based hyperparameter optimization through reversible learning</title>
+		<author>
+			<persName><forename type="first">Dougal</forename><surname>Maclaurin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David</forename><surname>Duvenaud</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ryan</forename><surname>Adams</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. Intl. Conf. on Machine Learning (ICML)</title>
+		<meeting>Intl. Conf. on Machine Learning (ICML)</meeting>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="page" from="2113" to="2122" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<title level="m" type="main">On the differentiability of the solution to convex optimization problems</title>
+		<author>
+			<persName><forename type="first">Shane</forename><surname>Barratt</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1804.05098</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">OptNet: Differentiable optimization as a layer in neural networks</title>
+		<author>
+			<persName><forename type="first">Brandon</forename><surname>Amos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zico</forename><surname>Kolter</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. Intl. Conf. on Machine Learning (ICML)</title>
+		<meeting>Intl. Conf. on Machine Learning (ICML)</meeting>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Regularization and variable selection via the elastic net</title>
+		<author>
+			<persName><forename type="first">Hui</forename><surname>Zou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Trevor</forename><surname>Hastie</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the Royal Statistical Society: Series B (Statistical Methodology)</title>
+		<imprint>
+			<biblScope unit="volume">67</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="301" to="320" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Scikit-learn: Machine learning in Python</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Pedregosa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Varoquaux</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gramfort</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Michel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Thirion</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Grisel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Blondel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Prettenhofer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Weiss</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Dubourg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Vanderplas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Passos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Cournapeau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Brucher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Perrot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Duchesnay</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research (JMLR)</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page" from="2825" to="2830" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Convexity, classification, and risk bounds</title>
+		<author>
+			<persName><forename type="first">Michael</forename><forename type="middle">I</forename><surname>Peter L Bartlett</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jon</forename><forename type="middle">D</forename><surname>Jordan</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Mcauliffe</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the American Statistical Association</title>
+		<imprint>
+			<biblScope unit="volume">101</biblScope>
+			<biblScope unit="issue">473</biblScope>
+			<biblScope unit="page" from="138" to="156" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Stability and generalization</title>
+		<author>
+			<persName><forename type="first">Olivier</forename><surname>Bousquet</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">André</forename><surname>Elisseeff</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research (JMLR)</title>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="page" from="499" to="526" />
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Human-in-the-loop Machine Learning: A Macro-Micro Perspective</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Jiangtao</forename><surname>Wang</surname></persName>
+							<email>jiangtao.wang@conventry.ac.uk</email>
+							<affiliation key="aff0">
+								<orgName type="institution">Coventry University</orgName>
+								<address>
+									<settlement>Coventry</settlement>
+									<country key="GB">United Kingdom</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Bin</forename><surname>Guo</surname></persName>
+							<affiliation key="aff1">
+								<orgName type="institution">Northwestern Polytechnical University</orgName>
+								<address>
+									<settlement>Xi&apos;an</settlement>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Luke</forename><surname>Chen</surname></persName>
+							<email>l.chen@ulster.ac.uk</email>
+							<affiliation key="aff2">
+								<orgName type="institution">Ulster University</orgName>
+								<address>
+									<settlement>Newtownabbey</settlement>
+									<country key="GB">United Kingdom</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Human-in-the-loop Machine Learning: A Macro-Micro Perspective</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">6A1A0A3D0415DEFD8995F1F5DFF9C51F</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Though technical advance of artificial intelligence and machine learning has enabled many promising intelligent systems, many computing tasks are still not able to be fully accomplished by machine intelligence. Motivated by the complementary nature of human and machine intelligence, an emerging trend is to involve humans in the loop of machine learning and decision-making. In this paper, we provide a macro-micro review of human-inthe-loop machine learning. We first describe major machine learning challenges which can be addressed by human intervention in the loop. Then we examine closely the latest research and findings of introducing humans into each step of the lifecycle of machine learning. Finally, we analyze current research gaps and point out future research directions.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.">Introduction</head><p>Advances in machine learning (ML) technologies have led to an explosion of major breakthroughs in the field of artificial intelligence (AI), which in turn has given rise to ubiquitous intelligent systems in our daily life. Typical applications include autonomous vehicles, game playing (e.g., AlphaGo), precise medical diagnosis and prescription, assistive robots, face recognition, and so forth. Despite the increasing usage and power of ML in these AI applications, there is still a large spectrum of computing tasks that pure machine intelligence cannot fully handle due to challenges such as lack of large-scale dataset, low data quality, insufficient training labels, and explanability and reliability issues of ML-based decision-making.</p><p>Motivated by the complementary nature of human and machine intelligence [Kamar 2016] [Wang 2019], an approach that exploits human's cognitive power to help address these ML challenges has emerged recently, which is referred to as "Human-in-the-loop Machine Learning (HML)". HML is intended to integrate relevant human competences into the whole cycle of ML, ranging from data collection, algorithm tuning, parameters selection, to the usage of the outcomes of ML to actuate the physical world. The fundamental goal of this emerging topic is to re-examining and reframing the ML workflow from a human-centered perspective. The study of HML has the following significance. First, it can generate more usable and human-centric ML tools for AI engineers or even application end users. Second, it can lead to an in-depth understanding about how the power of human intelligence and machine intelligence can be combined to solve real-world computing problems. Inspired by the aforementioned visions, a number of studies for HML have been recently presented in top conference or prestigious journals, which has become a trendy research topic across multiple overlapping research communities (e.g., AI, Human Computer Interaction, crowd and social computing, data mining, and so on).</p><p>There are several literature reviews or tutorials summarizing the state of the art with each focusing on different topical area, see Table <ref type="table">1</ref>. Nevertheless, they only touch individual specific research problem within the scale of HML. To the best of our knowledge, there are no survey papers to present a global picture about how human cognitive power can be appropriately integrate into ML processes. A systematic study and classification of the research problems in the HML research domain is still missing.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>To this end, we attempt to fill the gap by systematically studying and classifying the research work of HML from a macro-micro perspective. Instead of discussing a particular aspect such as interface design <ref type="bibr" target="#b4">[Dudley 2018]</ref> or the explainable models <ref type="bibr" target="#b11">[Riccardo 2019</ref>], this paper is to provide a high-level overview of HML for those researchers who want to step into this topic area for the first time. More specifically, this paper makes the following contributions in this paper.</p><p>• From a macro perspective of the complementary nature of machine and human, we identify the main bottlenecks of ML, and then provide deep insights about why and how human can collaborate with machine so as to address these challenges.</p><p>• We present a macro-micro review by dividing the representative studies into several stages of the ML lifecycle.</p><p>Here, in order to help the readers to establish a clearer and more understandable picture, the reviews are organized in our proposed structure/framework called Human4ML.</p><p>• We analyze existing research gaps in this field with a number of future research directions and proposals, which may contribute to new ideas and visions.</p><p>It should be noted that this paper does not aim to give a comprehensive review of HML due to the page limit. We provide a general framework into which other existing works can be easily added by the readers themselves if they intend to extend it to a more comprehensive one. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.">The Needs for Human Involvement</head><p>Although ML is powerful in developing a variety of smart systems, it still encounters a number of inevitable challenges under real-world practical situations. While these challenges can be addressed in many different ways, in this paper we focus on those challenges that can be potentially alleviated by introducing human intelligence into the process of ML.</p><p>Challenge 1: Dirty and Incomplete Data.</p><p>The most fundamental ingredient of an AI system is data for training the learning model, because ML is essentially the process of automatically learning knowledge from data. The quality of data is crucially important for the performance of a learning model. Unfortunately, datasets acquired in the real world can be low quality. Dirty or incomplete data, such as missing values, typos, inconsistent values, out-of-date records, usually leads to inaccurate analysis and learning. Several automatic data cleaning approaches have been developed to enhance data quality, but their performance is still far from meeting the requirement of applications <ref type="bibr" target="#b17">[Xu 2016</ref>]. In many scenarios, we still need the help from human workers to detect, repair or eliminate dirty or incomplete data.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Challenge 2: Heterogeneity and Isolation</head><p>Many intelligent applications need data feed from multiple domains, which are usually originated from heterogenous and isolated ICT systems. For example, if we attempt to develop an AI-based system to predict population health status in different regions/countries in EU, the first challenge is data integrations and linkage from different information systems to build a comprehensive training dataset for model training. However, this task is non-trivial because the data structure and database design might be different for systems with similar semantics, which increase the difficulty and workload of data linkage. For example, if we want to get an overall picture of heart attacks in Europe, we need to integrate and link relevant data from heterogenous information system of many hospitals from multiple countries. Although a lot of data integration tools such as schema matching have been proposed and proved to be effective to some extent, they are often uncertain about schema matchings they suggest, and this uncertainty is inherent since it arises from the inability of the schema to fully capture the semantics of the represented data <ref type="bibr" target="#b18">[Zhang 2018</ref>]. Human common sense can often help in this process.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Challenge 3: Insufficient Labels in Training Data</head><p>In recent years, the real-world impact of ML has grown in leaps and bounds. However, ML models heavily rely on massive sets of hand-labeled training data, and the cost of building such labeled datasets is one of the key bottlenecks to large-scale ML adoption. Although some weak supervised learning approaches [Zhou 2017] can ease this problem in some cases, it is still preferable in general if we can obtain sufficient labels for training. Since labeling a large amount of data is time-consuming, there is an emerging trend to leverage the power of the crowdsourcing workers to accomplish this task.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Challenge 4: Feature Construction with Limited Data</head><p>Constructing feature set is an essential but uneasy step to ML. There are two common approaches for feature discovery or extraction: the automatic methods, e.g., deep learning and domain-knowledge-based methods (e.g., feature engineering). However, if we are only given a limited amount of training data, both approaches become ineffective as irrelevant features extracted from limited datasets can lead to the problem called overfitting. For example, it is easy to distinguish a dog from a cat in an image with deep learning as the relevant labeled training data on the Web is huge. However, the classification between "Northern Flicker" and "Red Bellied Woodpecker" [Deng 2016]) is much more challenging when there are insufficient training data and fewer discriminative features.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Challenge 5: Trust and Transparency</head><p>ML-based AI systems sometimes are completely treated as black boxes without human supervision, where the learning models sometimes learn undesirable tricks that do an optimal job of satisfying pre-programmed goals (e.g. minimizing loss function) on the training data without reflecting the complicated implicit desires of the human system designers. In some ML-enabled applications, the black box issue doesn't matter if the task is not very critical. However, this issue becomes very sensitive when the application domain is critical (e.g., medical treatment, and security/safety control), where knowing the reasons behind the machine's decision is of high importance. Thus, it is of vital significance to open that black box to achieve a more transparent, explainable, and trustworthy AI and ML with human in the loop [Riccardo 2019]. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">Structure Overview: Lifecycle Perspective</head><p>The typical ML process consists of three iterative stages: data pre-preparing (e.g., data collection and preprocessing), feature construction and model learning, model assessment. Human intelligence can be integrated into each of the three stages. To this end, we present an overview of the state-of-the-art HML research using a general framework named Human4ML following the ML lifecycle, as shown in Fig. <ref type="figure" target="#fig_0">1</ref>. In this framework, corresponding human-computation-based techniques are adopted to improve certain stage or task of ML. From Figure <ref type="figure" target="#fig_0">1</ref>, we can see an overview of the utilization of human capabilities in each stage of ML. Here, we characterize the features of each stage by using the logic of "2W1H" (What, Who, and How) in Table <ref type="table" target="#tab_1">2</ref>. "What" refers to what problems or challenges each component aims to support, "How" refers to the general idea to achieve the goal, and "who" refers to the stakeholders who are involved in this stage.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Phase 1: Human-Guided Data Preparation</head><p>Human intelligence can be leveraged in data collection and pre-processing procedures (we call them together as data preparation in this paper) to address the challenge of low quality and insufficiency of training dataset mentioned above. To our best knowledge, human computation techniques (e.g., crowdsourcing) has primarily adopted in three tasks in data preparation phase, including data labeling and aggregation [Liu 2018], data cleaning [Xu 2016], and data integration <ref type="bibr" target="#b9">[Li 2017</ref>]. Some representative research works related to this component will be introduced in the Section 4 with more details.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Phase 2: Human-Assisted Feature Construction and Model Learning</head><p>For either automatic or domain expert-based approaches, feature construction and model learning is still a challenge for fine-grained features with limited training data. Recent studies show the potential in inviting human (either experts or crowdsourcing workers) to collaborate with machine algorithms to better elicit good features and perform model training. The key insights lie in two aspects. One is that human workers are better at nominating subtle behavioral signals than machines [Cheng 2015], so that they can complement machine intelligence in feature extraction. The other is that the selection of learning models are significantly correlated with training data and learning target, and human can help compare, select, and steer different ML models (e.g., choosing the right classifiers in the classification task) <ref type="bibr" target="#b2">[Das 2019</ref>]. We will introduce related work for this component in Section 5. Interactive Model Assessment and Explanation Only when we have adequate trust, can we use a ML model in real world, especially for critical systems (e.g., medical, military, financial, and so on). Although good performance in simple indicators on testing sets (e.g., precision, recall, etc.) can provide some belief to some extent, human themselves, also serving as the end user of the ML applications, cannot be excluded out of the evaluation process. There are two key research issues human can actively participate in this stage, namely (1) enabling quality and robustness assessment with human in the loop, and (2) providing model interpretability by designing effective human-computer interfaces to bridge the gap between machine and human. Representative studies for this component will be introduced in Section 6.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.">Human-Guided Data Preparation</head><p>In this paper, the data preparation consists of key operations such as data collection, data cleaning, and data integration. Accordingly, this section introduces how human intelligence is utilized in these operations respectively.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Crowdsourcing Labeling and Aggregation</head><p>In the data preparing phase, the most studied task is to use crowdsourcing <ref type="bibr">[Howe 2006</ref>] in the data labeling and aggregation. The naïve way for label aggregation is majority vote, where the aggregated value is regarded as the opinion of the majority of the crowd workers. However, in realistic scenarios, workers are heterogenous in skills, expertise, and reputation, and so on. Therefore, weight-based aggregation methods are proposed, where the label of a worker with high weight would count more. Aggregation methods that consider the diversity and dependency of workers are proposed in recent years to improve the label aggregation accuracy <ref type="bibr" target="#b10">[Nushi 2015</ref><ref type="bibr" target="#b15">] [Venanzi 2016</ref>]. In addition to the aggregation approach, worker selection and task assignment is also important. For example, authors in <ref type="bibr" target="#b9">[Liu 2018]</ref> studied in an active learning setting where training samples are adaptively selected to be labeled, and a learner can query a set of crowdsourcing workers with unknown expertise level for label information.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Human-Guided Data Cleaning</head><p>Detecting and repairing dirty data is one of the perennial challenges in data analytics, and failure to do so can result in inaccurate analytics and unreliable decisions. In the data preparation phase, another task that human workers can help is data cleaning. For example, the authors present CrowdCleaner in [Tong 2014], a smart system to clean multiversion data on the Web. In this system, the authors leverage active and passive crowdsourcing methods together for rectifying errors for multi-version data. In another example, <ref type="bibr" target="#b1">[Chu 2015</ref>], the authors use both human computation and open knowledge base to generate top-k possible repairs for incorrect data. More extensive review for this technical aspect can be referred to [Xu 2016].</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.3">Human-in-the-loop Data Integration</head><p>Human intelligence and crowdsourcing techniques are extensively used in many data integration tasks in recent years.</p><p>(1) Schema matching in Database. Schema matching is a central challenge for data integration systems. Automated tools are often uncertain about schema matchings they suggest, and this uncertainty is inherent since it arises from the inability of the schema to fully capture the semantics of the represented data. Inspired by the popularity and the success of easily accessible crowdsourcing platforms, a number of studies such as <ref type="bibr" target="#b9">[Li 2017</ref>] explore the technique of human computation and crowdsourcing to reduce the uncertainty of schema matching with the consideration of cost and quality. (2) Entity linkage in Knowledge Base/Graph. In entity linking, words of interest (names of persons, locations and companies) are mapped from an input text to corresponding unique entities in a target knowledge base (KB), which serves as a basic component of many ML and AI applications. Several automatic linking methods have been proposed. However, due to the inconsistency and uncertainty of large-scale KBs, automatic techniques for entity linkage achieve low quality. Thanks to the open crowdsourcing platforms, studies such as <ref type="bibr" target="#b20">[Zhuang 2017</ref>] propose solutions to harness the human workers to improve the linkage quality.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.">Human-Assisted Feature Construction and Model Learning</head><p>Human intelligence can be used to nominate and select features in ML, and further help in model selection and steering.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1">Feature Nomination and Selection</head><p>Crowdsourcing and human computation can be utilized to discover (nominate or select) features for supervised/unsupervised learning. For example, the study in [Cheng 2015] presented a hybrid crowd-machine learning framework called Flock. The basic idea of the framework is that: it starts with a written description of a learning goal, uses the crowd to suggest predictive features, and then weighs these features using ML to produce models that are accurate and use human-understandable features. Specifically, Flock uses comparative examples to help crowd workers better nominate subtle features, and then adopts a clustering approach to re-organize these features. Flock is shown to be more effective than pure ML approaches. In the work of [Deng 2016], the authors introduced a novel approach for fine-grained image classification tasks (e.g., distinguish between "Northern Flicker" and "Red Bel-lied Woodpecker"). The authors proposed an online crowdsourcing game that elicits discriminative features by crowd worker (player). During the game, the player can choose to reveal details of circular regions (called "bubbles"), with certain incentive mechanism. Additionally, crowd workers can help discover features for unsupervised learning. For example, the authors in <ref type="bibr" target="#b21">[Zou 2015</ref>] introduce an unsupervised approach to effectively discover features in a dataset via photo crowdsourcing. This approach first asks crowd workers to articulate a feature that is common to two out of three displayed photos and then requires the crowd workers to provide binary labels to the remaining photos based on the discovered features. It adaptively repeats the above process based on the labels of the previously discovered features.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2">Learning Model Selection and Steering</head><p>In additional to constructing a set of discriminative features, selecting appropriate models (e.g., the adopted classifiers in classification tasks) are also important for the performance of ML. Interactive model steering can help people incrementally build machine learning models that are tailored to their domains and tasks. Studies such as <ref type="bibr" target="#b2">[Das 2019</ref>] aim to help ML engineers to select the most suitable models for corresponding data and learning tasks, where human-computer-interaction (HCI) tools are built to enable the interactive comparison and selection of different models. Specifically, it proposed a technique to allow users to inspect and steer multiple machine learning models. The technique steers and samples models from a broader set of learning algorithms and model types. More extensive review can be found in the survey [Riccardo 2019].</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.3">Crowd Mining over Crowdsourced Data</head><p>With the development of mobile social networks and mobile crowd sensing (MCS), more and more crowdsourced data are generated on the Web or collected from real-world sensing. The fragmented, heterogeneous, and noisy nature of online/offline crowdsourced data, however, makes it difficult to be understood. Traditional content-based analysis methods suffer from issues such as computational intensiveness and poor performance. To address this, a new research direction of HML, entitled CrowdMining <ref type="bibr" target="#b6">[Guo 2019</ref>], has emerged. Based on the observation that the knowledge hidden in the process of data generation, including individual/crowd behavior patterns (e.g., mobility patterns, community contexts such as social ties and structure) and crowd-object interaction patterns (flickering or tweeting patterns), are neglected in crowdsourced data mining, it advocates to leverage the so-called 'crowd intelligence' for crowdsourced data mining and understanding.</p><p>Various types of crowd intelligence are embedded in the data sensing or content generation process. These include interaction contexts based on human perception, decision making and opinions, and community contexts related to individual traits, community structure, and social/individual behavior patterns. They are often used indirectly for crowdsourced data understanding, i.e., used as features or parameter inputs of MI. There are various data mining tasks that can be performed by means of crowdsourcing, such as data filtering, classification, and clustering. For example, FlierMeet <ref type="bibr" target="#b5">[Guo 2014</ref>] is an MCS app for public information (distributed fliers in the city) sensing and tagging. It identifies a novel set of crowd-object interaction hints (e.g., crowd-object interaction entropy, temporal patterns of interaction, interaction frequency) to predict the semantic tags of crowdsensed flier pictures.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.">Interactive Model Assessment &amp; Explanation</head><p>In addition to data preparing and model learning phases, human can also be heavily involved in the model evaluation and explanation process.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.1">Interactive Quality/Robustness Assessment</head><p>The training and refinement of ML models is an interactive process. The goal of AI engineers is to train the model to some level of acceptable accuracy. Therefore, the quality of ML models should be appropriately evaluated to determine if the model learning can be stopped. Amershi et al. <ref type="bibr" target="#b11">[Saleema 2014</ref>] demonstrate visualization of the current model accuracy as an interface element present during the standard model steering task. In their work, the authors suggest that this visualization allows users to perform different strategies and evaluate their impact on accuracy. The quality assessment task may be interactive such as in the method proposed by [Saleema 2011], which provides a working environment where users can interact with the confusion matrix and express preferred classification requirements. In additional to the traditional quality evaluation on models, researchers recently started to focus on the robustness and safety of ML and AI systems (especially for deep-learning-based models), where a ML system is interactively tested by the cooperation of human and machine under deliberately designed adversary cases <ref type="bibr" target="#b13">[Ruan 2019</ref>].</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.2">Model Explanation/Interpretation</head><p>Understanding the reasons behind the suggestions (e.g., predictions or recommendations) made by AI systems is important in assessing trust, which helps end users to make final decisions (e.g., take an action or not). Understanding how a model works can also help refine an untrustworthy model into a trustworthy one.</p><p>A number of research works has started to study how users can evaluate and refine trained models when learningbased AI systems make incorrect decisions (e.g., classification, prediction, and recommendation). There are several methods or frameworks proposed in recent years to interpret ML models. <ref type="bibr">Ribro et al. [Tulio 2016</ref>] developed a framework called LIME, which is able to explain predictions by learning an interpretable model locally around the prediction. For example, a model predicts that a patient has ae flu, and LIME highlights the symptoms in the patient's history that led to the prediction. Sneeze and headache are portrayed as contributing to the "flu" prediction, while "no fatigue" is evidence against it. With these, a doctor can make an informed decision about whether or not to trust the model's prediction. The authors in <ref type="bibr" target="#b14">[Teso 2018</ref>] proposed the novel framework of explanatory interactive learning. In each step, the learner explains its interactive query to the user, and queries any active classifier for visualizing explanations of the corresponding predictions. In their study, the authors demonstrate that this framework can boost the predictive and explanatory powers of and the trust into the learned model. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.">Opportunities and Proposals</head><p>While various techniques have been proposed to improve ML with the human in the loop, several challenges still remain. In this section, we will highlight some existing gaps and propose new visions that can stimulate the research community to pursue new directions (i.e., new research problems).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>P1: Human-Machine Collaboration Fundamentals</head><p>Although there are increasing number of technical researches on human-machine collaboration in the context of ML, the fundamental collaboration model and mechanism is still unclear. For example, what is the collaboration mode for human and machine? For the parallel mode, how will the output of machine and human (e.g., machineextracted and human-nominated features) be integrated? For the sequential mode, how will two sides handoff to each other on different learning tasks. Besides, for different tasks, who are the human collaborators? Ordinary citizens or someone with specialized expertise? How many human workers should be involved? By successfully answering these questions, we can derive a clear picture on the model and mechanism of how human and machine is cooperated in the context of ML.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>P2: Multi-Objective Optimization</head><p>When introducing human into the multiple tasks of the ML process, we have to consider multiple factors to optimize the utilization process itself. For example, from the perspective of the human workers, we have to consider factors such as intrusiveness, motivations, and their expertise/reputation. From the perspective the ML-related task requestors, task quality, budget, completion time, etc. In general, we formulate such research problem as an optimization with ML-task-specific goals and constraints. For example, a novel research problem can be how to select a minimum number of human workers to nominate features while ensuring a certain level of model prediction accuracy before the required deadline. Specifically, we need to further characterize and model the above factors in the context of ML applications and understand the difference compared with other types of crowdsourcing/crowdsensing tasks (e.g., urban environment sensing, software development, etc.)</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>P3: Bias and Ethics Issue</head><p>Task requesters usually overlook human workers behind tasks, this can lead to issues of ethics (e.g., unfair payment) and amplification of human biases, which are transferred into training data and affect machine learning in the real world. Research works such as [Barbosa 2019] have started to look into these issues and proposed feasible solutions, but most of them only focus on the crowdsourcing labeling tasks, while ignoring other tasks in the lifecycle of HML. Besides, we still need to understand human biases in HML, and interesting research topics could consist of effect of cultural, gender and ethnic biases, effect of human in the loop training and past experiences, effect of human expertise vs interest, bias in experts vs bias in crowdsourcing, bias in task selection, and task assignment/recommendation for reducing bias.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>P4: Integration of Human-Machine-Hybrid Features</head><p>Human intelligence can help generate human-understandable features, and further by combining them with machine-extracted features, we have the potential to build a more powerful learning model [Cheng 2015]. However, there are two key critical remaining challenges that existing works do not address in this step. First, how to obtain the value of human-nominated features? As many of these features are subtle, machines cannot automatically assign values to them. Instead, humans have to handle many of these labeling tasks. This feature value acquisition task is far more costly than the classification labeling task, because for a certain training record (say, for a classification task), there is only one classification label but with numerous features. Therefore, it is crucial to study how to obtain the value of crowd-nominated features with the budget concern in mind. One promising research direction is to study the selection of most informative features with the objective of achieving a good tradeoff between the total feature labeling cost and model classification/prediction performance. Second, how to integrate human and machine features? When combining the human-generated features with machine-extracted ones, a naïve approach is to directly connect these two types of features as a longer feature vector. However, an alternative approach could be training machine and human classifiers separately, then combining them by adopting ensemble learning techniques to make a more accurate prediction.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>P5: From Individual to Crowd</head><p>Most existing studies in HML focus on the interaction of one single human worker with a ML system. With the popularity of social networks (e.g., twitter, Facebook, etc.) and crowdsourcing platforms in different domains (e.g., product design, software engineering, etc.), there is now an opportunity of recruiting large number of crowd workers collaboratively in a ML system. Therefore, techniques and tools should be developed to support the collaborative work in the context of building ML models or applications. For instance, a collaborative working environment should be developed to help workers to discuss, comment, share, and nominate more efficiently. We have already witnessed substantial progress in crowdsourcing-based labeling tasks. Nevertheless, further research on how the crowd can work collaboratively in other higher-level tasks such as feature selection, evaluation, and interpretations of models, is still needed.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="8.">Conclusion</head><p>This paper presents a review of ML with human in the loop. Specifically, by organizing existing studies along the multi-stage lifecycle of ML, we present various kinds of strategies exploiting human intelligence in ML. in addition, we point introduce some research gaps and directions that may further integrate the power of human and machine intelligence to build more cost-effective, reliable, and robust intelligent systems.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Fig 1 .</head><label>1</label><figDesc>Fig 1. Human4ML framework: organizing representative studies</figDesc><graphic coords="4,157.35,74.50,328.00,216.90" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Deep</head><figDesc>Learning models are powerful but being criticized the least interpretable. To this end, progress in this field have been accomplished by producing interpretation of the features learned at each layer of a Neural Network [Yosinski 2015] [Olah 2018]. A more extensive literature review about interpretability in deep learning can be found in [Zhang 2018].</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 1 :</head><label>1</label><figDesc>Relevant Reviews/Tutorials and Their Focused Aspects</figDesc><table><row><cell cols="2">Relevant Survey Topical Areas</cell></row><row><cell>[Dudley 2018]</cell><cell>Interface design techniques in the interactive machine learning</cell></row><row><cell>[Riccardo 2019]</cell><cell>Models and approaches to make AI more explainable</cell></row><row><cell>[Zhang 2018]</cell><cell>Visualization approaches for interpreting deep-learning-based</cell></row><row><cell></cell><cell>models</cell></row><row><cell>[Wang 2019]</cell><cell>Optimization for crowdsourcing and ML (e.g., labeling and</cell></row><row><cell></cell><cell>inference)</cell></row><row><cell>[Zhang 2019]</cell><cell>Leveraging Human Guidance for Deep Reinforcement Learning</cell></row><row><cell></cell><cell>Tasks</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>Table 2 .</head><label>2</label><figDesc>Using "2W1H" to characterize Human4ML Framework</figDesc><table><row><cell>Stages</cell><cell></cell><cell>WHAT</cell><cell></cell><cell>HOW</cell><cell></cell><cell></cell><cell></cell><cell>WHO</cell></row><row><cell cols="2">Human-guided Data</cell><cell cols="2">To obtain more labels,</cell><cell cols="4">Use crowdsourcing or invite</cell><cell>Workers</cell><cell>in</cell></row><row><cell>Preparation</cell><cell></cell><cell cols="2">clean data, and integrate</cell><cell cols="3">domain experts to help</cell><cell></cell><cell>crowdsourcing platform,</cell></row><row><cell></cell><cell></cell><cell cols="2">data (address challenge</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell>domain experts, source</cell></row><row><cell></cell><cell></cell><cell>1,2 and 3)</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell>data managers</cell></row><row><cell>Human-Assisted</cell><cell></cell><cell cols="2">Collaborate with machine</cell><cell cols="2">Nominate/select</cell><cell cols="2">features</cell><cell>AI engineers, workers in</cell></row><row><cell>Feature</cell><cell></cell><cell cols="2">to construct feature set and</cell><cell cols="4">(based on crowdsourcing),</cell><cell>crowdsourcing</cell></row><row><cell>Construction</cell><cell>and</cell><cell cols="2">perform model training</cell><cell>select/steer</cell><cell cols="2">models</cell><cell>by</cell><cell>platforms,</cell><cell>domain</cell></row><row><cell>Model Learning</cell><cell></cell><cell cols="2">(address challenge 4)</cell><cell>designing</cell><cell></cell><cell cols="2">suitable</cell><cell>experts</cell></row><row><cell></cell><cell></cell><cell></cell><cell></cell><cell cols="4">visualization interface, and</cell></row><row><cell></cell><cell></cell><cell></cell><cell></cell><cell cols="4">perform crowd-based data</cell></row><row><cell></cell><cell></cell><cell></cell><cell></cell><cell cols="4">mining over crowdsourced</cell></row><row><cell></cell><cell></cell><cell></cell><cell></cell><cell>data</cell><cell></cell><cell></cell><cell></cell></row><row><cell cols="2">Interactive Model</cell><cell>Quality</cell><cell>assurance,</cell><cell>Design</cell><cell cols="3">human-computer</cell><cell>AI engineers, domain</cell></row><row><cell>Assessment</cell><cell>and</cell><cell cols="2">present the reasons behind</cell><cell cols="4">interface, visualization, adopt</cell><cell>experts</cell></row><row><cell>Explanation</cell><cell></cell><cell cols="2">the decision of ML models</cell><cell cols="2">explainable models</cell><cell></cell><cell></cell></row><row><cell></cell><cell></cell><cell cols="2">(address challenge 5)</cell><cell></cell><cell></cell><cell></cell><cell></cell></row><row><cell>Phase 3:</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell></row></table></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title level="m" type="main">Rehumanized Crowdsourcing: A Labeling Framework Addressing Bias and Ethics in Machine Learning</title>
+		<author>
+			<persName><surname>Barbosa ; Barbosa</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019. 2019. 2019</date>
+			<publisher>ACM</publisher>
+			<biblScope unit="page">543</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Katara: A data cleaning system powered by knowledge bases and crowdsourcing</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Cheng ; Cheng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 18th ACM Conference on Computer Supported Cooperative Work &amp; Social Computing</title>
+		<meeting>the 18th ACM Conference on Computer Supported Cooperative Work &amp; Social Computing</meeting>
+		<imprint>
+			<date type="published" when="2015-02">2015. 2015. February. Chu 2015. 2015. May</date>
+			<biblScope unit="page" from="1247" to="1261" />
+		</imprint>
+	</monogr>
+	<note>Flock: Hybrid crowd-machine learning classifiers Proceedings of the 2015 ACM SIGMOD International Conference on Management of Data</note>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">BEAMES: Interactive Multi-Model Steering, Selection, and Inspection for Regression Tasks</title>
+		<author>
+			<persName><forename type="first">Subhajit</forename><surname>Das</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE computer graphics and applications</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Leveraging the wisdom of the crowd for fine-grained recognition</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Deng ; Deng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE transactions on pattern analysis and machine intelligence</title>
+		<imprint>
+			<biblScope unit="volume">38</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="666" to="676" />
+			<date type="published" when="2016">2016. 2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">A review of user interface design for interactive machine learning</title>
+		<author>
+			<persName><surname>Dudley ; Dudley</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM Transactions on Interactive Intelligent Systems</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page">8</biblScope>
+			<date type="published" when="2018">2018. 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">FlierMeet: a mobile crowdsensing system for cross-space public information reposting, tagging, and sharing</title>
+		<author>
+			<persName><surname>Guo</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Bin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Mobile Computing</title>
+		<imprint>
+			<biblScope unit="volume">14</biblScope>
+			<biblScope unit="page" from="2020" to="2033" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">From crowdsourcing to crowdmining: using implicit human intelligence for better understanding of crowdsourced data</title>
+		<author>
+			<persName><surname>Guo</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Bin</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019. 2019</date>
+			<biblScope unit="page" from="1" to="25" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Directions in Hybrid Intelligence: Complementing AI Systems with Human Intelligence</title>
+		<author>
+			<persName><forename type="first">;</forename><surname>Kamar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Kamar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IJCAI 2016</title>
+		<imprint>
+			<date type="published" when="2009">2016. Jul 9</date>
+			<biblScope unit="page" from="4070" to="4073" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">The Building Blocks of Interpretability</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Olah</surname></persName>
+		</author>
+		<idno type="DOI">10.23915/distill.00010</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Distill</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Doubly Active Learning: when Active Learning meets Active Crowdsourcing</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Li</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2017 ACM International Conference on Management of Data</title>
+		<meeting>the 2017 ACM International Conference on Management of Data<address><addrLine>Howe</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2006-06-06">2017 May 9. Liu 2018. 2018. 2006. 2006 Jun 6</date>
+			<biblScope unit="volume">14</biblScope>
+			<biblScope unit="page" from="1" to="4" />
+		</imprint>
+	</monogr>
+	<note>Crowdsourced data management: Overview and challenges</note>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Crowd access path optimization: Diversity matters</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Nushi ; Nushi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Third AAAI Conference on Human Computation and Crowdsourcing</title>
+		<imprint>
+			<date type="published" when="2015-09">2015. 2015. September</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Power to the people: The role of humans in interactive machine learning</title>
+		<author>
+			<persName><forename type="first">Riccardo</forename><surname>Guidotti</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM computing surveys (CSUR)</title>
+		<imprint>
+			<date type="published" when="2014">2019. 2019. Saleema 2014. 2014</date>
+			<biblScope unit="volume">51</biblScope>
+			<biblScope unit="page" from="105" to="120" />
+		</imprint>
+	</monogr>
+	<note>A survey of methods for explaining black box models</note>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Effective end-user interaction with machine learning</title>
+		<author>
+			<persName><surname>Saleema ; Amershi</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Saleema</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Twenty-Fifth AAAI Conference on Artificial Intelligence</title>
+		<imprint>
+			<date type="published" when="2011">2011. 2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Global Robustness Evaluation of Deep Neural Networks with Provable Guarantees for the Hamming Distance</title>
+		<author>
+			<persName><forename type="first">Wenjie</forename><surname>Ruan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IJCAI</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Crowdcleaner: Data cleaning for multi-version data on the web via crowdsourcing</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Teso</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Kersting</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Tong</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 22nd ACM SIGKDD international conference on knowledge discovery and data mining</title>
+		<meeting>the 22nd ACM SIGKDD international conference on knowledge discovery and data mining</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2014-03">5 2018. Tong 2014. 2014. March. 2014. 2016</date>
+			<biblScope unit="page" from="1135" to="1144" />
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+	<note>Why Should I Trust Interactive Learners? Data Engineering (ICDE) IEEE 30th International Conference on Why should I trust you?: Explaining the predictions of any classifier Explaining Interactive Queries of Classifiers to Users</note>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Time-sensitive bayesian information aggregation for crowdsourcing systems</title>
+		<author>
+			<persName><surname>Venanzi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Artificial Intelligence Research</title>
+		<imprint>
+			<biblScope unit="volume">56</biblScope>
+			<biblScope unit="page" from="517" to="545" />
+			<date type="published" when="2016">2016. 2016</date>
+			<publisher>Venanzi</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Crowd-Assisted Machine Learning: Current Issues and Future Directions</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computer</title>
+		<imprint>
+			<biblScope unit="volume">52</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="46" to="53" />
+			<date type="published" when="2019-03-13">2019 Mar 13</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Understanding Neural Networks Through Deep Visualization</title>
+		<author>
+			<persName><surname>Chu</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Xu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2016 international conference on Management of Data</title>
+		<meeting>the 2016 international conference on Management of Data</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2015">2016. 2015</date>
+			<biblScope unit="page" from="2201" to="2206" />
+		</imprint>
+	</monogr>
+	<note>Data cleaning: Overview and emerging challenges ICML Workshop on Deep Learning</note>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Reducing uncertainty of schema matching via crowdsourcing with accuracy rates</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Zhang ; Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Frontiers of Information Technology &amp; Electronic Engineering</title>
+		<imprint>
+			<biblScope unit="volume">19</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="27" to="39" />
+			<date type="published" when="2018-01-01">2018. 2018. Zhang 2018. 2018 Jan 1</date>
+		</imprint>
+	</monogr>
+	<note>Visual interpretability for deep learning: a survey IEEE Transactions on Knowledge and Data Engineering</note>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Leveraging Human Guidance for Deep Reinforcement Learning Tasks</title>
+		<author>
+			<persName><surname>Zhang ; Ruohan</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 28th International Joint Conference on Artificial Intelligence (IJCAI)</title>
+		<meeting>the 28th International Joint Conference on Artificial Intelligence (IJCAI)</meeting>
+		<imprint>
+			<date type="published" when="2017-08-25">2019. August 2019. 2017 Aug 25</date>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="page" from="44" to="53" />
+		</imprint>
+	</monogr>
+	<note>A brief introduction to weakly supervised learning</note>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Hike: A hybrid human-machine method for entity alignment in large-scale knowledge bases</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Zhuang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2017 ACM on Conference on Information and Knowledge Management</title>
+		<meeting>the 2017 ACM on Conference on Information and Knowledge Management</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2017-11-06">2017 Nov 6</date>
+			<biblScope unit="page" from="1917" to="1926" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Crowdsourcing feature discovery via adaptively chosen comparisons</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">Y</forename><surname>Zou</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 31st International Conference on Machine Learning</title>
+		<meeting>the 31st International Conference on Machine Learning<address><addrLine>Lille, France</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

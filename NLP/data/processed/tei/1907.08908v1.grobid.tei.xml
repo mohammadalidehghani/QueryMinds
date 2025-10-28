@@ -1,0 +1,1046 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Techniques for Automated Machine Learning</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2019-07-21">21 Jul 2019</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Yi-Wei</forename><surname>Chen</surname></persName>
+							<email>yiwei_chen@tamu.edu</email>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Computer Science and Engineering</orgName>
+								<orgName type="institution">Texas A&amp;M University</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Qingquan</forename><surname>Song</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Computer Science and Engineering</orgName>
+								<orgName type="institution">Texas A&amp;M University</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Xia</forename><surname>Hu</surname></persName>
+							<email>xiahu@tamu.edu</email>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Computer Science and Engineering</orgName>
+								<orgName type="institution">Texas A&amp;M University</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Techniques for Automated Machine Learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2019-07-21">21 Jul 2019</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">4691E9A6713C0DAFE1934FA0FE6D83A0</idno>
+					<idno type="arXiv">arXiv:1907.08908v1[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Automated machine learning (AutoML) aims to find optimal machine learning solutions automatically given a machine learning problem. It could release the burden of data scientists from the multifarious manual tuning process and enable the access of domain experts to the off-the-shelf machine learning solutions without extensive experience. In this paper, we review the current developments of AutoML in terms of three categories, automated feature engineering (AutoFE), automated model and hyperparameter learning (AutoMHL), and automated deep learning (AutoDL). State-of-the-art techniques adopted in the three categories are presented, including Bayesian optimization, reinforcement learning, evolutionary algorithm, and gradient-based approaches. We summarize popular AutoML frameworks and conclude with current open challenges of AutoML.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.">INTRODUCTION</head><p>Automated machine learning (AutoML) has emerged as a prevailing research field upon the ubiquitous adoption of machine learning techniques. It aims at automatically determining high-performance machine learning solutions with a little workforce in reasonable time budget. For example, Google HyperTune, Amazon Model Tuning, and Microsoft Azure AutoML all provide cloud services with AutoML tools which cultivate off-the-shelf machine learning solutions for both researchers and practitioners. Therefore, AutoML not only liberates them from the time-consuming tuning process and tedious trial-and-error iterations but also facilitates the development of solving machine learning problems.</p><p>A traditional machine learning pipeline is an iterative procedure composed of feature engineering, model and hyperparameter selection, and performance evaluation, as shown in Figure <ref type="figure" target="#fig_4">1</ref>. Data scientists manually manipulate numerous features, design models, and tune hyperparameters in order to get the desired predictive performance. The procedure will not be terminated until a satisfactory performance is achieved. Echoing with the traditional pipeline, we split Au-toML into three categories, (1) AutoFE: automated feature engineering, (2) AutoMHL: automated model and hyperpa-Figure <ref type="figure" target="#fig_4">1:</ref> A classical machine learning pipeline. When data scientists intend to find their machine learning solutions, they manually try the combination of features, models, and hyperparameters in a pipeline and repeatedly tune its performance until the final solution achieves good general prediction. AutoML is proposed to facilitate the labor-intensive tuning process.</p><p>rameter learning, and (3) AutoDL: automated deep learning. AutoFE intends to discover informative and discriminative features for the learning model. AutoMHL aims at tuning hyperparameter of a specific learning model (HPO) or building an entire machine learning pipeline automatically (Auto-Pipeline). AutoDL is a subfield of AutoMHL. Since deep learning has succeeded significantly without intensive feature engineering, we explicitly separate AutoDL from AutoMHL in order to focus on the automatic design of deep neural network architectures. Upon the categorization of AutoML, we will review AutoML from two dimensions (Figure <ref type="figure" target="#fig_0">2</ref>). The technique dimension spans the mainstream AutoML techniques, including Bayesian optimization (BO), reinforcement learning (RL), evolutionary algorithm (EA), and gradient-based approaches (Gradient), while the framework dimension covers representative AutoML frameworks.</p><p>The remainder of the paper is organized as follows: Section 2 discusses AutoFE with RL, EA, and other techniques. Section 3 explains AutoMHL with BO, RL, and EA. Section 4 illustrates AutoDL in terms of BO, RL, and Gradient. Section 5 explores the emblematic open-source and enterprise AutoML frameworks. The last two sections specify current research challenges and reemphasize the target of this work.  Selected AutoML frameworks are discussed beyond.</p><note type="other">Technique Framework</note></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.">AUTOMATED FEATURE ENGINEERING</head><p>Feature engineering is a process to manipulate features via operations such as data imputation, feature transformation, and feature selection. It is a critical step in machine learning algorithms since suitable features directly influence their prediction performance <ref type="bibr" target="#b5">[5]</ref>. Considering a dataset D F represented in terms of its feature set F , the derived features F in D F are generated by applying feature pre-processing operations T to D F . The automated feature engineering could be formulated in the following optimization problem,</p><formula xml:id="formula_0">F * = arg min F ∈F ∪ F L val (Aw * , D F val ), s.t. w * = arg min w Ltrain(Aw, D F train ),<label>(1)</label></formula><p>where Ltrain and L val are the loss function for training and validation, D F train and D F val denote training and validation set from D F , and w is the parameters (weights) of a machine learning algorithm A. We intend to pick up vigorous features that can boost the performance of A through Aut-oFE. Generally, AutoFE follows the iterative procedure to find the optimal features, including two necessary phases, (1) feature generation and (2) feature selection. The original features are extended by feature generation and then feature selection will filter irrelevant and overlapping features. In this section, we briefly introduce two popular techniques in AutoML, i.e., reinforcement learning (RL) and evolutionary algorithm (EA), under the context of AutoFE.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">Reinforcement Learning</head><p>Reinforcement learning (RL) is one of the most popular techniques used in AutoML. The goal of RL is to train an agent that could learn how to take a sequence of proper actions to maximize the long-term reward in the specific environment. Algorithm 1 illustrates the iterative procedure of RL. The agent takes actions upon a particular strategy (a.k.a. policy) to learn experience for correct decisions. The environment produces the reward based on the action and the current state of the agent. The agent, the environment, actions, and the reward are essential elements of RL. In the context of AutoML, the environment is the generated machine learning solution, the reward corresponds to its performance on the holdout dataset, and the actions are operations to modify a learning solution.</p><p>Within the context of AutoFE, the environment corresponds to all the possible combinations of features and transformations, which could be represented in a transformation graph <ref type="bibr" target="#b18">[18]</ref> (Figure <ref type="figure" target="#fig_2">3</ref>). The initial node of the graph is the original feature set. Edges are feature transformations (e.g., square, sum, and log), and feature selection. Other nodes are the derived features. Note that the transformation is applied to all features regardless of feature types. In the transformation graph, the traversal from the initial node to an end node is a path of feature transformation that applies all feature operators to the original dataset. The goal is to learn the traversal within the limited time budge to reach the optimal node brings about the highest performance.</p><p>The agent can learn the graph exploration with the help of Q-Learning, which uses Q function, as shown in Equation (2) to remember previous learning experiences.</p><formula xml:id="formula_1">Q(s (t) , a (t) ) ← (1-η)Q(s (t) , a (t) )+η[r (t) +γ max a Q(s (t+1) , a )],</formula><p>(2) where s, a, η, and γ correspond to state, action, learning rate, and discount factor respectively and r (t) denotes the reward of step t. An action of the agent is a pair of an existing node n in the current graph and a feature operation t to the node. The -greedy algorithm determines the next action, i.e., (n, t) is chosen randomly with probability or from the maximum of Q function with probability 1 -. In each step, an action produces new features with which the learning algorithm A is trained to get the validation performance. The performance serves as the reward r for the Q-function. Also, the current graph is augmented with (n, t) and r.</p><p>Since the combination of states and feature operations grows exponentially in the graph, Q-Learning with linear approximation <ref type="bibr" target="#b18">[18]</ref> is proposed. That is, Q function approximates in Q(s, a) = w a f (s), where w a is a weight vector for an action a, and f (s) is a state vector characterizing the state s. w a is updated by the following equation,</p><formula xml:id="formula_2">w a t ← w a t + α(r (t) + γ max a [Q(s (t+1) , a ) -Q(s (t) , a)])f (t) (s) (3)</formula><p>where α is the learning rate. As long as the Q function is learned, the agent can decide the exploration direction. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">Evolutionary Algorithm</head><p>Evolutionary algorithm imitates the natural evolution to solve optimization problems, including genetic algorithms (GAs) and genetic programming (GP). We will take Au-toML using GP as an example in this survey, while other similar evolutionary algorithms such as particle swarm optimization (PSO) and ant colony optimization (ACO) will not be covered due to the limited space.</p><p>Typically, EA follows Algorithm 2, including population, selection, crossover, and mutation. In the beginning, the evolution algorithms randomly generate individuals as the initial population. After evaluating the population, selection methods (e.g., tournament and elitism selection) will pick up competent individuals as parents to form the next population. In the mutation (crossover) step, mutation operations change parents' structure to create various individuals in the new population. The selection-mutation-crossover will be repeated until a particular condition is satisfied (e.g., a fixed number of generations).</p><p>Equipped AutoFE with EA, constructed features could be represented in the tree structure <ref type="bibr" target="#b30">[30]</ref> where the root is a derived feature, the intermediate nodes are arithmetic operators, and leaves are either original features or random values. It is worth pointing out that the root of the tree is different from the transformation graph <ref type="bibr" target="#b18">[18]</ref>, where the starting node is the original feature set. Genetic programming modifies the intermediate nodes and leaves of a treebased individual to generate new features in the mutation and crossover phase. The selection phase of GP implicitly picks up candidate features. Therefore, the feature generation and selection are executed together within GP <ref type="bibr" target="#b30">[30]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3">Other Methods</head><p>Besides RL and EA, there are also other approaches <ref type="bibr" target="#b14">[14,</ref><ref type="bibr" target="#b15">15,</ref><ref type="bibr" target="#b19">19,</ref><ref type="bibr" target="#b16">16]</ref> for AutoFE. The structure of datasets leads to the various techniques of feature generation. Meanwhile, the performance evaluation of selected features brings about varying techniques of feature selection. We review them in terms of feature generation and feature selection.</p><p>For feature generation, we can categorize datasets to relational and non-relational. Relational datasets provide relationships between entities (tables) by following which we  <ref type="bibr" target="#b14">[14]</ref>. We apply arithmetic operators to columns of one entity that do or do not depend on columns of another entity. For instance, we can obtain a new feature of average customer expense by averaging the "Order" entity based on the IDs of the"Customer" entity. When it comes to non-relational datasets, we directly utilize the features in the dataset. We can construct ridge and kernel ridge regression models to measure the feature correlations that serve as additional new features <ref type="bibr" target="#b16">[16]</ref>. If datasets are expressed in the transformation graph (Figure <ref type="figure" target="#fig_2">3</ref>), depth-first and breath-first traversals <ref type="bibr" target="#b19">[19]</ref> without training an agent offer a simple way to decide the next node and feature transformation.</p><p>For feature selection, selected features could be evaluated by a tree model or a machine learning pipeline. We can train a decision tree to get the information gain of each feature and use the stability-based selection that aggregates the results of many selection algorithms on different subsets of features. So mixed results are used to select final features <ref type="bibr" target="#b16">[16]</ref>. Another way is constructing a random forest (RF) model over meta-features between datasets and new generated features <ref type="bibr" target="#b15">[15]</ref>. The rank of generated features from the output of the RF model is used to select features. Apart from tree-based selections, a fixed-structure machine learning pipeline could be constructed for evaluation, including Truncated SVD for feature selection <ref type="bibr" target="#b14">[14]</ref>. We select nc components from the results of SVD transformation, rank the components by calculating their f-value w.r.t. the targets, and keep top γ% of them. The hyperparameters nc and γ are tuned by Bayesian optimization to select the number of features for the pipeline.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">AUTOMATED MODEL AND HYPERPA-RAMETER LEARNING</head><p>Model and hyperparameter learning consists of model selection and hyperparameter tuning, which optimizes the predictive performance by repeatedly changing machine learning models and tuning associate hyperparameter values. Given a dataset D divided into Dtrain and D val for training and validation respectively, we should choose a loss function Ltrain for training (e.g., square mean error or cross entropy) and a measurement L val for validation (e.g., accuracy or F1-score). Considering a set of learning models A = {A (1) , A (2) , ...},</p><note type="other">Category Technique Bayesian Optimization Reinforcement Learning Evolutionary Algorithm Gradient-based Approaches Other techniques</note><p>Automated Feature Engineering (AutoFE) -FeatureRL <ref type="bibr" target="#b18">[18]</ref> GP for Feature Engineering <ref type="bibr" target="#b30">[30]</ref> -Data Science Machine <ref type="bibr" target="#b14">[14]</ref> ExploreKit <ref type="bibr" target="#b15">[15]</ref> Cognito <ref type="bibr" target="#b19">[19]</ref> AutoLearn <ref type="bibr" target="#b16">[16]</ref> Automated Model and Hyperparameter Learning (AutoMHL) TPE <ref type="bibr" target="#b1">[1]</ref> SMAC <ref type="bibr" target="#b10">[10]</ref> Auto-Sklearn <ref type="bibr" target="#b9">[9]</ref> FABOLAS <ref type="bibr" target="#b20">[20]</ref> BOHB <ref type="bibr">[8]</ref> APRL <ref type="bibr" target="#b17">[17]</ref> Hyperband <ref type="bibr" target="#b21">[21]</ref> TPOT <ref type="bibr" target="#b25">[25]</ref> Autostacker <ref type="bibr" target="#b3">[3]</ref> DarwinML <ref type="bibr" target="#b27">[27]</ref> --Automated Deep Learning (AutoDL) AutoKeras <ref type="bibr" target="#b12">[12]</ref> NASBot <ref type="bibr" target="#b13">[13]</ref> NAS <ref type="bibr" target="#b34">[34]</ref> NASNet <ref type="bibr" target="#b35">[35]</ref> ENAS <ref type="bibr" target="#b26">[26]</ref> -DARTS <ref type="bibr" target="#b22">[22]</ref> Proxyless <ref type="bibr" target="#b2">[2]</ref> NAONet <ref type="bibr" target="#b23">[23]</ref> -Table <ref type="table">1</ref>: Overview of different techniques for Automated Machine Learning. automated model and hyperparameter learning (AutoMHL) could be formulated as the following optimization problem,</p><formula xml:id="formula_3">A * λ * = arg min A (i) ∈A,λ∈Λ (i) L val (A (i) λ,w * , D val ), s.t. w * = arg min w Ltrain(A (i) λ,w , Dtrain),<label>(4)</label></formula><p>where Λ (i) denotes the hyperparameter space of A (i) , w is the parameters of a model A. The goal is to obtain the optimal learning model A * and its hyperparameters λ * . If we reduce A = {A (1) }, AutoMHL becomes hyperparameter optimization (HPO). If we expand A to include features Fi, i.e., A = {A (1) , A (2) , ...F1, F2, ...}, AutoMHL becomes the automated pipeline learning (Auto-Pipeline). Therefore, AutoMHL is the general form of the above two Au-toML problems. In this section, we briefly introduce BO and review AutoMHL in terms of BO, RL, and EA.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Bayesian Optimization</head><p>Bayesian optimization (BO) is a well-known method to find the optimal value of a black-box and non-convex objective function. It contains the two indispensable components, a probabilistic model and an acquisition function. The probabilistic model is a surrogate model emulating the objective function f , which models the functional relationship between the search space and the objective function values. The acquisition function is constructed based on the surrogate to measure potential points in the search space by considering the trade-off between exploration (trying uncertain points) and exploitation (improving current good points). BO goes through an iterative procedure of three steps, as shown in Algorithm 3. There are two challenges to be considered when applying BO for AutoMHL, including heterogeneous search space and efficiency. The first challenge results from various hyperparameters of a learning model, including discrete, categorical, continuous hyperparameters, and hierarchical dependency (conditional) among them. Take support vector machines (SVM) as an example. Its kernel, degree, and gamma is a categorical, discrete, and continuous hyperparameter respectively, while the degree also depends on polynomial kernel. The efficiency bottleneck usually arises from the performance evaluation step. In every iteration, we need to obtain the real value of the objective function. The situation becomes worse when it is costly to train a learning model (e.g., neural network) on a large-scale dataset. Therefore, various techniques have been proposed to address these challenges.</p><p>First, tree-based BO <ref type="bibr" target="#b10">[10,</ref><ref type="bibr" target="#b1">1]</ref> have emerged as alternates to handle the heterogeneous search space. Gaussian process in standard BO cannot consider the hierarchical dependency and model the probabilities of various types of hyperparameters. Random forest (RF) regression could replace it as the surrogate model <ref type="bibr" target="#b10">[10]</ref>. Random subsets of historical observations build individual decision trees. One tree node decides the value to split a discrete/continuous hyperparameter or whether a hyperparameter is active to handle conditional variables. To build an acquisition function (e.g., Expected improvement) upon the RF regression, we have to measure the probability p(c|λ) of real performance c given hyperparameters λ. The RF regression does not produce p(c|λ), but the frequency estimates of µ λ and σ 2 λ from individual trees could be used to approximate p(c|λ) = N (µ λ , σ 2 λ ). Another way to replace Gaussian process is by building a probability density tree <ref type="bibr" target="#b1">[1]</ref>, in which a tree node stands for the probability density of a specific hyperparameter rather than a decision. A hyperparameter serves as a random variable. There are two types of probability density in a node,</p><formula xml:id="formula_4">p(λ|c) = l(λ) = p(λ|c &lt; c * ) g(λ) = p(λ|c &gt;= c * ).<label>(5)</label></formula><p>The probability density of hyperparameters λ conditional on whether the performance c is less or greater than a given performance threshold c * . For the dependent hyperparameters, only values of active ones update the probability of the corresponding nodes. Since the density tree uses p(λ|c) instead of p(c|λ), Bergstra et al. <ref type="bibr" target="#b1">[1]</ref> show that the optimization of Expected improvement could be simplified by</p><formula xml:id="formula_5">λ * = arg min λ g(λ)</formula><p>l(λ) . In the context of Auto-Pipeline, we can expand the search space <ref type="bibr" target="#b9">[9]</ref> by adding pipeline operations, such as data imputation, feature scaling, transformation, and selection. The tree-based BO <ref type="bibr" target="#b10">[10,</ref><ref type="bibr" target="#b1">1]</ref> could find the optimal pipeline solution in the new search space. However, the new space is much larger than that of HPO. Considering past performance on similar datasets <ref type="bibr" target="#b9">[9]</ref> enables BO to start in the small but reasonable regions, which reduces the number of intermediate results. For those sub-optimal pipelines during a search, we can also build a weighted ensemble of them <ref type="bibr" target="#b9">[9]</ref> to get robust performance. Second, approximate performance evaluation (multi-fidelity optimization) is proposed to decrease the evaluation cost. Specifically, we could train the model learning in an economical setting. For example, we can use a subset of training data <ref type="bibr" target="#b24">[24]</ref> or fewer epochs of stochastic gradient descent <ref type="bibr" target="#b29">[29]</ref> when training neural networks. Performance extrapolation is an alternative acceleration method by extrapolating the performance of the full dataset based on the historical records of the partial datasets. For instance, we can prepare two objective functions, the loss function for performance evaluation and the training time function, both of which consider the size of the training set as an additional input <ref type="bibr" target="#b20">[20]</ref>. In individual iterations, Bayesian optimizer determines the proper size of training data that could take a few training time and ideally represent the performance of the full training set as well. Thus, the approach could allow training the learning model with a small dataset in early stages and extrapolating the performance of the full set.</p><p>Dynamic resources assignment is an approach assigning more training budgets for promising configurations and fewer budgets for discouraging configurations. Hyperband <ref type="bibr" target="#b21">[21]</ref> is a representative example illustrated in Section 3.2. An incremental work BOHB <ref type="bibr">[8]</ref> using Hyperband to speed up a tree-based BO approach <ref type="bibr" target="#b1">[1]</ref>. Different from Hyperband <ref type="bibr" target="#b21">[21]</ref> sampling configurations by random search, BOHB relies on a model-based approach (TPE) <ref type="bibr" target="#b1">[1]</ref> to select encouraging configurations, making it easier to converge the performance of resulting configurations.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Reinforcement Learning</head><p>Speaking of AutoMHL with RL, the agent is required to determine the hyperparameters of a learning algorithm (HPO) <ref type="bibr" target="#b21">[21]</ref> or design a machine learning pipeline (Auto-Pipeline) <ref type="bibr" target="#b17">[17]</ref>. We review the RL techniques from the aspect of HPO and Auto-Pipeline.</p><p>For HPO, we could frame it in the multi-armed bandit, a particular case of RL. The environment consists of multiple arms, and the agent pulls a sequence of the arms to obtain the maximal reward. A set of hyperparameters stands for an arm whose reward is the performance of a learning model with the hyperparameters <ref type="bibr" target="#b21">[21]</ref>. The goal is to find the optimal arm by pulling a sequence of arms one-by-one. Given n arms (n sets of hyperparameters), we can quickly determine the optimal one as long as getting their performance. To efficiently obtain the performance under a fixed budgets B, successive halving <ref type="bibr" target="#b11">[11]</ref> assigns each configuration B n budgets and then select the best half with double budgets in the next iteration until one configuration remains. Furthermore, we could dynamically adjust budgets (e.g., the number of iterations) according to n <ref type="bibr" target="#b21">[21]</ref>; large n configurations occupy few budgets while few n configurations consume large budgets. The two-fold dynamic resource allocation significantly reduces the evaluation time <ref type="bibr" target="#b21">[21]</ref>. Thus, when n arms are sampled by random search <ref type="bibr" target="#b21">[21]</ref> or tree-based BO <ref type="bibr">[8]</ref>, the aforementioned multi-armed techniques could efficiently determine the best one.</p><p>For Auto-Pipeline, we could picture its search space to the exploration tree <ref type="bibr" target="#b17">[17]</ref> (Figure <ref type="figure" target="#fig_6">4</ref>), where the root is the original dataset with raw features, intermediate nodes are derived features after feature transformation, and the leaves are HPO or learning models. HPO indicates whether to tune hyperparameters of the parent node. The agent selects an existing node and applies a transformation, a learning model, or HPO to the node. The goal of RL is to learn an exploration policy in the tree so that selected learning models could form an ensemble providing the best predictive performance. The agent takes advantage of Q-Learning to remember historical rewards and adopts -greedy algorithm to decide the next node and the operation. To avoid the exponential combinations of nodes and operations, Qfunction is approximated by Q(s, c) = w * f (s) <ref type="bibr" target="#b17">[17]</ref>, where s, c, and w denote a state, an action, and a weight vector respectively. f (s) is a state vector characterizing the state s. Following the Equation (3), we can learn the Q-function to decide actions in the tree.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Evolutionary Algorithm</head><p>Extant AutoMHL work with EA <ref type="bibr" target="#b25">[25,</ref><ref type="bibr" target="#b3">3,</ref><ref type="bibr" target="#b27">27]</ref> focus on automated pipeline learning (Auto-Pipeline). In particular, they utilize genetic programming (GP) to search machine learning pipelines. GP encodes pipelines in flexible graph structures and evolves them into the optimal one that provides the highest predictive performance. There are three types of flexible pipeline structures, tree-based <ref type="bibr" target="#b25">[25]</ref>, layer-based <ref type="bibr" target="#b3">[3]</ref>, and graph-based pipeline <ref type="bibr" target="#b27">[27]</ref>. First, in a tree-based structure <ref type="bibr" target="#b25">[25]</ref>, leaves are the copies of input data, intermediate nodes are pipeline operators, such as feature pre-processing methods, feature selection algorithms, and machine learning models and the root node must be a learning model. A tree pipeline has one or more pre-processing nodes followed by a selection node and a model node. The mutation and crossover of GP might change the types of pipeline operators as well as hyperparameters of each pipeline operators. The fitness is the predictive performance of a model node after intermediate nodes process input data.</p><p>Second, a layer-based pipeline <ref type="bibr" target="#b3">[3]</ref> is similar to multiple layer perceptron, but each node is a machine learning model. The first layer is the input data, and the outputs of the following layer are new synthetic features added to the raw features that serve as the input of the next layer. The search space contains the number of layers, the number of nodes per layer, types of learning models, and associate hyperparameter of each learning model. GP tunes the above space to find the optimal pipeline.</p><p>Finally, the most general pipeline structure is a directed acyclic graph (DAG) <ref type="bibr" target="#b27">[27]</ref>, where edges and vertices indicate data flow and learning model respectively. A pipeline is able to combine many various types of machine learning models, such as the mix of classifiers, regressors, and unsupervised learning models. The adjacent matrix controls the edge connections of a DAG, which is evolved by mutation operators. After GP designs the pipeline structure and learning models, associate hyperparameters could be tuned by Bayesian optimization. The last two pipeline structures do not explicitly operate feature engineering, but they leverage outputs of learning models as new features. </p><formula xml:id="formula_6">)<label>6</label></formula><p>where A is a network architecture, and A is the search space.</p><p>The goal is to search an optimal network architecture A * that could achieve the highest generalization performance on the validation set. Generally, search space A includes the following choices, (1) layer operations, e.g., perceptron, convolution, and max pooling, (2) layer hyperparameter, e.g., the number of hidden units, filters, and stride size, and (3) skip connections. We use these choices to build either the entire network architectures or cell architectures, resulting in whole-network search space and cell-based search space <ref type="bibr" target="#b35">[35]</ref>. The former is used to construct the entire network architecture from scratch. The latter aims to design the repeated cells (normal cells and reduction cells) as shown in Figure <ref type="figure" target="#fig_7">5</ref> and construct the entire network architecture by stacking these cells. Due to their popularity and generality, in the rest of this section, we illustrate mainstream searching techniques that are proposed upon them.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Bayesian Optimization</head><p>When it comes to Bayesian optimization (BO) for Au-toDL, there are two challenges required to overcome: (1) how to measure the similarity of two neural architectures, which are not defined in Euclidean space, and (2) how to optimize the acquisition function. The former arises from the standard BO that relies on Gaussian process as the surrogate of the objective function. Gaussian process requires measurable distance between two points to introduce a kernel function. The latter challenge appears due to discrete architectural choices in the search space, which makes it hard to optimize the acquisition function to get candidate architectures.</p><p>To resolve the first challenge, we could design a similarity measurement for two arbitrary architectures in the search space <ref type="bibr" target="#b12">[12,</ref><ref type="bibr" target="#b13">13]</ref>. Network edit-distance <ref type="bibr" target="#b12">[12]</ref> is proposed to quantify the similarity of two networks. It calculates the number of network morphism operations <ref type="bibr" target="#b4">[4]</ref> required to transform one network to another and introduces a valid kernel function based on the Bourgain embedding algorithm. Another similarity measurement, layer matched mass <ref type="bibr" target="#b13">[13]</ref>, measures the amount of matched computation at the layers of one network to the layers of the other in terms of the matched frequency and the location of layer operations. The corresponding distance is defined as the minimum of layer matched mass computed by an Optimal Transport (OT) program, that finds the optimal transportation plan via solving a cost minimization problem.</p><p>To address the second challenge, recent work <ref type="bibr" target="#b12">[12]</ref> proposes A * search with simulated annealing to optimize the acquisition function in the tree-structured search space. As network morphism <ref type="bibr" target="#b4">[4]</ref> enables the transformation among different networks, the search space could be defined as a tree- structured graph, in which nodes are neural architectures, and edges denote morphism operations changing the architecture of the parent node. A * search conducts exploitation by expanding the architecture of the best node in the tree while simulated annealing performs exploration, which randomly chooses other nodes for expansion with certain predefined probabilities. Evolutionary algorithm <ref type="bibr" target="#b13">[13]</ref> is also proposed to address the challenge of searching in discrete space. It mutates N neural architectures, which have higher acquisition values by random N layer operations, evaluates the acquisition of the new ones, and repeats the above steps until the prescribed condition. Upon solving the two challenges, we could follow the standard BO procedure to solve Equation (6).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Reinforcement Learning</head><p>Within the context of AutoDL with reinforcement learning (RL), the agent is required to learn a policy to construct network architectures. The trained networks will produce validation accuracy as reward R for the agent. We explain how to train the agent in terms of two kinds of search space.</p><p>For the whole-network search space, the agent generates architectural hyperparameters of the entire neural networks. One way to train the agent is policy gradient <ref type="bibr" target="#b34">[34]</ref>. The agent is modeled by Recurrent Neural Network (RNN) which predicts a variable string to depict the architectural hyperparameters. The policy of the RNN agent is formulated as the probability P (a1:T ; θc) of a sequence of T actions for T hyperparameters given the RNN parameters θc. It could be iteratively updated via policy gradient towards maximizing the expected reward J(θc) = E P (a 1:T ;θc) [R]. The method <ref type="bibr" target="#b34">[34]</ref> following REINFORCE rule expresses the reward gradient ∇ θc J(θc) as follows,</p><formula xml:id="formula_7">∇ θc J(θc) = 1 m Σ m k=1 Σ T t=1 ∇ θc ln P (at|a (t-1):1 ; θc)R k , (<label>7</label></formula><formula xml:id="formula_8">)</formula><p>where m is the number of sampled architectures in one batch, and R k means the validation accuracy of neural net-work k. After getting the validation accuracy of a batch of architectures, we update the agent's policy by Equation <ref type="bibr" target="#b7">(7)</ref>. For the cell-based search space, the agent only searches the architecture of normal and reduction cells. The revised RNN-agent <ref type="bibr" target="#b35">[35]</ref> predicts a string of inputs and operations of each block within a cell. By transforming the cell descriptions into architectures and stacking them according to the base network, a complete network architecture is obtained and evaluated to provide rewards for the agent. For the agent training, another policy gradient method, Proximal Policy Optimization (PPO) <ref type="bibr" target="#b35">[35]</ref>, could be adopted.</p><p>Moreover, weight sharing <ref type="bibr" target="#b26">[26]</ref> is an acceleration technique to search neural architectures with RL in two kinds of search space. It constructs a large directed acyclic graph (DAG) where all sub-graphs can represent all neural networks in a particular search space. Hence, it forces all child models to share parameters (weights) and avoids training each model from scratch to converge. For example, Figure <ref type="figure" target="#fig_9">6</ref> presents the DAG of a cell-based search space. Each node corresponds to a block of a cell, and directed edges represent how blocks are connected. A sub-graph is a cell architecture. The RNN agent is trained by policy gradient to return a string of inputs and operations for each block, that determines node computations and connected edges in the large graph. When we train a complete network using the cell description, weights of a layer operation corresponding to the node in the large graph are updated. Therefore, weights are shared with several child models.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.3">Gradient-based Approach</head><p>For gradient-based approaches with AutoDL, the most critical challenge is to convert non-differentiable optimization problems into differentiable ones. Thus, we want to encode a network architecture into a continuous and numeric representation. Once having continuous representation, we can optimize the architectural hyperparameters with gradient descent, which is the same procedure to optimize the parameters of neural networks. Generally, there are two ways for the transformation.</p><p>One way is the mixed operation encoding <ref type="bibr" target="#b22">[22,</ref><ref type="bibr" target="#b2">2]</ref>. Given a candidate set of layer operations O = {oi} and an input x, the output of a mixed operation mO(x) <ref type="bibr" target="#b22">[22]</ref> is a weighted sum of these operations.</p><formula xml:id="formula_9">mO(x) = o∈O exp (αo) o i ∈O exp (α o i ) o(x), (<label>8</label></formula><formula xml:id="formula_10">)</formula><p>where αo is the numerical weight for the operation o, called architectural weight. In the cell-based search space, each edge of a cell network is specified a mixed operation, and a cell with E edges is then encoded in |O| × E architectural weights. Furthermore, the mixed operation can be improved its memory usage by binary gates <ref type="bibr" target="#b2">[2]</ref>, where an operation is sampled according to the probability proportional to its architectural weight. Thus, only one operation in an edge will be activated during learning rather than computing the weights of all operations. The goal of the representation is using gradient approaches to learn these architectural weights, like running 1st-order gradient descent alternatively for Equation <ref type="bibr" target="#b6">(6)</ref>. It fixes the outer architectural weights to update the gradient of inner weights and then fixes the inner weights to update the gradients of outer architectural weights. After learning, the largest value of architectural weights for an edge decides its operation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Group</head><p>Framework Language Provided by URL Automated Feature Engineering (AutoFE) FeatureTools <ref type="bibr" target="#b14">[14]</ref> Table <ref type="table" target="#tab_0">2</ref></p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>: A list of selective AutoML Frameworks until June 2019</head><p>Another feasible way is using encoder/decoder to learn continuous architecture representation <ref type="bibr" target="#b23">[23]</ref>. The encoder transforms an architectural string to an embedding representation, and the decoder reverts an embedding to a string. This representation combines a performance predictor. It maps an embedding to its validation performance in the latent space where stochastic gradient descent attempts to search the embedding representation with the best performance.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.">AUTOML FRAMEWORKS</head><p>In this section, we discuss representative AutoML frameworks from either open-source project or enterprise services. Note that we exclude those open-source codes that are merely experiment implementations for research papers.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1">Automated Feature Engineering</head><p>FeatureTools <ref type="bibr" target="#b14">[14]</ref> is an open-source framework using Python which can automatically generate features from relational datasets. The generation follows the relationship of any two entities to apply feature transformation operators, such as average and count. Besides, AutoCross <ref type="bibr" target="#b33">[33]</ref> is a feature crossing tool provided by 4Paradigm. The tool automatically captures interactions between categorical features by cross-product. Its cross feature generation relies on beam search to generate candidate features. Feature selection is ranking the performance of features on a logistic regression regardless of the real learning model.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2">Automated Model and Hyperparameter Learning</head><p>Current AutoMHL frameworks are split into HPO and Auto-Pipeline developed from the open-source community or enterprise. We introduce them in the light of open-source and enterprise.</p><p>For open-source frameworks, Hyperopt <ref type="bibr" target="#b1">[1]</ref> and SMAC3 <ref type="bibr" target="#b10">[10]</ref> are tools for HPO, while Auto-Sklearn <ref type="bibr" target="#b9">[9]</ref>, TPOT <ref type="bibr" target="#b25">[25]</ref>, and H2O are frameworks for Auto-Pipeline. Hyperopt <ref type="bibr" target="#b1">[1]</ref> and SMAC3 <ref type="bibr" target="#b10">[10]</ref> use Bayesian optimization to tune hyperparameters of a learning model. Auto-Sklearn <ref type="bibr" target="#b9">[9]</ref> is the extension of SMAC <ref type="bibr" target="#b10">[10]</ref> with meta learning and ensemble learning for machine learning pipeline automation. TPOT <ref type="bibr" target="#b25">[25]</ref> is the most popular Auto-Pipeline tool using genetic programming to optimize the tree-structure pipeline. H2O is an open-source machine learning platform written in Java developed by H2O.ai. The platform contains solutions of pipeline automation by optimizing hyperparameters via random search, grid search, and Bayesian optimization and constructing stacking ensembles.</p><p>For enterprise frameworks, Google and Amazon provide a cloud service for HPO, while Microsoft and Intelligence Qubic offer Auto-Pipeline frameworks. Google HyperTune could tune hyperparameters of machine learning models by grid and random search, TPE <ref type="bibr" target="#b1">[1]</ref>, and SMAC <ref type="bibr" target="#b10">[10]</ref>. Amazon Automatic Model Tuning could optimize hyperparameters using Bayesian optimization. Furthermore, Microsoft Azure AutoML uses collaborative filtering and Bayesian optimization to search for promising pipelines. DarwinML is an Auto-Pipeline platform provided by Intelligence Qubic. It relies on genetic programming to construct arbitrary architectures of ensemble models for a machine learning pipeline.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.3">Automated Deep Learning</head><p>AutoDL is a subfield of AutoMHL, but AutoDL frameworks mainly build the architectures of neural networks automatically. We introduce two well-known open-source frameworks, Auto-Keras and AdaNet, and two enterprise services, Google AutoML and Neural Network Intelligence (NNI) from Microsoft.</p><p>Auto-Keras <ref type="bibr" target="#b12">[12]</ref> is an open-source project using Keras to search for deep network architectures. Its adopts Bayesian optimization and network morphism to search entire arbitrary neural architectures instead of cell network architectures. Moreover, AdaNet <ref type="bibr" target="#b31">[31]</ref> is another open-source work using Tensorflow for learning network architecture automatically. It could learn network architectures and build an ensemble of networks to obtain a better model.</p><p>Besides, Neural Network Intelligence (NNI) is an opensource toolkit provided by Microsoft for neural architecture search and hyperparameter tuning. It supports a various of search techniques, e.g., evolutionary algorithm and network morphism, to tune network architectures and provides flexible execution environments in local or cloud servers. Last but not least, Google Cloud AutoML is a service to get highquality neural networks on vision classification, text classification, and language translation. The service is based on the NAS proposed by Zoph and Le <ref type="bibr" target="#b34">[34]</ref>. Users could obtain customized models by merely uploading their labeled datasets without any pieces of code.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.">CHALLENGES</head><p>Authoritative benchmarks are essential standard protocols for AutoML comparison that regulate datasets, the search space, and the training setting of searched machine learning solutions. Unfortunately, such benchmarks are not omnipresent in AutoML. No standard protocol for AutoFE provides a fixed set of transformation operations, and identical training setting of generated solutions. HPOLib <ref type="bibr" target="#b6">[6]</ref> collects a set of benchmarks for HPO, but no benchmark exists for Auto-Pipeline. Researchers usually leverage the UCI Machine Learning Repository and OpenML datasets with their setting for evaluation.</p><p>For AutoDL, NAS-Bench-101 <ref type="bibr" target="#b32">[32]</ref> is a tabular benchmark which maps five millions of trained neural architectures to their training and evaluation metrics, where these architectures are generated from the cell-based search space. As the objective comparison, any AutoDL technique generates child networks within the same search space and looks up their performance without training them from scratch, which avoids different training techniques and hyperparameters. However, the NAS-Bench-101 <ref type="bibr" target="#b32">[32]</ref> only considers the cell-based search space. For the comparison of AutoDL within wholenetwork search space, one of the first attempts is Auto-Keras <ref type="bibr" target="#b12">[12]</ref>, which encompasses data preparation, training setting of child networks, and optimizer. Researchers can concentrate on inventing the AutoDL optimizer, and Auto-Keras <ref type="bibr" target="#b12">[12]</ref> will produce the empirical performance in the standard testing environment. Authoritative benchmarks for AutoML are required; otherwise, it would be hard to compare the effectiveness and efficiency among a multitude of AutoML techniques.</p><p>Efficiency is one of the dominant factors for the successful adoption of AutoML methods. Some AutoML methods only take tolerable time to generate solutions: Auto-Sklearn <ref type="bibr" target="#b9">[9]</ref> requires 500 seconds in a CPU to find competence pipelines; FeatureRL <ref type="bibr" target="#b18">[18]</ref> takes 400 seconds in a CPU to find appropriate features for a learning model. In contrast, AutoDL usually demands massive computation resources and time, which could consume up to thousands of GPU days <ref type="bibr" target="#b34">[34]</ref>. Although novel acceleration techniques are proposed to reduce the enormous order of time <ref type="bibr" target="#b12">[12,</ref><ref type="bibr" target="#b26">26]</ref>, the efficiency of NAS is still an open problem.</p><p>The design of the search space is another challenge for Au-toML, which requires substantial knowledge and experience from human experts. A practical search space incorporates human prior knowledge for machine learning and considers the trade-off between its size (compact) and all useful possibilities (comprehensive). A well-known example is the cellbased search <ref type="bibr" target="#b35">[35]</ref> for AutoDL. The repeated neural network blocks in ResNet or DenseNet motivate researchers to fix the base network architecture and to search the cell typologies only. The handcrafted search spaces highly affect the performance of AutoML, which is still an intriguing question.</p><p>Interpretable analysis can provide insight on what crucial components from AutoML could lead to desired performance. With the integration of friendly user interfaces, Au-toML users could also customize their solutions by selecting desirable configurations between independent runs. Nevertheless, any AutoML search techniques is still a black-box procedure. Thus, limited search knowledge from AutoML can be utilized interactively. We believe interpretability and user interaction can increase the usefulness and capability of AutoML.</p><p>Miscellaneous domains remain potential to collaborate with AutoML. Most AutoML work have focused on classical regression and classification problems, particularly AutoDL whose empirical results are majorly from image classification on CIFAR-10. Nevertheless, the optimization setup of other potential domains more or less differs from the conventional AutoML. Take anomaly detection as an example. The extremely skew distribution of the benign class against the anomaly class might lead AutoML to search biased machine learning solutions. Other domains must have distinct considerations. We believe the cooperation of AutoML with multiple potential application domains could become another promising research direction.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.">CONCLUSION</head><p>Automated machine learning (AutoML) is the end-to-end process, which automatically discovers machine learning solutions. Without laborious human involvement, AutoML can expedite the process of applying machine learning to specific domain problems. Apart from our work, there are also other AutoML reviews <ref type="bibr" target="#b7">[7,</ref><ref type="bibr" target="#b28">28]</ref>, unveiling the mysterious art behind AutoML. As most of us develop with respect to three indispensable elements: search space, search techniques, and performance evaluation techniques, what makes us distinctive is that we provide a new perspective via categorizing AutoML into AutoFE, AutoMHL, and AutoDL, and elucidating them from technique dimension and framework dimension. By including and introducing both mainstream AutoML techniques and selected AutoML frameworks, we hope this survey could give insight into the progress of AutoML.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: A taxonomy of AutoML from techniques and frameworks. We split AutoML into automated feature engineering (AutoFE), automated model and hyperparameter learning (AutoMHL), and automated deep learning (AutoDL). The three categories are illustrated from the techniques dimension, including Bayesian optimization (BO), reinforcement learning (RL), evolutionary algorithm (EA), and gradient-based approaches (Gradient). Selected AutoML frameworks are discussed beyond.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Algorithm 1 : 5 update π with si+1, r 6 i</head><label>156</label><figDesc>Reinforcement LearningInput : The policy π; environment env, including the reward function; Output: The well-trained policy π 1 Initialize state si and policy π 2 while not meet stopping criteria do 3 action a * = arg max a π(si, a) 4 si+1, r = env(si, a * )</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 3 :</head><label>3</label><figDesc>Figure 3: The transformation graph for AutoFE [18]. D0 is the initial dataset. The feature engineering operations such as sum, square, log, normalization, and feature selection, are used in the graph.</figDesc><graphic coords="3,90.50,53.80,165.71,144.19" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Algorithm 2 : 3 for individual i in P do 4 M 5 end 6 Generationgroups 8 P</head><label>234568</label><figDesc>Evolutionary Algorithm Input : Individual representation; fitness measurement M; Selection; Partition; Crossover; Mutation Output: The optimal individual 1 Initialize a population of random individuals, P 2 while not meet stopping criteria do (i) ; // evaluate fitness of individual G = Selection(P ) 7 G1, G2 = Partition(G) ; // split G to two sub-= Crossover(G1) ∪ Mutation(G2) 9 end 10 return The individual with the highest fitness generate additional features</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>( 1 )</head><label>1</label><figDesc>Line 4: obtain the next point to evaluate by optimizing the acquisition function. (2) Line 5: evaluate the point to get its function value. (3) Line 7: update the surrogate model with the new point and the value.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Algorithm 3 : 1 ; 2 Initialize M and α 3 while not meet criteria do 4 xn+1 5 yn+1 = f (xn+1) 6 Dn 7 update M with Dn 8 end 9 return</head><label>31245679</label><figDesc>Bayesian optimization Input : Objective function f ; surrogate model M; acquisition function α; current observations Dn = {(xi, yi)} n i=1 Output: The optimal value of f = arg max x α(x; Dn) = Dn ∪ {(xn+1, yn+1)}The optimal value of f according to Dn</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><head>Figure 4 :</head><label>4</label><figDesc>Figure 4: The exploration tree for AutoMHL with RL [17]. The root D0 is the initial dataset, and circular nodes are derived datasets by applying a feature transformation. Rectangular nodes stand for machine learning algorithms. HPO indicates whether we tune hyperparameters of the learning model. The goal is to find the ensemble of learning models for a machine learning pipeline.</figDesc><graphic coords="5,330.92,53.80,210.89,150.31" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head>Figure 5 :</head><label>5</label><figDesc>Figure 5: An example of a cell-based search space [35]. The left figure is a base network that stacks normal cells and reduction cells with skip connections. The right one is a normal cell, a convolutional cell that returns a feature map of the same dimension. A reduction cell is also a convolutional cell with a large stride size, which might have the same architecture as the normal cell. Both types of cell are composed of multiple blocks where each block has two operations and two inputs, and these operation results are added. The sep, avg, and identity denote depthwise-separable convolution, average pooling, and 1 × 1 convolution, respectively. In the search space, we are supposed to determine the two cell architectures and construct the base network to evaluate the performance of resulting cells.</figDesc><graphic coords="6,53.80,53.80,251.06,126.41" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_8"><head>4 .</head><label>4</label><figDesc>AUTOMATED DEEP LEARNINGAutomated deep learning (AutoDL) is purposed to facilitate the design of neural architectures and the selection of their hyperparameters. It can be regarded as a particular topic of AutoMHL. Following Equation (4), we can describe AutoDL in the following optimization problem, A * = arg min A∈A L val (A(w * ), D val ), s.t. w * = arg min w Ltrain(A(w), Dtrain), (</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_9"><head>Figure 6 :</head><label>6</label><figDesc>Figure 6: An example of a directed acyclic graph (DAG) for AutoDL with weight sharing [26]. The DAG is built on cell-based search space and has four nodes, where node 1 and node 2 are two previous cells' outputs, and node 3 and node 4 are blocks of the current cell. The four nodes and active edges (red) make up a sub-graph for a cell architecture. All sub-graphs share weights of layer operations used in cell neural networks.</figDesc><graphic coords="7,72.93,53.80,200.85,143.57" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 2 .</head><label>2</label><figDesc>3 summarizes the AutoML techniques mentioned in the work.</figDesc><table><row><cell>Category</cell><cell></cell></row><row><cell>AutoDL</cell><cell></cell></row><row><cell>AutoMHL</cell><cell></cell></row><row><cell>AutoFE</cell><cell></cell></row><row><cell>BO</cell><cell>RL EA Gradient</cell></row></table></figure>
+		</body>
+		<back>
+
+			<div type="availability">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Python</head><p>Open-Source <ref type="url" target="https://github.com/Featuretools/featuretools">https://github.com/Featuretools/featuretools</ref> AutoCross <ref type="bibr" target="#b33">[33]</ref> -4paradigm <ref type="url" target="https://www.4paradigm.com">https://www.4paradigm.com</ref> </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Automated Model and Hyperparameter Learning (AutoMHL)</head><p>Hyperopt <ref type="bibr" target="#b1">[1]</ref> Python Open-Source <ref type="url" target="https://github.com/hyperopt/hyperopt">https://github.com/hyperopt/hyperopt</ref> SMAC3 <ref type="bibr" target="#b10">[10]</ref> Python Open-Source <ref type="url" target="https://github.com/automl/SMAC3">https://github.com/automl/SMAC3</ref> Auto-Sklearn <ref type="bibr" target="#b9">[9]</ref> Python Open-Source <ref type="url" target="https://github.com/automl/auto-sklearn">https://github.com/automl/auto-sklearn</ref> TPOT <ref type="bibr" target="#b25">[25]</ref> Python Open-Source <ref type="url" target="https://github.com/EpistasisLab/tpot">https://github.com/EpistasisLab/tpot</ref> HyperTune -Google <ref type="url" target="https://bit.ly/2IMsECx">https://bit.ly/2IMsECx</ref> Automatic Model Tuning -Amazon <ref type="url" target="https://aws.amazon.com/sagemaker">https://aws.amazon.com/sagemaker</ref> Azure AutoML -Microsoft <ref type="url" target="https://bit.ly/2XxBMmA">https://bit.ly/2XxBMmA</ref> DarwinML -Intelligence Qubic <ref type="url" target="http://iqubic.net/">http://iqubic.net/</ref> Automated Deep Learning (AutoDL) Auto-Keras [12] Python Open-Source <ref type="url" target="https://github.com/keras-team/autokeras">https://github.com/keras-team/autokeras</ref> AdaNet [31] Python Open-Source <ref type="url" target="https://github.com/tensorflow/adanet">https://github.com/tensorflow/adanet</ref> Google AutoML -Google <ref type="url" target="https://cloud.google.com/automl">https://cloud.google.com/automl</ref> Neural Network Intelligence Python Microsoft <ref type="url" target="https://github.com/microsoft/nni">https://github.com/microsoft/nni</ref> </p></div>
+			</div>
+
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title/>
+		<author>
+			<persName><surname>References</surname></persName>
+		</author>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Algorithms for hyper-parameter optimization</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">S</forename><surname>Bergstra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Bardenet</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Kégl</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in neural information processing systems</title>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+			<biblScope unit="page" from="2546" to="2554" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">ProxylessNAS: Direct neural architecture search on target task and hardware</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Cai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Han</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Learning Representations</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Autostacker: A compositional evolutionary learning system</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Mo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Chattopadhyay</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Lipson</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Genetic and Evolutionary Computation Conference, GECCO &apos;18</title>
+		<meeting>the Genetic and Evolutionary Computation Conference, GECCO &apos;18<address><addrLine>New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="402" to="409" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<title level="m" type="main">Net2net: Accelerating learning via knowledge transfer</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Shlens</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1511.05641</idno>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">A few useful things to know about machine learning</title>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">M</forename><surname>Domingos</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Commun. acm</title>
+		<imprint>
+			<biblScope unit="volume">55</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page" from="78" to="87" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Towards an empirical foundation for assessing bayesian optimization of hyperparameters</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Eggensperger</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Feurer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Hutter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Bergstra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Snoek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Hoos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Leyton-Brown</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">NIPS workshop on Bayesian Optimization in Theory and Practice</title>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="page">3</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Neural architecture search: A survey</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Elsken</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">H</forename><surname>Metzen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Hutter</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">55</biblScope>
+			<biblScope unit="page" from="1" to="21" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<title level="m" type="main">Bohb: Robust and efficient hyperparameter optimization at scale</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Falkner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Klein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Hutter</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1807.01774</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Efficient and robust automated machine learning</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Feurer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Klein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Eggensperger</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Springenberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Blum</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Hutter</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="page" from="2962" to="2970" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Sequential model-based optimization for general algorithm configuration</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Hutter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">H</forename><surname>Hoos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Leyton-Brown</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Learning and Intelligent Optimization</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2011">2011</date>
+			<biblScope unit="page" from="507" to="523" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Non-stochastic best arm identification and hyperparameter optimization</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Jamieson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Talwalkar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Artificial Intelligence and Statistics</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="240" to="248" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<title level="m" type="main">Auto-keras: Efficient neural architecture search with network morphism</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Jin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Song</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Hu</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Neural architecture search with bayesian optimisation and optimal transport</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Kandasamy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Neiswanger</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Schneider</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Poczos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">P</forename><surname>Xing</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems 31</title>
+		<editor>
+			<persName><forename type="first">S</forename><surname>Bengio</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">H</forename><surname>Wallach</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">H</forename><surname>Larochelle</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">K</forename><surname>Grauman</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">N</forename><surname>Cesa-Bianchi</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">R</forename><surname>Garnett</surname></persName>
+		</editor>
+		<imprint>
+			<publisher>Curran Associates, Inc</publisher>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="2016" to="2025" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Deep feature synthesis: Towards automating data science endeavors</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">M</forename><surname>Kanter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Veeramachaneni</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2015 IEEE International Conference on Data Science and Advanced Analytics</title>
+		<meeting><address><addrLine>Paris, France</addrLine></address></meeting>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2015-10-19">2015. October 19-21, 2015. 2015</date>
+			<biblScope unit="page" from="1" to="10" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Explorekit: Automatic feature generation and selection</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Katz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">C R</forename><surname>Shin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Song</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2016 IEEE 16th International Conference on Data Mining (ICDM)</title>
+		<imprint>
+			<date type="published" when="2016-12">Dec 2016</date>
+			<biblScope unit="page" from="979" to="984" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Autolearn: Automated feature generation and selection</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kaul</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Maheshwary</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Pudi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2017 IEEE International Conference on Data Mining (ICDM)</title>
+		<imprint>
+			<date type="published" when="2017-11">Nov 2017</date>
+			<biblScope unit="page" from="217" to="226" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<title level="m" type="main">Automating predictive modeling process using reinforcement learning</title>
+		<author>
+			<persName><forename type="first">U</forename><surname>Khurana</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Samulowitz</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1903.00743</idno>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Feature engineering for predictive modeling using reinforcement learning</title>
+		<author>
+			<persName><forename type="first">U</forename><surname>Khurana</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Samulowitz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Turaga</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Thirty-Second AAAI Conference on Artificial Intelligence</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Cognito: Automated feature engineering for supervised learning</title>
+		<author>
+			<persName><forename type="first">U</forename><surname>Khurana</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Turaga</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Samulowitz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Parthasrathy</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2016 IEEE 16th International Conference on Data Mining Workshops (ICDMW)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="1304" to="1307" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<title level="m" type="main">Fast bayesian optimization of machine learning hyperparameters on large datasets</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Klein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Falkner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Bartels</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Hennig</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Hutter</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1605.07079</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<monogr>
+		<title level="m" type="main">Hyperband: Bandit-based configuration evaluation for hyperparameter optimization</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Jamieson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Desalvo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Rostamizadeh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Talwalkar</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">DARTS: Differentiable architecture search</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Simonyan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Yang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Learning Representations</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Neural architecture optimization</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Luo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Tian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Qin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T.-Y</forename><surname>Liu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="7826" to="7837" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<monogr>
+		<title level="m" type="main">Automated machine learning on big data using stochastic algorithm tuning</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Nickson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A</forename><surname>Osborne</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Reece</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Roberts</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1407.7969</idno>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Evaluation of a tree-based pipeline optimization tool for automating data science</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">S</forename><surname>Olson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Bartley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">J</forename><surname>Urbanowicz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">H</forename><surname>Moore</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Genetic and Evolutionary Computation Conference 2016, GECCO &apos;16</title>
+		<meeting>the Genetic and Evolutionary Computation Conference 2016, GECCO &apos;16<address><addrLine>New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="485" to="492" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Efficient neural architecture search via parameters sharing</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Pham</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Guan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Zoph</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Le</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Dean</surname></persName>
+		</author>
+		<idno>PMLR</idno>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 35th International Conference on Machine Learning</title>
+		<editor>
+			<persName><forename type="first">J</forename><surname>Dy</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">A</forename><surname>Krause</surname></persName>
+		</editor>
+		<meeting>the 35th International Conference on Machine Learning<address><addrLine>StockholmsmÃďssan, Stockholm Sweden</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2018-07">Jul 2018</date>
+			<biblScope unit="volume">80</biblScope>
+			<biblScope unit="page" from="10" to="15" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<monogr>
+		<title level="m" type="main">Darwinml: A graph-based evolutionary algorithm for automated machine learning</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Qi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Xia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Tang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Song</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Qian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>An</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Shi</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1901.08013</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<monogr>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Quanming</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Mengshuo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">E</forename><surname>Hugo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Isabelle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Yi-Qi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Yu-Feng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Wei-Wei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Qiang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Yang</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1810.13306</idno>
+		<title level="m">Taking human out of learning applications: A survey on automated machine learning</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<monogr>
+		<author>
+			<persName><forename type="first">K</forename><surname>Swersky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Snoek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">P</forename><surname>Adams</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1406.3896</idno>
+		<title level="m">Freeze-thaw bayesian optimization</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Genetic programming for feature construction and selection in classification on high-dimensional data</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Tran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Xue</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Memetic Computing</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="3" to="15" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<monogr>
+		<title level="m" type="main">Adanet: A scalable and flexible framework for automatically learning ensembles</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Weill</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Gonzalvo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Kuznetsov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Yak</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Mazzawi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Hotaj</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Jerfel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Macko</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Adlam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Mohri</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Cortes</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<monogr>
+		<author>
+			<persName><forename type="first">C</forename><surname>Ying</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Klein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Real</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Christiansen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Murphy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Hutter</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1902.09635</idno>
+		<title level="m">Nas-bench-101: Towards reproducible neural architecture search</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<monogr>
+		<author>
+			<persName><forename type="first">L</forename><surname>Yuanfei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Mengshuo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Hao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Quanming</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Weiwei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Yuqiang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Qiang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wenyuan</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1904.12857</idno>
+		<title level="m">Autocross: Automatic feature crossing for tabular data in real-world applications</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<monogr>
+		<author>
+			<persName><forename type="first">B</forename><surname>Zoph</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><forename type="middle">V</forename><surname>Le</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1611.01578</idno>
+		<title level="m">Neural architecture search with reinforcement learning</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Learning transferable architectures for scalable image recognition</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Zoph</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Vasudevan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Shlens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><forename type="middle">V</forename><surname>Le</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)</title>
+		<imprint>
+			<date type="published" when="2018-06">June 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

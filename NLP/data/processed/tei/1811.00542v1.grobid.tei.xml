@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Pymc-learn: Practical Probabilistic Machine Learning in Python</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2018-10-31">31 Oct 2018</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Daniel</forename><surname>Emaasit</surname></persName>
+							<email>demaasit@haystax.com</email>
+							<affiliation key="aff0">
+								<orgName type="institution">Data Science Team Haystax Technology McLean</orgName>
+								<address>
+									<postCode>22102</postCode>
+									<region>VA</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Pymc-learn: Practical Probabilistic Machine Learning in Python</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2018-10-31">31 Oct 2018</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">8B47952A3FA7DB96895EC599D04B9FB4</idno>
+					<idno type="arXiv">arXiv:1811.00542v1[stat.ML]</idno>
+					<note type="submission">Submitted 06/19;</note>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>Probabilistic modeling</term>
+					<term>scikit-learn</term>
+					<term>PyMC3</term>
+					<term>probabilistic programming</term>
+					<term>supervised learning</term>
+					<term>unsupervised learning</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Pymc-learn is a Python package providing a variety of state-of-the-art probabilistic models for supervised and unsupervised machine learning. It is inspired by scikit-learn and focuses on bringing probabilistic machine learning to non-specialists. It uses a general-purpose high-level language that mimics scikit-learn. Emphasis is put on ease of use, productivity, flexibility, performance, documentation, and an API consistent with scikit-learn. It depends on scikit-learn and pymc3 and is distributed under the new BSD-3 license, encouraging its use in both academia and industry. Source code, binaries, and documentation are available on <ref type="url" target="http://github.com/pymc-learn">http://github.com/pymc-learn/pymc-</ref>learn.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p># Linear regression in Pymc-learn from pmlearn.linear_model \ import LinearRegression lr = LinearRegression() lr.fit(X_train, y_train) lr.score(X_test, y_test) lr.predict(X_test) lr.save("path/to/saved-model") # Gaussian process regression in Pymc-learn from pmlearn.gaussian_process \ import GaussianProcessRegressor() gpr = GaussianProcessRegressor() gpr.fit(X_train, y_train) gpr.score(X_test, y_test) gpr.predict(X_test) gpr.save("path/to/saved-model") # Linear regression in Scikit-learn from sklearn.linear_model \ import LinearRegression lr = LinearRegression() lr.fit(X_train, y_train) lr.score(X_test, y_test) lr.predict(X_test) lr.save("path/to/saved-model") # Gaussian process regression in Scikit-learn from sklearn.gaussian_process \ import GaussianProcessRegressor() gpr = GaussianProcessRegressor() gpr.fit(X_train, y_train) gpr.score(X_test, y_test) gpr.predict(X_test) gpr.save("path/to/saved-model") The fit method estimates model parameters using either variational inference (pymc3.ADVI) or MCMC (pymc3.NUTS).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.">Introduction</head><p>Currently, there is a growing need for principled machine learning approaches by nonspecialisits in many fields including the pure sciences (e.g. biology, physics, chemistry), the applied sciences (e.g. political science, biostatistics), engineering (e.g. transportation, mechanical), medicine (e.g. medical imaging), the arts (e.g visual art), and software industries. This has lead to increased adoption of probabilistic modeling. This trend is attributed in part to three major factors: (1) the need for transparent models with calibrated quantities of uncertainty, i.e. "models should know when they don't know ", (2) the ever-increasing number of promising results achieved on a variety of fundamental problems in AI <ref type="bibr" target="#b0">(Ghahramani, 2015)</ref>, and (3) the emergency of probabilistic programming languages (PPLs) that provide a flexible framework to build richly structured probabilistic models that incorporate domain knowledge. However, usage of PPLs requires a specialized understanding of probability theory, probabilistic graphical modeling, and probabilistic inference. Some PPLs also require a good command of software coding. These requirements make it difficult for non-specialists to adopt and apply probabilistic machine learning to their domain problems.</p><p>Pymc-learn<ref type="foot" target="#foot_0">foot_0</ref> seeks to address these challenges by providing state-of-the art implementations of several popular probabilistic machine learning models. It is inspired by scikitlearn <ref type="bibr" target="#b3">(Pedregosa et al., 2011)</ref> and focuses on bringing probabilistic machine learning to non-specialists. It puts emphasis on ease of use, productivity, flexibility, performance, documentation and an API consistent with scikit-learn. The underlying probabilistic models are built using pymc3 <ref type="bibr" target="#b4">(Salvatier et al., 2016)</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.">Design Principles</head><p>The major driving factor in the design of pymc-learn was to prioritize user experience, especially for non-specialists. This was achieved by adhering to the following design principles.</p><p>Ease of use. Pymc-learn mimics the syntax of scikit-learn -a popular Python library for machine learning -which has a consistent &amp; simple API, and is very user friendly. This makes pymc-learn easy to learn and use for first-time users.</p><p>Productivity. Scikit-learn users do not have to completely rewrite their code. Users' code looks almost the same. Users are more productive, allowing them to try more ideas faster. (See Figure <ref type="figure" target="#fig_0">1</ref> for a comparision).</p><p>Flexibility. This ease of use does not come at the cost of reduced flexibility. Given that pymc-learn integrates with pymc3, it enables users to implement anything they could have built in the base language.</p><p>Performance. Pymc-learn uses several generic probabilistic inference algorithms, including the No U-turn Sampler (Hoffman and Gelman, 2014), a variant of Hamiltonian Monte Carlo (HMC). However, the primary inference algorithm is gradient-based automatic differention variational inference (ADVI) <ref type="bibr" target="#b2">(Kucukelbir et al., 2017)</ref>, which estimates a divergence measure between approximate and true posterior distributions. Pymc-learn scales to complex, high-dimensional models thanks to GPU-accelerated tensor math and reverse-mode automatic differentiation via Theano <ref type="bibr">(Theano Development Team, 2016)</ref>, and it scales to large datasets thanks to estimates computed over mini-batches of data in ADVI.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">Project Openness and Development</head><p>Source code for pymc-learn is freely available under the new BSD-3 license and developed by the authors and a community of open-source contributors at <ref type="url" target="https://github.com/pymc-learn">https://github.com/  pymc-learn</ref>. Documentation, examples, and a discussion forum are hosted online at <ref type="url" target="https://pymc-learn.org">https://pymc-learn.org</ref>. A comprehensive test suite is run automatically by a continuous integration service before code is merged into the main codebase to maintain a high level of project quality and usability.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.">Illustration</head><p>Built distributions of pymc-learn are available for download from PyPi. Source code is available on GitHub. For illustration purposes, the following sections describe how pymc-learn can be used in a workflow that mimics scikit-learn.</p><p>Install pymc-learn from PyPi:</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>$ pip install pymc-learn</head><p>Or from source:</p><p>$ pip install git+https<ref type="url" target="://github.com/pymc-learn/pymc-learn">://github.com/pymc-learn/pymc-learn</ref> Consider that some data has been imported into a Python environment as shown in Figure <ref type="figure" target="#fig_1">2</ref>. from sklearn.model_selection import train_test_split X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3) 4.8 Visualize traceplots import arviz as az az.plot_trace(model.trace); Figure 4: Traceplot</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.">Conclusion</head><p>Pymc-learn exposes a wide variety of probabilistic machine learning models for both supervised and unsupervised learning. It is inspired by scikit-learn with a focus on non-specialists. Future work includes adding more probabilistic models including hidden markov models, Bayesian neural networks, and many others.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: An example comparing pymc-learn models and scikit-learn estimators: the probabilistic models (LinearRegression and GaussianProcessRegressor) are pymc3.Model objects.The fit method estimates model parameters using either variational inference (pymc3.ADVI) or MCMC (pymc3.NUTS).</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: Sample data</figDesc><graphic coords="3,154.80,509.37,302.39,137.64" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure</head><figDesc>Figure 3: ELBO plot</figDesc><graphic coords="5,154.80,111.52,302.41,183.79" type="bitmap" /></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0"><p>http://pymc-learn.org/</p></note>
+		</body>
+		<back>
+
+			
+			<div type="acknowledgement">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Acknowledgments</head><p>We would like to acknowledge the scikit-learn, pymc3 and pymc3-models communities for open-sourcing their respective Python packages.</p></div>
+			</div>
+
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Instantiate a model</head><p>Instantiate a model with basic default parameters. For instance, a Gaussian process model uses the squared exponential kernel as the covariance function with default priors for the hyperparameters.</p><p># Regression using a Gaussian process model from pmlearn.gaussian_process import GaussianProcessRegressor model = GaussianProcessRegressor() Methods such as fit, score, predict, save and load are available just like with a scikit-learn model. Given that pymc-learn is built on top of pymc3, common Bayesian workflow methods for diagnozing convengence (such as visualizing traceplots) and critizing results (such as summary tables) are available.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.7">Diagnose convergence</head><p># Diagnose convergence using Evidence Lower Bound model.plot_elbo()</p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Probabilistic machine learning and artificial intelligence</title>
+		<author>
+			<persName><forename type="first">Zoubin</forename><surname>Ghahramani</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<biblScope unit="volume">521</biblScope>
+			<biblScope unit="issue">7553</biblScope>
+			<biblScope unit="page">452</biblScope>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">The no-u-turn sampler: adaptively setting path lengths in hamiltonian monte carlo</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Matthew</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><surname>Hoffman</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Gelman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1593" to="1623" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Automatic differentiation variational inference</title>
+		<author>
+			<persName><forename type="first">Alp</forename><surname>Kucukelbir</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dustin</forename><surname>Tran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rajesh</forename><surname>Ranganath</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><surname>Gelman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David</forename><forename type="middle">M</forename><surname>Blei</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="430" to="474" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Scikit-learn: Machine learning in python</title>
+		<author>
+			<persName><forename type="first">Fabian</forename><surname>Pedregosa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gaël</forename><surname>Varoquaux</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexandre</forename><surname>Gramfort</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vincent</forename><surname>Michel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bertrand</forename><surname>Thirion</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Olivier</forename><surname>Grisel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mathieu</forename><surname>Blondel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Peter</forename><surname>Prettenhofer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ron</forename><surname>Weiss</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vincent</forename><surname>Dubourg</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of machine learning research</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page" from="2825" to="2830" />
+			<date type="published" when="2011-10">Oct. 2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Probabilistic programming in python using pymc3</title>
+		<author>
+			<persName><forename type="first">John</forename><surname>Salvatier</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Thomas</forename><forename type="middle">V</forename><surname>Wiecki</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Christopher</forename><surname>Fonnesbeck</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">PeerJ Computer Science</title>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="page">55</biblScope>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<title level="m" type="main">Theano: A Python framework for fast computation of mathematical expressions</title>
+		<author>
+			<orgName type="collaboration">Theano Development Team</orgName>
+		</author>
+		<idno>abs/1605.02688</idno>
+		<ptr target="http://arxiv.org/abs/1605.02688" />
+		<imprint>
+			<date type="published" when="2016-05">May 2016</date>
+		</imprint>
+	</monogr>
+	<note>arXiv e-prints</note>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

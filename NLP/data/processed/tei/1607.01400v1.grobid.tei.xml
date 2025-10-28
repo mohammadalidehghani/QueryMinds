@@ -1,0 +1,845 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">An Aggregate and Iterative Disaggregate Algorithm with Proven Optimality in Machine Learning</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2016-02-25">Feb 25, 2016</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Young</forename><forename type="middle">Woong</forename><surname>Park</surname></persName>
+							<email>ywpark@smu.edu</email>
+							<affiliation key="aff0">
+								<orgName type="institution" key="instit1">Cox School of Business</orgName>
+								<orgName type="institution" key="instit2">Southern Methodist University</orgName>
+								<address>
+									<settlement>Dallas</settlement>
+									<region>TX</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Diego</forename><surname>Klabjan</surname></persName>
+							<email>d-klabjan@northwestern.edu</email>
+							<affiliation key="aff1">
+								<orgName type="department">Department of Industrial Engineering and Management Sciences</orgName>
+								<orgName type="institution">Northwestern University</orgName>
+								<address>
+									<settlement>Evanston</settlement>
+									<region>IL</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<affiliation key="aff2">
+								<orgName type="institution">Northwestern University</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main">An Aggregate and Iterative Disaggregate Algorithm with Proven Optimality in Machine Learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2016-02-25">Feb 25, 2016</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">1435CB5503B9A5C118C60816F84CA103</idno>
+					<idno type="arXiv">arXiv:1607.01400v1[stat.ML]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:04+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>We propose a clustering-based iterative algorithm to solve certain optimization problems in machine learning, where we start the algorithm by aggregating the original data, solving the problem on aggregated data, and then in subsequent steps gradually disaggregate the aggregated data. We apply the algorithm to common machine learning problems such as the least absolute deviation regression problem, support vector machines, and semi-supervised support vector machines. We derive model-specific data aggregation and disaggregation procedures. We also show optimality, convergence, and the optimality gap of the approximated solution in each iteration. A computational study is provided.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>In this paper, we propose a clustering-based iterative algorithm to solve certain optimization problems in machine learning when data size is large and thus it becomes impractical to use out-of-the-box algorithms. We rely on the principle of data aggregation and then subsequent disaggregations. While it is standard practice to aggregate the data and then calibrate the machine learning algorithm on aggregated data, we embed this into an iterative framework where initial aggregations are gradually disaggregated to the extent that even an optimal solution is obtainable.</p><p>Early studies in data aggregation consider transportation problems <ref type="bibr" target="#b0">[1,</ref><ref type="bibr" target="#b9">10]</ref>, where either demand or supply nodes are aggregated. Zipkin <ref type="bibr" target="#b30">[31]</ref> studied data aggregation for linear programming (LP) and derived error bounds of the approximate solution. There are also studies on data aggregation for 0-1 integer programming <ref type="bibr" target="#b7">[8,</ref><ref type="bibr" target="#b12">13]</ref>. The reader is referred to Rogers et al <ref type="bibr" target="#b21">[22]</ref> and Litvinchev and Tsurkov <ref type="bibr" target="#b15">[16]</ref> for comprehensive literature reviews for aggregation techniques applied for optimization problems.</p><p>For support vector machines (SVM), there exist several works using the concept of clustering or data aggregation. Evgeniou and Pontil <ref type="bibr" target="#b10">[11]</ref> proposed a clustering algorithm that creates large size clusters for entries surrounded by the same class and small size clusters for entries in the mixed-class area. The clustering algorithm is used to preprocess the data and the clustered data is used to solve the problem. The algorithm tends to create large size clusters for entries far from the decision boundary and small size clusters for the other case. Wang et al <ref type="bibr" target="#b25">[26]</ref> developed screening rules for SVM to discard non-support vectors that do not affect the classifier. Nath et al <ref type="bibr" target="#b18">[19]</ref> and Doppa et al <ref type="bibr" target="#b8">[9]</ref> proposed a second order cone programming (SOCP) formulation for SVM based on chance constraints and clusters. The key idea of the SOCP formulations is to reduce the number of constraints (from the number of the entries to number of clusters) by defining chance constraints for clusters.</p><p>After obtaining an approximate solution by solving the optimization problem with aggregated data, a natural attempt is to use less-coarsely aggregated data, in order to obtain a finer approximation. In fact, we can do this iteratively: modify the aggregated data in each iteration based on the information at hand. This framework, which iteratively passes information between the original problem and the aggregated problem <ref type="bibr" target="#b21">[22]</ref>, is known as Iterative Aggregation Disaggregation (IAD). The IAD framework has been applied for several optimization problems such as LP <ref type="bibr" target="#b16">[17,</ref><ref type="bibr" target="#b23">24,</ref><ref type="bibr" target="#b24">25]</ref> and network design <ref type="bibr" target="#b1">[2]</ref>. In machine learning, Yu et al <ref type="bibr" target="#b27">[28,</ref><ref type="bibr" target="#b28">29]</ref> used hierarchical micro clustering and a clustering feature tree to obtain an approximate solution for support vector machines.</p><p>In this paper, we propose a general optimization algorithm based on clustering and data aggregation, and apply it to three common machine learning problems: least absolute deviation regression (LAD), SVM, and semi-supervised support vector machines (S 3 VM). The algorithm fits the IAD framework, but has additional properties shown for the selected problems in this paper. The ability to report the optimality gap and monotonic convergence to global optimum are features of our algorithm for LAD and SVM, while our algorithm guarantees optimality for S 3 VM without monotonic convergence. Our work for SVM is distinguished from the work of Yu et al <ref type="bibr" target="#b27">[28,</ref><ref type="bibr" target="#b28">29]</ref>, as we iteratively solve weighted SVM and guarantee optimality, whereas they iteratively solve the standard unweighted SVM and thus find only an approximate solution. On the other hand, it is distinguished from Evgeniou and Pontil <ref type="bibr" target="#b10">[11]</ref>, as our algorithm is iterative and guarantees global optimum, whereas they used clustering to preprocess data and obtain an approximate optimum. Nath et al <ref type="bibr" target="#b18">[19]</ref> and Doppa et al <ref type="bibr" target="#b8">[9]</ref> are different because we use the typical SVM formulation within an iterative framework, whereas they propose an SOCP formulation based on chance constraints.</p><p>Our data disaggregation and cluster partitioning procedure is based on the optimality condition derived in this paper: relative location of the observations to the hyperplane (for LAD, SVM, S 3 VM) and labels of the observations (for SVM, S 3 VM). For example, in the SVM case, if the separating hyperplane divides a cluster, the cluster is split. The condition for S 3 VM is even more involved since a single cluster can be split into four clusters. In the computational experiment, we show that our algorithm outperforms the current state-of-the-art algorithms when the data size is large. The implementation of our algorithms is based on in-memory processing, however the algorithms work also when data does not fit entirely in memory and has to be read from disk in batches. The algorithms never require the entire data set to be processed at once. Our contributions are summarized as follows.</p><p>1. We propose a clustering-based iterative algorithm to solve certain optimization problems, where an optimality condition is derived for each problem. The proposed algorithmic framework can be applied to other problems with certain structural properties (even outside of machine learning). The algorithm is most beneficial when the time complexity of the original optimization problem is high. 2. We present model specific disaggregation and cluster partitioning procedures based on the optimality condition, which is one of the keys for achieving optimality. 3. For the selected machine learning problems, i.e., LAD and SVM, we show that the algorithm monotonically converges to a global optimum, while providing the optimality gap in each iteration. For S 3 VM, we provide the optimality condition.</p><p>We present the algorithmic framework in Section 2 and apply it to LAD, SVM, and S 3 VM in Section 3. A computational study is provided in Section 4, followed by a discussion on the characteristic of the algorithm and how to develop the algorithm for other problems in Section 5.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Algorithm: Aggregate and Iterative Disaggregate (AID)</head><p>We start by defining a few terms. A data matrix consists of entries (rows) and attributes (columns). A machine learning optimization problem needs to be solved over the data matrix. When the entries of the original data are partitioned into several sub-groups, we call the sub-groups clusters and we require every entry of the original data to belong to exactly one cluster. Based on the clusters, an aggregated entry is created for each cluster to represent the entries in the cluster. This aggregated entry (usually the centroid) represents one cluster, and all aggregated entries are considered in the same attribute space as the entries of the original data. The notion of the aggregated data refers to the collection of the aggregated entries. The aggregated problem is a similar optimization problem to the original optimization problem, based on the aggregated data instead of the original data. Declustering is the procedure of partitioning a cluster into two or more sub-clusters.</p><p>We consider optimization problems of the type min</p><formula xml:id="formula_0">x,y n i=1 f i (x i ) + f (y) s.t. g 1 i (x i , y) ≥ 0, for every i = 1, • • • , n, g 2 i (x i ) ≥ 0, for every i = 1, • • • , n, g(y) ≥ 0, (<label>1</label></formula><formula xml:id="formula_1">)</formula><p>where n is the number of entries of x, x i is i th entry of x, and arbitrary functions f i , g 1 i , and g 2 i are defined for every i = 1, • • • , n. One of the common features of such problems is that the data associated with x is aggregated in practice and an approximate solution can be easily obtained. Well-known problems such as LAD, SVM, and facility location fall into this category. The focus of our work is to design a computationally tractable algorithm that actually yields an optimal solution in a finite number of iterations.</p><p>Our algorithm needs four components tailored to a particular optimization problem or a machine learning model.</p><p>1. A definition of the aggregated data is needed to create aggregated entries. 2. Clustering and declustering procedures (and criteria) are needed to cluster the entries of the original data and to decluster the existing clusters. 3. An aggregated problem (usually weighted version of the problem with the aggregated data) should be defined. 4. An optimality condition is needed to determine whether the current solution to the aggregated problem is optimal for the original problem.</p><p>The overall algorithm is initialized by defining clusters of the original entries and creating aggregated data. In each iteration, the algorithm solves the aggregated problem. If the obtained solution to the aggregated problem satisfies the optimality condition, then the algorithm terminates with an optimal solution to the original problem. Otherwise, the selected clusters are declustered based on the declustering criteria and new aggregated data is created. The algorithm continues until the optimality condition is satisfied. We refer to this algorithm, which is summarized in Algorithm 1, as Aggregate and Iterative Disaggregate (AID). Observe that the algorithm is finite as we must stop when each cluster is an entry of the original data. In the computational experiment section, we show that in practice the algorithm terminates much earlier.</p><p>Algorithm 1 AID (Aggregate and Iterative Disaggregate)</p><p>1: Create clusters and aggregated data 2: Do 3: Solve aggregated problem 4:</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Check optimality condition</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>5:</head><p>if optimality condition is violated then decluster the clusters and redefine aggregated data 6: While optimality condition is not satisfied</p><p>In Figure <ref type="figure" target="#fig_0">1</ref>, we illustrate the concept of the algorithm. In Figure <ref type="figure" target="#fig_0">1</ref>(a), small circles represent the entries of the original data. They are partitioned into three clusters (large dotted circles), where the crosses represent the aggregated data (three aggregated entries). We solve the aggregated problem with the three aggregated entries in Figure <ref type="figure" target="#fig_16">1(a)</ref>. Suppose that the aggregated solution does not satisfy the optimality condition and that the declustering criteria decide to partition all three clusters. In Figure <ref type="figure" target="#fig_0">1</ref>(b), each cluster in Figure <ref type="figure" target="#fig_0">1</ref>(a) is split into two sub-clusters. Suppose that the optimality condition is satisfied after several iterations. Then, we terminate the algorithm with guaranteed optimality. Figure <ref type="figure" target="#fig_0">1</ref>(c) represents possible final clusters after several iterations from Figure <ref type="figure" target="#fig_16">1(b)</ref>. Observe that some of the clusters in Figure <ref type="figure" target="#fig_0">1</ref>(b) remain the same in Figure <ref type="figure" target="#fig_0">1</ref>(c), due to the fact that we selectively decluster.</p><p>We use the following notation in subsequent sections.</p><formula xml:id="formula_2">I = {1,</formula><p>2, • • • , n}: Index set of entries, where n is the number of entries (observations) J = {1, 2, • • • , m}: Index set of attributes, where m is the number of attributes K t = {1, 2, • • • , |K t |}: Index set of the clusters in iteration t </p><formula xml:id="formula_3">C t = {C t 1 , C t 2 , • • • , C t |K t | }: Set of clusters in iteration t,</formula><p>where C t k is a subset of I for any k in K t T : Last iteration of the algorithm when the optimality condition is satisfied 3 AID for Machine Learning Problems</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Least Absolute Deviation Regression</head><p>The multiple linear least absolute deviation regression problem (LAD) can be formulated as</p><formula xml:id="formula_4">E * = min β∈R m i∈I |y i - j∈J x ij β j |,<label>(2)</label></formula><formula xml:id="formula_5">where x = [x ij ] ∈ R n×m is the explanatory variable data, y = [y i ] ∈ R n</formula><p>is the response variable data, and β ∈ R m is the decision variable. Since the objective function of ( <ref type="formula" target="#formula_4">2</ref>) is the summation of functions over all i in I, LAD fits (1), and we can use AID.</p><p>Let us first define the clustering method. Given target number of clusters |K 0 |, any clustering algorithm can be used to partition n entries into</p><formula xml:id="formula_6">|K 0 | initial clusters C 0 = {C 0 1 , C 0 2 , • • • , C 0 |K 0 | }. Given C t in iteration t, for each k ∈ K t ,</formula><p>we generate aggregated data by x t kj = i∈C t k x ij |C t k | , for all j ∈ J, and y t k = i∈C t k yi |C t k | , where x t ∈ R |K t |×m and y t ∈ R |K t |×1 . To balance the clusters with different cardinalities, we give weight |C t k | to the absolute error associated with C t k . Hence, we solve the aggregated problem</p><formula xml:id="formula_7">F t = min β t ∈R m k∈K t |C t k ||y t k - j∈J x t kj β t j |.<label>(3)</label></formula><p>Observe that any feasible solution to (3) is a feasible solution to <ref type="bibr" target="#b1">(2)</ref>. Let βt be an optimal solution to (3). Then, the objective function value of βt to <ref type="bibr" target="#b1">(2)</ref> with the original data is</p><formula xml:id="formula_8">E t = i∈I |y i - j∈J x ij βt j |.<label>(4)</label></formula><p>Next, we present the declustering criteria and construction of C t+1 . Given C t and βt , we define the clusters for iteration t + 1 as follows.</p><p>Step</p><formula xml:id="formula_9">1 C t+1 = ∅. Step 2 For each k ∈ K t , Step 2(a) If y i -j∈J x ij βt j for all i ∈ C t k have the same sign, then C t+1 ← C t+1 ∪ {C t k }. Step 2(b) Otherwise, decluster C t k into two clusters: C t k+ = {i ∈ C t k |y i -j∈J x ij βt j &gt; 0} and C t k-= {i ∈ C t k |y i -j∈J x ij βt j ≤ 0}, and set C t+1 ← C t+1 ∪ {C t k+ , C t k-}.</formula><p>The above procedure keeps cluster C t k if all original entries in the clusters are on the same side of the regression hyperplane. Otherwise, the procedure splits C t k into two clusters C t k+ and C t k-, where the two clusters contain original entries on the one and the other side of the hyperplane. It is obvious that this rule implies a finite algorithm.</p><p>In Figure <ref type="figure" target="#fig_2">2</ref>, we illustrate AID for LAD. In Figure <ref type="figure" target="#fig_2">2</ref>(a), the small circles and crosses represent the original and aggregated entries, respectively, where the large dotted circles are the clusters associated with the aggregated entries. The straight line represents the regression line βt obtained from an optimal solution to (3). In Figure <ref type="figure" target="#fig_2">2</ref>(b), the shaded and empty circles are the original entries below and above the regression line, respectively. Observe that two clusters have original entries below and above the regression line. Hence, we decluster the two clusters based on the declustering criteria and obtain new clusters and aggregated data for the next iteration in Figure <ref type="figure" target="#fig_2">2(c</ref>).  Now we are ready to present the optimality condition and show that βt is an optimal solution to (2) when the optimality condition is satisfied. The optimality condition presented in the following proposition is closely related to the clustering criteria. Proposition 1. If y i -j∈J x ij βt j for all i ∈ C t k have the same sign for all k ∈ K t , then βt is an optimal solution to (2). In other words, if all entries in C t k are on the same side of the hyperplane defined by βt for all k ∈ K t , then βt is an optimal solution to (2). Further, E t = F t .</p><p>Proof. Let β * be an optimal solution to <ref type="bibr" target="#b1">(2)</ref>. Then, we derive</p><formula xml:id="formula_10">E * = i∈I |y i - j∈J x ij β * j | = k∈K t i∈C t k |y i - j∈J x ij β * j | ≥ k∈K t | i∈C t k y i - j∈J x ij β * j | = k∈K t |C t k ||y t k - j∈J x t kj β * j | ≥ k∈K t |C t k ||y t k - j∈J x t kj βt j | = k∈K t | i∈C t k y i - i∈C t k j∈J x ij βt j | = k∈K t i∈C t k |y i - j∈J x ij βt j | = i∈I |y i - j∈J x ij βt j | = E t ,</formula><p>where the third line holds since βt is optimal to (3) and the fourth line is based on the condition that all observations in C t k are on the same side of the hyperplane defined by βt , for all k ∈ K t . Since βt is feasible to <ref type="bibr" target="#b1">(2)</ref>, clearly E * ≤ E t , which shows E * = E t . This implies that βt is an optimal solution to (2). Observe that k∈K t |C t k ||y t k -j∈J x t kj βt j | in the fifth line is equivalent to F t . Hence, we also showed E t = F t by the fifth to ninth lines.</p><p>We also show the non-decreasing property of F t in t and the convergence.</p><formula xml:id="formula_11">Proposition 2. We have F t-1 ≤ F t for t = 1, • • • , T . Further, F T = E T = E * .</formula><p>Proof. For simplicity, let us assume that {C t-1</p><formula xml:id="formula_12">1 } = C t-1 \ C t , {C t 1 , C t 2 } = C t \ C t-1 , and C t-1 1 = C t 1 ∪ C t 2 . That is, C t-1 1</formula><p>is the only cluster in C t-1 such that the entries in C t-1 1 have both positive and negative signs, and C t-1 1 is partitioned into C t 1 and C t 2 for iteration t. Then, we derive</p><formula xml:id="formula_13">F t-1 = C t-1 1 y t-1 1 - j∈J x t-1 1j βt-1 j + k∈K t-1 \{1} C t-1 k y t-1 k - j∈J x t-1 kj βt-1 j ≤ C t-1 1 y t-1 1 - j∈J x t-1 1j βt j + k∈K t-1 \{1} C t-1 k y t-1 k - j∈J x t-1 kj βt j = i∈C t-1 1 y i - i∈C t-1 1 j∈J x ij βt j + k∈K t-1 \{1} C t-1 k y t-1 k - j∈J x t-1 kj βt j = i∈C t 1 y i - i∈C t 1 j∈J x ij βt j + i∈C t 2 y i - i∈C t 2 j∈J x ij βt j + k∈K t-1 \{1} C t-1 k y t-1 k - j∈J x t-1 kj βt j ≤ i∈C t 1 y i - i∈C t 1 j∈J x ij βt j + i∈C t 2 y i - i∈C t 2 j∈J x ij βt j + k∈K t-1 \{1} C t-1 k y t-1 k - j∈J x t-1 kj βt j = C t 1 y t 1 - j∈J x t 1j βt j + C t 2 y t 2 - j∈J x t 2j βt j + k∈K t-1 \{1} C t-1 k y t-1 k - j∈J x t-1 kj βt j = C t 1 y t 1 - j∈J x t 1j βt j + C t 2 y t 2 - j∈J x t 2j βt j + k∈K t \{1,2} C t k y t k - j∈J x t kj βt j = F t ,</formula><p>where the second line holds since βt-1 is an optimal solution to the aggregate problem in iteration t -1, and the seventh line follows from the fact that there exist q</p><formula xml:id="formula_14">∈ K t-1 \ {1} and k ∈ K t \ {1, 2} such that C t-1 q = C t k .</formula><p>For the cases with multiple clusters in t are declustered, we can use the similar technique. This completes the proof.</p><p>By Proposition 2, in any iteration, F t can be interpreted as a lower bound to <ref type="bibr" target="#b1">(2)</ref>. Further, the optimality</p><formula xml:id="formula_15">gap E best -F t E best is non-increasing in t, where E best = min s=1,••• ,t {E s }.</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Support Vector Machines</head><p>One of the most popular forms of support vector machines (SVM) includes a kernel satisfying the Mercer's theorem <ref type="bibr" target="#b17">[18]</ref> and soft margin. Let φ : x i ∈ R m → φ(x i ) ∈ R m be the mapping function that maps from the m-dimensional original feature space to m -dimensional new feature space. Then, the primal optimization problem for SVM is written as</p><formula xml:id="formula_16">E * = min w,b,ξ 1 2 w 2 + M ξ 1 s.t. y i (wφ(x i ) + b) ≥ 1 -ξ i , ξ i ≥ 0, i ∈ I,<label>(5)</label></formula><p>where x = [x ij ] ∈ R n×m is the feature data, y = [y i ] ∈ {-1, 1} n is the class (label) data, and w ∈ R m , b ∈ R, and ξ ∈ R n + are the decision variables, and the corresponding dual optimization problem is written as</p><formula xml:id="formula_17">max i∈I α i - 1 2 i,j∈I K(x i , x j )α i α j y i y j s.t. i∈I α i y i = 0, 0 ≤ α i ≤ M, i ∈ I,<label>(6)</label></formula><p>where K(x i , x j ) = φ(x i ), φ(x j ) is the kernel function. In this case, φ(x i ) in ( <ref type="formula" target="#formula_16">5</ref>) can be interpreted as new data in m -dimensional feature space with linear kernel. Hence, without loss of generality, we derive all of our findings in this section for <ref type="bibr" target="#b4">(5)</ref> with the linear kernel, while all of the results hold for any kernel function satisfying the Mercer's theorem. However, in Appendix B, we also describe AID with direct use of the kernel function.</p><p>By using the linear kernel, ( <ref type="formula" target="#formula_16">5</ref>) is simplified as</p><formula xml:id="formula_18">E * = min w,b,ξ 1 2 w 2 + M ξ 1 s.t. y i (wx i + b) ≥ 1 -ξ i , ξ i ≥ 0, i ∈ I,<label>(7)</label></formula><p>where w ∈ R m . Since • 1 in the objective function of <ref type="bibr" target="#b6">(7)</ref> is the summation of the absolute values over all i in I and the constraints are defined for each i in I, SVM fits <ref type="bibr" target="#b0">(1)</ref>. Hence, we apply AID to solve <ref type="bibr" target="#b6">(7)</ref>.</p><p>Let us first define the clustering method. The algorithm maintains that the observations i 1 and i 2 with different labels (y i1 = y i2 ) cannot be in the same cluster. We first cluster all data i with y i = 1, and then we cluster those with y i = -1. Thus we run the clustering algorithm twice. This gives initial clusters</p><formula xml:id="formula_19">C 0 = {C 0 1 , C 0 2 , • • • , C 0 |K 0 | }. Given C t in</formula><p>iteration t, for each k ∈ K t , we generate aggregated data by x t k = i∈C t k x i |C t k | and y t k = i∈C t k yi |C t k | ∈ {-1, 1}, where x t ∈ R |K t |×m and y t ∈ {-1, 1} |K t | . Note that, since we create a cluster with observations with the same label, we have y t k = y i for all i ∈ C t k . (8) By giving weight |C t k | to ξ t k , we obtain</p><formula xml:id="formula_20">F t = min w t ,b t ,ξ t 1 2 w t 2 + M k∈K t |C t k |ξ t k s.t. y t k w t x t k + b t ≥ 1 -ξ t k , ξ t k ≥ 0, k ∈ K t ,<label>(9)</label></formula><p>where</p><formula xml:id="formula_21">w t ∈ R m , b t ∈ R, and ξ t ∈ R |K t | +</formula><p>are the decision variables. Note that ξ in <ref type="bibr" target="#b6">(7)</ref> has size of n, whereas the aggregated data has |K t | entries. Note also that (9) is weighted SVM <ref type="bibr" target="#b26">[27]</ref>, where weight is</p><formula xml:id="formula_22">|C t k | for aggregated entry k ∈ K t .</formula><p>Next we present the declustering criteria and construction of C t+1 . Let (w * , ξ * , b * ) and ( wt , ξt , bt ) be optimal solutions to ( <ref type="formula" target="#formula_18">7</ref>) and ( <ref type="formula" target="#formula_20">9</ref>), respectively. Given C t and ( wt , ξt , bt ), we define the clusters for iteration t + 1 as follows.</p><p>Step</p><formula xml:id="formula_23">1 C t+1 ← ∅. Step 2 For each k ∈ K t , Step 2(a) If (i) 1 -y i ( wt x i + bt ) ≤ 0 for all i ∈ C t k or (ii) 1 -y i ( wt x i + bt ) &gt; 0 for all i ∈ C t k , then C t+1 ← C t+1 ∪ {C t k }. Step 2(b) Otherwise, decluster C t k into two clusters: C t k+ = {i ∈ C t k |1 -y i ( wt x i + bt ) &gt; 0} and C t k-= {i ∈ C t k |1 -y i ( wt x i + bt ) ≤ 0}, and set C t+1 ← C t+1 ∪ {C t k+ , C t k-}.</formula><p>In Figure <ref type="figure" target="#fig_4">3</ref>, we illustrate AID for SVM. In Figure <ref type="figure" target="#fig_4">3</ref>(a), the small white circles and crosses represent the original entries with labels 1 and -1, respectively. The small black circles and crosses represent the aggregated entries, where the large circles are clusters associated with the aggregated entries. The plain line represents the separating hyperplane ( wt , bt ) obtained from an optimal solution to <ref type="bibr" target="#b8">(9)</ref>, where the margins are implied by the dotted lines. The shaded large circles represent the clusters violating the optimality condition in Proposition 3. In Figure <ref type="figure" target="#fig_4">3</ref>(b), below the bottom dotted line is the area such that observations with label 1 (circles) have zero error and above the top dotted line is the area such that observations with label -1 (crosses) have zero error. Observe that two clusters have original entries below and above the corresponding dotted lines. Based on the declustering criteria, the two clusters are declustered and we obtain new clusters in Figure <ref type="figure" target="#fig_4">3(c)</ref>.</p><p>Note that a feasible solution to <ref type="bibr" target="#b6">(7)</ref> does not have the same dimension as a feasible solution to <ref type="bibr" target="#b8">(9)</ref>. In order to analyze the algorithm, we convert feasible solutions to <ref type="bibr" target="#b6">(7)</ref> and <ref type="bibr" target="#b8">(9)</ref> to feasible solutions to ( <ref type="formula" target="#formula_20">9</ref>) and <ref type="bibr" target="#b6">(7)</ref>, respectively.  1. Conversion from (7) to (9) Given a feasible solution (w, b, ξ) <ref type="formula" target="#formula_20">9</ref>) as follows: w t := w, b t := b, and <ref type="formula" target="#formula_20">9</ref>) to <ref type="bibr" target="#b6">(7)</ref> Given a feasible solution (w <ref type="formula" target="#formula_18">7</ref>) as follows: w := w t , b := b t , and</p><formula xml:id="formula_24">∈ (R m , R, R n + ) to (7), we define a feasible solution (w t , b t , ξ t ) ∈ (R m , R, R |K t | + ) to (</formula><formula xml:id="formula_25">ξ t k := i∈C t k ξi |C t k | for k ∈ K t . 2. Conversion from (</formula><formula xml:id="formula_26">t , b t , ξ t ) ∈ (R m , R, R |K t | + ) to (9), we define a feasible solution (w, b, ξ) ∈ (R m , R, R n + ) to (</formula><formula xml:id="formula_27">ξ i := max{0, 1 -y i (w t x i + b t )} for i ∈ I.</formula><p>Given an optimal solution (w * , b * , ξ * ) to <ref type="bibr" target="#b6">(7)</ref>, by using the above mappings, we denote by ( ŵ * , b * , ξ * ) the corresponding feasible solution to <ref type="bibr" target="#b8">(9)</ref>. Likewise, given an optimal solution ( wt , bt , ξt ) to ( <ref type="formula" target="#formula_20">9</ref>), we denote by ( ŵt , bt , ξt ) the corresponding feasible solution to <ref type="bibr" target="#b6">(7)</ref>. The objective function value of ( ŵt , bt , ξt ) to ( <ref type="formula" target="#formula_18">7</ref>) is evaluated by</p><formula xml:id="formula_28">E t = 1 2 ŵt 2 + M ξt 1 .<label>(10)</label></formula><p>In Propositions 3 and 4, we present the optimality condition and monotone convergence property.</p><formula xml:id="formula_29">Proposition 3. For all k ∈ K t , if (i) 1 -y i ( wt x i + bt ) ≤ 0 for all i ∈ C t k or (ii) 1 -y i ( wt x i + bt ) &gt; 0 for all i ∈ C t k , then ( ŵt , bt , ξt i</formula><p>) is an optimal solution to <ref type="bibr" target="#b6">(7)</ref>. In other words, if all entries in C t k are on the same side of the margin-shifted hyperplane of the separating hyperplane ( wt , bt ), then ( ŵt , bt , ξt i ) is an optimal solution to <ref type="bibr" target="#b6">(7)</ref>. Further, E t = F t .</p><p>Proof. We can derive</p><formula xml:id="formula_30">1 2 w * 2 + M i∈I ξ * i = 1 2 w * 2 + M k∈K t |C t k | i∈C t k ξ * i |C t k | = 1 2 ŵ * 2 + M k∈K t |C t k | ξ * k ≥ 1 2 wt 2 + M k∈K t |C t k | ξt k 1 2 w * 2 + M i∈I ξ * i = 1 2 wt 2 + M k∈K t max{0, |C t k | -|C t k |y t k ( wt x t k + bt )} = 1 2 wt 2 + M k∈K t max{0, |C t k | -y t k wt i∈C t k x i -y t k |C t k | bt } = 1 2 wt 2 + M k∈K t max 0, i∈C t k [1 -y i ( wt x i + bt )] = 1 2 wt 2 + M k∈K t i∈C t k max{0, 1 -y i ( wt x i + bt )} = 1 2 ŵt 2 + M k∈K t i∈C t k ξt i ≥ 1 2 w * 2 + M i∈I ξ * i ,</formula><p>where the second line follows from the definition of ξ * k , the third line holds since ( wt , bt , ξt ) is an optimal solution to (9), the fourth line is by the definition of ξt , the fifth line is by the definition of x t k , the eighth line is true because of the assumption such that all observations are on the same side of the margin-shifted hyperplane of the separating hyperplane (optimality condition), and the last line holds since (w * , b * , ξ * ) is an optimal solution to <ref type="bibr" target="#b6">(7)</ref>. Observe that the inequalities above must hold at equality. This implies that ( ŵt , bt , ξt i ) is an optimal solution to <ref type="bibr" target="#b6">(7)</ref>.</p><p>Because ( ŵt , bt ) defines an optimal hyperplane, we are also able to obtain the corresponding dual optimal solution αt ∈ R n for (6). However, unlike primal optimal solutions, αt cannot be directly constructed from dual solution ᾱt ∈ R |K t | of ( wt , bt ) for the aggregated problem within the current settings. Within a modified setting presented later in this section, we can explain the relationship between ᾱt and αt , modified optimality condition, declustering procedure, and the construction of αt based on ᾱt .</p><formula xml:id="formula_31">Proposition 4. We have F t-1 ≤ F t for t = 1, • • • , T . Further, F T = E T = E * .</formula><p>Proof. Recall that ( wt , bt , ξt ) is an optimal solution to (9) with aggregated data x t and y t . Let ( wt-1 , bt-1 , ξt-1 ) be a feasible solution to <ref type="bibr" target="#b8">(9)</ref> with aggregated data x t-1 and y t-1 such that wt-1 = wt , bt-1 = bt , and ξt-1 = max{0, 1 -y t-1 k ( wt</p><formula xml:id="formula_32">x t-1 k + bt )} for k ∈ K t-1 .</formula><p>In other words, ( wt-1 , bt-1 , ξt-1 ) is a feasible solution to <ref type="bibr" target="#b8">(9)</ref> with aggregated data x t-1 and y t-1 , but generated based on ( wt , bt , ξt ). For simplicity, let us assume that {C t-1</p><formula xml:id="formula_33">1 } = C t-1 \ C t , {C t 1 , C t 2 } = C t \ C t-1 , and C t-1 1 = C t 1 ∪ C t 2 .</formula><p>The cases such that more than one cluster of C t-1 are declustered in iteration t can be derived using the same technique.</p><p>Observe that there exists a pair (q, k), q</p><formula xml:id="formula_34">∈ K t-1 \ {1} and k ∈ K t \ {1, 2} such that ξt-1 q = ξt k<label>(11)</label></formula><p>for all q in K t-1 \ {1} and the match between K t-1 \ {1} and K t \ {1, 2} is one-to-one. This is because the aggregated data for these clusters remains same and the hyper-plane used, ( wt-1 , bt-1 ) and ( wt , bt ), are the same. Hence, we derive</p><formula xml:id="formula_35">F t-1 = 1 2 wt-1 2 + M |C t-1 1 | ξt-1 1 + M k∈K t-1 \{1} |C t-1 k | ξt-1 k ≤ 1 2 wt-1 2 + M |C t-1 1 | ξt-1 1 + M k∈K t-1 \{1} |C t-1 k | ξt-1 k F t-1 ≤ 1 2 wt 2 + M |C t-1 1 | ξt-1 1 + M k∈K t \{1,2} |C t k | ξt k ≤ 1 2 wt 2 + M |C t 1 | ξt 1 + M |C t 2 | ξt 2 + M k∈K t \{1,2} |C t k | ξt k F t-1 = 1 2 wt 2 + M k∈K t |C t k | ξt k = F t ,</formula><p>where the first inequality holds because wt-1 , bt-1 , ξt-1 is an optimal solution to (9) with aggregated data x t-1 and y t-1 , the second inequality follows by the fact that wt-1 = wt and by <ref type="bibr" target="#b10">(11)</ref>, and the last inequality is true because</p><formula xml:id="formula_36">|C t-1 1 | ξt-1 1 = |C t-1 1 | max 0, 1 -y t-1 1 ( wt x t-1 1 + bt ) = |C t-1 1 | max 0, 1 -y t-1 1 ( wt x t-1 1 + bt ) = max 0, |C t-1 1 | -|C t-1 1 |y t-1 1 wt x t-1 1 -|C t-1 1 |y t-1 1 bt = max 0, |C t 1 | + |C t 2 | -y t-1 1 wt ( i∈C t 1 x i + i∈C t 2 x i ) -|C t 1 |y t 1 bt -|C t 2 |y t 2 bt |C t-1 1 | ξt-1 1 = max 0, |C t 1 | -|C t 1 |y t 1 wt x t 1 -|C t 1 |y t 1 bt + |C t 2 | -|C t 2 |y t 2 wt x t 2 -|C t 2 |y t 2 bt ≤ max 0, |C t 1 | -|C t 1 |y t 1 wt x t 1 -|C t 1 |y t 1 bt + max 0, |C t 2 | -|C t 2 |y t 2 wt x t 2 -|C t 2 |y t 2 bt = |C t 1 | max{0, 1 -y t 1 ( wt x t 1 + bt )} + |C t 2 | max{0, 1 -y t 2 ( wt x t 2 + bt )} = |C t 1 | ξt 1 + |C t 2 | ξt 2 .</formula><p>where the fourth line holds by (i</p><formula xml:id="formula_37">) |C t-1 1 | = |C t 1 | + |C t 2 |,(ii) y t 1 = y t 2 = y t-1 1</formula><p>(by ( <ref type="formula">8</ref>)), and (iii) by the definition of x t-1 1 , and the fifth line holds due to the definition of x t 1 and x t 2 . This completes the proof.</p><p>So far, we have explained the algorithm based on the primal formulation of SVM. However, we can also explain the relationship between the dual of the original and aggregated problems by proposing a modified procedure. Let us divide observations in C t k into three sets. 1. 1 -y i ( wt</p><formula xml:id="formula_38">x i + bt ) &lt; 0 for i ∈ C t k 2. 1 -y i ( wt x i + bt ) = 0 for i ∈ C t k 3. 1 -y i ( wt x i + bt ) &gt; 0 for i ∈ C t k</formula><p>These three sets correspond to the following three cases for the original data given hyperplane ( wt , bt ) from an optimal solution of (9). 1. Observations correctly classified: 1 -y i ( wt x i + bt ) &lt; 0 and ξt i = 0 in <ref type="bibr" target="#b6">(7)</ref> and αi = 0 in the dual of ( <ref type="formula" target="#formula_18">7</ref>)</p><p>2. Observations on the hyperplane: 1 -y i ( wt x i + bt ) = 0 and ξt i = 0 in (7) and 0 &lt; αi &lt; M in the dual of (7) 3. Observations in the margin or misclassified: 1 -y i ( wt x i + bt ) &gt; 0 and ξt i &gt; 0 in <ref type="bibr" target="#b6">(7)</ref> and αi = M in the dual of <ref type="bibr" target="#b6">(7)</ref> Suppose we are given ᾱt , a dual optimal solution that corresponds to ( wt , bt ). Then we can construct dual optimal solution αt for the original problem from ᾱt by</p><formula xml:id="formula_39">αt i = ᾱt |C k | for i ∈ C t k , k ∈ K t .</formula><p>With this definition, now all original observations in a cluster belong to exactly one of the three categories above.</p><p>We first show that αt is a feasible solution. Let us consider cluster k ∈ K t . We derive</p><formula xml:id="formula_40">i∈C t k αt i y i = i∈C t k αt i y k = i∈C t k ᾱt k |C t k | y k = y k |C t k | ᾱt k |C t k | = y k ᾱt k ,</formula><p>where the first equality holds because all labels are the same for a cluster and the second equality is obtained by plugging the definition of αt i . Because y k ᾱt k = i∈C t k αt i y i and k∈K t y k ᾱt k = 0, we conclude that αt is a feasible solution to <ref type="bibr" target="#b5">(6)</ref>.</p><p>In order to show optimality, we show that αt and ᾱt give the same hyperplane. Let us consider cluster k ∈ K t . We derive</p><formula xml:id="formula_41">i∈C t k αt i y i x i = i∈C t k αt i y k x i = i∈C t k ᾱt k |C t k | y k x i = ᾱt k y k i∈C t k xi |C t k | = ᾱt k y k x t k ,</formula><p>where the first equality holds because all labels are the same for a cluster, the second equality is obtained by plugging the definition of αt i , and the last equality is due to the definition of</p><formula xml:id="formula_42">x t k . Because ᾱt k y k x t k = i∈C t k αt i y i x i</formula><p>, by summing over all clusters, we obtain wt = ᾱt k y k x t k = i∈C t k αt i y i x i = ŵt , which completes the proof.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Semi-Supervised SVM</head><p>The task of semi-supervised learning is to decide classes of unlabeled (unsupervised) observations given some labeled (supervised) observations. Semi-supervised SVM (S 3 VM) is an SVM-based learning model for semi-supervised learning. In S 3 VM, we need to decide classes for unlabeled observations in addition to finding a hyperplane. Let I l = {1, • • • , l} and I u = {l + 1, • • • , n} be the index sets of labeled and unlabeled observations, respectively. The standard S 3 VM with linear kernel is written as the following minimization problem over both the hyperplane parameters (w, b) and the unknown label vector</p><formula xml:id="formula_43">d := [d l+1 • • • d n ], E * = min w,b,d 1 2 w 2 + M l i∈I l max{0, 1 -y i (wx i + b)} + M u i∈Iu max{0, 1 -d i (wx i + b)},<label>(12)</label></formula><p>where  <ref type="formula" target="#formula_43">12</ref>) is rewritten as</p><formula xml:id="formula_44">x = [x ij ] ∈ R n×m is the feature data, y = [y i ] ∈ {-1, 1} l is</formula><formula xml:id="formula_45">E * = min w,ξ,b,d 1 2 w 2 + M l i∈I l ξ i + M u i∈Iu ξ i s.t. y i (wx i + b) ≥ 1 -ξ i , ξ i ≥ 0, i ∈ I l , d i (wx i + b) ≥ 1 -ξ i , ξ i ≥ 0, i ∈ I u .<label>(13)</label></formula><p>Observe that y i , i ∈ I l , is given as data, whereas d i , i ∈ I u , is unknown and decision variable. Note that (13) has non-convex constraints. In order to eliminate the non-convex constraints, Bennett and Demiriz <ref type="bibr" target="#b2">[3]</ref> proposed a mixed integer quadratic programming (MIQP) formulation</p><formula xml:id="formula_46">E * = min w,b,d ξ,η + ,η - 1 2 w 2 + M l i∈I l ξ i + M u i∈Iu η + i + η - i s.t. y i (wx i + b) ≥ 1 -ξ i , ξ i ≥ 0, i ∈ I l , wx i + b + η + i + M (1 -d i ) ≥ 1, i ∈ I u , 0 ≤ η + i ≤ M d i , i ∈ I u , -(wx i + b) + η - i + M d i ≥ 1, i ∈ I u 0 ≤ η - i ≤ M (1 -d i ), i ∈ I u , d i ∈ {0, 1}, i ∈ I u ,<label>(14)</label></formula><p>where M &gt; 0 is a large number and</p><formula xml:id="formula_47">w ∈ R m , b ∈ R, d ∈ {-1, 1} |Iu| , η + ∈ R |Iu| + , η -∈ R |Iu| +</formula><p>are the decision variables. Note that d i in ( <ref type="formula" target="#formula_46">14</ref>) is different from d i in <ref type="bibr" target="#b11">(12)</ref>. In <ref type="bibr" target="#b13">(14)</ref>, if d i = 1 then observation i is in class 1 and if d i = 0 then observation i is in class -1. Note also that, by the objective function, if d i = 1 then η - i becomes 0 and if d i = 0 then η + i becomes 0 at optimum. A Branch-and-Bound algorithm to solve ( <ref type="formula" target="#formula_43">12</ref>) is proposed by Chapelle et al <ref type="bibr" target="#b5">[6]</ref> and an MIQP solver is used to solve <ref type="bibr" target="#b13">(14)</ref> in <ref type="bibr" target="#b2">[3]</ref>. However, both of the works only solve small size problems. See Chapelle et al <ref type="bibr" target="#b6">[7]</ref> for detailed survey of the literature. Observe that ( <ref type="formula" target="#formula_46">14</ref>) fits <ref type="bibr" target="#b0">(1)</ref>. Hence, we use AID to solve ( <ref type="formula" target="#formula_46">14</ref>) with larger size instances, which were not solved by the works in <ref type="bibr" target="#b2">[3,</ref><ref type="bibr" target="#b5">6]</ref>.</p><p>Similar to the approach used to solve SVM in Section 3.1, we define clusters</p><formula xml:id="formula_48">C t = {C t 1 , C t 2 , • • • , C t |K t</formula><p>l | } for the labeled data, where K t l is the index set of the clusters of labeled data in iteration t and each cluster contains observations with same label. In addition, we have clusters for the unlabeled data</p><formula xml:id="formula_49">D t = {D t 1 , D t 2 , • • • , D t |K t u | },</formula><p>where K t u is the index set of the clusters of unlabeled data in iteration t. In the S 3 VM case, initially we need to run a clustering algorithm three times. We generate aggregated data by</p><formula xml:id="formula_50">x t k = i∈C t k xi |C t k | and y t k = i∈C t k yi |C t k | for each k ∈ K t l given C t , x t k = i∈D t k xi |D t k | for each k ∈ K t u given D t .</formula><p>Using the aggregated data, we obtain the aggregated version of (13) as</p><formula xml:id="formula_51">F t = min w t ,ξ t ,b t ,d t 1 2 w 2 + M l k∈K t l |C t k |ξ t k + M u k∈K t u |D t k |ξ t k s.t. y t k (w t x t k + b t ) ≥ 1 -ξ t k , ξ t k ≥ 0, k ∈ K t l , d t k (w t x t k + b t ) ≥ 1 -ξ t k , ξ t k ≥ 0, k ∈ K t u ,<label>(15)</label></formula><p>ywpark where y t k , k ∈ K t l , is known and d t k , k ∈ K t u , is unknown. Observe that (15) can be solved optimally by the Branch-and-Bound algorithm in <ref type="bibr" target="#b5">[6]</ref> or by an MIQP solver.</p><p>In the following lemma, we show that, given an optimal hyperplane (w * , b * ), optimal values of ξ * ∈ R n and d ∈ {0, 1} |Iu| can be obtained.</p><p>Lemma 1. Let (w * , b * , ξ * , d * ) be an optimal solution for <ref type="bibr" target="#b12">(13)</ref>. For i ∈ I u , if ξ * i &gt; 0, then we must have</p><formula xml:id="formula_52">d * i (w * x i + b * ) ≥ 0. For i ∈ I u , if ξ * i = 0 and max{0, 1 -d i (w * x i + b * )} = 0 only for one of d i = 1 or d i = -1, then we must have d * i = 1 if w * x i + b * ≥ 0, d * i = -1 if w * x i + b * &lt; 0.</formula><p>A similar property holds for an optimal solution of the aggregated problem <ref type="bibr" target="#b14">(15)</ref>.</p><p>Proof. Suppose that ξ * i &gt; 0. Hence, we have</p><formula xml:id="formula_53">ξ * i = 1 -d * i (w * x i + b * ) &gt; 0. If w * x i + b * &lt; 0, then setting d * i = -1 decreases ξ * i most because 1 -(-1)(w * x i + b * ) &lt; 1 -(1)(w * x i + b * ). Likewise, if w * x i + b * ≥ 0, then setting d * i = 1 decreases ξ * i .</formula><p>For the analysis, we define the following sets.</p><p>1. For labeled observations in I l , given hyperplane (w, b), let us define subsets of I l .</p><formula xml:id="formula_54">I + (w,b) = {i ∈ I l |1 -y i (wx i + b) &gt; 0} I - (w,b) = {i ∈ I l |1 -y i (wx i + b) ≤ 0} 2.</formula><p>For unlabeled observations in I u , given hyperplane (w, b) and labels d, let us define subsets of I u . Next we present the declustering criteria. Let (w * , b * , ξ * , d * ) and ( wt , bt , ξt , dt ) be optimal solutions to ( <ref type="formula" target="#formula_45">13</ref>) and <ref type="bibr" target="#b14">(15)</ref>, respectively. Given C t and ( wt , bt , ξt , dt ), we define the clusters for iteration t + 1 as follows.</p><formula xml:id="formula_55">I ++ (w,b,d) = {i ∈ I u |1 -d i (wx i + b) &gt; 0, wx i + b &gt; 0} I +- (w,b,d) = {i ∈ I u |1 -d i (wx i + b) &gt; 0, wx i + b ≤ 0} I -+ (w,b,d) = {i ∈ I u |1 -d i (wx i + b) ≤ 0, wx i + b &gt; 0} I -- (w,b,d) = {i ∈ I u |1 -d i (wx i + b) ≤ 0, wx i + b ≤ 0} Note that d i that</formula><p>Step 1</p><formula xml:id="formula_56">C t+1 ← ∅, D t+1 ← ∅ Step 2 For each k ∈ K t l Step 2(a) If 1 -y i ( wt x i + bt ) ≤ 0 for all i ∈ C t k , or if 1 -y i ( wt x i + bt ) ≥ 0 for all i ∈ C t k , then C t+1 ← C t+1 ∪ {C t k } Step 2(b) Otherwise, first, decluster C t k into two clusters: C t k+ = {i ∈ C t k |1 -y i ( wt x i + bt ) &gt; 0} and C t k-= {i ∈ C t k |1 -y i ( wt x i + bt ) ≤ 0}. Next, C t+1 ← C t+1 ∪ {C t k+ , C t k-}. Step 3 For each k ∈ K t u , Step 3(a) Partition D t k into four sub-clusters. D t k++ = {i ∈ D t k |1 -dt k ( wt x i + bt ) &gt; 0, wt x i + bt &gt; 0} = {i ∈ D t k ∩ I ++ ( wt , bt , dt ) } D t k+-= {i ∈ D t k |1 -dt k ( wt x i + bt ) &gt; 0, wt x i + bt ≤ 0} = {i ∈ D t k ∩ I +- ( wt , bt , dt ) } D t k-+ = {i ∈ D t k |1 -dt k ( wt x i + bt ) ≤ 0, wt x i + bt &gt; 0} = {i ∈ D t k ∩ I -+ ( wt , bt , dt ) } D t k--= {i ∈ D t k |1 -dt k ( wt x i + bt ) ≤ 0, wt x i + bt ≤ 0} = {i ∈ D t k ∩ I -- ( wt , bt , dt ) } Step 3(b) If one of D t k++ , D t k+-, D k-+ , and D t k--equals to D t k , then D t+1 ← D t+1 ∪ {D t k }. Otherwise, we set D t+1 ← D t+1 ∪ {D t k++ , D t k+-, D k-+ , D t k--}.</formula><p>Note that any of D t k++ , D t k+-, D t k-+ , or D t k--can be empty. In Figure <ref type="figure" target="#fig_8">4</ref>, we illustrate AID for S 3 VM. As labeled observations follow the illustration in Figure <ref type="figure" target="#fig_4">3</ref>, we only illustrate unlabeled observations. In Figure <ref type="figure" target="#fig_8">4</ref>(a), the small white circles are the original entries and the black circles are the aggregated entries. The plain line represents the separating hyperplane ( wt , bt ) obtained from an optimal solution to <ref type="bibr" target="#b14">(15)</ref>, where the margins are implied by the dotted lines. The original and aggregated observations have been assigned to either + or -(1 or -1, respectively): the labels of aggregated entries are from the optimal solution of the aggregated problem, the labels of the original entries are based on ( wt , bt ) and Lemma 1. Observe that two clusters (gray large circles) violate the optimality conditions. In Figure <ref type="figure" target="#fig_8">4</ref>(b), one of the two violating clusters is partitioned into four subclusters: (i) entries with + labels and under the zero error boundary, (ii) entries with -labels and under the zero error boundary, (iii) entries with + labels and above the zero error boundary, and (iv) entries with -labels and above the zero error boundary. The other cluster is partitioned into two subclusters. Based on the declustering criteria, the two clusters are declustered and we obtain new clusters in Figure <ref type="figure" target="#fig_8">4(c)</ref>. Note that new labels will be decided after solving <ref type="bibr" target="#b14">(15)</ref> with the new aggregated data.</p><p>Note that a feasible solution to <ref type="bibr" target="#b12">(13)</ref> does not have the same dimension as a feasible solution to <ref type="bibr" target="#b14">(15)</ref>. In order to analyze the algorithm, we convert a feasible solution to <ref type="bibr" target="#b14">(15)</ref> to a feasible solution to <ref type="bibr" target="#b12">(13)</ref>. Given a feasible solution (w <ref type="bibr" target="#b12">(13)</ref> as follows.  Using the above procedure, we map an optimal solution ( wt , bt , ξt , dt ) to <ref type="bibr" target="#b14">(15)</ref> to a feasible solution ( ŵt , bt , ξt , dt ) to <ref type="bibr" target="#b12">(13)</ref>. The objective function value of ( ŵt , bt , ξt , dt ) is evaluated by</p><formula xml:id="formula_57">t , b t , ξ t , d t ) ∈ (R m , R, R |K t l |+|K t u | , R |K t u |) to (15), we define a feasible solution (w, b, ξ, d) ∈ (R m , R, R n , R |Iu| ) to</formula><formula xml:id="formula_58">w := w t , b := b t d i = 1, if w t x i + b t &lt; 0, -1, if w t x i + b t ≥ 0, for i ∈ D t k and k ∈ K t u , ξ i := max{0, 1 -y i (w t x i + b t )} for i ∈ I l ξ i := max{0, 1 -d t i (w t x i + b t )</formula><formula xml:id="formula_59">E t = 1 2 ŵt 2 + M l i∈I l ξt i + M u i∈Iu ξt i . (<label>16</label></formula><formula xml:id="formula_60">)</formula><p>We next explain the optimality condition and show its correctness. Let</p><formula xml:id="formula_61">C g = {C g 1 , C g 2 , • • • , C g |K g l | } and D g = {D g 1 , D g 2 , • • • , D g |K g u | }</formula><p>be arbitrary clusters of labeled and unlabeled data where</p><formula xml:id="formula_62">K g l = {1, 2, • • • , |K g l |} and K g u = {1, 2, • • • , |K g u |}</formula><p>are the associated index sets of clusters, respectively. Let us consider the following optimization problem.</p><formula xml:id="formula_63">G * = min w,b,d, C g ,D g 1 2 w 2 + M l i∈I l max{0, 1 -y i (wx i + b)} + M u i∈Iu max{0, 1 -d i (wx i + b)} s.t. C g k ⊆ I + (w,b) or C g k ⊆ I - (w,b) , k ∈ K g l , D g k ⊆ I ++ (w,b,d) or D g k ⊆ I +- (w,b,d) or D g k ⊆ I -+ (w,b,d) or D g k ⊆ I -- (w,b,d) , k ∈ K g u ,<label>(17)</label></formula><p>where w ∈ R m , b ∈ R, d ∈ {-1, 1} |Iu| , and C g and D g are the cluster decision sets. In fact, compare to ( <ref type="formula" target="#formula_43">12</ref>), <ref type="bibr" target="#b16">(17)</ref> has additional constraints and clustering decision to make. Observe that given an optimal solution to (12), we can easily find C g and D g satisfying the constraints in ( <ref type="formula" target="#formula_63">17</ref>) by simply classifying each observation. Hence, it is trivial to see that</p><formula xml:id="formula_64">E * = G * .<label>(18)</label></formula><p>For the analysis, we will use G * and (17) instead of E * and (12), respectively. Next, let us consider the following aggregated problem. Lemma 2. There is a one-to-one correspondence between feasible solutions of ( <ref type="formula" target="#formula_63">17</ref>) and ( <ref type="formula" target="#formula_65">19</ref>) which preserves the objective function value.</p><formula xml:id="formula_65">H * = min w,b,d, C g ,D g 1 2 w 2 + M l k∈K g l |C g k | max{0, 1 -y k (wx k + b)} + M u k∈K g u |D g k | max{0, 1 -d k (wx k + b)} s.t. C g k ⊆ I + (w,b) or C g k ⊆ I - (w,b) , k ∈ K g l , D g k ⊆ I ++ (w,b,d) or D g k ⊆ I +- (w,b,d) or D g k ⊆ I -+ (w,b,d) or D g k ⊆ I -- (w,b,d) , k ∈ K g u , x k = i∈C g k xi |C g k | , y k = i∈C g k yi |C g k | , k ∈ K g l , x k = i∈D g k xi |D g k | , k ∈ K g u ,<label>(19)</label></formula><p>Proof. For k ∈ K g l , we derive</p><formula xml:id="formula_66">i∈C g k max{0, 1 -y i (wx i + b)} = i∈C g k max{0, 1 -y k (wx i + b)} = max{0, i∈C g k 1 -y k (wx i + b) } i∈C g k max{0, 1 -y i (wx i + b)} = max{0, |C g k | -|C g k |y k w i∈C g k xi |C g k | -y k |C g k |b} = |C g k | max{0, 1 -y k (wx k + b)},</formula><p>where the first line holds since all i in C g k have the same label by the initial clustering, the second line holds since</p><formula xml:id="formula_67">C g k ⊆ I + (w,b) or C g k ⊆ I - (w,b)</formula><p>for any k ∈ K g l , and the fourth line follows from the constraint in <ref type="bibr" target="#b18">(19)</ref>. For k ∈ K g u , we derive</p><formula xml:id="formula_68">i∈D g k max{0, 1 -d i (wx i + b)} = i∈D g k max{0, 1 -d k (wx i + b)} = max{0, i∈D g k 1 -d k (wx i + b) } = max{0, |D g k | -|D g k |d k w i∈D g k xi |D g k | -d k |D g k |b} = |D g k | max{0, 1 -d k (wx k + b)},</formula><p>where the first and second lines hold since</p><formula xml:id="formula_69">D g k ⊆ I ++ (w,b,d) or D g k ⊆ I +- (w,b,d) or D g k ⊆ I -+ (w,b,d) or D g k ⊆ I -- (w,b,d)</formula><p>for any k ∈ K g u . Observe that the above two results can be shown in the reverse order. Hence, it is easy to see that there is a one-to-one correspondence between feasible solutions of ( <ref type="formula" target="#formula_63">17</ref>) and ( <ref type="formula" target="#formula_65">19</ref>), and the objective function values of the corresponding feasible solutions are the same.</p><p>Note that Lemma 2 implies that, for an optimal solution of ( <ref type="formula" target="#formula_65">19</ref>), the corresponding solution for ( <ref type="formula" target="#formula_63">17</ref>) is an optimal solution for <ref type="bibr" target="#b16">(17)</ref>. This gives the following corollary.</p><p>Corollary 1. We have G * = H * .</p><p>In Proposition 5, we present the optimality condition. Proposition 5. Let us assume that 1. for all k ∈ K t l , (i) 1 -y i ( wt x i + bt ) ≤ 0 for all i ∈ C t k or (ii) 1 -y i ( wt x i + bt ) ≥ 0 for all i ∈ C t k 2. for all k ∈ K t u , exactly one of the following holds.</p><p>(i) 1 -dt i ( wt x i + bt ) ≤ 0 and wt x i + bt ≤ 0 for all i ∈ D t k (ii) 1 -dt i ( wt x i + bt ) ≤ 0 and wt x i + bt &gt; 0 for all i ∈ D t k (iii) 1 -dt i ( wt x i + bt ) ≥ 0 and wt x i + bt &gt; 0 for all i ∈ D t k (iv) 1 -dt i ( wt x i + bt ) ≥ 0 and wt x i + bt ≤ 0 for all i ∈ D t k Then, ( ŵt , bt , ξt , dt ) is an optimal solution to <ref type="bibr" target="#b12">(13)</ref>. In other words, if (i) all observations in C t k and D t k are on the same side of the margin-shifted hyperplane of the separating hyperplane ( wt , bt ) and (ii) all observations in D t k have the same label, then ( ŵt , bt , ξt , dt ) is an optimal solution to (13). Proof. Observe that the conditions stated match with the definition of and <ref type="figure">I -- (w</ref>,<ref type="figure">b</ref>,<ref type="figure">d</ref>) . Hence, C t and D t satisfy the constraints of ( <ref type="formula" target="#formula_65">19</ref>), which implies that ( wt , bt , ξt , dt ) is an optimal solution to <ref type="bibr" target="#b18">(19)</ref>. By Lemma 2, ( ŵt , bt , ξt , dt ) is an optimal solution to <ref type="bibr" target="#b16">(17)</ref>. Finally, since E * = G * by ( <ref type="formula" target="#formula_64">18</ref>), we conclude that ( ŵt , bt , ξt , dt ) is an optimal solution to (13).</p><formula xml:id="formula_70">I + (w,b) , I - (w,b) , I ++ (w,b,d) , I +- (w,b,d) , I -+ (w,b,d) ,</formula><p>Observe that, unlike LAD and SVM, we do not have the non-decreasing property of F t . Due to binary variable d i , the non-decreasing property of F t no longer holds.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Computational Experiments</head><p>All experiments were performed on Intel Xeon X5660 2.80 GHz dual core server with 32 GB RAM, running Windows Server 2008 64 bit. We implemented AID for LAD and SVM in scripts of R statistics <ref type="bibr" target="#b20">[21]</ref> and Python, respectively, and AID for S 3 VM is implemented in C# with CPLEX.</p><p>For LAD, R statistics package quantreg <ref type="bibr" target="#b13">[14]</ref> is used to solve (2) and (3). In detail, function rq() is used with the Frisch-Newton interior point method (fn) option. Due to the absence of large-scale real world instances, we randomly generate three sets of LAD instances.</p><p>Set A: n ∈ {2, 4, 8, 16} × 10 5 and m ∈ {10, 100, 500, 800}, where (n, m) = (16 × 10 5 , 800) is excluded due to memory issues Set B: n = 10 6 and m ∈ {50, 100, 150, 200, 250, 300, 350, 400, 450, 500} Set C: n ∈ {4, 6, 8, 10, 12, 14, 16} × 10 5 and m ∈ {50, 500} Set A is used for the experiment checking the performance of AID over various pairs of n and m, whereas Sets B and C are used for checking the performance of AID over fixed n and m, respectively.</p><p>For SVM, Python package scikit-learn <ref type="bibr" target="#b19">[20]</ref> is used to solve ( <ref type="formula" target="#formula_18">7</ref>) and ( <ref type="formula" target="#formula_20">9</ref>). In detail, functions svc() and linearSVC() are used, where the implementations are based on libsvm <ref type="bibr" target="#b3">[4]</ref> and liblinear <ref type="bibr" target="#b11">[12]</ref>, respectively. We use two benchmark algorithms because libsvm is one of the most popular and widely used implementation, while liblinear is known to be faster for SVM with the linear kernel. For SVM, we generate two sets of instances by sampling from two large data sets: (i) 1.3 million observations and 342 attributes obtained from a real world application provided by IBM (ii) rcv1.binary data set with 677,399 observations and 47,236 attributes from <ref type="bibr" target="#b3">[4]</ref>. We denote them as IBM and RCV, respectively. This generation procedure enables us to analyze performances of the algorithms for data set with similar characteristics and various sizes. For each (n, m) pair for SVM, we generate ten instances and present the average performance of the ten instances for each (n, m) pair. Note that Set 1 instances are smaller than Set 2 instances. We use Set 1 to test AID against libsvm and Set 2 to test AID against liblinear, because liblinear is faster and capable of solving larger problems for SVM with the linear kernel. Recall that AID is capable of using any solver for the aggregated problem. Hence, when testing against libsvm, AID uses libsvm for solving the aggregated problems. Similarly, when testing against liblinear, AID uses liblinear.</p><p>For S 3 VM, aggregated problems <ref type="bibr" target="#b14">(15)</ref> are solved by CPLEX. We set the 1,800 seconds time limit for the entire algorithm. We consider eight semi-supervised learning benchmark data sets from <ref type="bibr" target="#b4">[5]</ref>. Table <ref type="table" target="#tab_5">1</ref> lists the characteristics of the data sets. For each data set, two sets of twelve data splits are given: one with 10 and the other with 100 labeled observations for each split set for the first seven data sets, whereas 1,000 and 10,000 labeled observations are used for each split set for SecStr. In all experiments, AID iterates until the corresponding optimality condition is satisfied or the optimality gap is small (we set 10 -3 and 10 -4 for LAD and SVM, respectively). The tolerance for fn and libsvm are set to 10 -3 according to the definition of the corresponding packages. The default tolerance for liblinear is 10 -3 with the maximum of 1,000 iterations. Because we observed early terminations and inconsistencies with the default setting, we use the maximum of 100,000 iterations for liblinear. For S 3 VM, we run AID for one and five iterations and terminate before we reach optimum. See Section 4.3 for detail.</p><p>For the initial clustering methods for LAD, SVM, and S 3 VM, we do not fully rely on standard clustering algorithms, as it takes extensive amount of time to optimize a clustering objective function due to large data size. Instead, for the LAD initial clustering method, we first sample a small number of original entries, build regression model, and obtain a solution β init . Let r ∈ R n be the residual of the original data defined by β init . We use one iteration of k-means based on data (r, y) ∈ R n×2 to create C 0 . For the SVM initial clustering method, we sample a small number of original entries and find a hyperplane (w init , b init ). Then we use one iteration of k-means based on data d ∈ R n , where d ∈ R n is the distance of the original entries to (w init , b init ). For the S 3 VM initial clustering methods, we use one iteration of k-means based on the original data to create C 0 . The initial clustering and aggregated data generation times are small for all methods for LAD, SVM, and S 3 VM.</p><p>For AID, we need to specify the number of initial clusters, measured as the initial aggregation rate. User parameter r 0 = |K 0 | n is the initial aggregation rate given as a parameter. It defines the number of initial clusters. We generalize the notion of the aggregation rate with r t , the aggregation rate in iteration t. The number of clusters is important because too many clusters lead to a large problem and too few clusters lead to a meaningless aggregated problem. Note that r 0 also should be problem specific. For example, we must have |K 0 | &gt; m for LAD. Hence, we set r 0 = max{ 3m n , 0.0005} if m × n &gt; 5 × 10 8 , r 0 = max{ 2m n , 0.0005} otherwise. This means that |K 0 | is at least two or three times larger than m and |K 0 | is at least 0.05% of n. For SVM, we set r 0 = max{ 1.1m  n , 0.0001} for all instances. However, since S 3 VM instances are not extremely large in our experiment, we fix it to some constant. For the S 3 VM instances, we test both of r 0 = 0.01 and 0.05 if n ≤ 10, 000, and both of r 0 = 0.0001 and 0.0005 otherwise, where the number of clusters must be at least 10 to avoid a meaningless aggregated problem.</p><p>In order to compare the performance, execution times (in seconds) T AID , T fn , T libsvm , and T liblinear for AID, fn, libsvm, and liblinear, respectively, are considered. For SVM, standard deviations σ(T AID ), σ(T libsvm ), and σ(T liblinear ) are used to describe the stability of the algorithms. In order to further describe the performance of AID, we use the following measures.</p><formula xml:id="formula_71">r T = |K T | n</formula><p>is the final aggregation rate at the termination</p><formula xml:id="formula_72">ρ = T AID T fn or T AID T libsvm or T AID T liblinear ∆ = E AID -E fn E fn or E AID -E libsvm E libsvm or E AID -E liblinear E liblinear Γ =</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>training classification rate of AID -training classification rate of benchmark</head><p>For example, we set r 0 = 3 33 = 1  11 in Figure <ref type="figure" target="#fig_0">1</ref>(a) and terminate the algorithm with r T = 9 33 = 3 11 in Figure <ref type="figure" target="#fig_16">1(c</ref>). Note that ρ &lt; 1 indicates that AID is faster. We use ∆ to check the relative difference of objective function values. For LAD, ∆ is also used to check if the solution qualities are the same. For SVM, Γ is used to measure the solution quality differences.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Performance for LAD</head><p>In Table <ref type="table">2</ref>, the computational performance of AID for LAD is compared against the benchmark fn for Set A. For many LAD instances in Table <ref type="table">2</ref>, fn is faster. For the smallest instance, fn is 34 times faster. However, ratio ρ decreases in general as n and m increase. This implies that AID is competitive for larger size data. In fact, AID is five times faster than fn for the two largest LAD instances considered. The values of ∆ indicate that fn and AID give the same quality solutions within numerical error bounds, as ∆ measures the relative difference in the sum of the absolute error. The final aggregation rate r T also depends on problem size. As n increases, r T decreases because original entries can be grouped into larger size clusters. As m increases, r T increases because it is more difficult to cluster the original entries into larger size clusters. Further discussion on how r t changes over iterations is presented in Section 5.</p><p>In Figure <ref type="figure" target="#fig_11">5</ref>, comparisons of execution times of AID and fn are presented for Sets B and C. In Figure <ref type="figure" target="#fig_11">5</ref>(a), Set B is considered to check the performances over fixed n = 10 6 . With fixed n, AID is slower when m is small, but AID starts to outperform at m = 400. The corresponding ρ values are constantly decreasing from 6.6 (when m = 50) to 0.7 (when m = 500). This observation also supports the results presented in Figure <ref type="figure" target="#fig_11">5</ref>(b) and 5(c), where the comparisons of Set C are presented. When m is fixed to 50, the execution time of AID increases faster than fn. However, when m is fixed to 500, AID is faster than fn and the execution time of AID grows slower than fn. Therefore, we conclude that AID for LAD is faster than fn when n and m are large and is especially beneficial when m is large enough. For Figures <ref type="figure" target="#fig_11">5(a</ref>), 5(b), and 5(c), the corresponding number of iterations (T ) are randomly spread over 9 ∼ 11, 10 ∼ 12, and 8 ∼ 10, respectively; we did not find a trend.</p><p>Instance AID fn Comparison n m r 0 r T T T AID T fn ∆ ρ 200,000 10 0.05% 2.40% 8 50 1 0.01% 34.59 200,000 100 0.10% 10.00% 9 84 22 0.01% 3.83 200,000 500 0.50% 16.50% 7 451 393 0.02% 1.15 200,000 800 0.80% 22.40% 7 1,347 1,062 0.01% 1.27 400,000 10 0.05% 2.20% 8 99 3 0.00% 29.84 400,000 100 0.05% 5.80% 9 163 44 0.01% 3.68 400,000 500 0.25% 13.30% 8 904 904 0.01% 1 400,000 800 0.40% 21.10% 8 2,689 2,125 0.01% 1.27 800,000 10 0.05% 0.90% 5 139 9 0.03% 15.46 800,000 100 0.05% 5.00% 9 336 96 0.01% 3.51 800,000 500 0.13% 10.30% 9 1,788 1,851 0.01% 0.97 800,000 800 0.30% 10.30% 7 2,992 15,215 0.03% 0.2 1,600,000 10 0.05% 0.40% 4 235 18 0.06% 13.29 1,600,000 100 0.05% 3.20% 8 612 196 0.01% 3.12 1,600,000 500 0.09% 5.35% 8 2,460 12,164 0.01% 0.2</p><p>Table 2: Performance of AID for LAD for Set A </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Performance for SVM</head><p>In Tables <ref type="table" target="#tab_9">3</ref> and <ref type="table">4</ref>, the computational performance of AID for SVM is compared against the benchmark libsvm for Set 1. In Table <ref type="table">5</ref>, comparison of AID and liblinear for Set 2 is presented. In all experiments, we fix penalty constant at M = 0.1. In Table <ref type="table" target="#tab_9">3</ref>, the result for Set 1 IBM data is presented. Observe that AID is faster than libsvm for all cases, as ρ values are strictly less than 1 for all cases. Observe that ρ values tend to decrease in n and m. This is highly related to final aggregation rate r T . Observe that, similar to the LAD result, r T decreases in n and increase in m. As n increases, it is more likely to have clusters with more original entries. This decreases r T and number of iterations T . It implies that we solve fewer aggregated problems and the sizes of the aggregated problems are smaller. On the other hand, as m increases, r T also increases. This increases T and aggregated problem sizes. However, since the complexity of svmlib increases faster than AID in increasing m, ρ decreases in m. Due to possibility of critical numerical errors, we also check the objective function value differences (∆) and training classification rate differences (Γ). The solution qualities of AID and libsvm are almost equivalent in terms of the objective function values and training classification rates.</p><p>The result for Set 1 RCV data is presented in Table <ref type="table">4</ref>. AID is again faster than libsvm for all cases. The values of ρ are much smaller than the values from Table <ref type="table" target="#tab_9">3</ref>. This can be explained by the smaller values of r T and T . Because AID converges faster for RCV data, it terminates early and takes much less time. Recall that larger T and r T imply that more aggregated problems with larger sizes are additionally solved. Similarly to the result in Table <ref type="table" target="#tab_9">3</ref>, ρ values tend to decrease in n and m, where the trend is much clearer for RCV data. By checking ∆ and Γ, we observe that the solution of AID and libsvm are equivalent. One interesting observation is that the trend of the number of iterations (T ) is different from Table <ref type="table" target="#tab_9">3</ref>. For Set 1 RCV data, T tends to increase in n and decrease in m. This is exactly opposite from the result for Set 1 IBM data. This can be explained by very small values of r T compared to the values in Table <ref type="table" target="#tab_9">3</ref>.</p><p>In order to visually compare the performances, in Figure <ref type="figure" target="#fig_13">6</ref>, we plot ρ values and computation times of AID and libsvm for IBM and RCV data. Figures <ref type="figure" target="#fig_13">6(a</ref>) and 6(c) assert that AID is scalable, while its relative performance keeps improving with respect to libsvm as shown in Figures <ref type="figure" target="#fig_13">6(b</ref>) and 6(d). For both size AID libsvm Comparison n m r 0 r T T T AID σ(T AID ) T libsvm σ(T libsvm ) Γ ∆ ρ 30,000 10 0.08% 1.0% 6.1 3 0 10 2 0.00% 0.00% 0.26 30 0.23% 6.6% 8.5 4 0 12 1 0.00% 0.00% 0.34 50 0.37% 10.4% 8.4 6 1 19 3 0.00% 0.00% 0.30 70 0.52% 14.2% 8.2 8 1 26 1 0.00% 0.00% 0.32 90 0.67% 15.1% 8 10 1 32 3 0.00% 0.00% 0.31 50,000 10 0.05% 0.5% 6 5 1 15 2 0.00% -0.01% 0.30 30 0.14% 4.0% 8.1 8 3 31 6 0.00% 0.00% 0.25 50 0.22% 7.3% 8.9 9 1 44 5 0.00% 0.00% 0.21 70 0.31% 10.0% 9 14 1 57 4 0.00% 0.00% 0.24 90 0.40% 11.0% 8.5 16 2 66 3 0.00% 0.00% 0.24 100,000 10 0.02% 0.4% 5.7 11 6 53 24 0.00% -0.03% 0.21 30 0.07% 2.7% 9.1 14 2 75 7 0.00% 0.00% 0.19 50 0.11% 4.7% 9.3 18 2 108 12 0.00% 0.00% 0.17 70 0.16% 6.0% 9 23 2 133 8 0.00% 0.00% 0.17 90 0.20% 7.3% 9 30 2 168 9 0.00% 0.00% 0.18 150,000 10 0.02% 0.1% 3.8 14 7 86 96 0.00% -0.09% 0.16 30 0.05% 1.9% 9 23 3 157 81 0.00% 0.00% 0.15 50 0.07% 3.6% 9.6 27 2 174 14 0.00% 0.00% 0.16 70 0.10% 5.0% 9.5 36 5 234 15 0.00% 0.00% 0.15 90 0.13% 5.3% 9.1 39 3 280 11 0.00% 0.00% 0.14 Table 4: Average performance of AID for SVM against libsvm (Set 1 RCV data) data sets, the computation times of AID grow slower than fn and AID saves more computation time as n and m increase.  Although we present AID for SVM with kernels in Appendix B, we only show result for linear SVM in this experiment. For SVM with linear kernel, Liblinear <ref type="bibr" target="#b11">[12]</ref> is known to be one of the fastest algorithms. Preliminary experiments showed that Set 1 instances are too small to obtain benefits from AID, and liblinear is faster for all cases. Hence, for comparison against liblinear, we consider Set 2 (larger instances sampled from IBM data). The result is shown in Table <ref type="table">5</ref>. Because liblinear is a faster solver, for some cases liblinear is faster than AID, especially when n and m are small. Among 20 cases (n-m pairs), liblinear wins 45% with 10.52 times faster than AID at maximum, and AID wins 55% with 27.62 times faster than liblinear. However, the solution time of liblinear has very large variation. This is because liblinear struggles to terminate for some instances. On the other hand, AID has relatively small variations in solution time. Therefore, even though AID is not outperforming for all cases, we conclude AID is more stable and competitive. Note that objective function value difference ∆ is large for some cases. With extremely large clusters (giving large weights in aggregated problems), we observe that liblinear does not give an accurate and stable result for aggregated problems of AID for Set 2.</p><p>In Figure <ref type="figure" target="#fig_15">7</ref>, we plot computation times and ρ values of AID and liblinear for Set 2. Because ρ values do not scale well, we instead present log 10 ρ in Figure <ref type="figure" target="#fig_15">7(b)</ref>. From Table <ref type="table">5</ref> and Figure <ref type="figure" target="#fig_15">7</ref> we observe that AID outperforms for larger instances. The number of negative log 10 ρ values (implying AID is faster) tend to increase as n and m increase.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.3">Performance for S 3 VM</head><p>As pointed out in <ref type="bibr" target="#b4">[5]</ref>, it is difficult to solve MIQP model ( <ref type="formula" target="#formula_46">14</ref>) optimally for large size data. In a pilot study, we observed that AID can optimally solve <ref type="bibr" target="#b13">(14)</ref> for some data sets with hundreds of observations and several attributes. However, for the data sets in Table <ref type="table" target="#tab_5">1</ref>, AID was not able to terminate within a few hours. Also, no previous work in the literature provides computational result for the data sets by solving <ref type="bibr" target="#b13">(14)</ref> directly. Therefore, in this experiment for S 3 VM, we do not compare the execution times of AID and benchmark algorithms. Instead, we compare classification rates, which is the fraction of unlabeled observations that are correctly labeled by the algorithm. The comparison is only with algorithms for S 3 VM from <ref type="bibr" target="#b4">[5,</ref><ref type="bibr" target="#b14">15]</ref>. See <ref type="bibr" target="#b4">[5]</ref> for comprehensive comparisons of other semi-supervised learning models. Because AID is not executed until optimality, we terminate after one and five iterations, which are denoted as AID1 and AID5, respectively.</p><p>size AID liblinear Comparison n m r 0 r T T T AID σ(T AID ) T liblinear σ(T liblinear ) Γ ∆ ρ 200,000 10 0.02% 0.1% 3.1 10 4 4 9 0.00% 0.12% 2.40 30 0.03% 0.8% 5.9 20 5 205 379 -0.04% 3.56% 0.10 50 0.06% 3.0% 9.3 35 8 6 2 0.00% 0.23% 5.99 70 0.08% 3.8% 9.7 38 3 12 5 0.00% 0.00% 3.32 90 0.10% 4.3% 9.5 43 3 12 3 0.00% 0.00% 3.58 400,000 10 0.01% 0.0% 1.9 15 4 98 236 0.00% 0.79% 0.15 30 0.02% 0.3% 4.6 32 6 844 1,624 0.00% 14.04% 0.04 50 0.03% 1.1% 6.1 44 11 141 180 0.00% 14.85% 0.31 70 0.04% 2.7% 9.9 92 46 38 30 0.00% 0.01% 2.43 90 0.05% 3.0% 9.4 78 13 30 9 0.00% 0.28% 2.63 600,000 10 0.01% 0.0% 1.9 25 6 2 1 0.00% 0.16% 10.52 30 0.02% 0.3% 4.9 55 10 485 1,210 0.00% 1.51% 0.11 50 0.02% 1.2% 6.8 102 34 836 1,619 0.00% 0.11% 0.12 70 0.03% 1.9% 7.7 125 54 1,154 1,370 -0.02% 7.86% 0.11 90 0.03% 2.3% 8.6 125 30 715 1,193 -0.03% 0.44% 0.17 800,000 10 0.01% 0.0% 1.4 30 8 23 61 0.00% 0.42% 1.32 30 0.01% 0.4% 5.4 83 12 29 28 0.00% 3.01% 2.91 50 0.02% 1.1% 7 125 34 3,443 4,011 0.00% 3.16% 0.04 70 0.02% 1.6% 7.4 135 32 1,023 2,228 0.00% 0.31% 0.13 90 0.03% 1.9% 7.6 173 57 942 888 0.00% 5.93% 0.18</p><p>Table 5: Average performance of AID for SVM against liblinear (Set 2 IBM data)</p><p>0 500 1000 1500 2000 2500 3000 3500 10 30 50 70 90 10 30 50 70 90 10 30 50 70 90 10 30 50 70 90 200000 400000 600000 800000 Execution Time (sec) Data Set (n,m) AID liblinear (a) Execution times -1.5 -1.0 -0.5 0.0 0.5 1.0 1.5 10 30 50 70 90 10 30 50 70 90 10 30 50 70 90 10 30 50 70 90 200000 400000 600000 800000 log ρ Data Set (n,m) (b) ρ In the computational experiment, we consider penalty parameters (M l , M u ) ∈ (5, 1) × {10 0 , 10 -1 , 10 -2 , 10 -3 , 10 -4 } and initial aggregation rate r 0 ∈ {0.01, 0.05}. Also, we consider the following two techniques for unbalanced data. l and I - l be the set of labeled observations with labels 1 and -1, respectively. In order to give larger weights for the minority class, we multiply M l by max 1,</p><formula xml:id="formula_73">|I - l | |I + l | for i ∈ I - l and M l by max 1, |I + l | |I - l | for i ∈ I + l .</formula><p>We first enumerate all possible combinations of the parameters and unbalanced data techniques and report the best classification rates of AID1 and AID5 with linear kernel. In Table <ref type="table" target="#tab_14">6</ref>, the results of AID1 and AID5 are compared against the benchmark algorithms. Recall that l is the number of labeled observations. In Table <ref type="table" target="#tab_14">6</ref>, we present the average classification rates of AID1, AID5, and the benchmark algorithms in <ref type="bibr" target="#b4">[5]</ref> and <ref type="bibr" target="#b14">[15]</ref>. In the second row, TSVM with linear and RBF kernels are from <ref type="bibr" target="#b4">[5]</ref> and S4VM with linear and RBF kernels are from <ref type="bibr" target="#b14">[15]</ref>. The bold faced numbers represent that the corresponding algorithm gives the best classification rates. For data sets COIL2 and SecStr, we only report the result for AID1 and AID5, as other algorithms do not provide results. From Table <ref type="table" target="#tab_14">6</ref>, we conclude that the classification rates of AID1 and AID5 are similar, while the execution times of AID1 are significantly smaller. Therefore, we conclude that AID1 is more efficient and we focus on AID1 for the remaining experiments.</p><p>Next, we compare AID1 with TSVM with the RBF kernel from Table <ref type="table" target="#tab_14">6</ref>, as TSVM with the RBF kernel is the best among the benchmark algorithms from <ref type="bibr" target="#b4">[5]</ref> and <ref type="bibr" target="#b14">[15]</ref>. In  Table 7: Average performances of AID (best parameters) and TSVM-RBF Recall that we report the best result by enumerating all parameters in Tables <ref type="table" target="#tab_14">6</ref> and <ref type="table" target="#tab_13">7</ref>. In the second experiment, we fix parameters M l = 5, M u = 1, r 0 = 0.01 for AID1. Since unbalanced data techniques significantly affect the result, we select balance cost for data sets USPS and BCI and balance constraint for data sets Digit1, g241c, g241d and Text. The result is compared against TSVM with the RBF kernel in Table <ref type="table">8</ref>. As we fix parameters, the classification rates of AID1 are worse than the rates in Table <ref type="table" target="#tab_13">7</ref>. However, AID1 is still competitive as AID1 and TSVM have the same number of wins.</p><p>l=10 l=100 AID1 TSVM AID1 TSVM data Linear RBF Linear RBF Digit1 83.4% 82.2% 90.4% 93.9% USPS 80.4% 74.8% 87.1% 90.2% BCI 51.2% 50.9% 69.1% 66.8% g241c 74.3% 75.3% 76.0% 81.5% g241d 49.9% 49.2% 53.6% 77.6% Text 63.0% 68.8% 75.8% 75.5% # wins 4 2 2 4</p><p>Table <ref type="table">8</ref>: Average performances of AID (fixed parameters) and TSVM-RBF</p><p>5 Guidelines for Applying AID to Other Problems AID is designed to solve problems with a large number of entries that can be clustered well. From the experiments in Section 4, we observe that AID is beneficial when data size is large. AID especially outperforms alternatives when the time complexity of the alternative algorithm is high. Recall that AID is applicable for problems following the form of (1). In this section, we discuss how AID can be applied for other optimization problems. We also discuss the behavior of AID as observed from additional computational experiments for LAD and SVM.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1">Designing AID</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Aggregated data</head><p>The main principle in generating aggregated data is to create each aggregated entry to represent the original entries in the corresponding cluster. However, the most important factor to consider when defining aggregated data is the interaction with the aggregated problem and optimality condition. The definition of aggregated entries plays a key role in deriving optimality and other important properties. In the proof of Proposition 1, x is converted to x t in the second line of the equations. In the proof of Proposition 2, x t-1 is converted to x in the third line of the equations, which is subsequently converted into x in the sixth line. Although any aggregated data definition representing the original data is acceptable, we found that the centroids work well for all of the three problems studied in this paper.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Aggregated problem</head><p>The aggregated problem is usually the weighted version of the original problem, where weights are obtained as a function of cardinalities of the clusters. In this paper, we directly use the cardinalities as weights. We emphasize that weights are used to give priority to larger clusters (or associated aggregated entries), and defining the aggregated problem without weights is not recommended. Recall that defining the aggregated problem is closely related to the aggregated data definition and optimality condition. When the optimality condition is satisfied, the aggregated problem should give an optimal solution to the original problem. This can be proved by showing equivalent objective function values of aggregated and original problems at optimum. Hence, matching objective function values of the two problems should also be considered when designing the aggregated problem.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Optimality condition</head><p>The optimality condition is the first step to develop when designing AID, because the optimality condition affects the aggregated data definition and problem. However, developing the optimality condition is not trivial. Properties at optimum for the given problem should be carefully considered. For example, the optimality condition for LAD is based on the fact that the residuals have the same sign if the observations are on the same side of the hyperplane. This allows us to separate the terms in the absolute value function when proving optimality. For SVM, we additionally use label information, because the errors also depend on the label. For S 3 VM, we use even more information: the classification decision of unlabeled entries. Designing an optimality condition and proving optimality become non-trivial when constraints and variables are more complex. The proofs become more complex in the order of LAD, SVM, and S 3 VM.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2">Defining Initial Clusters</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Initial clustering algorithm</head><p>From pilot computational experiments with various settings, we observed that the initial clustering accuracy is not the most important factor contributing to the performance of AID. This can be explained by the declustering procedure in early iterations. In the early iterations of AID, the number of clusters rapidly increases as most clusters violate the optimality condition. These new clusters are better than the k-means algorithm output using the same number of clusters in the sense that the declustered clusters are more likely to satisfy the optimality condition. Because the first few aggregated problems are usually small and can be solved quickly, the main concern in selecting an initial clustering algorithm is the computational time. Therefore, we recommend to use a very fast clustering algorithm to cluster the original entries approximately.</p><p>For LAD and SVM, we use one iteration of k-means with two and one dimensional data, respectively. If one iteration of k-means is not precise enough then BIRCH <ref type="bibr" target="#b29">[30]</ref>, which has complexity of O(n), may be considered.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Initial aggregation rate</head><p>Avoiding a trivial aggregated problem is very important when deciding the initial aggregation rate. Depending on the optimization problem, this can restrict the minimum number of clusters or the number of aggregated entries. For example, we must have at least m aggregate observations to have a nonzero-SSE model for LAD. Similar restrictions exist for SVM and S 3 VM. We recommend to pick the smallest aggregation rate among all aggregation rates preventing trivial aggregated problems mentioned above because we can obtain better clusters (more likely to satisfy optimality condition) by solving smaller aggregated problems and by declustering. With the one iteration k-means setting, the number of clusters also affects the initial clustering time, as the time complexity is O(|K 0 |mn), where |K 0 | is the number of clusters at the beginning. In Figure <ref type="figure" target="#fig_18">8</ref>, we plot the solution time of AID for SVM for the IBM and RCV data sets with n = 150, 000 and m = 10. In each plot, the horizontal axis represents the initial aggregation rate r 0 , and the left and right vertical axes are for the execution time and number of iterations, respectively. The stacked bars show the total time of AID, where each bar is split into the initialization time (clustering) and loop time (declustering and aggregated problem solving). The series of black circles represent the number of iterations of AID. As r 0 increases, we have a larger number of initial clusters. Hence, with the current initial clustering setting (one iteration of k-means), the initialization time (white bars) increases as r 0 increases. Although the number of iterations decreases in r 0 , the loop time is larger when r 0 is large because the size of the aggregated problems is larger.</p><p>0 1 2 3 4 5 6 0 50 100 150 200 250 300 0.0002 0.0004 0.0008 0.0016 0.0032 0.0064 0.0128 0.0256 0.0512 Number of iterations Time (seconds) Initial aggregatation rate (r0) Initialization time loop time Num iterations (a) IBM 0 1 2 3 4 5 6 0 50 100 150 200 250 300 0.0002 0.0004 0.0008 0.0016 0.0032 0.0064 0.0128 0.0256 0.0512 Number of iterations Time (seconds) Initial aggregatation rate (r0) Initialization time loop time Num iterations (b) RCV </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.3">Aggregation Rates and Relative Location of Clusters</head><p>Evgeniou and Pontil <ref type="bibr" target="#b10">[11]</ref> mention that clusters that are far from the SVM hyperplane tend to have large size, while the size of clusters that are near the SVM hyperplane is small. This also holds for AID for LAD, SVM, and S 3 VM. We demonstrate this property with LAD. In order to check the relationship between the aggregation rate and the residual, we check 1. aggregation rates of entire clusters, 2. aggregation rates of clusters that are near the hyperplane (with residual less than median), and 3. aggregation rates of clusters that are far from the hyperplane (with residual greater than median).</p><p>In Figure <ref type="figure" target="#fig_19">9</ref>, we plot the aggregation rate of entire clusters (series with + markers), with residual less than the median (series with black circles), and with residuals greater than the median (series with empty circles). We plot the result for 9 instances in a 3 by 3 grid (3 values of n and 3 values of m), where each subplot's horizontal and vertical axes are for iteration (t) and aggregation rates (r t ). We can observe that the aggregation rate of clusters that are near the hyperplane increases rapidly, while far clusters' aggregation rates stabilize after a few iterations. The aggregation rates of near clusters increase as m increases.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">Conclusion</head><p>We propose a clustering-based iterative algorithm and apply it to common machine learning problems such as LAD, SVM, and S 3 VM. We show that the proposed algorithm AID monotonically converges to the global optimum (for LAD and SVM) and outperforms the current state-of-the-art algorithms when data size is large. The algorithm is most beneficial when the time complexity of the optimization problem is high, so that solving smaller problems many times is affordable.</p><p>m=100 m=500 m=800 0% 10% 20% 30% 40% 50% 60% 1 3 5 7 9 0% 10% 20% 30% 40% 50% 60% 1 3 5 7 9 0% 10% 20% 30% 40% 50% 60% 1 3 5 7 9 n=800000 0% 10% 20% 30% 40% 50% 60% 1 3 5 7 9 0% 10% 20% 30% 40% 50% 60% 1 3 5 7 9 0% 10% 20% 30% 40% 50% 60% 1 3 5 7 9 n=400000 0% 10% 20% 30% 40% 50% 60% 1 3 5 7 9 0% 10% 20% 30% 40% 50% 60% 1 3 5 7 0% 10% 20% 30% 40% 50% 60% 1 3 5 7 n=200000 Clusters with large residuals Clusters with small residuals All clusters 7 Acknowledgment</p><p>We appreciate the referees for their helpful comments that strengthen the paper.</p><p>all clusters violate the optimality conditions and are declustered. In the later iterations, it takes longer time to solve the aggregated problem in each iteration and the optimality gap is rapidly decreasing in t, because the clusters are finer but the number of clusters is larger. For both algorithms, we observe that the training classification rates become stable after several iterations although the optimality gaps are still large.</p><p>AID with libsvm AID with liblinear t r t Ft E best Opt Iter Cum Train r t Ft E best Opt Iter Cum Train gap time time rate gap time time rate 0 0.06% 19 139,971 1000%+ 14 14 66.3% 0.06% 19 140,349 1000%+ 13 13 66.3% 1 0.11% 248 139,971 1000%+ 22 35 64.1% 0.11% 256 140,349 1000%+ 30 43 64.0% 2 0.22% 687 89,104 1000%+ 23 58 75.4% 0.22% 687 93,743 1000%+ 30 74 74.3% 3 0.40% 941 27,713 1000%+ 27 85 91.8% 0.40% 934 44,699 1000%+ 38 112 85.6% 4 0.68% 1,079 17,366 1000%+ 38 123 1,043 20,870 1000%+ 52 163 95.1% 5 1.12% 1,135 8,038 608% 60 183 99.4% 1.14% 1,125 9,389 734% 53 216 99.4% 6 1.88% 1,182 1,616 37% 114 296 99.6% 1.94% 1,179 2,138 81% 49 265 99.6% 7 2.73% 1,203 1,227 2.00% 234 531 99.6% 2.99% 1,205 1,218 1.04% 71 336 99.5% 8 2.93% 1,208 1,208 0.04% 697 1,227 99.5% 3.29% 1,209 1,214 0.42% 362 698 99.5% 9 4.58% 1,210 1,210 0.03% 518 1,216 99.5%</p><p>Table 10: Number of iterations of AID for the original IBM data (n = 1.3 million and m = 342)</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Illustration of AID</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><figDesc>(a) Clusters C t and βt (b) Declustered (c) New clusters C t+1</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: Illustration of AID for LAD</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><figDesc>(a) Clusters C t and ( wt , bt ) (b) Declustered (c) New clusters C t+1</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Figure 3 :</head><label>3</label><figDesc>Figure 3: Illustration of AID for SVM</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><figDesc>the class (label) data, and w ∈ R m , b ∈ R, and d ∈ {-1, 1} |Iu| are the decision variables. By introducing error term ξ ∈ R n + , (</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><figDesc>minimizes error is determined by the sign of wx i + b by Lemma 1. This means that I ++ (w,b,d) , I +- (w,b,d) , I -+ (w,b,d) , and I -- (w,b,d) can be defined without d.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><figDesc>} for i ∈ I u Clusters D t and ( wt , bt )</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_8"><head>Figure 4 :</head><label>4</label><figDesc>Figure 4: Illustration of AID for S 3 VM</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_9"><figDesc>where w ∈ R m , b ∈ R, and d ∈ {-1, 1} |K g u | , and C g and D g are the cluster decision sets. Note that x k and y k are now decision variables that depend on C g k and D g k . Note that due to characteristic of the subsets I ++ (w,b,d) , I +- (w,b,d) , I -+ (w,b,d) , and I -- (w,b,d) , we can replace d i by d k in the definition of the subsets.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_10"><head>Set 1 :</head><label>1</label><figDesc>n ∈ {3, 5, 10, 15} × 10 4 and m ∈ {10, 30, 50, 70, 90} from IBM and RCV Set 2: n ∈ {2, 4, 6, 8} × 10 5 and m ∈ {10, 30, 50, 70, 90} from IBM</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_11"><head>Figure 5 :</head><label>5</label><figDesc>Figure 5: Execution times of AID and fn for LAD</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_12"><figDesc>ρ (Set 1 RCV data)</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_13"><head>Figure 6 :</head><label>6</label><figDesc>Figure 6: Plots for performance of AID for SVM against libsvm</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_15"><head>Figure 7 :</head><label>7</label><figDesc>Figure 7: Performance of AID for SVM against liblinear (Set 2 IBM data)</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_16"><head>1 .</head><label>1</label><figDesc>balance constraint: i∈Iu (wxi+bi) |Iu| = i∈I l yi |I l | 2. balance cost: Let I +</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_18"><head>Figure 8 :</head><label>8</label><figDesc>Figure 8: Impact of r 0 for Set 1 IBM and RCV data</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_19"><head>Figure 9 :</head><label>9</label><figDesc>Figure 9: Aggregation rate r t over iterations for LAD instances with various n and m</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_5"><head>Table 1 :</head><label>1</label><figDesc>S 3 VM Data from Chapelle<ref type="bibr" target="#b4">[5]</ref> </figDesc><table><row><cell>Data</cell><cell>n (entries)</cell><cell>m (attributes)</cell><cell>l (labeled)</cell></row><row><cell>Digit1</cell><cell>1,500</cell><cell>241</cell><cell>10 and 100</cell></row><row><cell>USPS</cell><cell>1,500</cell><cell>241</cell><cell>10 and 100</cell></row><row><cell>BCI</cell><cell>400</cell><cell>117</cell><cell>10 and 100</cell></row><row><cell>g241c</cell><cell>1,500</cell><cell>241</cell><cell>10 and 100</cell></row><row><cell>g241d</cell><cell>1,500</cell><cell>241</cell><cell>10 and 100</cell></row><row><cell>Text</cell><cell>1,500</cell><cell>11,960</cell><cell>10 and 100</cell></row><row><cell>COIL2</cell><cell>1,500</cell><cell>241</cell><cell>10 and 100</cell></row><row><cell>SecStr</cell><cell>83,679</cell><cell>315</cell><cell>1,000 and 10,000</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_9"><head>Table 3 :</head><label>3</label><figDesc>Average performance of AID for SVM against libsvm (Set 1 IBM data)</figDesc><table><row><cell>size</cell><cell></cell><cell></cell><cell></cell><cell>AID</cell><cell></cell><cell></cell><cell></cell><cell>libsvm</cell><cell></cell><cell>Comparison</cell><cell></cell></row><row><cell>n</cell><cell>m</cell><cell>r 0</cell><cell>r T</cell><cell>T</cell><cell>T AID</cell><cell>σ(T AID )</cell><cell>T libsvm</cell><cell>σ(T libsvm )</cell><cell>Γ</cell><cell>∆</cell><cell>ρ</cell></row><row><cell>30,000</cell><cell>10</cell><cell>0.08%</cell><cell>0.2%</cell><cell>4.1</cell><cell>2</cell><cell>0</cell><cell>25</cell><cell>1</cell><cell>0.00%</cell><cell>0.00%</cell><cell>0.064</cell></row><row><cell></cell><cell>30</cell><cell>0.23%</cell><cell>0.7%</cell><cell>3.7</cell><cell>2</cell><cell>0</cell><cell>41</cell><cell>1</cell><cell>0.00%</cell><cell>0.00%</cell><cell>0.038</cell></row><row><cell></cell><cell>50</cell><cell>0.37%</cell><cell>1.1%</cell><cell>3.3</cell><cell>2</cell><cell>0</cell><cell>71</cell><cell>1</cell><cell>0.00%</cell><cell>0.00%</cell><cell>0.022</cell></row><row><cell></cell><cell>70</cell><cell>0.52%</cell><cell>1.6%</cell><cell>3.6</cell><cell>2</cell><cell>0</cell><cell>113</cell><cell>2</cell><cell>-0.01%</cell><cell>0.00%</cell><cell>0.016</cell></row><row><cell></cell><cell>90</cell><cell>0.67%</cell><cell>2.0%</cell><cell>3.6</cell><cell>2</cell><cell>0</cell><cell>146</cell><cell>2</cell><cell>0.03%</cell><cell>0.00%</cell><cell>0.013</cell></row><row><cell>50,000</cell><cell>10</cell><cell>0.05%</cell><cell>0.2%</cell><cell>4.1</cell><cell>3</cell><cell>0</cell><cell>67</cell><cell>2</cell><cell>-0.05%</cell><cell>0.00%</cell><cell>0.039</cell></row><row><cell></cell><cell>30</cell><cell>0.14%</cell><cell>0.5%</cell><cell>3.8</cell><cell>3</cell><cell>0</cell><cell>147</cell><cell>4</cell><cell>0.01%</cell><cell>0.00%</cell><cell>0.018</cell></row><row><cell></cell><cell>50</cell><cell>0.22%</cell><cell>0.9%</cell><cell>4</cell><cell>3</cell><cell>0</cell><cell>254</cell><cell>5</cell><cell>-0.01%</cell><cell>0.00%</cell><cell>0.012</cell></row><row><cell></cell><cell>70</cell><cell>0.31%</cell><cell>1.2%</cell><cell>3.9</cell><cell>3</cell><cell>0</cell><cell>349</cell><cell>6</cell><cell>0.01%</cell><cell>0.00%</cell><cell>0.009</cell></row><row><cell></cell><cell>90</cell><cell>0.40%</cell><cell>1.6%</cell><cell>3.9</cell><cell>3</cell><cell>0</cell><cell>422</cell><cell>6</cell><cell>-0.01%</cell><cell>0.00%</cell><cell>0.008</cell></row><row><cell>100,000</cell><cell>10</cell><cell>0.02%</cell><cell>0.1%</cell><cell>4.6</cell><cell>6</cell><cell>1</cell><cell>367</cell><cell>29</cell><cell>0.01%</cell><cell>0.00%</cell><cell>0.016</cell></row><row><cell></cell><cell>30</cell><cell>0.07%</cell><cell>0.4%</cell><cell>4.9</cell><cell>7</cell><cell>0</cell><cell>856</cell><cell>82</cell><cell>0.00%</cell><cell>0.00%</cell><cell>0.008</cell></row><row><cell></cell><cell>50</cell><cell>0.11%</cell><cell>0.7%</cell><cell>4.9</cell><cell>7</cell><cell>0</cell><cell>1,312</cell><cell>167</cell><cell>0.00%</cell><cell>0.00%</cell><cell>0.005</cell></row><row><cell></cell><cell>70</cell><cell>0.16%</cell><cell>1.0%</cell><cell>5</cell><cell>8</cell><cell>2</cell><cell>1,524</cell><cell>163</cell><cell>0.00%</cell><cell>0.00%</cell><cell>0.005</cell></row><row><cell></cell><cell>90</cell><cell>0.20%</cell><cell>1.3%</cell><cell>5</cell><cell>12</cell><cell>6</cell><cell>1,918</cell><cell>285</cell><cell>0.00%</cell><cell>0.00%</cell><cell>0.006</cell></row><row><cell>150,000</cell><cell>10</cell><cell>0.02%</cell><cell>0.1%</cell><cell>5.7</cell><cell>11</cell><cell>1</cell><cell>1,120</cell><cell>70</cell><cell>0.02%</cell><cell>0.00%</cell><cell>0.010</cell></row><row><cell></cell><cell>30</cell><cell>0.05%</cell><cell>0.4%</cell><cell>5.1</cell><cell>11</cell><cell>1</cell><cell>2,503</cell><cell>424</cell><cell>0.00%</cell><cell>0.00%</cell><cell>0.004</cell></row><row><cell></cell><cell>50</cell><cell>0.07%</cell><cell>0.6%</cell><cell>5.1</cell><cell>11</cell><cell>1</cell><cell>3,469</cell><cell>655</cell><cell>0.00%</cell><cell>0.00%</cell><cell>0.003</cell></row><row><cell></cell><cell>70</cell><cell>0.10%</cell><cell>0.8%</cell><cell>5.1</cell><cell>12</cell><cell>1</cell><cell>3,963</cell><cell>820</cell><cell>0.02%</cell><cell>0.00%</cell><cell>0.003</cell></row><row><cell></cell><cell>90</cell><cell>0.13%</cell><cell>1.1%</cell><cell>5.2</cell><cell>13</cell><cell>1</cell><cell>4,402</cell><cell>663</cell><cell>0.00%</cell><cell>0.00%</cell><cell>0.003</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_13"><head>Table 7 ,</head><label>7</label><figDesc>we observe that AID1 performs</figDesc><table><row><cell></cell><cell></cell><cell>l=10</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell>l=100</cell></row><row><cell>AID5</cell><cell>AID1</cell><cell cols="4">TSVM TSVM S4VM S4VM</cell><cell>AID5</cell><cell>AID1</cell><cell cols="2">TSVM TSVM S4VM S4VM</cell></row><row><cell cols="2">data linear linear</cell><cell>linear</cell><cell cols="2">RBF linear</cell><cell>RBF</cell><cell cols="2">linear linear</cell><cell>linear</cell><cell>RBF linear</cell><cell>RBF</cell></row><row><cell cols="2">Digit1 86.6% 86.6%</cell><cell cols="6">79.4% 82.2% 76.0% 63.6% 92.6% 92.0%</cell><cell cols="2">82.0% 93.9% 91.5% 94.9%</cell></row><row><cell cols="2">USPS 80.1% 80.4%</cell><cell cols="6">69.3% 74.8% 78.7% 80.1% 86.5% 87.1%</cell><cell cols="2">78.9% 90.2% 87.7% 91.0%</cell></row><row><cell cols="2">BCI 52.9% 52.2%</cell><cell cols="6">50.0% 50.9% 51.8% 51.3% 71.7% 69.1%</cell><cell cols="2">57.3% 66.8% 70.5% 66.1%</cell></row><row><cell cols="2">g241c 79.7% 79.7%</cell><cell cols="6">79.1% 75.3% 54.6% 52.8% 82.6% 82.6%</cell><cell cols="2">81.8% 81.5% 75.3% 74.8%</cell></row><row><cell cols="2">g241d 59.5% 49.9%</cell><cell cols="6">53.7% 49.2% 56.3% 52.7% 72.6% 59.3%</cell><cell cols="2">76.2% 77.6% 72.2% 60.9%</cell></row><row><cell cols="10">Text 66.4% 66.4% 71.40% 68.79% 52.1% 52.6% 75.77% 75.8% 77.69% 75.48% 69.9% 54.1%</cell></row><row><cell cols="2">COIL2 90.9% 90.2%</cell><cell>NA</cell><cell>NA</cell><cell>NA</cell><cell cols="3">NA 87.0% 88.5%</cell><cell>NA</cell><cell>NA</cell><cell>NA</cell><cell>NA</cell></row><row><cell cols="2">SecStr 64.3% 62.4%</cell><cell>NA</cell><cell>NA</cell><cell>NA</cell><cell cols="3">NA 69.70% 65.8%</cell><cell>NA</cell><cell>NA</cell><cell>NA</cell><cell>NA</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_14"><head>Table 6 :</head><label>6</label><figDesc>Average classification rates of AID (best parameters) and the benchmark algorithms better than TSVM when l = 10, whereas the two algorithms tie when l = 100. Note that COIL2 and SecStr are excluded from the comparison as results from the benchmark algorithms are not available.</figDesc><table><row><cell></cell><cell cols="2">l=10</cell><cell cols="2">l=100</cell></row><row><cell></cell><cell>AID1</cell><cell>TSVM</cell><cell>AID1</cell><cell>TSVM</cell></row><row><cell>data</cell><cell>Linear</cell><cell>RBF</cell><cell>Linear</cell><cell>RBF</cell></row><row><cell>Digit1</cell><cell>86.6%</cell><cell>82.2%</cell><cell>92.0%</cell><cell>93.9%</cell></row><row><cell>USPS</cell><cell>80.4%</cell><cell>74.8%</cell><cell>87.1%</cell><cell>90.2%</cell></row><row><cell>BCI</cell><cell>52.2%</cell><cell>50.9%</cell><cell>69.1%</cell><cell>66.8%</cell></row><row><cell>g241c</cell><cell>79.7%</cell><cell>75.3%</cell><cell>82.6%</cell><cell>81.5%</cell></row><row><cell>g241d</cell><cell>49.9%</cell><cell>49.2%</cell><cell>59.3%</cell><cell>77.6%</cell></row><row><cell>Text</cell><cell>66.4%</cell><cell>68.8%</cell><cell>75.8%</cell><cell>75.5%</cell></row><row><cell># wins</cell><cell>5</cell><cell>1</cell><cell>3</cell><cell>3</cell></row></table></figure>
+		</body>
+		<back>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A Execution Time of AID for S3VM</head><p>In this section, we present the execution times of AID1 and AID5 in Table <ref type="table">9</ref>. Although we used two techniques for unbalanced data, we did not find a big difference between the execution times of the two. However, we observed the execution times change in M l . Hence, we present the average execution time of AID1 and AID5 over M l values. Since we had a time limit of 1,800 seconds, all values do not exceed the limit. This implies that AID5 may have terminated before 5 iterations due to the time limit. From the table, we observe that the first iteration of AID is very quick (except Text data) while the remaining four iterations take longer time. The execution time of Text is high due to large m, whereas the execution time of SecStr is high due to large n.  </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B AID for SVM with Direct Use of Kernels</head><p>In this section, we consider ( <ref type="formula">5</ref>) with an arbitrary kernel function K(x i , x j ) = φ(x i ), φ(x j ) , and we develop a procedure based on <ref type="bibr" target="#b5">(6)</ref>. The majority of the concepts remain the same from Section 3.2 and thus we only describe the differences. For initial clustering, instead of clustering in Euclidean space, we need to cluster in the transformed kernel space. This can be done by the kernel k-means algorithm <ref type="bibr" target="#b22">[23]</ref>. In the plain k-means setting, the optimization problem is</p><p>where</p><p>is the center of cluster k ∈ K t . In the kernel k-means, the optimization problem is</p><p>where</p><p>is the center of cluster k ∈ K t . Note that, despite we use φ in the formulation, the kernel k-means algorithm does not explicitly use φ and only use the corresponding kernel function K. As an alternative, we may cluster in the Euclidean space, if we follow the initial clustering procedure from Section 4. In the experiments, we sampled a small number of original entries to obtain the initial hyperplane. If we use a kernel when obtaining the initial hyperplane, the distance d ∈ R n can approximate the relative locations in the kernel space.</p><p>Next, let us define aggregated data as</p><p>Note that we will not explicitly use x t k . Further, even though we define φ(x t k ), it is not explicitly calculated in our algorithm. However, φ(x t k ) will be used for all derivations. Aggregated problem F t is defined similarly.</p><p>By replacing x i and x t k with φ(x i ) and φ(x t k ), respectively, in all of the derivations and definitions in Section 3.2, it is trivial to see that all of the findings hold.</p><p>We next show how to perform the required computations without access to x t k and φ(x t k ). To achieve this goal, we work with the dual formulation and kernel function.</p><p>Let us consider the dual formulation <ref type="bibr" target="#b5">(6)</ref>. The corresponding aggregated dual problem is written as</p><p>Recall that we are only given K(x i , x j ) for i, j ∈ I. We derive</p><p>, where the first equality is by the definition of φ(x t k ). Hence, K(x t k , x t q ) can be expressed in terms of K(x i , x j )'s and cluster information. Let ᾱt be an optimal solution to <ref type="bibr" target="#b20">(21)</ref>. Then, for original observation i ∈ I, we can define a classifier</p><p>Note that f (x i ) is equivalent to w t φ(x i ) + b t . Therefore, the declustering procedure and optimality condition in Section 3.2 can be used. For example,</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C Results for the Original IBM Dataset</head><p>In this section, we present the result of solving the original large size IBM classification data set with 1.3 million observations and 342 attributes by AID with libsvm and liblinear. We use penalty M = 0.1 and r 0 = 1.1m n ≈ 0.057% for both algorithms. In Table <ref type="table">10</ref>, the iteration information of AID with libsvm and liblinear are presented. The initial clustering times are 900 seconds and 150 seconds for libsvm and liblinear, respectively. The execution times are approximately 20 minutes for both algorithms and AID terminates after 8 or 9 iterations with the optimality gap less than 0.1% and aggregation rates r T of 2.93% and 4.58%. In early iterations (t ≤ 5), the values of r t are almost doubled in each iteration, which implies that almost</p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Solution of large-scale transportation problems through aggregation</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Balas</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Operations Research</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="82" to="93" />
+			<date type="published" when="1965">1965</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Solving network design problems via iterative aggregation</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Bärmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Liers</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Martin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Merkert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Thurner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Weninger</surname></persName>
+		</author>
+		<ptr target="www.mso.math.fau.de/uploads/tx_sibibtex/Aggregation-Preprint.pdf" />
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Semi-supervised support vector machines</title>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">P</forename><surname>Bennett</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Demiriz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 1998 Conference on Advances in Neural Information Processing Systems II</title>
+		<meeting>the 1998 Conference on Advances in Neural Information Processing Systems II</meeting>
+		<imprint>
+			<date type="published" when="1999">1999</date>
+			<biblScope unit="page" from="368" to="374" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">LIBSVM: A library for support vector machines</title>
+		<author>
+			<persName><forename type="first">C.-C</forename><surname>Chang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C.-J</forename><surname>Lin</surname></persName>
+		</author>
+		<ptr target="http:/www.csie.ntu.edu.tw/~cjlin/libsvm" />
+	</analytic>
+	<monogr>
+		<title level="j">ACM Transactions on Intelligent Systems and Technology</title>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="page" from="1" to="27" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<title level="m" type="main">Semi-Supervised Learning</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Chapelle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Schølkopf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Zien</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+			<publisher>The MIT Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Branch and bound for semi-supervised support vector machines</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Chapelle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Sindhwani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Keerthi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2007">2007</date>
+			<biblScope unit="page" from="217" to="224" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Optimization techniques for semi-supervised support vector machines</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Chapelle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Sindhwani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Keerthi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="page" from="203" to="233" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Aggregation of inequalities in integer programming</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Chvátal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Hammer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Annals of Discrete Mathematics</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="page" from="145" to="162" />
+			<date type="published" when="1977">1977</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Learning algorithms for link prediction based on chance constraints</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">R</forename><surname>Doppa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Tadepalli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Getoor</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2010 European Conference on Machine Learning and Knowledge Discovery in Databases: Part I, ECML PKDD&apos;10</title>
+		<meeting>the 2010 European Conference on Machine Learning and Knowledge Discovery in Databases: Part I, ECML PKDD&apos;10<address><addrLine>Berlin, Heidelberg</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer-Verlag</publisher>
+			<date type="published" when="2010">2010</date>
+			<biblScope unit="page" from="344" to="360" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">A network decomposition / aggregation procedure for a class of multicommodity transportation problems</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">R</forename><surname>Evans</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Networks</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="197" to="205" />
+			<date type="published" when="1983">1983</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Support vector machines with clustering for training with very large datasets</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Evgeniou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Pontil</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Methods and Applications of Artificial Intelligence</title>
+		<title level="s">the series Lecture Notes in Computer Sciences</title>
+		<imprint>
+			<date type="published" when="2002">2002</date>
+			<biblScope unit="volume">2308</biblScope>
+			<biblScope unit="page" from="346" to="354" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">LIBLINEAR: A library for large linear classification</title>
+		<author>
+			<persName><forename type="first">R.-E</forename><surname>Fan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K.-W</forename><surname>Chang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C.-J</forename><surname>Hsieh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X.-R</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C.-J</forename><surname>Lin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="page" from="1871" to="1874" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Aggregation and disaggregation in integer programming problems</title>
+		<author>
+			<persName><forename type="first">Å</forename><surname>Hallefjord</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Storøy</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Operations Research</title>
+		<imprint>
+			<biblScope unit="volume">38</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="619" to="623" />
+			<date type="published" when="1990">1990</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<title level="m" type="main">quantreg: Quantile Regression</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Koenker</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+	<note>R package version 5.05</note>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Towards making unlabeled data never hurt</title>
+		<author>
+			<persName><forename type="first">Y.-F</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z.-H</forename><surname>Zhou</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Pattern Analysis and Machine Intelligence</title>
+		<imprint>
+			<biblScope unit="volume">37</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="175" to="188" />
+			<date type="published" when="2015-01">Jan 2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<title level="m" type="main">Aggregation in Large-Scale Optimization</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Litvinchev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Tsurkov</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2003">2003</date>
+			<publisher>Springer</publisher>
+			<biblScope unit="volume">83</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Technical note -improved bounds for aggregated linear programs</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Mendelssohn</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Operations Research</title>
+		<imprint>
+			<biblScope unit="volume">28</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="1450" to="1453" />
+			<date type="published" when="1980">1980</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Functions of positive and negative type and their connection with the theory of integral equations</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Mercer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Philosophical Transactions of the Royal Society A</title>
+		<imprint>
+			<biblScope unit="volume">209</biblScope>
+			<biblScope unit="page" from="415" to="446" />
+			<date type="published" when="1909">1909</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Clustering based large margin classification: A scalable approach using socp formulation</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">S</forename><surname>Nath</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Bhattacharyya</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">N</forename><surname>Murty</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 12th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, KDD &apos;06</title>
+		<meeting>the 12th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, KDD &apos;06<address><addrLine>New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2006">2006</date>
+			<biblScope unit="page" from="674" to="679" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Scikit-learn: Machine learning in Python</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Pedregosa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Varoquaux</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gramfort</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Michel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Thirion</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Grisel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Blondel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Prettenhofer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Weiss</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Dubourg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Vanderplas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Passos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Cournapeau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Brucher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Perrot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Duchesnay</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page" from="2825" to="2830" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">R: A Language and Environment for Statistical Computing</title>
+		<author>
+			<persName><forename type="first">Team</forename><surname>Core</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">R Foundation for Statistical Computing</title>
+		<meeting><address><addrLine>Vienna, Austria</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Aggregation and disaggregation techniques and methodology in optimization</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">F</forename><surname>Rogers</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">D</forename><surname>Plante</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">T</forename><surname>Wong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">R</forename><surname>Evans</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Operations Research</title>
+		<imprint>
+			<biblScope unit="volume">39</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="553" to="582" />
+			<date type="published" when="1991">1991</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Nonlinear component analysis as a kernel eigenvalue problem</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Schölkopf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Smola</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K.-R</forename><surname>Müller</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural computation</title>
+		<imprint>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="1299" to="1319" />
+			<date type="published" when="1998">1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Solving large-scale linear programs by aggregation</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Shetty</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">W</forename><surname>Taylor</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computers &amp; Operations Research</title>
+		<imprint>
+			<biblScope unit="volume">14</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="385" to="393" />
+			<date type="published" when="1987">1987</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Iterative aggregation-a new approach to the solution of large-scale problems</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Vakhutinsky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Dudkin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Ryvkin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Econometrica</title>
+		<imprint>
+			<biblScope unit="volume">47</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="821" to="841" />
+			<date type="published" when="1979">1979</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Scaling svm and least absolute deviations via exact data reduction</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Wonka</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Ye</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 31 st International Conference on Machine Learning</title>
+		<meeting>the 31 st International Conference on Machine Learning</meeting>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="523" to="531" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Weighted support vector machine for data classification</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Song</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Cao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Neural Networks, 2005. IJCNN &apos;05. Proceedings. 2005 IEEE International Joint Conference on</title>
+		<imprint>
+			<date type="published" when="2005-07">July 2005</date>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="page" from="859" to="864" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Classifying large data sets using svm with hierarchical clusters</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Han</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 9th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining</title>
+		<meeting>the 9th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining</meeting>
+		<imprint>
+			<date type="published" when="2003">2003</date>
+			<biblScope unit="page" from="306" to="315" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Making SVMs scalable to large data sets using hierarchical cluster indexing</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Han</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Li</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Data Mining and Knowledge Discovery</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="295" to="321" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Birch: An efficient data clustering method for very large databases</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Ramakrishnan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Livny</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 1996 ACM SIGMOD International Conference on Management of Data, SIGMOD &apos;96</title>
+		<meeting>the 1996 ACM SIGMOD International Conference on Management of Data, SIGMOD &apos;96<address><addrLine>New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="1996">1996</date>
+			<biblScope unit="page" from="103" to="114" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<monogr>
+		<title level="m" type="main">Aggregation in Linear Programming</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Zipkin</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1977">1977</date>
+		</imprint>
+		<respStmt>
+			<orgName>Yale University</orgName>
+		</respStmt>
+	</monogr>
+	<note type="report_type">PhD thesis</note>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

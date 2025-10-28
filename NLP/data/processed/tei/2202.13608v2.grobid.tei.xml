@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Semi-supervised Learning on Large Graphs: is Poisson Learning a Game-Changer?</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2022-03-14">March 14, 2022</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Canh</forename><forename type="middle">Hao</forename><surname>Nguyen</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Bioinformatics Center</orgName>
+								<orgName type="institution" key="instit1">ICR</orgName>
+								<orgName type="institution" key="instit2">Kyoto University Uji</orgName>
+								<address>
+									<postCode>611-0011</postCode>
+									<settlement>Kyoto</settlement>
+									<country key="JP">Japan</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Semi-supervised Learning on Large Graphs: is Poisson Learning a Game-Changer?</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2022-03-14">March 14, 2022</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">F244775235352432DDCF8C6B62156B21</idno>
+					<idno type="arXiv">arXiv:2202.13608v2[stat.ML]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>We explain Poisson learning [2] on graph-based semi-supervised learning to see if it could avoid the problem of global information loss problem as Laplace-based learning methods on large graphs. From our analysis, Poisson learning is simply Laplace regularization with thresholding, cannot overcome the problem.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Given a graph G = (V, W ) with V = {x 0 , • • • x n-1 } as a set of training data and W is a n × n real nonnegative weight matrix (weights of the edges of the graphs). Supposed that we are given m &lt; n labels y 0 • • • y m-1 (real or binary) of m nodes (x 0 • • • x m-1 ) , one wishes to infer the labels of the remaining nodes (x m • • • x n-1 ): u(x i ) : V → R (binary class labels are usually of the form sign(u)).</p><p>Graph-based models have been the main tools for semi-supervised learning.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.1">Laplace Learning</head><p>Traditional Laplace learning <ref type="bibr" target="#b5">[6]</ref> would use the Laplacian regularization in this variational form:</p><formula xml:id="formula_0">u = arg min u T Lu | u(x i ) = y i , 0 ≤ i &lt; m<label>(1)</label></formula><p>with L = D -W being the graph Laplacian with D being the degree diagonal matrix (D = diag(W ×</p><p>1 n )). The solution of (1) satisfies</p><formula xml:id="formula_1">u(x i ) = y i | 0 ≤ i &lt; m,<label>(2)</label></formula><formula xml:id="formula_2">Lu(x i ) = 0 | m ≤ i &lt; n.<label>(3)</label></formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.2">Laplace Regularization</head><p>Laplace learning can be modified to introduce a loss-based data term <ref type="bibr" target="#b2">[3]</ref> as follows:</p><formula xml:id="formula_3">u = arg min(y -u) 2 + λu T Lu,<label>(4)</label></formula><p>with the loss (yu) 2 only on labeled data points is added to the Laplace regularization term.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.3">Global Information Loss Problem</head><p>The problem with Laplace learning, or Laplace regularization is that in large graphs, the regularization term u T Lu does transfer the label from labeled nodes to far away nodes in the graphs. Concretely, the following problems are proven:</p><p>1. u does not carry label information for the whole dataset, becoming a non-informative function <ref type="bibr" target="#b2">[3]</ref>, unrelated to the data distribution <ref type="bibr" target="#b0">[1]</ref>. This leads to the learnt function on the graph to be "peaky" that peaks at the labeled points and quickly becomes close to a constant value away from the labeled point.</p><p>2. Commute time distance ct does not contain graph information for fixed x i , x j as n → ∞ (for a constant c) <ref type="bibr" target="#b4">[5]</ref>:</p><formula xml:id="formula_4">ct(x i , x j ) → c d i + c d j .</formula><p>3. Laplacian kernel between data points are close to zero for fixed x i , x j as n → ∞:</p><formula xml:id="formula_5">K(x i , x j ) → 0.</formula><p>There are many methods that claimed to overcome the problem without any rigorous proof.</p><p>Exceptions are two methods with mathematically proven properties that could overcome the problems of Laplace-based learning.</p><p>• l p Laplacian regularization-based distance results in a function that is most related to data distribution when p = d + 1, with d being the intrinsic dimension of the data distribution <ref type="bibr" target="#b0">[1]</ref>,</p><p>overcoming the first problem. This method is computationally infeasible.</p><p>• l p norm-based distances computed from L † are proven not have the second problem <ref type="bibr" target="#b3">[4]</ref>. This method is computationally feasible for medium-sized graphs.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.4">Poisson Learning</head><p>Poisson learning <ref type="bibr" target="#b1">[2]</ref> is different from Laplace learning in replacing boundary condition (u</p><formula xml:id="formula_6">(x i ) = y i | 0 ≤ i &lt; m) with Lu(x i ) = c ∈ R| 0 ≤ i &lt; m .</formula><p>It is claimed to avoid the peaky label function problem and let the known label propagates further compared to Laplace learning. For ȳ = mean(y</p><formula xml:id="formula_7">1 • • • y m ),</formula><p>the solution of Poisson learning satisfies:</p><formula xml:id="formula_8">Lu(x i ) = y i -ȳ | 0 ≤ i &lt; m,<label>(5)</label></formula><formula xml:id="formula_9">Lu(x i ) = 0 | m ≤ i &lt; n,<label>(6)</label></formula><formula xml:id="formula_10">n i=1 d i u(x i ) = 0. (<label>7</label></formula><formula xml:id="formula_11">)</formula><p>This correspond to the solution of the following variational problem:</p><formula xml:id="formula_12">u = arg min 1 2 u T Lu - m i=1 (y i -ȳ)u(x i ) | n i=1 d i u(x i ) = 0. (8)</formula><p>Essentially, the difference between Laplace learning and Poisson learning is on the labeled nodes:</p><p>the former fixes the labels of the nodes while the latter fixes the smoothness of labels on the nodes to some constants. Basically, in both Laplace and Poisson learning methods, the labels are propagated by minimizing u T Lu.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Kernel viewpoint</head><p>Let u(X) = [v, z] be the function u on the two parts of the data,</p><formula xml:id="formula_13">v = u[0 • • • m -1] ∈ R m being the labeled part of u and z = u[m • • • n -1] ∈ R n-m</formula><p>being the unlabeled part of u. Let K = L † be the Moore-Penrose inverse of L, being the Laplacian kernel K. In the RKHS induced by the kernel of each method, let φ(x i ) denotes the image of sample x i . We show that all the above methods have decision functions of the form with a constant c ∈ R, called offset, acting as classification thresholding:</p><formula xml:id="formula_14">u(x i ) = j α j K ij + c =&lt; x i , j α j φx j &gt; +c. (9)</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">Laplace learning</head><p>Laplace learning become:</p><formula xml:id="formula_15">u = arg min f (u)(= [v T , z T ]L[v, z]). (<label>10</label></formula><formula xml:id="formula_16">) Let L 1 = L[0 • • • m -1, 0 • • • m -1], L 2 = L[m • • • n -1, m • • • n -1], L 12 = L[0 • • • m -1, m • • • n -1]</formula><p>and</p><formula xml:id="formula_17">L 21 = L[m • • • n -1, 0 • • • m -1]. Then f (u) = v T L 1 v + 2z T L 21 v + z T L 2 z.</formula><p>Taking the derivative of f on the variable part z (as v is the fixed part), then the first order condition becomes:</p><formula xml:id="formula_18">∂f ∂v = 2L 2 z + 2L 21 v = 0 (11) z = -L -1 2 L 21 v + cker(L 2 )<label>(12)</label></formula><p>Kernel representation: Let K 2 = L -1 2 , then K 2 is the Laplacian kernel on the unlabeled part of the graph.</p><p>Weight vector α: -L 21 v: the weight of each nodes becomes the sum of edge weights multiplied by the labels to the labeled nodes, i.e., only border nodes have weights.</p><formula xml:id="formula_19">α i = m j=1 w ij y j<label>(13)</label></formula><p>Offset c: usually not taken into account, namely c = 0</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">Laplace regularization</head><p>The Laplace regularization method, sometimes called soft constraint method, has the following form:</p><formula xml:id="formula_20">u = arg min λ(y -u) 2 + u T Lu. (<label>14</label></formula><formula xml:id="formula_21">)</formula><p>The solution is</p><formula xml:id="formula_22">u = (L + λI) -1 y = L † y + y λ . (<label>15</label></formula><formula xml:id="formula_23">)</formula><p>λ allows for a linear interpolation between the solution of Ky(= L † y) and y. With appropriate scaling of y to account for class imbalance, Ky can be considered as the nearest class mean classifier.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Kernel representation: K = L †</head><p>Weight vector α: only on labeled nodes (j &lt; m), α i = y i .</p><p>Offset </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3">Poisson learning</head><p>We show the solution of the unconstrained problem satisfies the constraint.</p><formula xml:id="formula_24">u = arg min 1 2 u T Lu - m i=1 (y i -ȳ)u(x i )<label>(16)</label></formula><p>Taking derivative, with t ∈ R n , t i = y i -ȳ for 0 ≤ i &lt; m and t i = 0 otherwise. Given that the graph is connected:</p><formula xml:id="formula_25">Lu -t = 0 u = L † t + c1 n<label>(17)</label></formula><p>for some c ∈ R, 1 n (= ker(L)) being the vector of all 1 in R n . We now prove that there exists a c that satisfies the constraint.</p><formula xml:id="formula_26">n i=1 d i u(x i ) =&lt; d, L † t + c1 n &gt; (18) =&lt; d, L † t &gt; +c n i=1 d i<label>(19) (20)</label></formula><p>Therefore, to have</p><formula xml:id="formula_27">n i=1 d i u(x i ) = 0, c = - &lt; d, L † t &gt; n i=1 d i<label>(21)</label></formula><p>This is the unique solution of Laplace learning model.</p><formula xml:id="formula_28">Kernel representation: K = L †</formula><p>Weight vector α: only on labeled nodes (i &lt; m), α i = y i -ȳ.</p><formula xml:id="formula_29">Offset c: c = -&lt;d,L † t&gt; n i=1 di .</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.4">Comparison</head><p>• All three methods can be interpreted as in (9). It is different from SVMs in the sense that alphai might not be equal to 0.</p><p>• For Laplace learning, weight vector α might not sum to 0 even with centralizing y to have labels summed to 0. This might make biased decision favoring the class with more weights to labeled nodes (such as labeled nodes of high density).</p><p>• For Laplace regularization, weight vector α might not sum to 0, but with centralizing y, the decision function is nearest class mean classifier.</p><p>• For Poisson learning can be seen as Laplace regularization with a chosen threshold c.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.5">Conclusion</head><p>1. What is the problem with Laplace learning? The weight vector α depend on edge weights adjacent to labeled nodes. Centralizing labels does not solve the problem. Solution? Centralizing α will make it a nearest class mean classifier, with class-mean is a weighted sum of border nodes. 2. Laplace regularization with label centralization becomes nearest class mean classifier. 3. What is Poisson learning in the RKHS? It becomes nearest class mean classifier with an offset (or Laplace regularization with an offset). 4. Can Poisson learning avoid the global information loss problem on large graph? The answer is N O due to L † representation. 5. What is the advantage of Poisson learning? Offset c, which acts as a threshold for classification. Can it improve classification errors on Laplace regularization? Possible if the offset is meaningful. Can it improves AUC scores on Laplace regularization? No, they give the same AUC scores. 6. What is the meaning of the offset c? It depends on how the weights are constructed. One way to interpret is that i sign(u i )d i = 0 would be giving the two class an equal volume. 7. What happened on the extremely small training sizes [2]? Actually, it is the problem with Laplace learning, even with equal numbers of labeled points for each class, densities (on the underlining distributions) at the sampled points may vary greatly, making u unstable. Laplace regularization (with label centralization) and Poisson learning do not have this problem. More data would tend to avoid this problem as labeled data density converges to mean class density.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 1 :</head><label>1</label><figDesc>Comparing decision functions of methods</figDesc><table><row><cell>Method</cell><cell cols="2">Kernel α</cell><cell>Classification functions</cell></row><row><cell>Laplace</cell><cell>L  † 2</cell><cell>-L 21 v</cell><cell>nearest class prototype</cell></row><row><cell cols="2">Regularization L  †</cell><cell>y</cell><cell>nearest class mean</cell></row><row><cell>Poisson</cell><cell>L  †</cell><cell cols="2">y -ȳ (i &lt; m) nearest class mean</cell></row></table><note><p>c: usually not taken into account, namely c = 0</p></note></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Asymptotic behavior of \(\ell p\)-based laplacian regularization in semisupervised learning</title>
+		<author>
+			<persName><forename type="first">Ahmed</forename><surname>El</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alaoui</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 29th Conference on Learning Theory, COLT 2016</title>
+		<editor>
+			<persName><forename type="first">Vitaly</forename><surname>Feldman</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Alexander</forename><surname>Rakhlin</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Ohad</forename><surname>Shamir</surname></persName>
+		</editor>
+		<meeting>the 29th Conference on Learning Theory, COLT 2016<address><addrLine>New York, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2016">June 23-26, 2016. 2016</date>
+			<biblScope unit="volume">49</biblScope>
+			<biblScope unit="page" from="879" to="906" />
+		</imprint>
+	</monogr>
+	<note>JMLR Workshop and Conference Proceedings</note>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Poisson learning: Graph based semi-supervised learning at very low label rates</title>
+		<author>
+			<persName><forename type="first">Jeff</forename><surname>Calder</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Brendan</forename><surname>Cook</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Matthew</forename><surname>Thorpe</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dejan</forename><surname>Slepcev</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 37th International Conference on Machine Learning, ICML 2020</title>
+		<meeting>the 37th International Conference on Machine Learning, ICML 2020</meeting>
+		<imprint>
+			<publisher>PMLR</publisher>
+			<date type="published" when="2020-07-18">18 July 2020. 2020</date>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="page" from="1306" to="1316" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Statistical analysis of semi-supervised learning: The limit of infinite unlabelled data</title>
+		<author>
+			<persName><forename type="first">Boaz</forename><surname>Nadler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nathan</forename><surname>Srebro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xueyuan</forename><surname>Zhou</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems 22: 23rd Annual Conference on Neural Information Processing Systems 2009. Proceedings of a meeting held</title>
+		<editor>
+			<persName><forename type="first">John</forename><forename type="middle">D</forename><surname>Lafferty</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">K</forename><forename type="middle">I</forename><surname>Christopher</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Aron</forename><surname>Williams</surname></persName>
+		</editor>
+		<editor>
+			<persName><surname>Culotta</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Vancouver, British Columbia, Canada</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2009-12-10">10 December 2009</date>
+			<biblScope unit="page" from="1330" to="1338" />
+		</imprint>
+	</monogr>
+	<note>Yoshua Bengio, Dale Schuurmans</note>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">New resistance distances with global information on large graphs</title>
+		<author>
+			<persName><forename type="first">Canh</forename><surname>Hao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nguyen</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hiroshi</forename><surname>Mamitsuka</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 19th International Conference on Artificial Intelligence and Statistics</title>
+		<editor>
+			<persName><forename type="first">Arthur</forename><surname>Gretton</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Christian</forename><forename type="middle">C</forename><surname>Robert</surname></persName>
+		</editor>
+		<meeting>the 19th International Conference on Artificial Intelligence and Statistics<address><addrLine>Cadiz, Spain</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2016-05-09">2016. May 9-11, 2016. 2016</date>
+			<biblScope unit="volume">51</biblScope>
+			<biblScope unit="page" from="639" to="647" />
+		</imprint>
+	</monogr>
+	<note>JMLR Workshop and Conference Proceedings AISTATS</note>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Hitting and commute times in large random neighborhood graphs</title>
+		<author>
+			<persName><forename type="first">Agnes</forename><surname>Ulrike Von Luxburg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Matthias</forename><surname>Radl</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Hein</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Mach. Learn. Res</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1751" to="1798" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Semi-supervised learning using gaussian fields and harmonic functions</title>
+		<author>
+			<persName><forename type="first">Xiaojin</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zoubin</forename><surname>Ghahramani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">John</forename><forename type="middle">D</forename><surname>Lafferty</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning, Proceedings of the Twentieth International Conference (ICML 2003)</title>
+		<editor>
+			<persName><forename type="first">Tom</forename><surname>Fawcett</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">Nina</forename><surname>Mishra</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Washington, DC, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>AAAI Press</publisher>
+			<date type="published" when="2003">August 21-24, 2003. 2003</date>
+			<biblScope unit="page" from="912" to="919" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

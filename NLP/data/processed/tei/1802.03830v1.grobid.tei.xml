@@ -1,0 +1,944 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Distributed Stochastic Multi-Task Learning with Graph Regularization</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2018-02-11">11 Feb 2018</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Weiran</forename><surname>Wang</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">Toyota Technological Institute at Chicago</orgName>
+								<address>
+									<region>IL</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Jialei</forename><surname>Wang</surname></persName>
+							<affiliation key="aff1">
+								<orgName type="department">Department of Computer Science</orgName>
+								<orgName type="institution">University of Chicago</orgName>
+								<address>
+									<region>IL</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Mladen</forename><surname>Kolar</surname></persName>
+							<affiliation key="aff2">
+								<orgName type="department">Booth School of Business</orgName>
+								<orgName type="institution">University of Chicago</orgName>
+								<address>
+									<region>IL</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Nathan</forename><surname>Srebro</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">Toyota Technological Institute at Chicago</orgName>
+								<address>
+									<region>IL</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Distributed Stochastic Multi-Task Learning with Graph Regularization</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2018-02-11">11 Feb 2018</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">F93596377D011BF5A742906337D3A096</idno>
+					<idno type="arXiv">arXiv:1802.03830v1[stat.ML]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>We propose methods for distributed graph-based multi-task learning that are based on weighted averaging of messages from other machines. Uniform averaging or diminishing stepsize in these methods would yield consensus (single task) learning. We show how simply skewing the averaging weights or controlling the stepsize allows learning different, but related, tasks on the different machines.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>We consider a distributed learning problem in a multi-task setting: each machine i has access to samples from a different data distribution D i , with potentially a different optimal predictor, and thus a different learning task, but where we still assume some similarity between different tasks. The goal of each machine is to find a good predictor for its own task, based on its own local data, as well as communicating with the other machines so as to leverage the similarity to other related tasks.</p><p>Distributed multi-task learning lies between a homogeneous distributed learning setting (e.g. <ref type="bibr" target="#b25">Shamir and Srebro, 2014)</ref>, where all machines have data from the same source distribution, and inhomogeneous consensus problems (e.g. <ref type="bibr" target="#b21">Ram et al., 2010;</ref><ref type="bibr" target="#b6">Boyd et al., 2011;</ref><ref type="bibr" target="#b4">Balcan et al., 2012)</ref>, where each machine sees data from a different source, but the goal is to reach a single consensus predictor. In many distributed learning problems, different machines do indeed see different distributions. For example, machines might serve different geographical regions. In a more extreme "federated learning" <ref type="bibr" target="#b12">(Konecny et al., 2015)</ref> scenario, each machine is a single user device, and its data distribution might reflect e.g. the user's speech, language biases, usage patterns, etc. Such heterogeneity requires departing from a homogeneous model. But if the data distribution on each machine is different, we might as well learn a personalized predictor for each machine, while still leveraging commonalities as in multi-task learning, instead of insisting on consensus. Unlike when seeking consensus, we could learn a predictor entirely locally, ignoring data on other machines. But the premise of multi-task learning is that by communicating with other machines we can improve our predictions, reduce the sample complexity, and hopefully also reduce the computational cost on each machine by distributing the computation.</p><p>Central to multi-task learning is the notion of relatedness between tasks. In a high-dimensional setting, with large number of variables, we might expect a small common set of predictive variables, where the form of the dependence on variables in this common set varies between tasks <ref type="bibr" target="#b27">(Turlach et al., 2005;</ref><ref type="bibr" target="#b20">Obozinski et al., 2011;</ref><ref type="bibr" target="#b15">Lounici et al., 2011;</ref><ref type="bibr" target="#b29">Wang et al., 2015)</ref>. Another approach is to assume that the predictors lie in a shared lower dimensional subspace <ref type="bibr" target="#b1">(Ando and Zhang, 2005;</ref><ref type="bibr" target="#b34">Yuan et al., 2007;</ref><ref type="bibr" target="#b30">Wang et al., 2016)</ref> or all have low-norm under some shared linear representation <ref type="bibr" target="#b0">(Amit et al., 2007;</ref><ref type="bibr" target="#b2">Argyriou et al., 2008)</ref>. Both the shared sparsity and shared subspaces models have recently been considered in a distributed learning setting <ref type="bibr" target="#b29">(Wang et al., 2015</ref><ref type="bibr" target="#b30">(Wang et al., , 2016))</ref>, and nuclear-norm regularized multi-task learning has been studied from a distributed optimization perspective <ref type="bibr" target="#b5">(Baytas et al., 2016)</ref>.</p><p>In this paper, we consider graph-based multi-task learning, where relatedness between tasks is specified through a weighted graph over the tasks. Neighboring tasks in the graph are expected to be similar, with a penalty for dis-similarity specified by the weight between them (see precise formulation in Section 2) <ref type="bibr" target="#b17">(Maurer, 2006;</ref><ref type="bibr" target="#b9">Evgeniou et al., 2005)</ref>. This also generalized a simpler "fully connected" multi-task model where all predictors are close to each other <ref type="bibr" target="#b8">(Evgeniou and Pontil, 2004)</ref>. A predictor-homogeneous assumption can also be viewed as an extreme case where all weights go to infinity, forcing all predictors to be identical. In distributed multi-task learning, graph-based relatedness is especially appealing if the relatedness graph also matches the graph of network links between machines, as might be the case, e.g. in a geographical setting or with physical sensors. We therefor emphasize and prefer methods with communication only between neighboring tasks on the graph.</p><p>In designing methods for graph-based multi-task learning, we are interested in methods that (1) are natural and simple-all our algorithms have a similar and natural structure, involving weighted averaging of messages from neighboring machines and a local gradient or prox calculation; (2) have low communication costs, are sample efficient, and preferably also have low computational cost; and</p><p>(3) are backed by rigorous guarantees on the amount of communication, samples and computation required.</p><p>Graph-based multi-task learning has been recently studied by <ref type="bibr" target="#b28">Vanhaesebrouck et al. (2017)</ref> and <ref type="bibr" target="#b14">Liu et al. (2017)</ref>, both considering the problem as distributed optimization of the multitask regularized empirical objective, similar to our approach in Section 3.2). <ref type="bibr">Vanhaesebrouck et al. suggested</ref> an asynchronous gossip-type algorithms and an ADMM procedure, while Liu et al. proposed using SDCA, and also considered learning the relatedness graph itself. Neither provides any statistical analysis, nor analysis of the iteration complexity and communication cost based on the methods. We conduct detailed comparison of convergence properties with these methods in Appendix H, providing upper bounds of their iteration complexities when possible; our methods have faster convergence than the guarantees we could obtain for them. Also, neither directly considers the underlying learning problem (minimizing the actual expected errors), and so neither studies stochastic methods (in the flavor of our Section 4).</p><p>Here, we show how methods that arise naturally by skewing averaging weights or controlling stepsize of consensus learning methods do yield good guarantees. We also propose stochastic methods which allow reducing the computational cost, and we compare the empirical performance of both our batch and stochastic methods to those of <ref type="bibr" target="#b28">Vanhaesebrouck et al. (2017)</ref> and <ref type="bibr" target="#b16">Ma et al. (2015)</ref>.</p><p>Notations In this paper, boldface lower-case letters denote column vectors, boldface capital letters denote matrices, vec(U) is the vectorial form of a matrix U which concatenates columns of U, and U⊗V is the Kronecker product between two matrices U and V. Furthermore, u, v = u v denotes the inner product of two vectors u and v, while U, V = tr U V denotes inner product of two matrices U and V of the same dimensions. We use u = u, u to denote the length of a vector u, U F = vec(U) the Frobenius norm of a matrix U, and U M = tr (UMU ) = UM, U the norm of U with respect to some positive definite matrix</p><formula xml:id="formula_0">M. A function f (x) is Lipschitz if |f (x) -f (y)| ≤ L x -y , ∀x, y. A convex function f (x) is β-smooth and µ-strongly convex if µ 2 x -y 2 ≤ f (x) -f (y) -∇f (y), x -y ≤ β 2 x -y 2 , ∀x, y.</formula><p>This definition extends to functions of matrices, by replacing the vector norm with the Frobenius norm in the above inequality.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Graph-based multi-task learning</head><p>Consider a distributed setting with m machines, where each machine i has access to a data distribution D i and would like to learn a predictor w i ∈ R d for each machines with small expected loss</p><formula xml:id="formula_1">F i (w i ) = E z i ∼D i [ℓ(w i , z i )].</formula><p>A known weighted graph, with known non-negative weights {a ik }, specifies the relatedness between tasks. Specially, we would like to consider predictor matrices</p><formula xml:id="formula_2">W = [w 1 , w 2 , . . . , w m ] ∈ R d×m from the set Ω = W : w i 2 ≤ B 2 , ∀i = 1, . . . , m, i =k a ik 2 w i -w k 2 ≤ S 2 ,</formula><p>i.e., we would like the norm of each individual predictor to be bounded (so that it has low complexity and generalizes well), and the weighted dis-similarities between related predictors to also be small. Taking an agnostic PAC-learning approach, our goal is to minimize the overall population objective</p><formula xml:id="formula_3">F (W) := 1 m m i=1 E z i ∼D i [ℓ(w i , z i )] ,<label>(1)</label></formula><p>and be competitive with respect to predictors in the set Ω. Denoting W * = arg min W∈Ω F (W) the optimal predictor from Ω, and we would like to learn a predictor W with F (W) ≤ F (W * ) + ε.</p><p>In our analysis, we take the instantaneous loss ℓ(w, z) to be L-Lipschitz continuous, and sometimes also assume it is smooth. In the latter case, we assume machine i's loss ℓ(w i , z i ) is β ismooth in w i , and so the global loss</p><formula xml:id="formula_4">F (W) is β F m -smooth in W with β F = max i=1,...,m β i .</formula><p>Even ignoring the constraint on the similarity between predictors, the sample complexity for each individual task (i.e. the number of samples from D i required to ensure</p><formula xml:id="formula_5">F i (w i ) ≤ F i (w * i ) + ε) is n L = O L 2 B 2 2</formula><p>. That is, with a total of O mL 2 B 2 2 samples, we can learn W with the desired guarantee F (W) ≤ F (W * ) + ε without any communication between the machines, by, e.g., solving an independent ℓ 2 -regularized ERM problem on each machine. This local approach is the baseline on which any method involving communication between the machines should improve.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Graph Laplacian The term</head><formula xml:id="formula_6">i =k a ik 2 w i -w k</formula><p>2 can be written equivalently using the graph Laplacian. Let A = [a ik ] ∈ R m×m be the adjacency matrix, and L = diag (A1) -A be the corresponding graph Laplacian (L ik = l =i a il if i = k, and L ik = -a ik otherwise), so that</p><formula xml:id="formula_7">i =k a ik 2 w i -w k 2 = i,k L ik w i , w k = tr WLW .</formula><p>The eigenvalues of L will play an important role and we denote them by 0</p><formula xml:id="formula_8">= λ 1 ≤ • • • ≤ λ m .</formula><p>Regularized ERM One way for learning the predictors is to solve the regularized empirical risk minimization (ERM) problem. Let F i (w i ) =<ref type="foot" target="#foot_0">foot_0</ref> n n j=1 ℓ(w i , z ij ) be the local empirical loss of machine i, and let Z = {z ij : i = 1, . . . , m, j = 1, . . . , n} be the sample set. The regularized ERM objective is</p><formula xml:id="formula_9">W = arg min W 1 m m i=1 F i (w i ) F (W) + η 2m m i=1 w i 2 + τ 2m tr WLW R(W) ,<label>(2)</label></formula><p>where η, τ ≥ 0 are regularization parameters. Let W = arg min W F (W) + R(W) be the solution to (2).</p><p>To understand the statistical property of multi-task learning and facilitate further discussion, we first analyze the generalization error of W. Inspired by <ref type="bibr" target="#b17">Maurer (2006)</ref>, who showed essentially the same learning guarantee for the solution of a constrained ERM problem (i.e., arg min W∈Ω F (W)), we provide guarantee for the regularized ERM solution W. Our motivation for studying regularized ERM rather than constrained ERM is that it is easier to solve unconstrained problem using (proximal) gradient methods, and we avoid computing projection onto the constraint set Ω, which is difficult in a distributed setting. 1  While the analysis of <ref type="bibr" target="#b17">Maurer (2006)</ref> was based on the Rademacher complexity of Ω (and required the solution to lie in Ω), our proof uses the stability based argument for generalization with strongly convex regularizers <ref type="bibr" target="#b24">(Shalev-Shwartz et al., 2009)</ref>. Our analysis also reveals a fundamental connection between single-and multi-task learning: to obtain generalization of a single task in the distributed setting, we only need concentration for the sampling process of that task. In our case, we consider strong convexity w.r.t. the W M -norm where M = I + τ η L. Lemma 1. Assume that the instantaneous loss ℓ(w, z) is L-Lipschitz with respect to w. Then for the ERM solution defined in (2), we have</p><formula xml:id="formula_10">E Z F ( W) -F ( W) ≤ 4L 2 mn m i=1 1 η+τ λ i . Corollary 2. Set η = 2LB 1+m•ρ(B,S) mn B 2 and τ = 2LB 1+m•ρ(B,S) mn S 2 /m in (2), where ρ(B, S) := 1 m m i=2 1 1 + λ i mB 2 /S 2 . Then E Z F ( W) -F (W * ) ≤ 4LB 1+m•ρ(B,S) mn .</formula><p>The quantity ρ(B, S) measures task relatedness and thus the benefit of multi-task learning. It depends on the parameters (B, S) and the graph, but not the data. The value of ρ(B, S) ranges from 0 (when λ i mB 2</p><p>S 2 ) to m-1 m ≤ 1 (when λ i mB 2 S 2 ), corresponding to two extreme cases.</p><p>• When S is small and the graph is connected with high weights, the predictors are encouraged to be similar to each other (we have a consensus problem if S = 0 and the graph is connected), and ρ(B, S) is close to 0. The generalization error is then O LB √ mn , corresponding to that of single task learning using mn samples.</p><p>• When S is large or the graph is disconnected, tasks are not very related and ρ(B, S) is close to 1. In this case, the generalization error behaves like O LB √ n , and we are essentially performing local learning with n samples for each task.</p><p>For a fixed number of machines m and graph Laplacian L, to achieve ε excess population error by the above approach, the number of samples used by each machines is</p><formula xml:id="formula_11">n C = O L 2 B 2 (1/m+ρ(B,S)) ε 2 = O ((1/m + ρ(B, S)) • n L ).</formula><p>Therefore, when the tasks are related and ρ(B, S) is small, the sample complexity of multi-task learning is significantly smaller than n L needed by the local approach.</p><p>To implement the regularized ERM approach in the distributed setting, we could have each machines send n C samples to a central machine, and then minimize the regularized empirical loss on that machine. We refer to this baseline as the centralized approach-it is sample efficient, but expensive in terms of communication and computation. We are interested in distributed multi-task learning algorithms that are also sample efficient, i.e. use only O(n C ) samples on each machine (or at least, not much more then this), but have low computation and communication costs. This can be done either by low-communication distributed optimization of the regularized empirical error (2).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Distributed algorithms for ERM</head><p>In this section, we propose efficient distributed algorithms for minimizing the regularized empirical objective (2). The simplest approach is perhaps to perform gradient descent on F (W ). Interestingly, such updates take the form:</p><formula xml:id="formula_12">w t+1 i = m k=1 µ t+1 ki w t k -α t+1 ∇ F i (w t i ),<label>(3)</label></formula><p>where α t+1 &gt; 0 is the stepsize at iteration t+1, and the weights for combining neighboring predictors are</p><formula xml:id="formula_13">µ t+1 ki = 1 -α t+1 (η + τ k a ik ) : if i = k, α t+1 τ a ik : otherwise.<label>(4)</label></formula><p>With an appropriate step-size schedule (or even a fixed stepsize if the loss is smooth), this method converges to W. Furthermore, the updates require only communication along the relatedness graph, since the update for each machines involves only predictors from neighboring machines (with nonzero affinities). This is already a very natural and intuitive method for distributed multitask learning, and we will return to it later. When the loss is smooth, the method can be accelerated using Nesterov's techniques <ref type="bibr" target="#b19">(Nesterov, 2004</ref>, as detailed in Appendix C) without any increase in communication costs nor substantial increase in computation. But first, we suggest two more powerful alternatives.</p><p>Taking steps based on the gradients amounts to considering, in each iteration, a linearization of the objective, that is of both the empirical loss F (W) and the regularizer R(W). However, in order to obtain a distributable update, it is sufficient to linearize only one of these components while treating the other more explicitly, since each one of them separately can be efficiently optimized in a distributed way: the empirical loss F (W) decomposes over machines, and so can be directly optimized in a distributed way, while R(W) is data independent and could be optimized implicitly based on the common knowledge of the relatedness graph. In the following, we consider two distributed schemes, each based on directly handling one of the components, and each preferable in a different regime depending on the relatedness graph and the structure and cost of communication.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Directly solving the regularizer</head><p>We first consider methods which directly handle the regularization term R(W). To do so, we consider the change of variable U t = W t M 1<ref type="foot" target="#foot_1">foot_1</ref> where M = I + τ η L, we can rewrite the ERM objective as</p><formula xml:id="formula_14">min U F (UM -1 2 ) + η 2m U 2 F .<label>(5)</label></formula><p>We propose to optimize this objective using gradient descent with respect to U, which reduces to the updates in the W-space: for t = 0, . . . ,</p><formula xml:id="formula_15">W t+1 = 1 -α t+1 η W t -α t+1 ∇ F (W t ) • M -1 (6)</formula><p>where α t+1 &gt; 0 is the stepsize at iteration t + 1. In each iteration, machine i performs the following update with µ t+1 ki = α t+1 (M -1 ) ki :</p><formula xml:id="formula_16">w t+1 i = 1 -α t+1 η w t i - m k=1 µ t+1 ki ∇ F k (w t k ). (<label>7</label></formula><formula xml:id="formula_17">)</formula><p>This update can be implemented in the distributed setting with a broadcast channel: it requires that each machine has access to gradients of all machines, which can be achieved using one round of global, all-to-all communication (not respecting the graph). We could compute M -1 offline ahead of time, and need not re-calculated at each iteration. When the loss is smooth, we can accelerate (7) using Nesterov's techniques without additional communication costs. Setting a constant stepsize 1 α t+1 = β F + η, which is the smoothness parameter of the objective (5) in U 2 , to achieve -suboptimality in (2), the iteration complexity of the accelerated algorithm is O</p><formula xml:id="formula_18">β F +η η log 1 .</formula><p>To achieve ε excess error in the population loss, we set the optimization error = O(ε) and plug in the choice of η from Corollary 2, yielding the iteration complexity O β F B 2 /ε .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Directly optimizing the loss</head><p>The above algorithm requires dense, broadcast communication for solving the proximal step defined by the graph. In a decentralized setting, it is desired to develop algorithms which use only local, peer-to-peer communication. This can be achieved by the updates below, where we linearize the graph regularizer but fully optimize over the loss:</p><formula xml:id="formula_19">W t+1 = arg min W ∇R(W t ), W -W t + 1 2mα t+1 W -W t 2 F + F (W),<label>(8)</label></formula><p>where α t+1 is the stepsize at iteration t+1. As (8) decouples over machines, machine i independently computes a proximal operation using local data:</p><formula xml:id="formula_20">w t+1 i = arg min u 1 2α t+1 u -(w t i -mα t+1 ∇ w i R(W t )) 2 + F i (u).</formula><p>By the optimality condition of this update, we have</p><formula xml:id="formula_21">w t+1 i = m k=1 µ t+1 ki w t k -α t+1 ∇ F i (w t+1 i ),<label>(9)</label></formula><p>where the weights for combining neighboring predictors are the same as those in (4). Comparing ( <ref type="formula" target="#formula_21">9</ref>) with the similar update (3) where we linearized both the regularizer and the loss, we observe that ( <ref type="formula" target="#formula_21">9</ref>) is also a form of gradient method, with the gradient of loss evaluated at the "future" point.</p><p>The advantage of ( <ref type="formula" target="#formula_21">9</ref>) is that the gradient ∇R(W) is data-independent and is obtained using only one round of local communication from each machine to its neighbors. Furthermore, the computation decouples over machines, and each machine optimizes the nonlinearized loss without communication. In fact, we need not solve the proximal steps exactly since the (accelerated) proximal gradient method is tolerant to errors in the steps <ref type="bibr" target="#b23">(Schmidt et al., 2011)</ref>, and sufficiently accurate solutions can often be obtained in time nearly linear in the number of examples processed using variance-reduced finite-sum methods such as SVRG <ref type="bibr" target="#b11">(Johnson and Zhang, 2013)</ref>. Overall, this is a communication-efficient approach in which each machine tries to spend significant amount of time performing local computations on its own data, and to communicate only infrequently. Note that similar proximal type operations also appear in the ADMM algorithm of <ref type="bibr" target="#b28">Vanhaesebrouck et al. (2017)</ref>, but the decoupling of tasks is different, because in the local problems of ADMM, each machine optimizes over also a copy of neighboring predictors.</p><p>We can again accelerate (9) using Nesterov's techniques, and set 1 mα t+1 = β R = η+τ λm m , which is the smoothness parameter of R(W) in W. Then, to achieve ε excess error in the population objective, the number of iterations needed by the accelerated algorithm is</p><formula xml:id="formula_22">O β R η/m = O λmmB 2 S 2</formula><p>, using the choice of η and τ from Corollary 2. We also show that this algorithm is tolerant to delay and analyze its convergence under bounded delay in Appendix G.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Stochastic algorithms</head><p>In ERM, we collect training samples on each machine ahead of time, and solve a fixed optimization problem defined by them. But in real-world scenarios, we might have access to virtually unlimited data, or a constantly available stream of examples. In this case, it might be statistically wasteful to reuse examples over iterations. Or, even if we do have a finite amount of data, as we shall see,</p><p>Table 1: Algorithms for distributed stochastic multi-task learning with graph regularization. Here ε is the excess error in the population objective</p><formula xml:id="formula_23">; n C = O L 2 B 2 •(1/m+ρ(B,S)) ε 2 and n L = O L 2 B 2 2</formula><p>; |E| denotes the number of edges in the graph. For simplicity, schematic updates ignores acceleration, but the rates are given for the accelerated algorithms. Each cell shall be interpreted as O(•) which hides poly-logarithmic dependencies.</p><p>Algorithms Communication rounds Vectors (∈ R d ) communicated per machine Sample complexity per machine Total Samples processed per machine local 0 0</p><formula xml:id="formula_24">n L = n C 1 m +ρ(B,S) n L centralized n C n C = n L • ( 1 m + ρ(B, S)) m • n C ERM: directly solving regularizer 1. g t+1 i = k µ t+1 ki ∇ F k (w t k ) where µ t+1 ki = α t+1 (M -1 ) ki 2. w t+1 i = w t i -g t+1 i B 2 ε m • B 2 ε n C n C • B 2 ε = n C • 4 √ n L ERM: directly optimizing loss 1. w t i = k µ t+1 ki w t k where µ t+1 ki = (I -α t+1 ηM) ki 2. w t+1 i = w t i -α t+1 ∇ F t+1 i (w t+1 i ) λmmB 2 S 2 |E| m • λmmB 2 S 2 n C n C • λmmB 2 S 2 Stochastic: directly solving regularizer Algorithm 2, b = O n C ε B 2 1. g t+1 i = k µ t+1 ki ∇ F t+1 k (w t k ) where µ t+1 ki = α t+1 (M -1 ) ki 2. w t+1 i = w t i -g t+1 i B 2 ε m • B 2 ε n C n C Stochastic: directly optimizing loss 1. w t i = k µ t+1 ki w t k where µ t+1 ki = (I -α t+1 ηM) ki 2. w t+1 i = w t i -α t+1 ∇ F t+1 i (w t+1 i ) |E| m per iteration n S , probably ∈ (n C , n L ) n S</formula><p>we can get the same communication and statistical guarantee while processing only a minibatch at a time, thus significantly reducing computational cost. We consider stochastic variants of the approaches in Section 3 to directly optimize the population loss F (W), using fresh samples in each update.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Directly solving the regularizer</head><p>Analogous to (7), we could perform minibatch SGD with b samples per machine to approximate the gradient of the population loss: for t = 0, . . . ,</p><formula xml:id="formula_25">w t+1 i = w t i - m k=1 µ t+1 ki ∇ F t+1 k (w t k ). (<label>10</label></formula><formula xml:id="formula_26">)</formula><p>where We can accelerate (10) using the accelerated stochastic approximation (AC-SA) algorithm of <ref type="bibr" target="#b13">Lan (2012)</ref>. We provide the detailed accelerated algorithm in both the U-space and W-space in Algorithm 2 (Appendix D). We have the following guarantee after running it for T iterations.</p><formula xml:id="formula_27">F t+1 k (w t k ) = 1 b b j=1 ℓ(w t k , z<label>t+1</label></formula><p>Theorem 3. Set the initialization W 0 = 0 and stepsizes</p><formula xml:id="formula_28">θ t+1 = t+1 2 , α t+1 = t+1 2 min m 2β F , √ 12mB 2 (T +2) 3 2 σ in Algorithm 2. Then E F (W T ag ) -F (W * ) ≤ O σ √ mB 2 √ bT + β F B 2 T 2</formula><p>. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Sample complexity</head><formula xml:id="formula_29">T * = n b * = O β F B 2 ε(m,n)</formula><p>, also matching that of ERM. However, since each stochastic gradient uses only b = o(n) samples, the local computation ∇ F t+1 (W t ) is significantly reduced.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Directly optimizing the loss</head><p>Analogous to (8), we can use the stochastic algorithm where at iteration t + 1, machine i computes</p><formula xml:id="formula_30">w t+1 i = arg min u 1 2α t+1 u -w t i -mα t+1 ∇ w i R(W t ) 2 + 1 b b j=1 ℓ(u, z t+1 ij ). (<label>11</label></formula><formula xml:id="formula_31">)</formula><p>For b = n, it has the same per iteration computation cost as the ERM counterpart (both process n samples in each iteration). But, intuitively, it would outperform the ERM algorithm for the same number of iterations/communications because it uses more fresh samples. We can prove the convergence of this algorithm, but do not have a satisfactory analysis showing it is sample efficient. We conjecture that its sample complexity per machine, denoted by n S , is in the range (n C , n L ). We implemented the accelerated version of this simple algorithm and this conjecture seems to be supported by our experiments. In Appendix E, we provide a more complicated algorithm based on the minibatch-prox algorithm of <ref type="bibr" target="#b31">Wang et al. (2017)</ref>, that is sample efficient and trade off communication and memory costs.</p><p>Comparison of the different approaches Table <ref type="table">1</ref> summarizes the communication and computation complexities of the proposed algorithms. Some of our methods require solving local regularized-ERM type problems on each machine. We do not analyze the precise complexity and required accuracy of such local computation, but keep track of the number of samples processed on each machine, i.e. sum of the sizes of the subproblems over the iterations, as the proxy for computational complexity. We emphasize that, despite the simplicity of our ERM methods, their have faster convergence than what we could obtain for previous methods; see detailed discussions in Appendix H. Our stochastic algorithms mirror the ERM algorithms in terms of updates, but can be computationally much more efficient.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Connection to consensus learning</head><p>The iterations we consider all involve taking a weighted average of messages (iterates or gradients) from other machines and a local gradient or prox computation. These same type of iterates have also been suggested and studied as methods for solving the consensus problem-that is, finding a single consensus predictor w that is good for all machines and minimizes</p><formula xml:id="formula_32">F (W) = 1 m m i=1 F i (w i ).</formula><p>But the consensus problem is fundamentally different from our "pluralistic" multi-task problem, with a different optimum. In this section we will understand what makes the same form of updates, namely updates of the form (3), ( <ref type="formula" target="#formula_16">7</ref>), ( <ref type="formula" target="#formula_21">9</ref>) or their stochastic variants, converge to either the consensus solution or to the pluralistic multi-task solution. In particular, we show how consensus methods are obtained as special cases of these updates, or as limits of the multi-task approach.</p><p>Averaging gradients Let us begin with the update of the form (7) or its stochastic variant (10), where we take a weighted average of gradients from other machines. When the averaging weights are uniform, i.e. µ t ki = α t /m for all i, k, and as long as all machines start from the same initialization (e.g. w t i = 0), the iterates will continue to be identical across machines throughout optimization (i.e. we will have w t i = w t j for all i, j, t), thus maintaining consensus. Furthermore, the update (7) then boils down to precisely gradient descent on the empirical consensus objective F (W) + η 2m W 2 F , while the stochastic variant ( <ref type="formula" target="#formula_16">7</ref>) is precisely a mini-batch stochastic gradient descent update on the consensus objective, with a mini-batch consisting of the union of the samples used across machines. Indeed, mini-batch SGD is a common approach for solving the distributed consensus problem, or for distributed learning in a homogeneous setting (where we assume the same distribution across machines, or at least the same good predictor). What we saw in Section 3, is that by changing to non-uniform weights, given by µ ∝ M -1 , we can allow pluralism and converge to the multi-task solution.</p><p>We can furthermore observe how uniform weights (and therefor gradient descent/mini-batch SGD on the consensus problem) are obtained as a limit of the multi-task weights µ ∝ M -1 . If the graph is connected, λ 1 = 0 is the only zero eigenvalue of the Laplacian L with an associated eigenvector of u = [1, . . . , 1] (if the graph is not connected, we cannot expect consensus, as each connected component will behave independently). Therefor M -1 = (I + τ η L) -1 has a leading eigenvalue of 1 of multiplicity one, associated with the eigenvector u. As S → 0 and so τ → ∞, that is we are demanding increasing similarity between machines, the leading eigenvalue of M -1 remains 1 while all other eigenvalues go to zero, implying that M -1 → 1 m uu and so µ t ki = α t M -1 ki → α t /m. That is, as we demand increasing similarity between machines, and thus converge to a consensus situation, the updates converge to standard consensus gradient descent or mini-batch SGD updates.</p><p>Averaging iterates Let us now turn to updates of the form (3), the related prox updates (9), and their stochastic variants. <ref type="bibr" target="#b18">Nedić and Ozdaglar (2009)</ref> proposed updates precisely of the form (3) as a decentralized procedure for the consensus problem. They showed that when the averaging weights µ t ki are doubly stochastic and do not vary between iterations (i.e. µ t ki = µ ki , ∀ k i µ ki = 1 and ∀ j k µ ki = 1), and the stepsize on the gradient goes to zero, i.e. α t t→∞ ---→ 0, the updates (3) converge to the consensus solution. In our case, the averaging weights, as defined in (4), deviate from double-stochasticity, since k µ t ki = 1α t η. Furthermore, and possibly more significantly, to obtain our convergence guarantees for smooth loss, we do not take α t to zero. Even if we were to use diminishing stepsizes in our derivations, we would have α t → 0, but in that case the averaging weights would not be fixed over iterations (as is the case in consensus optimization) and we would have µ t → I.</p><p>To see how consensus updates are obtained as a limiting case of our multi-task setting, we again consider a connected graph and study what happens as S → 0 and so τ → ∞, while B and therefor η remain fixed. This corresponds to a fixed amount of local regularization, and increasing expectation that neighboring nodes are similar. Under this scaling, we would indeed have α = 1/(η + τ λ m ) → 0, where λ m &gt; 0 since the graph is connected. Furthermore, we have that αη → 0 while ατ → 1/λ m &gt; 0. Plugging this scaling into the multi-task averaging weights (4), we obtain the doubly stochastic weights:</p><formula xml:id="formula_33">µ t ki → 1 -1 λm k a ik : if i = k, 1 λm a ik : otherwise. (<label>12</label></formula><formula xml:id="formula_34">)</formula><p>To summarize, a significant differentiation between consensus and multi-task learning is therefor in whether α t diminishes relative to (µ t -I). When our relatedness constraints approach consensus, α t can diminish while µ t is non-trivial and doubly stochastic. In fact, in studying consensus optimization, <ref type="bibr" target="#b33">Yuan et al. (2016)</ref> recently noted that when α t does not diminish, the methods does not converge to the consensus solution but only to a neighborhood of it. In light of our analysis, we now understand that this "neighborhood" corresponds to the multi-task learning solution, which indeed becomes increasingly similar to the consensus solution as S → 0.</p><p>Connection to the decentralized algorithm of <ref type="bibr" target="#b22">Scaman et al. (2017)</ref> When the graph is connected, the consensus constraint w 1 = • • • = w m can be equivalently written as W √ L = 0, since the null space of L contains only vectors of constants. Then the multi-task formulation (2) is a relaxation of min</p><formula xml:id="formula_35">W √ L=0 1 m m i=1 F i (w i ) + η 2m m i=1 w i 2 (13)</formula><p>with the quadratic term τ 2 tr WLW penalizing the constraint violation. The quadratic penalty τ 2 tr WLW may lead to a large condition number for our algorithm (8) as τ → ∞.</p><p>Recently, <ref type="bibr" target="#b22">Scaman et al. (2017)</ref> proposed an algorithm with optimal iteration/communication complexities for decentralized consensus learning, which performs accelerated gradient descent on the dual problem of ( <ref type="formula">13</ref>), with updates (before acceleration):</p><formula xml:id="formula_36">W t+1 = arg max W V t , W -F (W), V t+1 = V t -αW t+1 L,<label>(14)</label></formula><p>where V 0 = 0 and α &gt; 0 is the stepsize. It can be seen that their algorithm consists of the same type of basic operations (weighted local average of predictors, and solutions of local subproblems involving non-linearized loss) as ours. As noted by the authors, this is a form of distributed augmented Lagrangian method without the quadratic penalty.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">Experiments</head><p>We examine different graph-based multi-task learning methods on the task of least squares regression using synthetic data. More details of the experiments (including data generation and more results) are given in Appendix I. The tasks are grouped into C clusters and the true predictors within the same cluster are generated from the same Gaussian distribution, thus smaller C implies higher task relatedness. We have input dimension d = 100, number of tasks m = 100, training set size n = 500, and vary number of task clusters C over {1, 5, 10, 50}. We also generate a dev set of 10000 samples per task for tuning hyper-parameters, and test set of 10000 samples per task for approximately evaluating the population loss. The affinity graph A ∈ R 100×100 is a (connected) 10-nearest neighbor graph with binary weights built on the true predictors.</p><p>The methods compared here are: Local, which solves a local ERM problem (with ℓ 2 -regularization) with n samples for each task; Centralized, which solves the regularized ERM problem (2) with n samples for each task; ADMM, which is the synchronized version of the algorithm of <ref type="bibr" target="#b28">Vanhaesebrouck et al. (2017)</ref>; SDCA, which is the algorithm used by <ref type="bibr" target="#b14">Liu et al. (2017)</ref> for fixed graph; our algorithms are denoted as B/S (batch/stochastic) + SR/OL (solve regularizer/optimize loss).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Empirical risk minimization</head><p>We fist compare the iterative methods on the regularized ERM problem (2), to which the analysis for ADMM and SDCA applies. We tune the ℓ 2 regularization parameter for Local and (η, τ ) for Centralized, and then fix the optimal (η, τ ) for other methods. We also tune the quadratic penalty parameter for ADMM, the task separability and stepsize parameters for SDCA, and stepsize parameter for BSR/BOL (although the default value based on the smoothness parameter already works well for them). For SSR/SOL, we draw random samples from the fixed training set (with size n), and simply fix the minibatch size to be n/10. Figure 1 (left panel) shows for each method the estimated F (W) over iterations (or rounds of communication) in the top row, and over the amount of computation (measured by the number of passes over the training set) in the bottom row. Observe that all iterative algorithms converge to the same ERM solution, our algorithms tend to consistently outperform ADMM and SDCA.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Stochastic optimization</head><p>We next demonstrate the efficiency of true stochastic algorithms (using fresh samples for each update) at C = 10. We allow the algorithms to process a total of 10000 fresh samples on each machine, and vary the minibatch size b over {40, 80, 100, 200, 500}. The parameters (η, τ ) are fixed to those used in the ERM experiments.</p><p>Figure <ref type="figure" target="#fig_3">1</ref> (right panel) shows for each method the estimated F (W) over iterations (or rounds of communication) in the left plot, and over the amount of fresh samples processed (or total computation cost) in the right plot. As a reference, the error of Local and Centralized (using n = 500 samples per machine) are also given in the plots. We observe that with fresh samples, stochastic algorithms are competitive to ERM algorithms in terms of sample complexity, while being computationally more efficient.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A Proof of Lemma 1</head><p>Recall that the ERM problem is defined as</p><formula xml:id="formula_37">W = arg min W F (W) + R(W) := 1 m m i=1 F i (w i ) + η 2m m i=1 w i 2 + τ 2m tr WLW ,</formula><p>where η, τ ≥ 0 are regularization parameters, Z = {z ij : i = 1, . . . , m, j = 1, . . . , n} is the sample set. And recall that λ i , i = 1, . . . , m are the eigenvalues of L.</p><p>Assume that the instantaneous loss ℓ(w, z) is L-Lipschitz in w. We would like to show that</p><formula xml:id="formula_38">E Z F ( W) -F ( W) ≤ 4L 2 mn m i=1 1 η + τ λ i .</formula><p>Proof. In the following, we define M = I + τ η L which is positive definite. Furthermore, perform the following change of variables</p><formula xml:id="formula_39">U = WM 1 2 , ⇔ w i = (UM -1 2 ) • e i</formula><p>where e i is the i-th standard basis in R m . We can then rewrite the losses using the new variables:</p><formula xml:id="formula_40">1 m ℓ(w i , z i ) = 1 m ℓ(UM -1 2 e i , z i ) =: h i (U, z i ), for i = 1, . . . , m,</formula><p>and the empirical objective as min</p><formula xml:id="formula_41">U∈R d×m H(U) := 1 n n j=1 h 1 (U, z 1j ) +   m i=2 1 n n j=1 h i (U, z ij ) + η 2m U 2 F   . (<label>15</label></formula><formula xml:id="formula_42">)</formula><p>We can view (15) as performing ERM in the space of U, using the instantaneous loss h 1 (U, z 1 ) with n independent samples {z 1j } j=1,...,n , and using the term in bracket as the z 1 -independent regularizer.</p><p>Recall that the ERM solution to an objective with Lipschitz loss and strongly convex regularizer is stable. Obviously, the regularization term in ( <ref type="formula" target="#formula_41">15</ref>) is η m -strongly convex in U. We now bound the Lipschitz constant of h 1 (U, z 1 ) in U. Observe that</p><formula xml:id="formula_43">∇ U h 1 (U, z 1 ) = 1 m ∇ w i ℓ(w 1 , z 1 ) • e 1 M -1 2 ,</formula><p>and as a result the Lipschitz constant is bounded by</p><formula xml:id="formula_44">∇ U h 1 (U, z 1 ) F = 1 m tr ∇ w 1 ℓ(w 1 , z 1 ) • e 1 M -1 e 1 • ∇ w 1 ℓ(w 1 , z 1 ) ≤ L (M -1</formula><p>) 11 m where we have used the L-Lipschitz continuity of ℓ(w 1 , z 1 ) which implies ∇ w 1 ℓ(w 1 , z 1 ) ≤ L.</p><p>According to <ref type="bibr" target="#b24">Shalev-Shwartz et al. (2009)</ref>[Theorem 6], for any fixed {z ij } i=2,...,m j=1,...,n , it holds for the ERM solution U = arg min U</p><formula xml:id="formula_45">H(U) = WM 1 2 that E {z 1j }   E z 1 [h 1 ( U, z 1 )] - 1 n n j=1 h 1 ( U, z 1j )   ≤ 4 L (M -1 ) 11 m 2 (ηn/m) = 4L 2 (M -1 ) 11 ηmn .</formula><p>Translating this in terms of the original variables, we have</p><formula xml:id="formula_46">∀ {z ij } i=2,...,m j=1,...,n , E {z 1j } F 1 ( W) -F 1 ( W) ≤ 4L 2 (M -1 ) 11 ηn where F 1 (W) = E z 1 [ℓ(w 1 , z 1 )] and F 1 (W) = 1 n n j=1 ℓ(w 1 , z 1j )</formula><p>. By the convexity of |•| and the Jensen's inequality, this implies</p><formula xml:id="formula_47">E Z F 1 ( W) -F 1 ( W) = E {z ij } i=2,...,m j=1,...,n E {z 1j } F 1 ( W) -F 1 ( W) ≤ E {z ij } i=2,...,m j=1,...,n E {z 1j } F 1 ( W) -F 1 ( W) ≤ 4L 2 (M -1 ) 11 ηn .</formula><p>This result shows that, to obtain generalization for a single task, we only need concentration for the sampling process of that task. By the same argument, we obtain similar inequalities regarding stability for losses on each machine. Finally, we have by the triangle inequality that</p><formula xml:id="formula_48">E Z F ( W) -F ( W) ≤ 1 m m i=1 E Z F i ( W) -F i ( W) ≤ 1 m m i=1 4L 2 (M -1 ) ii ηn = 4L 2 tr M -1 ηmn = 4L 2 m i=1 1 1+τ λ i /η</formula><p>ηmn which is what we set out to prove.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B Proof of Lemma 2</head><p>Based on Lemma 1, we now show that by properly setting the regularization parameters in the regularized ERM problem (2), i.e., η =</p><p>2LB 1+m•ρ(B,S) mn B 2 and τ = 2LB 1+m•ρ(B,S) mn S 2 /m</p><p>, we have that</p><formula xml:id="formula_49">E Z F ( W) -F (W * ) ≤ 4LB 1 + m • ρ(B, S) mn .</formula><p>where ρ(B, S)</p><formula xml:id="formula_50">:= 1 m m i=2 1 1+λ i mB 2 /S 2 .</formula><p>Proof. Observe that</p><formula xml:id="formula_51">E Z F ( W) ≤ E Z F ( W) + 4L 2 mn m i=1 1 η + τ λ i ≤ E Z F ( W) + R( W) + 4L 2 mn m i=1 1 η + τ λ i ≤ E Z F (W * ) + R(W * ) + 4L 2 mn m i=1 1 η + τ λ i = F (W * ) + R(W * ) + 4L 2 mn m i=1 1 η + τ λ i</formula><p>where we have used Lemma 1 in the first inequality, and that W is the empiric risk minimizer in the third inequality.</p><p>Since W * ∈ Ω, we can bound the excess error as</p><formula xml:id="formula_52">ε(m, n) = E Z F ( W) -F (W * ) ≤ R(W * ) + 4L 2 mn m i=1 1 η + τ λ i ≤ 1 2 ηB 2 + 1 2m τ S 2 + 4L 2 mn m i=1 1 η + τ λ i . (<label>16</label></formula><formula xml:id="formula_53">)</formula><p>Now, set η = B 2 and τ = m S 2 for some that will be specified later. Continuing from ( <ref type="formula" target="#formula_52">16</ref>) yields</p><formula xml:id="formula_54">ε(m, n) ≤ + 4L 2 mn m i=1 1 B 2 + m S 2 λ i = + 1 • 4L 2 B 2 n • 1 m m i=1 1 1 + λ i mB 2 /S 2 ≤ + 1 • 4L 2 B 2 mn + 4L 2 B 2 n • 1 m m i=2 1 1 + λ i mB 2 /S 2 ≤ + 1 • 4L 2 B 2 mn + 4L 2 B 2 n • ρ(B, S) .</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Minimizing the RHS over gives = 2LB</head><p>1 mn + ρ(B,S) n , and</p><formula xml:id="formula_55">ε(m, n) ≤ 4LB 1 mn + ρ(B, S) n .</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C The accelerated proximal gradient algorithm</head><p>We provide the accelerated proximal gradient algorithms in Algorithm 1, which are used to accelerate our ERM algorithms in the main text. The proximal operator is defined as prox β h (x) = arg min y β 2 yx 2 + h(y) where β &gt; 0 and h(x) is convex and possibly non-smooth.</p><p>Algorithm 1 ProxGrad(g,h,β,µ): Accelerated proximal gradient descent. Input: Objective has the form f (w) = g(w) + h(w), where g(w) is β-smooth and µ-strongly convex, and h(w</p><formula xml:id="formula_56">) is convex. Initialize w 0 , y 1 ← w 0 for t = 1, . . . , T do w t ← prox β h y t -1 β ∇g(y t ) , y t+1 ← w t + √ β- √ µ √ β+</formula><p>√ µ w tw t-1 end for Output: w T is the approximate solution.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>D Analysis of stochastic optimization by directly solving the regularizer</head><p>In each iteration of this algorithm, we draw b samples per machine to approximate the gradient of the population loss and perform minibatch SGD, which amounts to linearizing the loss on a minibatch. The key to being sample efficient is to respect the geometry imposed by the graph Laplacian.</p><p>As in Section 3.1, define the change of variable</p><formula xml:id="formula_57">U t = W t M 1 2 where M = I + mB 2 S 2 L. Our population objective is F (W) = F (UM -1</formula><p>2 ), and the predictor</p><formula xml:id="formula_58">U * = W * M 1 2 satisfies the constraint that U * 2 F = tr W * I + mB 2 S 2 L (W * ) ≤ 2mB 2 .</formula><p>We can perform minibatch SGD in the Uspace:</p><formula xml:id="formula_59">U t+1 = arg min U α t+1 ∇ F t+1 (U t M -1 2 ) • M -1 2 , U -U t + 1 2 U -U t 2 F , for t = 0, . . . ,</formula><p>where</p><formula xml:id="formula_60">F t+1 (W t ) = 1 mb m i=1 b j=1 ℓ(w t i , z t+1 ij ) and z t+1 ij j=1,...,b</formula><p>are b samples drawn by machine i at iteration t + 1, and α t+1 &gt; 0 is a stepsize parameter. In the W-space, the above update reduces to</p><formula xml:id="formula_61">W t+1 = W t -α t+1 ∇ F t+1 (W t ) • M -1 ,</formula><p>Clearly, this update requires inverting the graph Laplacian.</p><p>We can further accelerate this method using the accelerated stochastic approximation (AC-SA) algorithm of <ref type="bibr" target="#b13">Lan (2012)</ref>. We give the detailed stochastic algorithm by directly solving the regularizer (with linearized loss) in Algorithm 2.</p><p>Algorithm 2 Accelerated minibatch SGD. This algorithm maintains three iterate sequences: U t is the sequence of prox centers, U t md is the "middle" sequence with which we evaluate the stochastic gradient and build models (approximations) of the objective, and U t ag is the "aggregated" sequence with which we evaluate the objective values. Input: The stepsize sequences θ t+1 and α t+1 for t = 0, . . . .</p><formula xml:id="formula_62">Initialize W 0 ← 0, W 0 ag ← W 0 U 0 ← 0, U 0 ag ← U 0 for t = 0, . . . , T -1 do W t md ← θ t+1 -1 W t + (1 -θ t+1 -1 )W t ag U t md ← θ t+1 -1 U t + (1 -θ t+1 -1 )U t ag W t+1 ← W t -α t+1 ∇ F t+1 (W t md ) • M -1 U t+1 ← U t -α t+1 ∇ F t+1 (U t md M -1 2 ) • M -1 2 W t+1 ag ← θ t+1 -1 W t+1 + (1 -θ t+1 -1 )W t ag U t+1 ag ← θ t+1 -1 U t+1 + (1 -θ t+1 -1 )U t ag</formula><p>end for Output: W T ag (or equivalently U T ag ) is the approximate solution.</p><p>The key quantity for analyzing the convergence property of minibatch SGD is the variance of stochastic gradients in the U-space, which we now derive. We can view ξ = (z 1 , . . . , z m ) as the combined sample, ℓ multi (W, ξ) = 1 m m i=1 ℓ(w i , z i ) as the averaged instantaneous loss, so that</p><formula xml:id="formula_63">F t+1 (W) = 1 b b j=1 ℓ multi (W, ξ t+1 j ) approximates E ξ [ℓ multi (W, ξ)]</formula><p>with b combined samples. The lemma below bounds the variance of stochastic gradient estimated with one combined sample.</p><p>Lemma 4. The variance of stochastic gradient in the U-space is bounded:</p><formula xml:id="formula_64">E ξ ∇ℓ multi UM -1 2 , ξ • M -1 2 -E ξ ∇ℓ multi UM -1 2 , ξ • M -1 2 2 F ≤ σ 2</formula><p>where σ 2 := 4L 2 m 2 (1 + m • ρ(B, S)). Proof. By direct calculation, we have</p><formula xml:id="formula_65">E ξ ∇ℓ multi UM -1 2 , ξ • M -1 2 -E ξ ∇ℓ multi UM -1 2 , ξ • M -1 2 2 F = 1 m 2 E ξ [∇ w 1 ℓ(w 1 , z 1 ) -E z i [∇ w 1 ℓ(w 1 , z 1 )] , . . . , ∇ wm ℓ(w m , z m ) -E zm [∇ wm ℓ(w m , z m )]] 2 M -1 = 1 m 2 i,k E z i ,z k ∇ w i ℓ(w i , z i ) -E z i [∇ w i ℓ(w i , z i )], ∇ w k ℓ(w k , z k ) -E z k [∇ w k ℓ(w k , z k )] • (M -1 ) ik = 1 m 2 m i=1 ∇ w i ℓ(w i , z i ) -E z i [∇ w i ℓ(w i , z i )] 2 • (M -1 ) ii (17) ≤ 4L 2 m 2 tr M -1 = 4L 2 m 2 m i=1 1 1 + λ i mB 2 /S 2 = 4L 2 m 2 (1 + m • ρ(B, S)) = σ 2</formula><p>where we have used the independence between z i and z k for i = k so that the cross terms vanishes in (17), and the triangle inequality and that ∇ w i ℓ(w i , z i ) ≤ L in the inequality.</p><p>Averaging the b independent stochastic gradients on a minibatch reduces the gradient variance to σ 2 /b (see, e.g., <ref type="bibr">Dekel et al., 2012, eqn 7)</ref>. Note that β F m is the smoothness parameter of F (UM -1 2 ) w.r.t. U, and the distance generating function 1 2 U 2 F is 1-strongly convex w.r.t. the U F -norm. Plugging these problem parameters into (Lan, 2012)(Corollary 1) yields Theorem 3.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>E A sample-efficient stochastic algorithm by directly optimizing the loss</head><p>The key to sample efficiency in the stochastic setting is to couple the individual learning tasks with the graph, and respect the geometry of the U-space (e.g., in deriving the generalization performance in Lemma 1, we rely on strong convexity in the norm U F ). This motivates us to derive a sample-efficient stochastic algorithm based on the minibatch-prox method <ref type="bibr" target="#b31">(Wang et al., 2017)</ref>. The minibatch-prox method solves a subproblem involving nonlinearized loss on a minibatch in each iteration, and was shown to have the optimal sample complexity for stochastic convex optimization regardless of the minibatch size (recall from Section 4.1 that mnibatch SGD achieves the optimal sample complexity only for small enough minibatch size), and it was the basis for developing communication-and memory-efficient algorithm for distributed stochastic consensus learning in <ref type="bibr" target="#b31">Wang et al. (2017)</ref>.</p><p>We detail the minibatch-prox based algorithm in Algorithm 3, which consists of two nested loops. In the outer loop, we perform minibatch-prox in the space of U; in each iteration of the outer loop we use b samples per machines to approximate the nonlinearized loss, and approximately solves a subproblem involving the full Laplacian in the W-space. The solutions to the subproblems (which is then a small ERM problem with fixed samples) are computed approximately by the inner loops, where we perform acclerated gradient descent in the space of W. Algorithm 3 Distributed minibatch prox.</p><p>Initialize W 0 ← 0 for t = 0, . . . , T -1 do Approximately solve</p><formula xml:id="formula_66">W t+1 ≈ W t+1 = arg min W γ 2 tr (W -W t )M(W -W t ) + F t+1 (W) to ζ t+1 -suboptimality using the accelerated proximal gradient algorithm ProxGrad(γ tr (W -W t )M(W -W t ) , F t+1 (W), γ(1 + mB 2 S 2 λ m ), γ) end for Output: W = 1 T T t=1 W t is the approximate solution.</formula><p>The minibatch-prox algorithm for minimizing F (UM -1 2 ) works as follows:</p><formula xml:id="formula_67">U t+1 ≈ U = arg min U γ 2 U -U t 2 F + F t+1 (UM -1 2 ), for t = 0, . . . ,<label>(18)</label></formula><p>where in each iteration we draw b fresh samples per machine to approximate F (W) by</p><formula xml:id="formula_68">F t+1 (W) = 1 mb m i=1 b j=1 ℓ(w i , z t+1 ib )</formula><p>. Note that we allow inexact solutions to the objective in (18). The corresponding update of (18) in the W-space is W t+1 ≈ W t+1 = arg min W f t+1 (W) where</p><formula xml:id="formula_69">f t+1 (W) = γ 2 tr (W -W t )M(W -W t ) + F t+1 (W). (<label>19</label></formula><formula xml:id="formula_70">)</formula><p>We provide the learning guarantee of the minibatch-prox algorithm in the following theorem.</p><p>Theorem 5. Suppose that we initialize Algorithm 3 with W = 0 and set</p><formula xml:id="formula_71">γ = 2 T b • L √ 1+m•ρ(B,S) m 3 2 B .</formula><p>Assume that for all t ≥ 0, the error in minimizing (19) satisfies</p><formula xml:id="formula_72">f t+1 (W t+1 ) -min W f t+1 (W) ≤ ζ t+1 = min T b 1 2 , T b 3 2 • LB(1 + m • ρ(B, S)) 3 2 m 5 2 t 3 . Then for W T = 1 T T t=1 W t , we have E F (W T ) -F (W * ) = O LB √ 1+m•ρ(B,S) √ mbT . Proof. Let L U = L √ tr(M -1 ) m</formula><p>where tr</p><formula xml:id="formula_73">M -1 = 1 + m • ρ(B, S)</formula><p>. By an analysis similar to that of Lemma 1 (and essentially due to f t+1 (W)'s γ-strong convexity w.r.t. the norm • M ), we obtain the "stability" of the exact minimizer to (19</p><formula xml:id="formula_74">), i.e., E[ F t+1 ( W t+1 ) -F ( W t+1 )] ≤ 4L 2 tr(M -1 ) γm 2 b = 4L 2 U γb . Furthermore, if the suboptimality of W t+1 satisfies f t+1 (W t+1 ) -f t+1 ( W t+1 ) ≤ ζ t+1</formula><p>, by the γ-strong convexity of f t+1 (W) w.r.t. the Euclidean norm, we have</p><formula xml:id="formula_75">w t+1 i -w t+1 i ≤ 2ζ t+1 γ , for i = 1, . . . , m,</formula><p>and consequently by the Lipschitz continuity of the loss, we have</p><formula xml:id="formula_76">F t+1 (W t+1 ) -F ( W t+1 ) ≤ 2L 2 ζ t+1 γ = 2L 2 U γ • m 2 ζ t+1 tr (M -1</formula><p>) .</p><p>This reconstructs the essential lemma required by the minibatch-prox analysis <ref type="bibr">(Wang et al., 2017, Lemma 2)</ref>. We can then invoke the learning guarantee of minibatch-prox <ref type="bibr">(Wang et al., 2017, Theorem 7)</ref>, by using our L U in place of their L, and our m 2 ζ t+1 tr(M -1 ) in place of their η t . In the end, we have</p><formula xml:id="formula_77">E F (W T ) -F (W * ) ≤ O LB tr (M -1 ) √ mbT = O LB 1 + m • ρ(B, S) √ mbT .</formula><p>For fixed n = bT , minibatch-prox attains the generalization error O LB 1+m•ρ(B,S) mn for any minibatch size b. Though the error in solving each subproblem ( <ref type="formula" target="#formula_69">19</ref>) seems stringent as it decreases over iterations, we can apply the linearly convergent accelerated proximal gradient method in the inner loops to the subproblems. For any minibatch size b, the number of outer iterations is T = n b , and the number of inner iterations for each outer iteration (the initial error for the subproblems are bounded with a warm-start, see Appendix</p><formula xml:id="formula_78">F) is O λmmB 2 S 2</formula><p>, so the total number of communication rounds is the multiplication</p><formula xml:id="formula_79">O n b • λmmB 2 S 2</formula><p>. This algorithm allows us to trade off communication and memory: We could use small number of samples b in each outer iteration (limited by the local memory), but the total number communication rounds increase with 1 b . The most communication-efficient setting is b = n, in which case we are essentially solving one ERM problem with mn samples (by linearzing the regularizer). Finally, we note that each update of the simple algorithm (11) (without the outer+inner loop structure) and a single inner iteration of the minibatch-prox subproblem (19) have the same communication/computation costs.</p><p>F Warm start when directly optimizing the loss Lemma 6. Consider the objective of the proximal operator</p><formula xml:id="formula_80">min y f (y) = β 2 y -x 2 + h(y).</formula><p>where h(y) is L-Lipschitz, and let x * = arg min y f (y). Then we have</p><formula xml:id="formula_81">x * -x ≤ L/β,</formula><p>and the suboptimality of x is bounded</p><formula xml:id="formula_82">f (x) -f (x * ) ≤ L 2 /β.</formula><p>Proof. By the first-order optimality of x * , we have</p><formula xml:id="formula_83">0 = β(x * -x) + ∇h(x * )</formula><p>where ∇h(x * ) is a subgradient of h at x * . By the assumption that h(y) is L-Lipschitz, we have ∇h(x * ) ≤ L and consequently x *x = ∇h(x * ) /β ≤ L/β. For the suboptimality of x, it follows again from the Lipschitz continuity of h that</p><formula xml:id="formula_84">f (x) -f (x * ) = 0 + h(x) - β 2 x * -x 2 -h(x * ) ≤ h(x) -h(x * ) ≤ L x -x * ≤ L 2 /β.</formula><p>This lemma indicates that for solving the local objectives when directly optimizing the loss, e.g., (8), we can initialize from W t -1 β ∇R(W t ) which mixes the local predictor with those of the neighbors, and the initial suboptimality of this warm start is bounded by O L 2 β F . A similar result holds when the distance term is defined by other non-Euclidean norms. For example, in Section 4.1, we need to solve subproblems of the form (19), where the distance in the W-space is defined by the W M -norm. By an analysis similar to that of Lemma 6 and noting that M -1 ≤ 1, we obtain the distance between w t i and the optimal solution w t+1 i is at most L/γ. As a result, the suboptimality of solving (19) when initialized from W t is at most L 2 /γ.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>G Directly optimizing the loss with bounded delays</head><p>When directly optimizing the loss (while linearizing the regularizer), consider the case where the synchronization step is not perfect. Instead of waiting for neighboring machines to finish their local proximal step and sending in their new weight parameters, each machine can use the stale parameters for neighboring machines. Can we still solve the original ERM problem in this case?</p><p>Consider the iteration t + 1 on machine i (with delays, t is now considered a local iteration counter). Let the set of neighboring machines be N i . Due to delay in communication, we have a noisy gradient</p><formula xml:id="formula_85">∇ i R(W t ) = 1 m ηw t i + τ k a ik (w t i -w t-d ik (t) k ) , i = 1, . . . , m.</formula><p>Here d ik (t) ∈ [0, Γ] is the delay of machine k relative to machine i (at iteration t + 1): Machine i is using the weight of machine k from d ik (t) steps ago. In this section, we allow the delay to vary over time, as long as it is upper bounded by Γ.</p><p>Based on this noisy gradient, machine i computes the following proximal gradient step</p><formula xml:id="formula_86">w t+1 i = prox β F i m w t i - 1 β ∇ i R(W t ) (20)</formula><p>with some stepsize β &gt; 0. We need to analyze the convergence of the proximal gradient method with errors in the gradient, as done by <ref type="bibr" target="#b23">Schmidt et al. (2011)</ref>. The difference from their work is that the error in our gradients comes from delay (stale weight parameters).</p><p>Comparing with the case without delay, we have the "error" in the local gradient:</p><formula xml:id="formula_87">∇ i R(W t ) -∇ i R(W t ) = τ m k a ik (w t k -w t-d ik (t) k</formula><p>).</p><p>From iteration td ik (t) to iteration t, the k-th machine has performed d ik (t) gradient proximal operations. The intuition is that, by the non-expansiveness of the proximal operator, the error in gradient would not cause too much error in the iterates, and then by the smoothness of the objective, this would in turn only results in small error in gradient of the next step. It is important to note that, all machines are influenced by each other and the local errors are propagated to the entire graph.</p><p>Based on the non-expansive property of the proximal operator and the additional assumption of the adjacency matrix being doubly-stochastic, it is straightforward to show the following convergence guarantee for the (non-accelerated) proximal gradient algorithm. The algorithm converges at a slower linear rate than without delays.</p><p>Theorem 7. Assume that the affinity matrix A is doubly-stochastic, i.e., k∈N i a ik = 1 for all i, and the delay in the update rule (20) has delay bounded by Γ. Set the inverse stepsize β = η+τ m . Then after t ≥ 1 iterations of the algorithm, we have max i=1,...,m</p><formula xml:id="formula_88">w t i -w i ≤ 1 - η η + τ t 1+Γ • max i=1,...,m w 0 i -w i .</formula><p>Proof. Since W is the optimal solution to the ERM problem, we have that</p><formula xml:id="formula_89">w i = prox β F i m w i - 1 β ∇ i R( W) , i = 1, . . . , m.</formula><p>Then, by the non-expansiveness of the proximal operator, we obtain</p><formula xml:id="formula_90">w t+1 i -w i = prox β F i m w t i - 1 β ∇ i R(W t ) -prox β F i m w i - 1 β ∇ i R( W) ≤ w t i - 1 β ∇ i R(W t ) -w i - 1 β ∇ i R( W) = 1 - η + τ k∈N i a ik βm (w t i -w i ) + k∈N i τ a ik βm (w t-d ik (t) k -w k ) ≤ 1 - η + τ k∈N i a ik βm w t i -w i + τ βm k∈N i a ik w t-d ik (t) k -w k ≤ 1 - η + τ k∈N i a ik βm w t i -w i + τ βm k∈N i a ik max t-Γ≤t ≤t w t k -w k<label>(21)</label></formula><p>where we have used the triangle inequality in the second inequality. Assume that the affinity matrix A is doubly-stochastic, so that k∈N i a ik = 1 for all i. Denote</p><formula xml:id="formula_91">V (t) = max i=1,...,m w t i -w i . Then (21) implies that w t+1 i -w i ≤ 1 -η+τ βm V (t) + τ βm max t-Γ≤t ≤t V (t )</formula><p>holds for all i, and as a result</p><formula xml:id="formula_92">V (t + 1) ≤ 1 - η + τ βm V (t) + τ βm max t-Γ≤t ≤t V (t ).</formula><p>As long as β ≥ η+τ m , we have 1 -η+τ βm ∈ [0, 1]. Then according to <ref type="bibr" target="#b10">Feyzmahdavian et al. (2014,</ref> Lemma 3), we have</p><formula xml:id="formula_93">V (t) ≤ 1 - η βm t 1+Γ V (0).</formula><p>Setting β to be the smallest possible value η+τ m yields the desired result.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>H Comparisons with previous distributed multi-task learning algorithms</head><p>We now provide upper bounds of the iteration complexities for the distributed multi-task learning algorithms of <ref type="bibr" target="#b28">Vanhaesebrouck et al. (2017)</ref> and <ref type="bibr" target="#b14">Liu et al. (2017)</ref> in the ERM setting. We convert their notations into ours to be consistent.</p><p>H.1 Iteration complexity of the algorithm of <ref type="bibr" target="#b14">Liu et al. (2017)</ref> The full algorithm of <ref type="bibr" target="#b14">Liu et al. (2017)</ref> performs alternating optimization over the task relationship and the local predictors on each machine. In order to to compare their algorithm with ours on the efficiency of learning predictors, we consider a fixed task correlation matrix M = I + τ η L in their objective (corresponding to Ω in eqn (1) of their paper).</p><p>With fixed M, their algorithm performs distributed SDCA <ref type="bibr" target="#b16">(Ma et al., 2015)</ref> for optimizing over the predictors. In each round of distributed SDCA, one constructs an upper bound of the objective that is separable over the machines (predictors), so that each machine solves a subproblem defined by its local data, and then one around of communication is used to aggregate local updates.</p><p>When the instantaneous losses are β F -smooth and each local subproblem is solved exactly (i.e., we set Θ = 0 in their analysis), the number of global (communication) rounds needed for obtaining an approximate solution is, according to <ref type="bibr">Liu et al. (2017, Lemma 7 and Theorem 8)</ref>, of the order (ignoring the logarithmic factor on final optimization error)</p><formula xml:id="formula_94">max α α Kα m i=1 α [i] Kα [i] • max i M -1 ii • β F η .</formula><p>Here, the first term measures the "task separability" with value in [1, m] (see the definitions of K and α [i] in their Theorem 1, and the discussion of separability in Section 6.3). On the other hand, we have max</p><formula xml:id="formula_95">i M -1 ii ≤ σ max M -1 ≤ 1. As a result, the iteration complexity of distributed SDCA is O β F η × (task separability in [1,m]).</formula><p>This iteration complexity is similar to that of our ERM algorithm by directly solving the regularizer ( O β F η ), but has worse dependence on the condition number and an unclear multiplicative constant on the tasks separability.</p><p>H.2 Comparison with the collaborative algorithm of <ref type="bibr" target="#b28">Vanhaesebrouck et al. (2017)</ref> We now compare with the collaborative learning algorithm of <ref type="bibr" target="#b28">Vanhaesebrouck et al. (2017)</ref> in the synchronous and decentralized setting. In their algorithm, each machine augments its local optimization parameters to include a copy of predictor from each neighboring machine. Let Θ i be the set of |N i | + 1 variables w k for k ∈ N i ∪ {i}, and Θ k i is the copy of w k on machine i. We can reformulate the global objective (2) as arg min</p><formula xml:id="formula_96">{Θ i } m i=1 m i=1 H i (Θ i ) where H i (Θ i ) = 1 m F i (Θ i i ) + η 2m Θ i i 2 + τ 4m k∈N i a ik Θ i i -Θ k i 2 subject to Θ i i = Θ i k , for all (i, k) s.t. k ∈ N i .<label>(22)</label></formula><p>Vanhaesebrouck et al. ( <ref type="formula">2017</ref>) then introduce variables associated with each edge (4 set of variables per edge) and apply ADMM to the resulting problem. An advantage of ADMM is that it allows decoupling of the local problems when updating primal variables, where the local problem involves the nonlinearized loss function.</p><p>Although <ref type="bibr" target="#b28">Vanhaesebrouck et al. (2017)</ref> suggest that the convergence results of synchronous decentralized ADMM <ref type="bibr" target="#b32">(Wei and Ozdaglar, 2013;</ref><ref type="bibr" target="#b26">Shi et al., 2014)</ref> apply to this formulation (see their Appendix D), we note however that ( <ref type="formula" target="#formula_96">22</ref>) is not in the standard form covered by these results. In particular, the classical decentralized concensus problem has the form min x 1 ,...,xm m i=1 f i (x i ) s.t. x i = x j for all (i, j) where j ∈ N i .</p><p>Here, neighboring machines share the same set of optimization parameters and they would like to reach complete consensus, whereas in ( <ref type="formula" target="#formula_96">22</ref>) neighboring machines can have different set of variables and they only try to achieve consensus on the shared parameters. As a result, it is nontrivial to derive the iteration complexity of the collaborative learning algorithm of <ref type="bibr" target="#b28">Vanhaesebrouck et al. (2017)</ref> based on the same quantities used in the analysis of our algorithms.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>I Experiments</head><p>In this section we examine the empirical performance of the proposed algorithms. We consider the problem of linear regression on synthetic data. For the i-th task, we generate data from</p><formula xml:id="formula_97">y = w * i , x + ,</formula><p>where is noise drawn from the Normal distribution N (0, 3), x ∈ R d is drawn from a multivariate Normal distribution with mean zero and covariance matrix Σ where Σ ij = 2 -|i-j|/3 , and w * i ∈ R d is a coefficient vector for the i-th task generated from the following clustered multi-task structure. Each w * i is drawn from a mixture of C clusters; there is a reference model r j for each cluster j = 1, . . . , C, and the task specific model w * i is a small perturbation of the corresponding cluster reference model:</p><p>w * i = r j + ξ i , if w * i is drawn from cluster j. The cluster reference model r j is generated by sampling each entry i.i.d. from U nif [-0.5, 0.5], while the perturbation vector ξ i is generated by sampling each entry i.i.d. from U nif <ref type="bibr">[-0.05, 0.05]</ref>. This construction gives us task specific models which are similar to each other when they belong to the same cluster. The corresponding similarity graph is a 10-nearest neighbor graph (so the graph is connected) with binary weights built on {w i } i=1,...,m , i.e., each task is connected to 10 other tasks whose models are most similar.</p><p>We tested a few graph-based multi-task learning methods.</p><p>• Local: solves a local ERM problem (with only ℓ 2 regularization) with n samples for each task.</p><p>• Centralized: solves the graph-regularized ERM problem (2) with n samples for each task.</p><p>• ADMM: the synchronized version of the ADMM algorithm of <ref type="bibr" target="#b28">Vanhaesebrouck et al. (2017)</ref>.</p><p>• SDCA: the distributed SDCA algorithm of <ref type="bibr" target="#b14">Liu et al. (2017)</ref> for fixed graph.</p><p>• Our algorithms: denoted as B/S (batch/stochastic) + SR/OL (solve regularizer/optimize loss). In the experiments below, we have problem dimension d = 100, number of tasks m = 100, training set size n = 500, and vary number of task clusters C over {1, 5, 10, 50} (smaller C implies overall stronger task similarity). We also generate a dev set of 10000 samples per task for tuning hyper-parameters, and test set of 10000 samples per task for approximately evaluating the population loss.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Empirical risk minimization</head><p>We fist compare the iterative methods on the regularized ERM problem (2), to which the analysis for ADMM and SDCA applies. We tune the ℓ 2 regularization parameter for Local and (η, τ ) for Centralized, and then fix the optimal (η, τ ) for other methods. We also tune the quadratic penalty parameter for ADMM, the task separability and stepsize parameters for SDCA, and stepsize parameter for BSR/BOL (although the default value based on the smoothness parameter already works well for them). For SSR/SOL, we draw random samples from the fixed training set (with size n), and simply fix the minibatch size to be n/10.</p><p>Figure <ref type="figure" target="#fig_5">2</ref> shows for each method the estimated F (W) over iterations (or rounds of communication) in the top row, and over the amount of computation (measured by the number of passes over the training set) in the bottom row. Observe that all iterative algorithms converge to the same ERM solution, our algorithms tend to consistently outperform ADMM and SDCA.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Stochastic optimization</head><p>We next demonstrate the efficiency of true stochastic algorithms (using fresh samples for each update) at C = 10. We allow the algorithms to process a total of 10000 fresh samples on each machine, and vary the minibatch size b over {40, 80, 100, 200, 500}. The parameters (η, τ ) are fixed to those used in the ERM experiments.</p><p>Figure <ref type="figure">3</ref> shows for each method the estimated F (W) over iterations (or rounds of communication) in the left plot, and over the amount of fresh samples processed (or total computation cost) in the right plot. As a reference, the error of Local and Centralized (using n = 500 samples per machine) are also given in the plots. We observe that with fresh samples, stochastic algorithms are</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><figDesc>kj ), and z t+1 kj : j = 1, . . . , b are b samples drawn by machine k at iteration t + 1.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><figDesc>Let n = bT be the number of samples used in Algorithm 2. According to Theorem 3, as long as the minibatch size b≤ b * = O n ε(m,n) β F B 2 ,the first term in the error bound is dominant and we achieve the generalization error O σ √ mB 2 √ n = O LB 1+m•ρ(B,S) mn as in ERM, so we are still sample efficient in the stochastic setting. Time complexity Algorithm 2 processes the drawn samples only once. While maintaining the sample efficiency, we can set the minibatch size to the largest value b = b * , and this leads to the total number of iterations (and local communication rounds)</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Results for regularized ERM (left panel) and our stochastic methods with different b (right panel).</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: Performance of different methods for regularized empirical risk minimization.</figDesc></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0"><p>Although for convex optimization, the constrained form and the regularized form are equivalent due to the Lagrange duality, solving the constrained form may still require repeatedly solving the regularized form and searching for the Lagrange multiplier.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_1"><p>This is because ∇ 2 vec(U) F (UM -1 2 ) = (M -1 2 ⊗ I) • ∇ 2 vec(W) F (W) • (M -1 2 ⊗ I), and ||∇ 2 vec(U) F (UM -1 2 )|| ≤ ||M -1 2 || • ||∇ 2 vec(W) F (W)|| • ||M -1 2 || ≤ β F m .</p></note>
+		</body>
+		<back>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>competitive to ERM algorithms in terms of sample complexity, while being computationally more efficient.</p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Uncovering shared structures in multiclass classification</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Amit</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Fink</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Srebro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ullman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 24th international conference on Machine learning</title>
+		<meeting>the 24th international conference on Machine learning</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2007">2007</date>
+			<biblScope unit="page" from="17" to="24" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">A framework for learning predictive structures from multiple tasks and unlabeled data</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">K</forename><surname>Ando</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Mach. Learn. Res</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="page" from="1817" to="1853" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Convex multi-task feature learning</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Argyriou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Evgeniou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Pontil</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Mach. Learn</title>
+		<imprint>
+			<biblScope unit="volume">73</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="243" to="272" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">M.-F</forename></persName>
+		</author>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Distributed learning, communication complexity and privacy</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Balcan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Blum</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Fine</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Mansour</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">JMLR W&amp;CP 23: COLT 2012</title>
+		<editor>
+			<persName><forename type="first">S</forename><surname>Mannor</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">N</forename><surname>Srebro</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">R</forename><surname>Williamson</surname></persName>
+		</editor>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="volume">23</biblScope>
+			<biblScope unit="page" from="26" to="27" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Asynchronous multi-task learning</title>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">M</forename><surname>Baytas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Yan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">K</forename><surname>Jain</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Zhou</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE International Conference on Data Mining (ICDM)</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Distributed optimization and statistical learning via the alternating direction method of multipliers</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">P</forename><surname>Boyd</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Parikh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Chu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Peleato</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Eckstein</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Found. Trends Mach. Learn</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="122" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Optimal distributed online prediction using mini-batches</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Dekel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Gilad-Bachrach</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Shamir</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Xiao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="page" from="165" to="202" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Regularized multi-task learning</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Evgeniou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Pontil</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the tenth ACM SIGKDD international conference on Knowledge discovery and data mining</title>
+		<meeting>the tenth ACM SIGKDD international conference on Knowledge discovery and data mining</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2004">2004</date>
+			<biblScope unit="page" from="109" to="117" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Learning multiple tasks with kernel methods</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Evgeniou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">A</forename><surname>Micchelli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Pontil</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Mach. Learn. Res</title>
+		<imprint>
+			<biblScope unit="page" from="615" to="637" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">A delayed proximal gradient method with linear convergence rate</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">R</forename><surname>Feyzmahdavian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Aytekin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Johansson</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE International Workshop on Machine Learning for Signal Processing</title>
+		<imprint>
+			<date type="published" when="2014">2014. 2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Accelerating stochastic gradient descent using predictive variance reduction</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Johnson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems (NIPS)</title>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="page" from="315" to="323" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">J</forename><surname>Konecny</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Mcmahan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Ramage</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1511.03575[cs.LG</idno>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+	<note>Federated optimization: Distributed optimization beyond the datacenter</note>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">An optimal method for stochastic composite optimization</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Lan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Math. Prog</title>
+		<imprint>
+			<biblScope unit="volume">133</biblScope>
+			<biblScope unit="issue">1-2</biblScope>
+			<biblScope unit="page" from="365" to="397" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title level="m" type="main">Distributed multi-task relationship learning</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Pan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Ho</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1612.04022[cs.LG</idno>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Oracle inequalities and optimal inference under group sparsity</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lounici</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Pontil</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">B</forename><surname>Tsybakov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">A</forename><surname>Van De Geer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Ann. Stat</title>
+		<imprint>
+			<biblScope unit="volume">39</biblScope>
+			<biblScope unit="page" from="2164" to="2204" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Adding vs. averaging in distributed primal-dual optimization</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Smith</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Jaggi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">I</forename><surname>Jordan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Richtarik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Takac</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. of the 32st (ICML 2015)</title>
+		<meeting>of the 32st (ICML 2015)</meeting>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">The Rademacher complexity of linear transformation classes</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Maurer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Annual Conference on Learning Theory</title>
+		<editor>
+			<persName><forename type="first">G</forename><surname>Lugosi</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">H.-U</forename><surname>Simon</surname></persName>
+		</editor>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+			<biblScope unit="page" from="65" to="78" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Distributed subgradient methods for multi-agent optimization</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Nedić</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Ozdaglar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Automat. Contr</title>
+		<imprint>
+			<biblScope unit="volume">54</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="48" to="61" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title/>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Nesterov</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Introductory Lectures on Convex Optimization. A Basic Course. Number</title>
+		<imprint>
+			<biblScope unit="volume">87</biblScope>
+			<date type="published" when="2004">2004</date>
+			<publisher>Springer-Verlag</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Support union recovery in high-dimensional multivariate regression</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Obozinski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">J</forename><surname>Wainwright</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">I</forename><surname>Jordan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Ann. Stat</title>
+		<imprint>
+			<biblScope unit="volume">39</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="47" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Distributed stochastic subgradient projection algorithms for convex optimization</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">S</forename><surname>Ram</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Nedić</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">V</forename><surname>Veeravalli</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of optimization theory and applications</title>
+		<imprint>
+			<biblScope unit="volume">147</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="516" to="545" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<monogr>
+		<title level="m" type="main">Optimal algorithms for smooth and strongly convex distributed optimization in networks</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Scaman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Bach</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Bubeck</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><forename type="middle">T</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Massoulie</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1702.08704</idno>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note>math.OC</note>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<monogr>
+		<title level="m" type="main">Convergence rates of inexact proximal-gradient methods for convex optimization</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Schmidt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">L</forename><surname>Roux</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Bach</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+			<biblScope unit="page" from="1458" to="1466" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Stochastic convex optimization</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Shalev-Shwartz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Shamir</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Srebro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Sridharan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. of the 22th Annual Conference on Learning Theory (COLT&apos;09)</title>
+		<editor>
+			<persName><forename type="first">S</forename><surname>Dasgupta</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">A</forename><surname>Klivans</surname></persName>
+		</editor>
+		<meeting>of the 22th Annual Conference on Learning Theory (COLT&apos;09)<address><addrLine>Montreal, Quebec</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Distributed stochastic optimization and learning</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Shamir</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Srebro</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">52nd Annual Allerton Conference on Communication, Control, and Computing (Allerton)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2014">2014. 2014</date>
+			<biblScope unit="page" from="850" to="857" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">On the linear convergence of the ADMM in decentralized consensus optimization</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Shi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Ling</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Yuan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Yin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Signal Processing</title>
+		<imprint>
+			<biblScope unit="volume">62</biblScope>
+			<biblScope unit="issue">7</biblScope>
+			<biblScope unit="page" from="1750" to="1761" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Simultaneous variable selection</title>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">A</forename><surname>Turlach</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">N</forename><surname>Venables</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Wright</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Technometrics</title>
+		<imprint>
+			<biblScope unit="volume">47</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="349" to="363" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Decentralized collaborative learning of personalized models over networks</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Vanhaesebrouck</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Bellet</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Tommasi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Int. Workshop on Artificial Intelligence and Statistics</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="509" to="517" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<monogr>
+		<title level="m" type="main">Distributed multitask learning</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kolar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Srebro</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1510.00633</idno>
+		<idno>arXiv:1510.00633</idno>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">ArXiv e-prints</note>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<monogr>
+		<title level="m" type="main">Distributed multi-task learning with shared representation</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kolar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Srebro</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1603.02185</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Memory and communication efficient distributed stochastic optimization with minibatch prox</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Srebro</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Annual Conference on Learning Theory</title>
+		<editor>
+			<persName><forename type="first">S</forename><surname>Kale</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">O</forename><surname>Shamir</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Amsterdam, Netherlands</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<monogr>
+		<title level="m" type="main">On the o(1/k) convergence of asynchronous distributed alternating direction method of multipliers</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Wei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Ozdaglar</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1307.8254</idno>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+	<note>math.OC</note>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">On the convergence of decentralized gradient descent</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Yuan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Ling</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Yin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">SIAM Journal on Optimization</title>
+		<imprint>
+			<biblScope unit="volume">26</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="1835" to="1854" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">Dimension reduction and coefficient estimation in multivariate linear regression</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Yuan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Ekici</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Lu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Monteiro</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. R. Stat. Soc. B</title>
+		<imprint>
+			<biblScope unit="volume">69</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="329" to="346" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

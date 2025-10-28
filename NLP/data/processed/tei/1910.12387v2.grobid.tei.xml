@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Components of Machine Learning: Binding Bits and FLOPS</title>
+				<funder ref="#_E5zgZEd">
+					<orgName type="full">unknown</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2019-10-30">30 Oct 2019</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Alexander</forename><surname>Jung</surname></persName>
+						</author>
+						<title level="a" type="main">Components of Machine Learning: Binding Bits and FLOPS</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2019-10-30">30 Oct 2019</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">02EF0D7B6A672928689B2D0A09C23C7B</idno>
+					<idno type="arXiv">arXiv:1910.12387v2[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Many machine learning problems and methods are combinations of three components: data, hypothesis space and loss function. Different machine learning methods are obtained as combinations of different choices for the representation of data, hypothesis space and loss function. After reviewing the mathematical structure of these three components, we discuss intrinsic trade-offs between statistical and computational properties of machine learning methods.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>I. INTRODUCTION</head><p>Machine learning (ML) methods implement the scientific principle of continuous verification and adaptation of a hypothesis about an observable phenomenon ("observable fact or event") <ref type="bibr" target="#b0">[1]</ref>. Examples of a phenomena are:</p><p>• the visual scene recorded by the smartphone snapshot depicted in Figure <ref type="figure" target="#fig_0">2</ref>.</p><p>• the hiking time required to reach the peak in Figure <ref type="figure" target="#fig_0">2</ref>.</p><p>• the water temperature of the lake in Figure <ref type="figure" target="#fig_0">2</ref>. The verification and adaption of the hypothesis is based on the observation of data. ML theory and methods revolve around the implementation of the cycle underlying this principle using limited computational resources such as computation time and storage capacity.</p><p>Modern ML methods execute the cycle in Figure <ref type="figure">1</ref> within a fraction of a second and using billions of data points <ref type="bibr" target="#b1">[2]</ref>. Deep Learning methods implement the cycle of Figure <ref type="figure">1</ref> by representing hypotheses by artificial neural networks whose weights (parameters) are continuously adapted using (variants of) gradient descent <ref type="bibr" target="#b1">[2]</ref>.</p><p>A typical ML method consists of three components:</p><p>• data (mostly in the form of a huge number of bits)</p><p>• a hypothesis space (also referred to as a ML model) consisting of computationally feasible predictor functions. • a loss function that is used to assess the quality of a particular predictor function.</p><p>To implement ML methods, given a limited amount of computational resources such as number of floating point operations per second (FLOPS), we need to be able to efficiently store and manipulate data and predictor functions. One extremely efficient approach to represent and manipulate data and predictor functions are matrices and vectors. The mathematical foundation of computing with matrices and vectors is linear algebra <ref type="bibr" target="#b2">[3]</ref>. Therefore, a large part of ML theory and methodology is applied numerical linear algebra.</p><p>Author is with the Department of Computer Science, Aalto University, Finland; firstname.lastname(at)aalto.fi observations data hypothesis make prediction validate/adapt loss Fig. <ref type="figure">1</ref>. The cycle of the scientific principle which is implemented by ML methods. Main components of ML methods are data, a hypothesis space and a loss function.</p><p>Indeed, data points can often characterized by a list of numeric attributes x r which can be stacked into a vector<ref type="foot" target="#foot_0">foot_0</ref> x = x 1 , . . . , x n T . Moreover, many ML methods (such as linear regression or logistic regression) use predictor functions of the form h(x) = n r=1 w r x r = w T x with some weight vector w = (w 1 , . . . , w n ) T . Note that once we restrict ourselves to linear functions of the form h(x) = w T x, we can represent a predictor function by the weight vector w. Indeed, given the weight vector w, we can evaluate the predictor function for any feature vector x as h(x) = w T x.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>II. DATA</head><p>The key component of any machine learning problem (and method) is data. There are many different sources of data such as text documents, sensor measurements, videos or image collections. Digital data is available in the form of a stream of bits which needs to be parsed into elementary units which represent individual data points. Data points might be represented by rows in a spreadsheet, the set of weather observations in Finland during a specific period of time, images, audio recordings or entire digital footprints of humans.</p><p>Typically, we have never full access to (every single detailed aspect of) data points. Some properties of a data point can be computed, measured or determined easily. These properties or characteristics are often referred to as features. Beside features, there is often also some higher-level information ("quantity of interest") associated with a data point. We will refer to this higher level information, or quantity of interest, as labels. Many ML methods revolve around finding efficient ways to determine the label of a data point given its features.</p><p>Consider a data point represented by the snapshot depicted in Figure <ref type="figure" target="#fig_0">2</ref>. The features of this data point could be the red, green and blue intensities of each pixel in the image. We can stack these values into a vector x ∈ R n whose length n is given by three times the number of pixels in the image. The label y associated with this data point could be the expected hiking time to reach the mountain in the snapshot. Alternatively, we could define the label y as the water temperature of the lake visible in the snapshot. The precise definition of what we use as features and labels of a data point is a design choice. The label is the quantity of interest for a particular application. If we are interested in developing a smartphone-app that predicts the hiking time given a snapshot of the mountain, we use this hiking time as label. However, if we are interested in developing a smartphoneapp that predicts water temperature of a lake, we use this temperature as the label. For a given ML problem, we denote the set of all possible values that a label can take on by Y. For a ML problem (method) using the choice Y = R, it is customary to refer to such a problem as a regression problem (method).</p><p>A data point is called labeled if, besides its features x, the associated label y is known. While features are those properties or characteristics of data points that can be measured or computed easily, labels are difficult or costly to obtain. For the snapshot in Figure <ref type="figure" target="#fig_0">2</ref>, we can easily determine the pixel intensities as features. However, if the label is the water temperature of the lake depicted on the snapshot, we need to actually measure this temperature. Acquiring labels typically involves human labor, such as handling a water thermometer at certain locations in a lake, and is costly. ML methods, which have to cope with limited resources available for acquiring labels, are geared to get along with as little labeled data points as possible.</p><p>Not only the label of a data point is a design choice but also what features are used to characterize a data point. In principle, we could use any quantity that can be easily computed or measured as a feature of a data point. Modern technology allows to compute a vast amount number of such quantities.</p><p>As a case in point, consider the data point "Alex Jung" obtained from a person which uses a smartphone to take snapshots. Let us assume that Alex takes five snapshots per day on average (sometimes more, e.g., during a mountain hike). This results in more than 1000 snapshots per year. Each snapshot contains around 10 6 pixels. If we only use the greyscale levels of the pixels in all those snapshots, we would obtain more than 10 9 new features per year! Modern ML applications face extremely high-dimensional feature vectors which calls for methods from high-dimensional statistics <ref type="bibr" target="#b3">[4]</ref>, <ref type="bibr" target="#b4">[5]</ref>.</p><p>While it might seem that "the more features the better", it can actually be detrimental for the performance of ML methods to use an excessive amount of (irrelevant) features. It is nontrivial to decide which features are most relevant for a given task. However, there are ML methods that allow (to some extent) to automatically learn a small number of most relevant features from raw data.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>III. HYPOTHESIS SPACE</head><p>The scientific principle in Figure <ref type="figure">1</ref> involves a hypothesis for some phenomenon which generates observable data. We can think of a hypothesis as a simple explanation or conception of some complicated phenomenon. There is a great deal of different ways to express a hypothesis. One example is a probability distribution which characterizes the probability of observing a particular data point. Another example are simple rules such as, "if it rains in the morning, then the grass will be wet in the evening". Physical theories, such as the theory of relativity, are further examples of hypotheses.</p><p>In general, we do not consider one single hypothesis but a whole space of alternative hypotheses. The simplest nontrivial hypothesis space consists of two alternative hypotheses, such as "The earth is flat" versus "The earth is round". We denote a hypothesis space, which consists of a set of different hypotheses, by H. The key idea behind many ML methods is to choose the best hypothesis out of a large hypothesis space H according to some performance measure (see Section IV).</p><p>In order to quickly search over a large hypothesis space H, it is important to use a computer-friendly (representation of the) hypothesis space H. One example of such a hypothesis space is given by linear predictors h(x) = w T x with some weight vector w ∈ R n . The resulting hypothesis space is</p><formula xml:id="formula_0">H := {h (w) (x) = w T x : w ∈ R n }.<label>(1)</label></formula><p>Each element h (w) of the hypothesis space H in (1) is a function from R n to R which maps the feature vector x to the value w T x. However, as indicated by the notation, each of the functions h (w) is fully characterized by the weight vector w ∈ R n . Thus, we can parametrize the hypothesis space (1) using vectors w from the Euclidean space R n .</p><p>The linear space (1) is only one possible choice for the hypothesis space used in a ML method. We can also use another set of functions h(•) : X → Y as hypothesis space. Decision trees define a hypothesis space using flow chart representations of the mapping x → h(x) (see Figure <ref type="figure">3</ref>). An artificial neural network (ANN) defines a hypothesis space which consists of all functions that are obtained from compositions of matrix operations and simple non-linearities according to a network structure (see Figure <ref type="figure">4</ref>) .</p><p>xu ≤ r?</p><formula xml:id="formula_1">h(x) = h 1 no x-v ≤ r? h(x) = h 2 no h(x) = h 3 yes yes R 3 R 2 R 1 u v</formula><p>Fig. <ref type="figure">3</ref>. A decision tree represents a hypothesis h which is constant on subsets Rm, i.e., h(x) = hm for all x ∈ Rm. Each subset Rm ⊆ X corresponds to a leaf node in the decision tree.</p><p>input layer hidden layer output layer</p><formula xml:id="formula_2">x 1 x 2 w 1 w 2 w 3 w 4 w 5 w 6 w 7 w 8 w 9 h (w) (x)</formula><p>Fig. <ref type="figure">4</ref>. ANN representation of a predictor h (w) (x) which maps the input (feature) vector x = (x 1 , x 2 ) T to a predicted label (output) h (w) (x).</p><p>The choice for the hypothesis space H has to balance two conflicting requirements:</p><p>• It has to be sufficiently large (or rich) such that it contains a predictor map ĥ ∈ H that is able to represent (approximate) the underlying relation between the features and the label of a data point. • It has to be sufficiently small (compact) such that it can be efficiently searched over to find good predictors during a training phase. This requirement typically necessitates that</p><formula xml:id="formula_3">x 1 w 1 x 2 w 2 x 3 w 3 g(z)</formula><p>Fig. <ref type="figure">5</ref>. Each single neuron of the ANN depicted in Figure <ref type="figure">4</ref> implements a weighted summation z = i w i x i of its inputs x i followed by applying a non-linear activation function g(z).</p><p>an arbitrary maps h(x) contained in H can be evaluated (computed) efficiently <ref type="bibr" target="#b5">[6]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>IV. LOSS FUNCTION</head><p>To find good predictor maps we need some quality measure that allows assess a given predictor function h ∈ H. Many ML methods use the concept of a loss function L((x, y), h) that represents the loss (error) incurred by using the predictor h to predict the label y of a data point with features x.</p><p>Just like feature space, label space and hypothesis space, also the loss function is a design parameter. In principle, we can use any function L : X × Y × H → R that maps a data point (x, y) and hypothesis h ∈ H a number L((x, y), h) that represents the loss of using the predictor map h to predict the label y ∈ Y of a data point with features x ∈ X .</p><p>Popular choices are</p><p>• the squared error loss</p><formula xml:id="formula_4">L = (y -h(x) ŷ ) 2 ,<label>(2)</label></formula><p>for regression problems with label space Y = R. • the logistic loss</p><formula xml:id="formula_5">L = -log(1 + exp(-yh(x))),<label>(3)</label></formula><p>for binary classification problems with label space Y = {-1, 1}. • the Huber loss</p><formula xml:id="formula_6">L = (1/2)(y -h(x)) 2 for |y -h(x)| ≤ c c(|y -h(x)| -c/2) else. (<label>4</label></formula><formula xml:id="formula_7">)</formula><p>with some tuning parameter c controlling the threshold of whether the error for a given data point should follow the squared loss or the absolute loss which is more appropriate for outliers (note that if c is selected as a large value, the Huber loss would be equivalent to squared loss divided by two). The Huber loss can be used for label space Y = R.</p><p>The choice of loss functions is guided by statistical and computational aspects. Learning a predictor by minimizing the squared error loss (2) amounts to maximum likelihood estimation if the labels are modeled as y = h(x) + ε.</p><p>(</p><p>The model ( <ref type="formula" target="#formula_8">5</ref>) involves some true predictor h (which is unknown) and a random variable ε ∼ N (0, 1) which covers any modeling and measurement (labeling) errors. Thus, if the model ( <ref type="formula" target="#formula_8">5</ref>) accurately describes the observed labels y of data points (which can be considered as statistically independent), the squared error loss ( <ref type="formula" target="#formula_4">2</ref>) is a statistically optimal choice. Using the logistic loss (3) amounts to maximum likelihood estimation when the labels y ∈ {-1, 1} are modelled as random variables with probability</p><formula xml:id="formula_9">Prob{y = 1} = 1/(1 + exp(-y h(x)))<label>(6)</label></formula><p>with some true predictor h (which is unknown). Aside from their statistical properties, loss functions differ in their computational properties. The squared error loss (2) and the logistic loss (3) are computationally attractive since they amount to minimizing a differentiable and convex function. Such smooth convex optimization problems can be solved efficiently via (stochastic) gradient descent methods <ref type="bibr" target="#b6">[7]</ref>, <ref type="bibr" target="#b7">[8]</ref>.</p><p>Sometimes it is beneficial to use non-smooth (nondifferentiable) loss functions. In applications where few data points are severely corrupted (e.g., by a broken device) it is beneficial to use the Huber loss (4) <ref type="bibr" target="#b8">[9]</ref>. Optimizing nonsmooth functions is typically more challenging, requiring more computational resources, compared to optimizing smooth functions.</p><p>V. PUTTING TOGETHER THE PIECES Many ML method are obtained by combining particular choices for feature space X and label space, hypothesis space H and loss function L. One of the most basic and widely used ML methods is linear regression.</p><p>Linear regression chooses an optimal linear predictor out of the hypothesis space (1) by minimizing the average squared error loss, or mean squared error,</p><formula xml:id="formula_10">(1/m) m i=1 y (i) -h x (i) 2 = (1/m) m i=1 y (i) -w T x (i) 2 . (<label>7</label></formula><formula xml:id="formula_11">)</formula><p>The average squared error loss is obtained by comparing the prediction h(x (i) of the linear predictor h(x) = w T x to the true label y (i) of a data point with features x (i) . Note that the criterion <ref type="bibr" target="#b6">(7)</ref> requires m labeled data points with features x (i) and known labels y (i) .</p><p>In Figure <ref type="figure">6</ref>, we depict a set of labeled data points which are used to learn a linear predictor by minimizing the average squared error <ref type="bibr" target="#b6">(7)</ref>. As hinted at in Section IV, learning a predictor by minimizing the average squared error ( <ref type="formula" target="#formula_10">7</ref>) is statistically optimal if the labels and features are related by the additive Gaussian noise model <ref type="bibr" target="#b4">(5)</ref>.</p><p>For some datasets the model ( <ref type="formula" target="#formula_10">7</ref>) does not accurately reflect the relation between features and labels. In particular, some</p><formula xml:id="formula_12">• • • • • • • • • • feature x label y</formula><p>Fig. <ref type="figure">6</ref>. A data set consisting of labeled data points (x (i) , y (i) (depicted as "•") and the linear predictor h(x) = wx (solid line) obtained by minimizing the average squared error <ref type="bibr" target="#b6">(7)</ref>.</p><p>data sets contain outliers which have fundamentally different properties compared to the bulk of (clean) data points. We can think of outliers as being the result of exceptional events such as failure of hardware (e.g., broken sensing device). It turns out that learning a predictor by minimizing the squared error loss ( <ref type="formula" target="#formula_10">7</ref>) is not robust against outliers. We illustrate this non-robustness in Figure <ref type="figure" target="#fig_1">7</ref> which depicts a data set that is obtained by corrupting one single data point form the data set shown in Figure <ref type="figure">6</ref>. Minimizing the average squared error loss on the perturbed data set results in a different linear predictor (solid line in Figure <ref type="figure" target="#fig_1">7</ref>) than for the clean data set (dotted line in Figure <ref type="figure" target="#fig_1">7</ref>). Thus, if only one single data point is corrupted, minimizing the squared error loss results in significantly different predictors. In order to obtain more robustness against few outliers in the data set we might use the Huber loss (4). Figure <ref type="figure">8</ref> depicts the same corrupted data set as used in Figure <ref type="figure" target="#fig_1">7</ref>. The solid line depicts the linear predictor obtained by minimizing the average Huber loss incurred on the corrupted data set, while the dotted line indicated the linear predictor obtained by minimizing the average Huber loss on the clear data set (depicted as circles in Figure <ref type="figure">6</ref>).</p><formula xml:id="formula_13">• • • • • • • • • • feature x label y</formula><p>By comparing Figure <ref type="figure">8</ref> with Figure <ref type="figure" target="#fig_1">7</ref>, we conclude that using the Huber loss (4) instead of the squared error loss (2) results in a more robust ML method. However, this comes at the price of a more challenging optimization problem since the Huber loss is non-differentiable.</p><formula xml:id="formula_14">• • • • • • • • • • feature x label y</formula><p>Fig. <ref type="figure">8</ref>. Corrupted data set (depicted as "•") which is the same as in Figure <ref type="figure">6</ref> except for the left-most data point. The solid line represents the linear predictor h(x) = wx (solid line) obtained by minimizing the average Huber loss (4) on the corrupted data set. The dotted line indicated the predictor obtained from minimizing the average Huber loss on the clean data set (depicted by the circles in Figure <ref type="figure">6</ref>).</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Fig. 2 .</head><label>2</label><figDesc>Fig. 2. An image representing a data point.</figDesc><graphic coords="2,59.36,284.27,226.74,170.06" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Fig. 7 .</head><label>7</label><figDesc>Fig.7. Corrupted data set (depicted as "•") which is the same as in Figure6except for the left-most data point. The solid line represents the linear predictor h(x) = wx (solid line) obtained by minimizing the average squared error<ref type="bibr" target="#b6">(7)</ref> on the corrupted data set. The dotted line indicated the predictor obtained from the clean data set (solid line in<ref type="bibr" target="#b5">(6)</ref>).</figDesc></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0"><p>We use bold font to represent vectors such as x or w.</p></note>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>ACKNOWLEDGMENTS</head><p>We thank the students of the Aalto courses "<rs type="projectName">Machine Learning: Basic Principles", "Artificial Intelligence</rs>" and "<rs type="person">Machine Learning</rs> with Python" for their constructive and critical feedback. This feedback was instrumental for the author to learn how to teach ML. Teaching assistant <rs type="person">Shaghayegh Safar</rs> helped with a careful review of an early version of the draft.</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funded-project" xml:id="_E5zgZEd">
+					<orgName type="project" subtype="full">Machine Learning: Basic Principles&quot;, &quot;Artificial Intelligence</orgName>
+				</org>
+			</listOrg>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<author>
+			<persName><forename type="first">K</forename><surname>Popper</surname></persName>
+		</author>
+		<title level="m">The Logic of Scientific Discovery</title>
+		<meeting><address><addrLine>London, UK</addrLine></address></meeting>
+		<imprint>
+			<publisher>Routledge</publisher>
+			<date type="published" when="1992">1992</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Courville</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Deep</forename><surname>Learning</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>MIT Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">G</forename><surname>Strang</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>Wellesley-Cambridge Press</publisher>
+			<pubPlace>MA</pubPlace>
+		</imprint>
+	</monogr>
+	<note>Introduction to Linear Algebra, 5th ed</note>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">Statistics for High-Dimensional Data</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Bühlmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Van De Geer</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+			<publisher>Springer</publisher>
+			<pubPlace>New York</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<title level="m" type="main">High-Dimensional Statistics: A Non-Asymptotic Viewpoint</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Wainwright</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<publisher>Cambridge University Press</publisher>
+			<pubPlace>Cambridge</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Tensor network complexity of multilinear maps</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Austin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Kaski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Kubjas</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">arXiv</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">Introductory lectures on convex optimization, ser. Applied Optimization</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Nesterov</surname></persName>
+		</author>
+		<idno type="DOI">10.1007/978-1-4419-8853-9</idno>
+		<ptr target="http://dx.doi.org/10.1007/978-1-4419-8853-9" />
+		<imprint>
+			<date type="published" when="2004">2004</date>
+			<publisher>Kluwer Academic Publishers</publisher>
+			<biblScope unit="volume">87</biblScope>
+			<pubPlace>Boston, MA</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">Introduction to Online Convex Optimization</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Hazan</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>Now Publishers Inc</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">J</forename><surname>Huber</surname></persName>
+		</author>
+		<title level="m">Robust Statistics</title>
+		<meeting><address><addrLine>New York</addrLine></address></meeting>
+		<imprint>
+			<publisher>Wiley</publisher>
+			<date type="published" when="1981">1981</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

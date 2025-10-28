@@ -1,0 +1,1213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">A Survey on Resilient Machine Learning</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Atul</forename><surname>Kumar</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">IBM Research</orgName>
+								<address>
+									<country key="IN">India</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Sameep</forename><surname>Mehta</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">IBM Research</orgName>
+								<address>
+									<country key="IN">India</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">A Survey on Resilient Machine Learning</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">43E6AC8124EBD594BFC5D01F0E26BF09</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>D.4.6 [Security and Protection]: Invasive software</term>
+					<term>I.2.6 [Learning]: Concept learning</term>
+					<term>I.5.1 [Models]: Neural nets</term>
+					<term>I.5.2 [Design Methodology]: Classifier design and evaluation Algorithms, Design, Security, Theory Resilience, Adversarial Learning, Computer Security, Intrusion Detection</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Machine learning based system are increasingly being used for sensitive tasks such as security surveillance, guiding autonomous vehicle, taking investment decisions, detecting and blocking network intrusion and malware etc. However, recent research has shown that machine learning models are venerable to attacks by adversaries at all phases of machine learning (e.g., training data collection, training, operation). All model classes of machine learning systems can be misled by providing carefully crafted inputs making them wrongly classify inputs. Maliciously created input samples can affect the learning process of a ML system by either slowing the learning process, or affecting the performance of the learned model or causing the system make error only in attacker's planned scenario. Because of these developments, understanding security of machine learning algorithms and systems is emerging as an important research area among computer security and machine learning researchers and practitioners. We present a survey of this emerging area.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.">INTRODUCTION</head><p>Over last few years, machine leaning has become a prominent technological tool in several application areas such as computer vision, speech recognition, natural language understanding, recommender systems, information retrieval, computer gaming, medical diagnosis, market analysis etc. In many areas, it is no longer a promising but immature technology as machine learning based systems have reached close to human level performance. Most of machine learning techniques build models using example data (training data). These models along with algorithms can be used to make predictions on data not seen before.</p><p>Learning and building models using training data provides hackers opportunities to attack machine learning algorithms by playing with the features and decision boundaries of the model. An adversary can craft malicious inputs to attack the performance or efficiency of a machine learning algorithm. Some systems where data distribution is not fully known at training time, use data examples in future to continuously train the system to adjust for the changing data distribution. An adversary can contribute malicious inputs to 'poison' the system. Others can dupe an already trained system by creating input data that exploits the system into making glaring errors. For example, researchers have demonstrated <ref type="bibr" target="#b1">[1]</ref>, how to fool an image classification system by making tiny changes to the input images. Figure <ref type="figure" target="#fig_0">1</ref> shows three images. On the left is an image that the system correctly classifies as a school bus. Image in center is a noise which when added to the left image creates an image shown on the right which still looks like a school bus to a human observer. But the system now classifies this image (right) as an ostrich. These techniques can be used by hackers to evade the system in making it accept malicious content as a genuine one. With machine learning becoming an important tool in strategically important applications such as security surveillance and background check for visa decisions etc., it is important to understand these attacks and make machine learning algorithms more robust against these attacks. If a hacker does not already know the algorithm, he first tries to learn the algorithm and its underlying model (e.g., logistic regression, neural network, decision trees etc.). Sometime, the hacker may only be interested in learning the model so that he can build his own 'copy' of the system using the learned model. This may be useful if the application is offered as a service via APIs and users are charged per use of these APIs. A hacker can create a sequence of inputs and then by observing outputs of the system corresponding these inputs, he can build a local model that may be very close to the model used by the original system. Depending on the pricing and the license terms of the API usage, a hacker may be able to 'steal' the model using very small amount of money. Tramer et al demonstrated at USENIX Security Symposium 2016 <ref type="bibr" target="#b2">[2]</ref> that models can be extracted from popular online machine learning services such as BigML and Amazon Machine Learning with a relatively small number of API calls.</p><p>Another category of attacks on machine learning systems is to provide adversarial input during the training phase and compromise the learning by affecting its efficiency or introducing some bias. Many systems allow users to provide training data samples for online training of the system. Collecting training data from people spared across geographies is immensely valuable in many applications to have good data distribution. But opening the system to public for providing input data also opens a system to malicious input created by hackers to 'poison' the system. Microsoft's twitter chatbot Tay started tweeting racist and sexist tweets in less than 24 hours after it was opened to public for learning <ref type="bibr" target="#b3">[3]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>This survey categorizes major works in Adversarial Machine</head><p>Learning area in three broad categories. First set consists of research focusing on learning algorithms and its models by providing carefully crafted inputs and then observing the output to build local copies of the models. Second set consists of techniques focusing on evasion attacks. And the third set combines the work focusing on poisoning attacks. These are not disjoint sets and many of the works overlaps across these categories.</p><p>Rest of this paper is organized as follows. In Section 2, we discuss some earlier work on creating adversarial input to attack classification systems such as spam filters and anti-virus/malware systems. Section 3 discusses exploratory attacks that aim to learn algorithms and models of machine learning systems under attack. Section 4 discusses work related to evasion attacks. Section 5 discusses work covering poisoning attacks. Section 6 provides a summary in a table. Section 7 concludes the survey with a discussion on trends and research directions in this area. Appendix-A lists libraries and other open source software/data-repositories useful for Adversarial Machine Learning research.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.">EARLIER RELATED WORK</head><p>Some early work in attacking learning algorithms with malicious input come from anti-spam filters, anti-malware and biometric verification domains. A classifier is designed that works on input samples. It automatically determines whether a sample falls into a malicious target class (e.g., spam email or malware/worm) or a safe/genuine class. The classifier is typically generated automatically using learning by analyzing labeled training samples.</p><p>Data mining algorithms normally assume that data gathering activities are independent of data mining algorithms. However, an adversary manipulates data actively such that many false negatives are produced.</p><p>Dalvi et al <ref type="bibr" target="#b4">[4]</ref> proposed a game theory based approach to design classifiers. The classification process is viewed as a game between classifier and adversary. An optimal classifier is produced for adversary's optimal strategy. The classifier thus automatically adjusts to adversary's evolving inputs. Their experiments with spam filtering show that such classifiers outperform standard classifiers. Bruckner and Scheffer <ref type="bibr" target="#b5">[5,</ref><ref type="bibr" target="#b6">6,</ref><ref type="bibr" target="#b7">7]</ref> proposed single-shot prediction games in which the cost functions of classifier and adversary are not necessarily completely opposed to each other. They identified conditions such that a prediction game achieves a unique Nash equilibrium. They proposed techniques to develop algorithms that find the equilibrial prediction models. These techniques work well in email spam filtering.</p><p>Often, it is assumed that adversaries have good knowledge of classifiers which may be unrealistic. Lowd and Meek <ref type="bibr">[8]</ref> defined an adversarial classifier reverse engineering (ACRE) learning problem. Without any knowledge of a classifier, the task is to learn enough about it to construct adversarial attacks. Their algorithms targeted liner classifiers with either continuous or Boolean features and used spam filter data to demonstrate effectiveness. Barreno et al <ref type="bibr" target="#b9">[9]</ref> provided a taxonomy of different types of attacks on machine learning algorithms and an analytical model giving a lower bound on attacker's work function. Proposed taxonomy puts attack models in three major categoriesinfluence, specificity and security violation. Influence attacks are further divided into two sub-categoriescausative attacks change the training process by having some control over the training data; and exploratory attacks try to discover information using some probes. Under specificity attacks, targeted attacks are those that only focus their attack on a specific point or a small set of points; whereas indiscriminate attacks are those where attackers are flexible and involve some general class of points (e.g., any false negative). Security violation attacks include integrity attacks where intrusion points are made to be classified as normal; availability attacks are broader than integrity attack. They aim to cause many classification errors (both false negatives and false positives) so that system effectively becomes unusable.</p><p>In anti-malware/virus software and network security domains, signature detection approaches are widely used. To evade signature-based intrusion detection systems, attackers employ polymorphic techniques to generate attack instances that do not share fixed signatures. Anomaly detection is used to guard against such attacks because even though attackers can use polymorphic techniques to make attack instances look different from each other, they cannot make them look normal. Fogla et el <ref type="bibr" target="#b10">[10]</ref> proposed a new class of polymorphic attacks, called polymorphic blending attacks (a sub class of mimicry attacks). These attacks can evade byte-frequency based network anomaly intrusion detection systems by matching the statistics of mutated attack samples with normal samples. Newsome et al <ref type="bibr" target="#b11">[11]</ref> designed practical attacks against learning and used them on automatic polymorphic worm signature generation algorithms effectively. In their approach, an adversary builds labeled samples. Training with these samples prevent or severely delay generation of good classifiers. They show that a delusive adversary can obstruct learning whose samples are all otherwise correctly labeled.</p><p>In view of attacks on learning based classifiers, it is desirable to make these classifiers robust against such attacks. One obvious thing is to not assign too much weight to a single feature to increase robustness of a classifier. Regularization is used to spread the weight more evenly between the features. However, regularization is a very generic technique and may not be suitable to specific classification tasks. Globerson and Roweis <ref type="bibr" target="#b12">[12]</ref> introduced an algorithm to avoid single feature over-weighting by analyzing robustness using a game theoretic formalization. These classifiers are optimally resilient to deletion of features in a minimax sense. They constructed such classifiers using quadratic programming. These classifiers were tested in spam filtering and handwritten digit recognition tasks. Kolcz and Teo <ref type="bibr" target="#b13">[13]</ref> introduced a new method to find the lower bound of classifier robustness. Simple averaged classifiers can improve robustness considerably. They also proposed a feature reweighting algorithm to improve robustness and performance of classifiers. Biggio et al <ref type="bibr" target="#b14">[14]</ref> experimentally investigate whether the technique proposed in <ref type="bibr" target="#b13">[13]</ref> can be implemented using bagging <ref type="bibr" target="#b15">[15]</ref> and random subspace method (RSM) <ref type="bibr" target="#b16">[16]</ref> two well-known techniques for multiple classifier construction.</p><p>In applications such as biometric verification and authentication, characteristics used are assumed to meet some basic requirements such as universality, distinctiveness, permanence, etc. But in practice, no biometric trait fully meets these requisites which means no single biometric mode is error free. Multiple biometric modalities are used to minimize these errors. Rodrigues et al <ref type="bibr" target="#b17">[17]</ref> proposed two fusion schemes that aim to increase the robustness of multimodal biometric systems. First is a likelihood ratio based fusion scheme and the other is based on fuzzy logic. In addition to matching score and sample quality score, the proposed fusion schemes also considers intrinsic security of different biometric system being used. They demonstrate that these methods are more robust against spoof attacks than traditional fusion methods.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">EXPLORATORY ATTACKS</head><p>Exploratory attacks do not attempt to influence training; instead they try to discover information from the learner that includes discovering which machine learning algorithm/technique is being used by the system, state of the underlying model and training data.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Model Inversion</head><p>Fredrikson et al introduced the term model inversion in <ref type="bibr" target="#b18">[18]</ref>. In pharmacogenetics, machine learning techniques are used to assist in medical treatments based on patient's genotype and other background. Maintaining privacy about patients' personal and medical records is an important requirement in healthcare domain and mandated by law in many nations. Fredrikson et al showed that by using the model (black box access) and some demographic information about a patient, an attacker can predict the patient's genetic markers. This attack works in a setting in which the sensitive feature being inferred is drawn from a small set. Differential privacy is an often used as a solution for situations like this. Authors showed that differential privacy when used with appropriate privacy budgets can prevent their model inversion attacks but it may impact the clinical efficacy therefore putting patients to some risk. It is not known whether model inversion attacks propose in <ref type="bibr" target="#b18">[18]</ref> work outside their settings. Fredrikson, Jha and Ristenpart extended their previous work to develop a new class of model inversion attack <ref type="bibr" target="#b19">[19]</ref>. This new model inversion attack uses the confidence percentage provided with predictions. They tested their new attack on commercial ML-as-a-service APIs. The attack infers sensitive features used as inputs to decision tree models for lifestyle surveys, as well as to recover images from API access to facial recognition services. Figure <ref type="figure" target="#fig_1">2</ref> shows a recognizable image of a person produced by an attacker using new model inversion attack. Only API access to a facial recognition system and the name of the person whose face is recognized by it were available to the attacker. In another experiment, they attacked a decision trees for lifestyle surveys and could estimate whether a respondent in the survey admitted to cheating on their significant other. The paper discusses some countermeasures to model inversion attack and show that systems can be secured against these kinds of attacks with negligible degradation to utility. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Inferring useful information</head><p>Even though the major machine learning algorithms are publicly known, the training data used to build a proprietary model may not be publically available and may be protected as trade secrets. Some machine learning classifiers can unconsciously revel the statistical information. Ateniese et al <ref type="bibr" target="#b20">[20]</ref> showed that it is possible to infer unexpected but useful information from machine learning classifiers. They build a meta-classifier which is trained to hack other classifiers, obtaining meaningful information about their training sets. Using the methodology proposed, an adversary infers statistical properties from the relationship among dataset entries and not the attributes of the dataset. They experimented with a speech recognition classifier that uses Hidden Markov Models and extracted information such as the accent of the speakers that is not supposed to be captured explicitly by the model and which is not an attribute of the training set. In another case study, they showed that it is possible to determine whether a certain type of network traffic was included in the training set of an Internet traffic classifier trained on network data flow data.</p><p>Another type of inference attack is membership inference attack.</p><p>Given the black box access to a model (e.g., via public APIs) and a data record, an attacker may be interested in knowing whether that data record was part of the training set of the model. Shokri et al <ref type="bibr" target="#b21">[21]</ref> used membership attacks on classification models trained by commercial "ML as a service" providers such as Google and Amazon. They trained their own inference model and then observed the differences in predictions by their own model and by the target model. They compared differences for the inputs that were used to train their own model versus the inputs that were not. Some realistic datasets and classification tasks such as a hospital discharge dataset were used for experiments. They demonstrated that these models are vulnerable to membership inference attacks.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Model Extraction using Online APIs</head><p>Machine learning as a service for applications such as predictive analytics are deployed with publicly accessible query interfaces (APIs). These models are deemed confidential due to their sensitive training data, commercial value, or other reasons such as use in security applications. Access is provided on a pay-per-query basis.</p><p>In such situations, an adversary has black-box access but no prior knowledge of the machine learning model's parameters or training data.</p><p>Tramer et al <ref type="bibr" target="#b2">[2]</ref> presented simple attacks to extract target machine learning models for popular model classes such as logistic regression, neural networks, and decision trees. Model extraction attacks were demonstrated on popular online ML-as-a-service providers such as BigML and Amazon Machine Learning. Their attacks were complete black box and the adversary does not even need to know the model type or any distribution information about training data. They could build local models that are functionally very close to the target. In some experiments, their attacks extracted the exact parameters of the target (e.g., the coefficients of a linear classifier or the paths of a decision tree). In situations where the model type, parameters or features of the target were not known, they used an additional preliminary attack step to reverse-engineer these model characteristics. Machine learning prediction APIs of major online services such as Google, Amazon, Microsoft, and BigML all return precision confidence values along with class labels. Moreover, they work with partial queries lacking one or more features. These features can be exploited for model extraction attacks. The confidence value for logistic regression is a simple loglinear function 1/(1+e -(w•x+β) ) of the d-dimensional input vector x. Therefore, an attacker may solve w and β that define the model by querying d+1 random d-dimensional inputs for the unknown d+1 parameters. Such equation-solving attacks extend to multiclass logistic regressions and neural networks, but do not work for decision trees. For decision trees, a confidence value implies the number of training data samples labeled correctly on an input's path in the tree. However, these confidence values can still be used as pseudo-identifiers for paths in the tree therefore assisting in discovering tree's structure. Omitting confidence values from outputs is an obvious countermeasure against these attacks. Authors proposed new attacks inspired by an agnostic learning algorithm <ref type="bibr" target="#b22">[22]</ref>. Their new attacks extract models from more than 99% of targets for a variety of model classes but need up to 100 times more queries than equation-solving attacks.</p><p>Papernot et al <ref type="bibr" target="#b23">[23]</ref> introduced a practical black-box attack on remotely hosted deep neural networks (DNN) with no knowledge of either the model internals or their training data. An adversary observes output label given by the DNN to chosen inputs. They train a local model using inputs synthetically generated and labeled by the target DNN. The trained local model can be used for other attacks such as crafting adversarial examples for mounting evasion attacks on the target DNN.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.">EVASION ATTACKS</head><p>Evasion attacks are the most prevalent type of attack on a machine learning system. Malicious inputs are carefully crafted to evade detection which essentially means that input is modified to make the machine learning algorithm classify it as a safe one instead of malicious.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Adversarial Examples</head><p>Szegedy et al [1] found that deep neural networks (DNN) learn input-output mappings that are fairly discontinuous. One can cause a DNN to wrongly classify an image by applying a specifically crafted modification (found by maximizing the network's prediction error) that is difficult to distinguish by a human viewer. The same change to the image can cause a different network, trained on a different subset of the dataset, to incorrectly classify the same image. This property of deep neural network can be exploited to create any number of adversarial inputs from the normal inputs. Practical Black-Box Attacks method proposed by Papernot et al [23] misclassified 84.24% of the crafted adversarial examples on MetaMind (an online deep learning API) DNN. They also used logistic regression substitutes to craft adversarial examples for Amazon and Google ML APIs and found misclassification rate of 96.19% and 88.94% respectively.</p><p>Papernot et al <ref type="bibr" target="#b24">[24]</ref> show that adversarial attacks are also effective when targeting neural network policies in reinforcement learning. Adversaries capable of introducing small perturbations to the raw input can significantly degrade test-time performance. The strategy is to train a local substitute DNN using a synthesized data set. Input data is synthesized but the label assigned is what the target DNN assigns to it and observed by the adversary. Adversarial examples are generated by using the substitute parameters known to adversary. These are misclassified by both target DNN and the substitute DNN created locally because they both have the same decision boundaries. To create a small perturbation so that the changed image looks similar to the original one, an algorithm named fast gradient sign method <ref type="bibr" target="#b25">[25]</ref>. The cost gradient is computed for pixels and the target pixels (areas) for perturbation is identified. Another algorithm by Papernot et al. <ref type="bibr" target="#b26">[26]</ref> can cause a misclassification for samples from any legitimate source class to any chosen target class. That is, any image can be changed slightly such that it is classified to a desired class (say ostrich) by the DNN. Therefore, a school bus image can be changed in such a way that to humans, it still looks like a bus but the DNN recognizes it as an ostrich (for that matter any class chosen by the adversary). Input components are added to a perturbation in order of decreasing adversarial saliency value until the resulting adversarial sample is misclassified by the mode.</p><p>Goodfellow et al <ref type="bibr" target="#b25">[25]</ref> argue that the primary cause of neural networks' vulnerability to adversarial perturbation is their linearnature. The most intriguing fact about neural networks is their generalization across architectures and training sets. Using this view, they discussed a simple and fast method of generating adversarial examples. This approach can be used to generate examples for adversarial training to reduce the test set error.</p><p>Papernot et al <ref type="bibr" target="#b26">[26]</ref> introduced a class of algorithms to create adversarial inputs based on a precise understanding of the mapping between inputs and outputs of DNNs. They defined a hardness measure to evaluate the vulnerability of different sample classes to adversarial perturbations. They defined a predictive measure of distance between a benign input and a target classification to describe preliminary defenses against adversarial samples.</p><p>Moosavi-Dezfooli et al <ref type="bibr" target="#b27">[27]</ref> proposed the DeepFool algorithm to efficiently compute perturbations that fool deep networks thus quantifying the robustness of these classifiers. This computation of robustness can be used to make classifiers more robust.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Generative Adversarial Networks (GANs)</head><p>Goodfellow et al <ref type="bibr" target="#b28">[28]</ref> introduced Generative adversarial networks. They are implemented by simultaneously training two models: a generative model G that captures the data distribution, and a discriminative model D that estimates the probability that a sample came from the training data rather than G. The training procedure for G is to maximize the probability of D making a mistake. This can be viewed as a competition between a team of counterfeiters and a team of police. If generative model is assumed to be producing fake currency such that it can pass without detection, then the discriminative model is trying to detect the counterfeit currency. Competition leads both teams to improve their methods until the counterfeits cannot be distinguished from the genuine currency.</p><p>Kos et al <ref type="bibr" target="#b29">[29]</ref> presented three classes of attacks on the VAE and VAE-GAN architectures <ref type="bibr" target="#b30">[30]</ref>. The first attack leverages classification-based adversaries by attaching a classifier to the trained encoder of the target generative model. The second attack directly uses the VAE loss function to generate a target reconstruction image from the adversarial example. And the third attack directly optimizes against differences in source and target latent representations.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.3">Query Strategies for Evasion</head><p>An adversary systematically creates queries for a classifier to elicit information that allows the attacker to evade detection. Nelson el al <ref type="bibr" target="#b31">[31]</ref> present query algorithms to construct undetected instances for convex-inducing classifiers. Only polynomially-many queries in the dimension of the space and in the level of approximation are required with approximately minimal cost. The family of convexinducing classifiers partition their feature space into two sets, one of which is convex. This family is a super set of the family of linear classifiers. They demonstrated that near optimal evasion can be achieved for convex-inducing classifiers without a need to know the classifier's decision boundary.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.4">Adversarial Classification</head><p>In traditional classification, an input is classified as one of classes.</p><p>In an adversarial setting, an adversary can manipulate input instances to avoid being so classified. Learning to distinguish good inputs from malicious ones is known as adversarial classification. Vorobeychik and Li <ref type="bibr" target="#b32">[32]</ref> presented a general theoretical analysis of the problem of adversarial classification. They generalized adversarial classifier reverse engineering (ACRE) process to demonstrate that if a classifier can be efficiently learned, it can also be efficiently reverse engineered. This result is extended to randomized classification schemes showing that effectiveness of reverse engineering depends on the defender's randomization scheme. They characterized optimal randomization schemes in presence of adversarial reverse engineering and classifier manipulation. They observed that the defender's optimal policy tends to be either to randomize uniformly (ignoring baseline classification accuracy) or not to randomize at all (i.e, targeted attacks or indiscriminate attacks).</p><p>Adversaries are not static data generators, but make a deliberate effort to evade the classifiers deployed to detect them. Li and Vorobeychik <ref type="bibr" target="#b33">[33]</ref> studied the problems of modeling the objectives of such adversaries and the algorithmic problem of accounting for rational, objective-driven adversaries.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.5">Evasion Attacks on Text Based Systems</head><p>Perturbation techniques for image or audio based system cannot directly work on text based systems. That is because an important requirement of the perturbation used is to change the image or audio such that it still looks good to a human observer/listener. Whereas in a text, changing words by adding/deleting characters or changing sentences by adding/deleting words may make the sentence/word meaningless or change its meaning significantly and therefore cannot remain unnoticed by a human reader. Therefore, a perturbation technique must change the text such that it still looks good/suspicious to a human observer but machine learning system fails to classify it correctly after perturbation. For example, a spam email carrying an advertisement should still carry the advertisement message but fool the spam filtering system in classifying it as a regular email.</p><p>Creating adversarial inputs for text classification systems seems to be a harder problem than doing the same for the image or audio classification. Some recent work has shown that it is possible to systematically create such adversarial inputs. Liang et al <ref type="bibr" target="#b46">[45]</ref> discuss the problem of creating perturbation. They propose three techniques named insertion, modification, and removal, to generate adversarial samples for given text. They compute cost gradients (originally proposed in <ref type="bibr" target="#b25">[25]</ref> for images and proven to be effective in <ref type="bibr" target="#b26">[26]</ref> and <ref type="bibr" target="#b27">[27]</ref>) to decide what and where should be inserted, what and how to modify and what should be removed from a text sample. However, using the fast gradient sign method (FGSM) of <ref type="bibr" target="#b25">[25]</ref> directly makes the text unreadable. Using cost gradient, they identify the text items that possess significant contribution to the classification. Then instead of changing the characters arbitrarily, they use one or more of insertion, modification and removal to craft an adversarial sample for a given text.</p><p>They demonstrate using experiments that standard text classification systems can be deceived into misclassifying input text samples as any desirable classes by using their perturbation techniques without compromising the utility of the input text. They also show that deep neural network based text classifiers are also prone to such attacks. They have shown that by adding just one word at a specific place in a paragraph, or by misspelling just one instance of a word in a paragraph, the system can be fooled in classifying a text paragraph incorrectly with very high confidence.</p><p>For example, a paragraph describing 1939 film Maisie is correctly classified by the system as about films with 99.6% confidence. They slightly misspelled a word ("film" to "flim") at a particular place in the paragraph and the system classifies the modified paragraph as about companies even though the paragraph still contains other correctly spelled instances of the world "film".</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.6">Evaluating Classifiers Security Against Evasion Attacks</head><p>Adversarial scenario is often not considered at design time. A framework to evaluate potential performance degradation under potential attacks is proposed by Biggio et al <ref type="bibr" target="#b34">[34]</ref>. The proposed framework evaluates classifier security empirically. It formalizes and generalizes the main ideas proposed in pattern classification theory and design methods. This framework is used to build a gradient-based approach <ref type="bibr" target="#b35">[35]</ref> to assess the security of widely-used classification algorithms against evasion attacks. This provides the designer a better picture of the classifier performance under potential evasion attacks. The designer therefore can perform a more informed model selection (or parameter setting).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.">POISONING ATTACKS</head><p>In poisoning attacks, attackers try to influence training data to influence the learning outcome. The purpose of poisoning attacks may vary from affecting the performance of learning algorithm to deliberately introducing specific biases in the model. In many applications, training is not a one-time job and model is often retrained to accommodate for the change in data distribution. In some situation, data collection is crowdsourced and many users provide data sample that are used to continuously train the model. Some domains such as network intrusion detection, spam filtering, malware detection etc. are highly suspect of poisoning attacks but any machine learning system can be a victim of poisoning attacks.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1">Network Intrusion Detection</head><p>For intrusion detection, statistical machine learning based techniques build a model for normal behavior from training data and then detect attacks that deviates from that model. Adversaries try to manipulate the training data so that the learned model treats intrusion also as normal network behavior.</p><p>Rubinstein et al <ref type="bibr" target="#b36">[36]</ref> show how attackers can substantially increase their chance of successfully evading detection by only adding moderate amounts of poisoned data. Such poisoning disturbs the balance between false positives and false negatives resulting in dramatically reduced effectiveness of the system. They proposed a robust PCA-based detector called 'antidote'. It is based on techniques from robust statistics. They show that poisoning has little effect on the robust model.</p><p>Kloft and Laskov <ref type="bibr" target="#b38">[37]</ref> analyzed the performance of online centroid anomaly detection in an adversarial setup. They derived bounds on the effectiveness of a poisoning attack against centroid anomaly detection under different conditions. While poisoning attacks can be successful in the unconstrained case, they become arbitrarily difficult if external constraints are properly used. They used real traces of HTTP and exploit traffic and confirmed the tightness of proposed theoretical bounds.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2">Poisoning Support Vector Machines</head><p>Xiao and Eckert <ref type="bibr" target="#b39">[38]</ref> address the problem of label flips attack. In this attack, an adversary poisons the training set by flipping labels. An optimization framework is formulated to finds label flips that maximize the classification error. They proposed an algorithm for attacking support vector machines (SVMs).</p><p>Biggio et al <ref type="bibr" target="#b40">[39]</ref> discuss a family of poisoning attacks against Support Vector Machines (SVM). These attacks introduce specially crafted training data to increases SVM's test error.</p><p>Learning algorithms often assume that training data comes from a well-behaved distribution which is not true in an adversarial setting. They demonstrated that an intelligent adversary can predict the change of the SVM's decision function to some extent by using malicious input. The adversary then uses this ability to craft malicious samples. Proposed attack uses a gradient ascent strategy where the gradient is computed based on properties of the SVM's optimal solution. The aim of such attacks is to increase classifier's error rate.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.3">Factorization-Based Collaborative Filtering</head><p>Li et al <ref type="bibr" target="#b41">[40]</ref> introduced a data poisoning attack on collaborative filtering systems. They demonstrated how a powerful attacker with full knowledge of the learner can generate malicious data to maximize his objectives while mimicking normal user behavior to avoid detection. The assumption about complete knowledge is extreme but it enables a robust assessment of the vulnerability of collaborative filtering schemes to highly motivated attacks. Authors considered two popular factorization-based collaborative filtering algorithms -the alternative minimization formulation and the nuclear norm minimization method.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.4">Defensive Distillation</head><p>Papernot at al <ref type="bibr" target="#b42">[41]</ref> introduced a defensive mechanism called defensive distillation that reduces the effectiveness of adversarial samples on deep neural networks (DNNs). Distillation is a training procedure that was designed to train a DNN using knowledge transferred from a different DNN <ref type="bibr">[46][47]</ref>. The motivation behind the knowledge transfer is to reduce the computational complexity of DNN architectures by transferring knowledge from larger architectures to smaller ones. This facilitates the deployment of deep learning in resource constrained devices that cannot rely on powerful GPUs to perform computations. A new variant of distillation is proposed for defense training. Instead of transferring knowledge between different architectures, knowledge extracted from a DNN is used to improve its own resilience to adversarial samples. An analytical investigation is presented for the generalizability and robustness properties granted by defensive distillation when training DNNs. Two DNNs were placed in adversarial settings to empirically study the effectiveness of defensive distillation. They show that defensive distillation can reduce effectiveness of sample creation from 95% to less than 0.5% on the DNNs used in their study. This can be explained by the fact that distillation reduces by a factor of 1030 the gradients used in adversarial sample creation. Distillation also increases by 800% the average minimum number of features required to be modified for creating adversarial samples on one of the DNNs used in their experiments.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.5">Semi-Supervised Text Classification</head><p>Adversarial training is used for regularizing supervised learning algorithms and virtual adversarial training extends supervised learning algorithms to the semi-supervised setting. Both methods require making small perturbations to several entries of the input vector. This is inappropriate for sparse high-dimensional inputs such as one-hot word representations. Miyato et al <ref type="bibr" target="#b43">[42]</ref> extend adversarial and virtual adversarial training to the text domain. by Perturbations is applied to the word embeddings in a recurrent neural network and not to the original input. This method achieves good results on multiple benchmark for semi-supervised and supervised tasks. Analysis shows that the learned word embeddings improved in quality and that the model is less prone to overfitting while training.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.">SUMMARY Early Work</head><p>Applications: Spam filters, anti-virus/ malware, network intrusion detection, biometric verification and authentication</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Approaches:</head><p>Game-theory based approachesgame between classifier and adversary. optimal classifier to automatically adjusts to adversary's evolving inputs; find the equilibrial prediction models</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Signature</head><p>-based intrusion detection systems -polymorphic techniques to generate attack instances that do not share fixed signatures -attackers can use polymorphic techniques to make attack instances look different from each other. Polymorphic blending attacks -can evade byte-frequency based network anomaly intrusion detection systems by matching the statistics of mutated attack samples with normal samples. Making classifiers robust -not assign too much weight to a single feature; game theoretic formalization to avoid over weighting single feature. Multimodal biometric systems -likelihood ratio based fusion scheme and fuzzy logic based fusion scheme Attacks: exploratory, evasion and poisoning Exploratory attacks: Model Inversion: black box access to model and some demographic information about a person, an attacker can predict private information such as genetic markers from a healthcare system. Inferring information: an adversary can infer statistical properties from the relationship among dataset entries Membership inference attack: given the black box access to model and a data sample, it can be inferred whether that data record was part of the training set or not. Model Extraction using Online APIs: local models can be built that function very similar to proprietary models for which only API access is available. Confidence score and partial values for API are used to find key coefficients of the model. Evasion attacks: Adversarial Examples: systematic adversarial perturbation; DeepFool algorithm to efficiently compute perturbations that fool deep networks Generative Adversarial Networks (GANs): simultaneously training two models: a generative model G that captures the data distribution, and a discriminative model D that estimates the probability that a sample came from the training data rather than G. Adversarial classification: Learning to distinguish good inputs from malicious ones is known as adversarial classification. Useful in adversarial training.</p><p>Text-based systems: text classification systems can be fooled by carefully inserting, modifying or removing some text such that the meaning of text does not change for a human user.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Poisoning attacks:</head><p>Network Intrusion Detection: input samples to disturb the balance between false positives and false negatives therefore reducing effectiveness.</p><p>Support Vector Machine Poisoning: label flips attack; adversary can predict the change of the SVM's decision function to some extent by using malicious input. This can be used to craft malicious samples.</p><p>Defensive Distillation: Distillation is a training procedure that was designed to train a DNN using knowledge transferred from a different DNN. This technique is used for defense training.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7.">EMERGING RESEARCH DIRECTIONS</head><p>Generating adversarial examples to fool machine learning algorithms in making incorrect classification and making machine learning systems robust against these inputs are active research areas. But it is fundamentally hard problem to defend against adversarial examples because it is hard to build a theoretical model for crafting adversarial inputs. Adversarial inputs are solutions to an optimization problem that is non-linear and non-convex for many machine learning models, including neural networks. Since good theoretical tools for describing the solutions to these optimization problems do not exist, it is very hard to put forward a theoretical argument that a defense strategy would rule out a set of adversarial inputs. Like other computer security areas such as computer viruses/malwares, a defense technique makes a system robust against one type of attack. When a new vulnerability is discovered by an attacker, a new defense is required to build for that attack. Designing an adaptive defense against an adaptive attacker is an important research area.</p><p>Using defensive distillation to guard system against adversarial examples is an interesting research direction. A neural network is used to label images with probability vectors instead of single labels. A new neural network is then trained using the probability vector labels. This makes the second neural network less prone to over-fitting. Papernot and his fellow researchers have shown that to fool such networks, eight times more distortion to the image is needed compared to what is needed without distillation. There seems to be scope further improve defensive distillation methods to make networks more robust.</p><p>Building benchmarks to measure a machine learning model's performance performs against an adversary is another open problem. Ideally, there should be standard set of benchmarks for measuring accuracy of an ML algorithm and there should be standard benchmarks for measuring its performance in adversarial settings.</p><p>If we see the history of software development, security was added to software products at a very late stage, often after a functional product is built and tested for its functional and performance related requirements. Only recently, security became an important consideration at requirement analysis and design stage. Machine learning systems can be considered in their early days where security is considered only after the system is attacked or some vulnerability is discovered. Security in machine learning systems should be built from the start and not as an afterthought. Some research is due on evolving software engineering methodology for building machine learning system.</p><p>Another emerging research area in adversarial ML domain is of Generative Adversarial Networks. Theoretically, generative model and discriminative model in a GAN should be best at the Nash equilibrium. But a gradient descent is guaranteed to get to the Nash equilibrium only in the convex case. And for other ML models, it is not even possible to reach equilibrium. If players are represented by neural networks then they can keep adapting forever and would never converge therefore never reaching the equilibrium. Fixing the non-convergence problem in GANs is an open problem as of now.</p><p>Finally, some fundamental work is due to change the learning process of machines. Quoting a story from Dave Gershgorn's article in Popular Science <ref type="bibr" target="#b45">[44]</ref>:</p><formula xml:id="formula_0">In</formula><p>the early 1900s, Wilhelm von Osten, a German horse trainer and mathematician, told the world that his horse could do math. He would ask his horse, Clever Hans, to compute simple equations. In response, Hans would tap his hoof for the correct answer. Two plus two? Four taps. Psychologist Carl Stumpf found that Clever Hans wasn't solving equations, but responding to visual cues. Hans would tap up to the correct number, which was usually when his trainer and the crowd broke out in cheers. And then he would stop. When he couldn't see those expressions, he kept tapping and tapping. A lot of today's machine learning and artificial intelligence work like Hans. We know how to build systems that can learn enough to give correct answers but without really understanding the information. That makes them easy to deceive. It is like guessing and constructing a digital circuit with n inputs by looking at k random items in its truth table where k&lt;&lt;2 n .</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Creating adversarial example using noise (Image credit: Szegedy et al. [1])</figDesc><graphic coords="1,317.85,149.25,240.10,82.20" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: An image recovered using a new model inversion attack (left) and the actual training set image (right). (Image Credit: Fredrikson et al [19])</figDesc><graphic coords="3,54.00,464.17,240.10,123.00" type="bitmap" /></figure>
+		</body>
+		<back>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Appendix-A: Open Source Software/Libraries cleverhans</head><p>Named after the early 20 th century house Clver Hans who his trainer claimed could do math, cleverhans is a software library for benchmarking vulnerability to adversarial examples. The library is maintained by Ian Goodfellow and Nicolas Papernot, two leading researchers in adversarial machine learning. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>AdversariaLib and ALFASVMLib</head><p>AdversariaLib is an open-source python library for the security evaluation of machine learning (ML)-based classifiers under adversarial attacks.</p><p>ALFASVMLib is an open-source Matlab library that implements a set of heuristic attacks against Support Vector Machines (SVMs). The goal of such attacks is to maximally compromise the SVM's classification accuracy by mislabeling a given fraction of training samples. They are indeed referred to as adversarial label flip attacks These libraries are maintied by PRA Lab, University of Cagliari, Italy.</p><p>URLs: <ref type="url" target="http://pralab.diee.unica.it/en/AdversariaLib">http://pralab.diee.unica.it/en/AdversariaLib</ref> and <ref type="url" target="http://pralab.diee.unica.it/en/ALFASVMLib">http://pralab.diee.unica.it/en/ALFASVMLib</ref> </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>deep-pwning: Metasploit for machine learning</head><p>Deep-pwning is a lightweight framework for experimenting with machine learning models with the goal of evaluating their robustness against a motivated adversary. This framework is built on top of Tensorflow. URL: <ref type="url" target="https://github.com/cchio/deep-pwning">https://github.com/cchio/deep-pwning</ref> </p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title/>
+		<author>
+			<persName><surname>References</surname></persName>
+		</author>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Intriguing Properties of Neural Networks</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Szegedy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Zaremba</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Sutskever</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Bruna</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Erhan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Fergus</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/pdf/1312.6199v4.pdf" />
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Stealing Machine Learning Models via Prediction APIs</title>
+		<author>
+			<persName><forename type="first">Florian</forename><surname>Tramèr</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Fan</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ari</forename><surname>Juels</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><forename type="middle">K</forename><surname>Reiter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Thomas</forename><surname>Ristenpart</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">USENIX Security Symposium</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">Microsoft&apos;s AI Twitter bot goes dark after racist, sexist tweets</title>
+		<author>
+			<persName><surname>Reuters</surname></persName>
+		</author>
+		<ptr target="http://www.reuters.com/article/us-microsoft-twitter-bot-idUSKCN0WQ2LA" />
+		<imprint>
+			<date type="published" when="2016-03">March 2016</date>
+			<biblScope unit="volume">24</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Adversarial classification</title>
+		<author>
+			<persName><forename type="first">Nilesh</forename><surname>Dalvi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pedro</forename><surname>Domingos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sumit</forename><surname>Mausam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Deepak</forename><surname>Sanghai</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Verma</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM SIGKDD Conference on Knowledge Discovery and Data Mining</title>
+		<imprint>
+			<date type="published" when="2004">2004</date>
+			<biblScope unit="page">4</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Nash equilibria of static prediction games</title>
+		<author>
+			<persName><forename type="first">Michael</forename><surname>Bruckner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tobias</forename><surname>Scheffer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Neural Information Processing Systems 2009 (NIPS&apos;09)</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Static prediction games for adversarial learning problems</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Bruckner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Kanzow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Scheffer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Stackelberg games for adversarial prediction problems</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Bruckner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Scheffer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM SIGKDD Conference on Knowledge Discovery and Data Mining</title>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Adversarial learning</title>
+		<author>
+			<persName><forename type="first">Daniel</forename><surname>Lowd</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chris</forename><surname>Meek</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM SIGKDD Conference on Knowledge Discovery and Data Mining 2005 (KDD&apos;05)</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Can machine learning be secure?</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Barreno</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Nelson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Sears</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">D</forename><surname>Joseph</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">D</forename><surname>Tygar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM Symposium on InformAtion, Computer and Communications Security</title>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+	<note>ASIACCS&apos;06</note>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Polymorphic blending attacks</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Fogla</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Sharif</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Perdisci</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Kolesnikov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Lee</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">USENIX Security Symposium</title>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Paragraph: thwarting signature learning by training maliciously</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Newsome</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Karp</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Song</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Symposium on Recent Advances in Intrusion Detection</title>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+			<biblScope unit="page">6</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Nightmare at Test Time: Robust Learning by Feature Deletion</title>
+		<author>
+			<persName><forename type="first">Amir</forename><surname>Globerson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sam</forename><surname>Roweis</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Machine Learning</title>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+	<note>ICML&apos;06</note>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<title level="m" type="main">Feature Weighting for Improved Classifier Robustness</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kolcz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">H</forename><surname>Teo</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+	<note>CEAS&apos;09</note>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Multiple classifier systems for robust classifier design in adversarial environments</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Biggio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Fumera</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Roli</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">International Journal of Machine Learning and Cybernetics</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="27" to="41" />
+			<date type="published" when="2010-12">December 2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Bagging predictors</title>
+		<author>
+			<persName><forename type="first">Leo</forename><surname>Breiman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning</title>
+		<imprint>
+			<date type="published" when="1996-08">Aug 1996</date>
+			<biblScope unit="volume">24</biblScope>
+			<biblScope unit="page" from="123" to="140" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">The random subspace method for constructing decision forests</title>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">K</forename><surname>Ho</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. on Pattern Analysis and Machine Intelligence</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="832" to="844" />
+			<date type="published" when="1998">1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Robustness of multimodal biometric fusion methods against spoof attacks</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">N</forename><surname>Rodrigues</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">L</forename><surname>Ling</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Govindaraju</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Visual Languages and Computing</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<date type="published" when="2009-06">June 2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Privacy in pharmacogenetics: An end-to-end case study of personalized warfarin dosing</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Fredrikson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Lantz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Jha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Page</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Ristenpart</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">USENIX Security Symposium</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Model Inversion Attacks that Exploit Confidence Information and Basic Countermeasures</title>
+		<author>
+			<persName><forename type="first">Matt</forename><surname>Fredrikson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Somesh</forename><surname>Jha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Thomas</forename><surname>Ristenpart</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM SIGSAC Conference on Computer and Communications Security 2015 (CCS&apos;15)</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Hacking smart machines with smarter ones: How to extract meaningful data from machine learning classifiers</title>
+		<author>
+			<persName><forename type="first">Giuseppe</forename><surname>Ateniese</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Luigi</forename><forename type="middle">V</forename><surname>Mancini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Angelo</forename><surname>Spognardi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Antonio</forename><surname>Villani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Domenico</forename><surname>Vitali</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Giovanni</forename><surname>Felici</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">International Journal of Security and Networks (IJSN)</title>
+		<imprint>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<monogr>
+		<author>
+			<persName><forename type="first">Reza</forename><surname>Shokri</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Marco</forename><surname>Stronati</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Congzheng</forename><surname>Song</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vitaly</forename><surname>Shmatikov</surname></persName>
+		</author>
+		<title level="m">Membership Inference Attacks against Machine Learning Models</title>
+		<imprint>
+			<date type="published" when="2017-05">May 2017</date>
+		</imprint>
+	</monogr>
+	<note>to appear in IEEE Symposium on Security and Privacy (S&amp;P)</note>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Improving generalization with active learning</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Cohn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Atlas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Ladner</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Machine learning</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="201" to="221" />
+			<date type="published" when="1994">1994</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Practical Black-Box Attacks against Machine Learning</title>
+		<author>
+			<persName><forename type="first">Nicolas</forename><surname>Papernot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Patrick</forename><surname>Mcdaniel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ian</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Somesh</forename><surname>Jha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><forename type="middle">Berkay</forename><surname>Celik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ananthram</forename><surname>Swami</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM Asia Conference on Computer and Communications Security (ASIACCS)</title>
+		<imprint>
+			<date type="published" when="2017-04">April 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<monogr>
+		<author>
+			<persName><forename type="first">Nicolas</forename><surname>Papernot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Patrick</forename><surname>Mcdaniel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ian</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/pdf/1605.07277.pdf" />
+		<title level="m">Transferability in Machine Learning: from Phenomena to Black-Box Attacks using Adversarial Samples</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Explaining and Harnessing Adversarial Examples</title>
+		<author>
+			<persName><forename type="first">Ian</forename><forename type="middle">J</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jonathon</forename><surname>Shlens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Christian</forename><surname>Szegedy</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Learning Representations (ICLR)</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">The Limitations of Deep Learning in Adversarial Settings</title>
+		<author>
+			<persName><forename type="first">Nicolas</forename><surname>Papernot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Patrick</forename><surname>Mcdaniel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Somesh</forename><surname>Jha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Matt</forename><surname>Fredrikson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><forename type="middle">Berkay</forename><surname>Celik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ananthram</forename><surname>Swami</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE European Symposium on Security and Privacy</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note>Euro S&amp;P</note>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">DeepFool: A Simple and Accurate Method to Fool Deep Neural Networks</title>
+		<author>
+			<persName><forename type="first">Seyed-Mohsen</forename><surname>Moosavi-Dezfooli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alhussein</forename><surname>Fawzi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pascal</forename><surname>Frossard</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Conference on Computer Vision and Pattern Recognition</title>
+		<imprint>
+			<biblScope unit="page">2016</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<monogr>
+		<title level="m" type="main">Generative Adversarial Networks</title>
+		<author>
+			<persName><forename type="first">Ian</forename><forename type="middle">J</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jean</forename><surname>Pouget-Abadie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mehdi</forename><surname>Mirza</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bing</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David</forename><surname>Warde-Farley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sherjil</forename><surname>Ozair</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aaron</forename><surname>Courville</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yoshua</forename><surname>Bengio</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/pdf/1406.2661.pdf" />
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<monogr>
+		<title level="m" type="main">Adversarial examples for generative models</title>
+		<author>
+			<persName><forename type="first">Jernej</forename><surname>Kos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ian</forename><surname>Fischer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dawn</forename><surname>Song</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/pdf/1702.06832.pdf" />
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Autoencoding beyond pixels using a learned similarity metric</title>
+		<author>
+			<persName><forename type="first">Anders</forename><surname>Boesen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lindbo</forename><surname>Larsen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Soren</forename><forename type="middle">Kaae</forename><surname>Sonderby</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hugo</forename><surname>Larochelle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ole</forename><surname>Winther</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Machine Learning (ICML)</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Query strategies for evading convex-inducing classifiers</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Nelson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">I</forename><surname>Rubinstein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">D</forename><surname>Joseph</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Rao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">D</forename><surname>Tygar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Optimal randomized classification in adversarial settings</title>
+		<author>
+			<persName><forename type="first">Yevgeniy</forename><surname>Vorobeychik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bo</forename><surname>Li</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International conference on Autonomous agents and multi-agent systems (AAMAS)</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Feature Crosssubstitution in Adversarial Classification</title>
+		<author>
+			<persName><forename type="first">Bo</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yevgeniy</forename><surname>Vorobeychik</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems (NIPS)</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">Security evaluation of pattern classifiers under attack</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Biggio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Fumera</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Roli</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. on Knowledge and Data Engg. (TKDE)</title>
+		<imprint>
+			<biblScope unit="volume">26</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Evasion attacks against machine learning at test time</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Biggio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Corona</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Maiorca</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Nelson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Srndic</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Laskov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Giacinto</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Roli</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">The European Conference on Machine Learning and Principles and Practice of Knowledge Discovery in Databases (ECML/PKDD</title>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">I P</forename><surname>Rubinstein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Nelson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">D</forename><surname>Joseph</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S.-H</forename></persName>
+		</author>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">Antidote: understanding and defending against poisoning of anomaly detectors</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Lau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Rao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">D</forename><surname>Taft</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Tygar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM SIGCOMM conference on Internet measurement</title>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+	<note>IMC&apos;09</note>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<analytic>
+		<title level="a" type="main">Security analysis of online centroid anomaly detection</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kloft</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Laskov</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">Adversarial label flips attack on support vector machines</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">X</forename><surname>Han Xiao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Eckert</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">European Conference on Artificial Intelligence (ECAI)</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<analytic>
+		<title level="a" type="main">Poisoning attacks against support vector machines</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Biggio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Nelson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Laskov</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Machine Learning (ICML)</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title level="a" type="main">Data Poisoning Attacks on Factorization-Based Collaborative Filtering</title>
+		<author>
+			<persName><forename type="first">Bo</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yining</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aarti</forename><surname>Singh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yevgeniy</forename><surname>Vorobeychik</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems (NIPS)</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b42">
+	<monogr>
+		<title level="m" type="main">Distillation as a Defense to Adversarial Perturbations Against Deep Neural Networks</title>
+		<author>
+			<persName><forename type="first">Nicolas</forename><surname>Papernot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Patrick</forename><surname>Mcdaniel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xi</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Somesh</forename><surname>Jha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ananthram</forename><surname>Swami</surname></persName>
+		</author>
+		<imprint>
+			<biblScope unit="page">2016</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b43">
+	<analytic>
+		<title level="a" type="main">Adversarial Training Methods for Semi-Supervised Text Classification</title>
+		<author>
+			<persName><forename type="first">Takeru</forename><surname>Miyato</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><forename type="middle">M</forename><surname>Dai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ian</forename><surname>Goodfellow</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Learning Representations</title>
+		<imprint>
+			<biblScope unit="page">2017</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b44">
+	<analytic>
+		<title level="a" type="main">Learning Securely</title>
+		<author>
+			<persName><forename type="first">Erica</forename><surname>Klarreich</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Communications of the ACM (CACM)</title>
+		<imprint>
+			<biblScope unit="volume">59</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<biblScope unit="page" from="12" to="14" />
+			<date type="published" when="2016-11">November 2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b45">
+	<analytic>
+		<title level="a" type="main">Fooling the Machine: The Byzantine Science of Deceiving Artificial Intelligence</title>
+		<author>
+			<persName><forename type="first">Dave</forename><surname>Gershgorn</surname></persName>
+		</author>
+		<ptr target="http://www.popsci.com/byzantine-science-deceiving-artificial-intelligence" />
+	</analytic>
+	<monogr>
+		<title level="j">Popular Science</title>
+		<imprint>
+			<date type="published" when="2016-03-30">March 30, 2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b46">
+	<monogr>
+		<author>
+			<persName><forename type="first">Bin</forename><surname>Liang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hongcheng</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Miaoqiang</forename><surname>Su</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pan</forename><surname>Bian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xirong</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Wenchang</forename><surname>Shi</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/1704.08006" />
+		<title level="m">Deep Text Classification Can be Fooled</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b47">
+	<analytic>
+		<title level="a" type="main">Do deep nets really need to be deep?</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Ba</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Caruana</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems (NIPS)</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b48">
+	<analytic>
+		<title level="a" type="main">Distilling the knowledge in a neural network</title>
+		<author>
+			<persName><forename type="first">O</forename><surname>Hinton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Vinyals</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Dean</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/pdf/1503.02531.pdf" />
+	</analytic>
+	<monogr>
+		<title level="m">Deep Learning and Representation Learning Workshop at NIPS</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

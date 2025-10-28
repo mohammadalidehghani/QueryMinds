@@ -1,0 +1,2462 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">MACHINE LEARNING AND DOMAIN DECOMPOSITION METHODS -A SURVEY</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2023-12-21">21 Dec 2023</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Axel</forename><surname>Klawonn</surname></persName>
+							<email>axel.klawonn@uni-koeln.de</email>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Mathematics and Computer Science</orgName>
+								<orgName type="institution">University of Cologne</orgName>
+								<address>
+									<addrLine>Weyertal 86-90</addrLine>
+									<postCode>50931</postCode>
+									<settlement>Köln</settlement>
+									<country key="DE">Germany</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff1">
+								<orgName type="department">Center for Data and Simulation Science</orgName>
+								<orgName type="institution">University of Cologne</orgName>
+								<address>
+									<country>Germany, url</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Martin</forename><surname>Lanser</surname></persName>
+							<email>martin.lanser@uni-koeln.de</email>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Mathematics and Computer Science</orgName>
+								<orgName type="institution">University of Cologne</orgName>
+								<address>
+									<addrLine>Weyertal 86-90</addrLine>
+									<postCode>50931</postCode>
+									<settlement>Köln</settlement>
+									<country key="DE">Germany</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff1">
+								<orgName type="department">Center for Data and Simulation Science</orgName>
+								<orgName type="institution">University of Cologne</orgName>
+								<address>
+									<country>Germany, url</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><roleName>AND</roleName><forename type="first">Janine</forename><surname>Weber</surname></persName>
+							<email>janine.weber@uni-koeln.de</email>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Mathematics and Computer Science</orgName>
+								<orgName type="institution">University of Cologne</orgName>
+								<address>
+									<addrLine>Weyertal 86-90</addrLine>
+									<postCode>50931</postCode>
+									<settlement>Köln</settlement>
+									<country key="DE">Germany</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff1">
+								<orgName type="department">Center for Data and Simulation Science</orgName>
+								<orgName type="institution">University of Cologne</orgName>
+								<address>
+									<country>Germany, url</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">MACHINE LEARNING AND DOMAIN DECOMPOSITION METHODS -A SURVEY</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2023-12-21">21 Dec 2023</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">249E91B15B4BD844ACAF3EE970008C49</idno>
+					<idno type="arXiv">arXiv:2312.14050v1[math.NA]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:07+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>scientific machine learning</term>
+					<term>domain decomposition</term>
+					<term>survey</term>
+					<term>hybrid modelling</term>
+					<term>physics-aware neural networks AMS subject classifications. 65F10</term>
+					<term>65N22</term>
+					<term>65N55</term>
+					<term>68T05</term>
+					<term>68T07</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Hybrid algorithms, which combine black-box machine learning methods with experience from traditional numerical methods and domain expertise from diverse application areas, are progressively gaining importance in scientific machine learning and various industrial domains, especially in computational science and engineering. In the present survey, several promising avenues of research will be examined which focus on the combination of machine learning (ML) and domain decomposition methods (DDMs). The aim of this survey is to provide an overview of existing work within this field and to structure it into domain decomposition for machine learning and machine learning-enhanced domain decomposition, including: domain decomposition for classical machine learning, domain decomposition to accelerate the training of physics-aware neural networks, machine learning to enhance the convergence properties or computational efficiency of DDMs, and machine learning as a discretization method in a DDM for the solution of PDEs. In each of these fields, we summarize existing work and key advances within a common framework and, finally, disuss ongoing challenges and opportunities for future research.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>1. Introduction. Domain decomposition methods (DDMs) are divide-and-conquer strategies which decompose a given problem into a number of smaller subproblems. This strategy often leads to easier parallelizable algorithms where the subproblems can be solved on different processors (cpu or gpu). Sometimes, an additional problem is needed for parallel scalability, the so-called global problem, or to gather and connect local information obtained from the solution of the local subproblems. DDMs can be useful in different cases, for example, if the original problem is too large to be solved in the available memory, the computing time is too long on a single processor, or the decomposed problem has other preferable properties, for example, being better conditioned, yielding more accurate results, or boosting generalization properties and mitigating the spectral bias, respectively, of machine learning models. DDMs have a long and successful history in constructing parallel scalable preconditioners for linear and nonlinear systems obtained from discretized partial differential equations. Recently, there has been an increased interest in using DDMs in combination with machine learning algorithms, especially in the field of scientific machine learning (SciML).</p><p>In recent years, the rapidly growing research area of SciML has drawn increasing interest and attention in various fields of applications, as, for example, in computational fluid mechanics <ref type="bibr" target="#b19">[20,</ref><ref type="bibr" target="#b25">26]</ref>, optics and electromagnetic applications <ref type="bibr" target="#b7">[8,</ref><ref type="bibr" target="#b54">55]</ref>, and earthquake detections <ref type="bibr" target="#b82">[83]</ref>. Originally, the term SciML was introduced and made publicly known by the report <ref type="bibr" target="#b0">[1]</ref> prepared for the U.S. Department of Energy. The core idea of SciML is to combine algorithms from supervised or unsupervised machine learning with other domain-specific methods or knowledge to develop new, hybrid methods. In particular, the authors of <ref type="bibr" target="#b0">[1]</ref> have identified six priority research di- rections in SciML which are, among others, domain-awareness, interpretability, and robustness of the considered method. With respect to practical applications, this means that a key factor of SciML methods is to connect "black-box" approaches such as deep learning with well-understood and theoretical approaches from science and expert knowledge.</p><p>One framework that fits very well to the priority research directions of SciML are physics-informed neural networks (PINNs) <ref type="bibr" target="#b74">[75]</ref>. PINNs are a specific machine learning technique usually used to solve forward or inverse problems involving Partial Differential Equations (PDEs). Similar to other deep learning models, PINNs approximate PDE solutions by training a neural network such that a given loss function is minimized. However, the characteristic feature of PINNs is that knowledge with respect to the underlying physics behind the data is integrated into the loss function as well as, possibly, initial or boundary conditions of the computational domain's boundary. For a detailed overview of existing research and applications around PINNs as well as remaining challenges and open research questions, we refer to <ref type="bibr" target="#b10">[11]</ref>.</p><p>One drawback of PINNs and also other neural network architectures, in general, is the large computational complexity of the related optimization problem for large problem domains and multi-scale problems as well as the resulting long training times. Hence, a wide range of attempts have been made to distribute and parallelize the training of different network architectures; see <ref type="bibr" target="#b4">[5,</ref><ref type="bibr" target="#b71">72,</ref><ref type="bibr" target="#b90">91]</ref> for a comprehensive overview. In general, the wide range of techniques used in parallel and distributed deep learning can roughly be categorized into data parallelism, that is, partitioning the input samples, model parallelism, that is, partitioning the network structure, and pipelining, that is, partitioning by layer; see also <ref type="bibr" target="#b4">[5,</ref><ref type="bibr">Sect. 6]</ref>. From an abstract perspective, model parallelism can be and often is interpreted as a form of DDMs <ref type="bibr" target="#b72">[73,</ref><ref type="bibr" target="#b89">90]</ref>.</p><p>In this paper, our aim is to review existing work on combining DDMs with different machine learning models. Although data parallelism can be also interpreted as a form of domain decomposition such that the global data space is decomposed into smaller subspaces operating only on parts of the data, in the following, we focus</p><formula xml:id="formula_0">Ω 1 Ω 2 Ω 3 Ω 4 Ω 5 Ω 6 Ω 7 Ω 8 Ω 9 δ δ δ δ Ω ′ 5 Ω 1 Ω 2 Ω 3 Ω 4 Ω 5 Ω 6 Ω 7 Ω 8 Ω 9 Γ Figure 2</formula><p>. Decomposition of a domain Ω ⊂ R 2 into nine nonoverlapping subdomains Ω i , i = 1, ..., 9. Left: The overlapping domain decomposition is obtained by extending the nonoverlapping subdomains by the width δ. The resulting overlapping subdomain Ω ′ 5 is marked in blue. Right: The interface Γ is marked in red.</p><p>on model parallelism and pipelining when using domain decomposition in machine learning algorithms. The remainder of the paper is organized as follows. In section 2, we provide a general description of DDMs for the solution of PDEs and introduce some necessary notation. Subsequently, in section 3, we briefly summarize the main idea and central algorithmic formulae of multilayer perceptrons, PINNs, and the Deep Ritz method. Note that both, section 2 and section 3, can be skipped by the experienced reader who is already familiar with DDMs and PINNs and who can directly proceed with section 4. In the present paper, we categorize all cited work into two main classes: i) Methods using domain decomposition within machine learning models (section 4) ii) Machine learning-enhanced DDMs (section 5). Additionally, we classify all methods in group i) into two subgroups. First, we consider all approaches using domain decomposition for the acceleration and parallel training of PINNs; see subsection 4.1. Second, in subsection 4.2, we consider approaches using domain decomposition in machine learning algorithms other than PINNs, in particular, classical supervised and unsupervised algorithms. With respect to work within class ii), one can also subdivide the approaches into two subclasses; see also <ref type="bibr" target="#b37">[38]</ref>. In this case, the first class consists of methods where machine learning is used to improve the convergence properties or the computational efficiency within classical DDMs. This is typically done by learning or approximating optimal interface conditions or by learning other optimal parameters; see subsection 5.1. In the second class, different types of neural networks are used as discretization methods and replace classical local subdomain or coarse solvers based on finite elements or finite differences; see subsection 5.2. For a schematic overview of the described categorization and the structure of this paper, see Figure <ref type="figure" target="#fig_0">1</ref>.</p><p>Note that for some approaches which combine domain decomposition with machine learning the categorization is not uniquely defined. For example, D3M <ref type="bibr" target="#b57">[58]</ref> and DeepDDM (Deep Domain Decomposition Method) <ref type="bibr" target="#b59">[60]</ref> can be interpreted as replacing subdomain solvers within a DDM by neural networks but, at the same time, also as a DDM within neural network training. Hence, we have made the following classifications to the best of our knowledge and with regard to the subject focus of the concrete considered work.</p><p>2. Domain decomposition methods for the solution of PDEs. In this section, we briefly introduce the main principles of overlapping and nonoverlapping DDMs as well as some necessary notation.</p><p>DDMs <ref type="bibr" target="#b72">[73,</ref><ref type="bibr" target="#b89">90]</ref> are highly scalable, iterative methods for the solution of sparse, linear systems of equations as, for example, arising from the discretization of PDEs. DDMs have been shown to be numerically stable for many practically relevant problems and are designed for the application on parallel computers. Generally speaking, they rely on a divide-and-conquer strategy and decompose the original global problem into a number of smaller subproblems. Mathematically, this corresponds to a subdivision of the domain into a number of smaller subdomains, where the local problems can be solved in parallel on different processors of a parallel computer. Additionally, a small global problem is often needed for numerical and parallel scalability. Certain mathematical conditions at the interface of neighboring subdomains have to be satisfied such that the solution of the original problem is recovered.</p><p>For a generic description of DDMs, we consider a boundary value problem of the general form</p><formula xml:id="formula_1">(2.1) L(u) = f in Ω B(u) = g on ∂Ω on the domain Ω ⊂ R d , d = 2, 3</formula><p>, where L is a linear, second-order, elliptic differential operator and B represents the boundary conditions. In order to compute a numerical solution of boundary value problem (2.1), we discretize the variational formulation of the given linear PDE with an appropriate numerical method, for example, conforming finite elements. This results in a, usually sparse, linear system of equations (2.2)</p><formula xml:id="formula_2">K g u g = f g .</formula><p>The basic idea of DDMs is then, instead of directly solving the completely assembled system of equations (2.2), to decompose the problem into smaller subproblems and thus, solving smaller systems of equations which are assembled on local parts of the domain exclusively. In the following, we denote these local parts of the domain as subdomains and we assume to have a decomposition of Ω into N ∈ N nonoverlapping subdomains Ω i , i = 1, ..., N , which fulfills Ω = N i=1 Ω i ; see also Figure <ref type="figure">2</ref>. Moreover, we define Γ := N i=1 ∂Ω i \ ∂Ω as the interface between neighboring subdomains, that is, degrees of freedom shared by at least two subdomains. In order to define overlapping DDMs, we additionally introduce overlapping subdomains Ω ′ i , i = 1, ..., N , where the overlap δ is a measure for the amount of local information shared between neighboring subdomains; see also Figure <ref type="figure">2</ref> (left) for a visualization.</p><p>However, simply solving decoupled local subdomain systems independently from each other might result in discontinuities along the interface Γ and will not result in the correct solution of the original and global system. Hence, in order to obtain the correct global solution which is continuous across the different subdomains, also communication between the different subproblems is necessary, that is, a global coupling between the different subdomains has to be ensured. With respect on how the global exchange of information across the original domain Ω is ensured, we distinguish between one-and two-level DDMs. One-level DDMs, where information is only exchanged between neighboring subdomains, result in a rate of convergence which deteriorates with a growing number of subdomains when used for the approximate . . . . . .</p><formula xml:id="formula_3">h 1 1 h 1 2 . . . h 1 K . . . . . . . . . . . . h N 1 h N 2 . . . h N K . . . i p,1 i p,2 i p,j i p,n o p,1 o p,m</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Input layer</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Hidden layers</head><p>Output layer solution of elliptic systems of PDEs; see, for example, <ref type="bibr" target="#b89">[90]</ref>. A remedy is obtained using two-level DDMs by the setup and the solution of an additional, small global problem which needs to be solved in each iteration of the iterative solver. In particular, in two-level DDMs, the additional global problem ensures the fast global transport of information between the different subdomains as well as the scalability and robustness of the iterative method. In the context of two-level DDMs, we refer to this global problem as coarse problem and to the related solution space as coarse space. Let us note that the idea of a coarse problem is also transferred to domain decomposition approaches for, e.g., training PINNs; cf. subsection 4.1. In classic DDMs, a coarse space is often defined by certain weighted averages or translations and rotations along the interface between neighboring subdomains. Additionally, also more sophisticated coarse spaces exist which are, for example, obtained by solving certain eigenvalue problems and which are problem-dependent or, in other words, adaptive. However, a detailed overview of existing classic and adaptive coarse spaces in DDMs would be beyond the scope of this review article.</p><p>3. Multilayer perceptrons, PINNs, and Deep Ritz. In this section, we briefly provide some preliminaries with respect to multilayer perceptrons, including a short outlook on convolutional neural networks and residual neural networks, see subsection 3.1, as well as PINNs and the Deep Ritz method; see subsection 3.2. For more details on deep learning and more specialized network architectures, we refer to, for example, <ref type="bibr" target="#b8">[9,</ref><ref type="bibr" target="#b24">25,</ref><ref type="bibr" target="#b32">33]</ref>. Let us note that for experienced readers, who are already familiar with multilayer perceptrons, PINNs, and the Deep Ritz method, it might be more convenient to skip the following section and proceed directly with section 4.</p><p>3.1. Feedforward multilayer perceptrons. In general, neural networks or multilayer perceptrons, respectively, are used within supervised learning to approximate a functional relation between given input and output data. Usually, the overall aim is to minimize a loss function which measures the difference between the ground truth of the given data and the output, that is, estimated classification or regression values, of the neural network. The following description of multilayer perceptrons is loosely based on <ref type="bibr" target="#b35">[36,</ref><ref type="bibr" target="#b77">78,</ref><ref type="bibr" target="#b92">93]</ref>. Generally, a feedforward neural network can be interpreted as a directed, weighted graph G = (V, E) with a set of nodes V, a set of edges E, and a weight function w : E → R; see, for example, <ref type="bibr" target="#b77">[78,</ref><ref type="bibr">Chapt. 20.1</ref>]. An exemplary visualization of the graph of a dense feedforward neural network is presented in Figure <ref type="figure" target="#fig_1">3</ref>. A neural network is assumed to be organized in layers, that is, the set of nodes V can be represented as the union of nonempty, disjoint subsets V i ⊂ V, i = 0, . . . , N + 1. For feedforward neural networks, these sets are defined such that for each edge e ∈ E there exists an i ∈ {0, . . . , N } with e being an edge between a node in V i and one in V i+1 ; see <ref type="bibr" target="#b77">[78,</ref><ref type="bibr">Chapt. 20.1]</ref>. In general, different layers can perform different transformations on their input. A neural network usually starts with an input layer (marked in green in Figure <ref type="figure" target="#fig_1">3</ref>), where the features {i p } P p=1 of the external data are used as input data, and concludes with an output layer (marked in orange in Figure <ref type="figure" target="#fig_1">3</ref>). We denote the layers in between the input and the output layer as hidden layers and the nodes in a neural network as neurons.</p><p>Mathematically, the relation between two consecutive layers is the conjunction of a linear mapping defined by the weight function w and a nonlinear activation function α. In particular, the nonlinearity of the activation function enables a neural network to approximate highly complex relations between the input and output data.</p><p>Generally, for a generic activation function α, the output of the k-th layer of the neural network can be written as</p><formula xml:id="formula_4">y = α k (x, W k , b k ),</formula><p>where W k = (w k ij ) i,j and b k are the weight matrix and the bias vector, respectively. Note that an entry w k ij of W k corresponds to the value of the weight function w associated with the corresponding edge between layer V k-1 and V k . Then, the application of a complete neural network with N hidden layers to an input vector i ∈ I is given by (3.1)</p><formula xml:id="formula_5">h 1 = α 1 (i, W 1 , b 1 ), h k+1 = α k+1 (h k , W k+1 , b k+1 ), 1≤k &lt; N, o = (W N +1 ) T h N + b N +1</formula><p>where h k is the output of the k-th hidden layer and o ∈ O is the (final) output vector. The computation of the output vector o is usually performed without an additional application of the activation function. Note that for specific neural network architectures, the consecutive relation between two layers can be more complicated than written in <ref type="bibr">(3.1)</ref>. In subsection 4.2, we consider also DDMs for the training of convolutional neural networks (CNNs) and residual neural networks (ResNets). In CNNs, convolutions, that is, kernel functions, and pooling functions are gradually applied to input data with a grid-like structure such that the information within the data is aggregated and condensed throughout the network layers. For more mathematical details on CNNs, we refer to, for example, <ref type="bibr" target="#b55">[56]</ref>, <ref type="bibr" target="#b24">[25,</ref><ref type="bibr">Chapt. 9]</ref>, and <ref type="bibr" target="#b8">[9,</ref><ref type="bibr">Chapt. 5]</ref>. For ResNets, skip connections that perform identity mappings are added between distant blocks of hidden layers of a multilayer perceptron or a CNN. Hence, the connected block of hidden layers approximates the residual function with respect to the input data which can help to mitigate the degradation problem of very deep neural networks; see <ref type="bibr" target="#b33">[34]</ref> for further details.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2.">PINNs and Deep Ritz.</head><p>The key concept of PINNs is to integrate domain specific knowledge in form of physical laws or domain expertise modeled by ordinary or partial differential equations into neural networks. In particular, this is done by enhancing the loss function with the residual error of a certain differential equation;</p><p>t . . . . . . ... ... ... . . . ... . . . U 1 p . . . U n p MSEU MSEF ∂Up ∂t trainable parameters neural network data loss residual loss see <ref type="bibr" target="#b74">[75]</ref> for more details. Hence, the objective is to obtain solutions which do not only fit some given training data but also satisfy a given ordinary or partial differential equation in a least square sense. The following descriptions are loosely based on <ref type="bibr" target="#b26">[27,</ref><ref type="bibr">Sect. 4]</ref>.</p><p>For the mathematical derivation of a physics-enhanced loss function, we consider again the general boundary value problem in (2.1) on the domain Ω ⊂ R d , d = 2, 3 with a linear, second-order, elliptic differential operator L and boundary conditions B. We now aim to define a PINN which solves (2.1), that is, we aim for a feedforward neural network N (•, W, b) that fulfills (2.1) in a least square sense with weights W and biases b. As input data of the neural network, we use a set of collocation points located inside the domain Ω as well as a set on the boundary ∂Ω. In order to obtain a neural network N solving the boundary value problem (2.1), we enhance the classic loss function by a point-wise error of the residual of the PDE. Thus, the physics-informed loss function is defined as</p><formula xml:id="formula_6">(3.2) M(W, b) := M Ω (W, b) + M ∂Ω (W, b) M Ω (W, b) := 1 N f N f i=1 |L(N (x i f , W, b)) -f (x i f )| 2 M ∂Ω (W, b) := 1 Ng Ng i=1 |B(N (x i g , W, b)) -g(x i g )| 2 ,</formula><p>with collocation points x i f , i = 1, ..., N f , located in the domain Ω and collocation points x i g , i = 1, ..., N g , located on the boundary ∂Ω. During the training of the neural network, the derivatives occurring in the operators L and B are evaluated using the backward propagation algorithm and automatic differentiation <ref type="bibr" target="#b3">[4]</ref>. Taking advantage of this, the training of the neural network then consists of solving the optimization problem</p><formula xml:id="formula_7">(3.3) {W * , b * } := arg min {W,b} M(W, b)</formula><p>using a stochastic gradient approach based on mini-batches built from all collocation points. An exemplary PINN is shown in Figure <ref type="figure" target="#fig_3">4</ref>. Note that the loss term M Ω (W, b) enforces the PINN to satisfy the condition L(u) = f in a least square sense, while M ∂Ω (W, b) enforces the boundary condition. An approach that is very closely related to PINNs is the Deep Ritz method <ref type="bibr" target="#b18">[19]</ref> which uses dense neural networks (DNNs) for solving PDEs in variational form. The Deep Ritz method is based on the Ritz approach to formulate a given PDE as in (2.1) as an equivalent minimization problem which is then discretized and solved by a DNN in combination with a numerical integration method. For a formal description of the Deep Ritz method, we assume that (2.1) is self-adjoint in the following. Then, solving the PDE is equivalent to the solution of the minimization problem</p><formula xml:id="formula_8">(3.4) min u E(u) s.t. B(u) = g on ∂Ω</formula><p>where E(u) is an appropriate energy functional. The basic idea of the Deep Ritz method is now to approximate the function u in (3.4) by a DNN and to use a numerical quadrature rule where each integration point in Ω is used as a collocation point to approximate the minimizing functional E(u). This yields the discrete loss function for the Deep Ritz method</p><formula xml:id="formula_9">(3.5) M(W, b) := M Ω (W, b) + M ∂Ω (W, b) with M Ω (W, b) = 1 N f N f i=1 h( x i f , W, b) M ∂Ω (W, b) = q 1 N g Ng i=1 |B( N ( x i g , W, b)) -g( x i g )| 2 ,</formula><p>where h(•) is the inner function of the energy functional E(u) approximated by the DNN N and q is a Lagrange multiplier. The derivatives of the neural network N occuring in (3.5) are then evaluated using the backward propagation algorithm and automatic differentiation <ref type="bibr" target="#b3">[4]</ref>. For a detailed derivation of the loss function (3.5) for the exemplary case of L(u) = ∆u, we refer to <ref type="bibr" target="#b37">[38,</ref><ref type="bibr">Sect. 3.2]</ref>.</p><p>4. Domain decomposition for machine learning. In this section, we review recent works where ideas from domain decomposition are used to accelerate and parallelize the training of different machine learning models, and, in particular, deep learning models. As described in section 1, the wide range of techniques used in parallel and distributed deep learning can roughly be categorized into data parallelism, model parallelism, and pipelining; see also <ref type="bibr" target="#b4">[5,</ref><ref type="bibr">Sect. 6</ref>]. Let us note again that, within this paper, we focus on model parallel training methods and pipelining rather than on data parallelism; see also section 1. In particular, the interpretation of model parallelism as a DDM is, from our point of view, more straightforward and also allows for analogous concepts in distributed ML corresponding to a coarse space in DDMs.</p><p>In the following, we will distinguish the different methods using DDMs in ML into two classes. First, we consider all approaches using domain decomposition for the acceleration and parallel training of very specific neural networks, that is, physicsinformed neural networks, in subsection 4.1. For details on PINNs, we refer to subsection 3.2. Second, in subsection 4.2, we provide an overview of approaches using domain decomposition in other ML algorithms than PINNs, in particular, classical supervised and unsupervised algorithms.</p><p>DD for PINNs DD PINN formulation Interface conditions cPINN <ref type="bibr" target="#b43">[44]</ref> nonoverlapping conservation law conservative quantity XPINN <ref type="bibr" target="#b39">[40,</ref><ref type="bibr" target="#b42">43]</ref> nonoverlapping residuals averaging GatedPINN <ref type="bibr" target="#b85">[86]</ref> adaptive residuals weighted average APINN <ref type="bibr" target="#b40">[41]</ref> adaptive residuals weighted average DPINN <ref type="bibr" target="#b16">[17]</ref> nonoverlapping residuals flux interface loss PECANN <ref type="bibr" target="#b2">[3]</ref> nonoverlapping residuals generalized Robin-type Mosaic Flow <ref type="bibr" target="#b22">[23,</ref><ref type="bibr" target="#b91">92]</ref> overlapping residuals alterating Schwarz-like PINN-PINN, PINN-FOM <ref type="bibr" target="#b84">[85]</ref> overlapping residuals loss term/strong enforc. Iterative algorithms <ref type="bibr" target="#b96">[97]</ref> overlapping residuals weighted average hp-VPINNs <ref type="bibr" target="#b45">[46]</ref> nonoverlapping var. residuals via variational loss TgNN-wf <ref type="bibr" target="#b45">[46]</ref> nonoverlapping var. residuals via variational loss PFNN-2 <ref type="bibr" target="#b80">[81]</ref> overlapping var. residuals via boundary network FBPINN <ref type="bibr" target="#b13">[14,</ref><ref type="bibr" target="#b69">70]</ref> overlapping residuals Schwarz-like Nonlinear preconditioning <ref type="bibr" target="#b53">[54]</ref> nonoverlapping residuals additive/multiplicative</p><p>Table 1 Summary of the current state of domain decomposition methods to accelerate the training of PINNs as reviewed in subsection 4.1.</p><p>We categorize all papers according to the defined domain decomposition, the considered PINN formulation, and the concrete method of how to integrate interface constraints between neighboring subdomains. We mark the papers according to the following color code: dark green: based on a nonoverlapping domain decomposition, blue: based on an overlapping domain decomposition, light green: an adaptive domain decomposition automatically trained by one or several neural networks.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1.">Domain decomposition to accelerate the training of physics-aware neural networks. In general, integrating ideas from domain decomposition into</head><p>PINNs usually aims at accelerating and parallelizing the training of PINNs, mainly by reducing the complexity of the PINN optimization problem for large problem domains and multi-scale problems. Roughly speaking, this means that instead of solving one large optimization problem, the idea is to use a divide-and-conquer strategy by solving, that is, training smaller local problems in parallel. This helps to parallelize the training and, potentially, can also help to reduce the complexity of the global optimization problem. Analogously to DDMs, the resulting related key question within these parallel training approaches is how to ensure that the different local problems communicate with each other such that the local solutions match across the interface. In the following, we review different parallel training methods for different types of PINNs. We will observe that some approaches deal with the communication between different local problems by integrating additional interface terms in the PINN loss function, whereas other approaches define overlapping subdomains and directly exchange information among the overlapping subdomain areas. In Table <ref type="table">1</ref>, a structured overview of all papers reviewed in the following can be found.</p><p>In <ref type="bibr" target="#b43">[44]</ref>, conservative PINNs (cPINNs) are introduced that make use of a nonoverlapping domain decomposition approach for conservation laws. Here, the spatial computational domain is decomposed into nonoverlapping subdomains and for each subdomain, a separate local PINN, which also enforces certain interface conditions with its neighboring subdomains with respect to the solution and the local PDE residuals, is trained. In <ref type="bibr" target="#b43">[44]</ref>, the authors present numerical results for different scalar nonlinear and systems of conservation laws.</p><p>The idea of cPINNs is further extended in <ref type="bibr" target="#b42">[43]</ref> to generic PDEs and arbitrary space-time domains resulting in extended PINNs (XPINNs). Similar as in <ref type="bibr" target="#b43">[44]</ref>, local sub-PINNs are trained for local subdomains of a domain independently from each other and in parallel. In particular, in XPINNs, the domain can be decomposed in both, space and time and no explicit assumptions of a specific PDE type are made. The approximated solutions of the local sub-PINNs are combined by enforcing continuity across the interface by averaging local solutions across neighboring subdomain interfaces as well as by enforcing a residual continuity condition. In <ref type="bibr" target="#b11">[12,</ref><ref type="bibr">Sect. 3.2]</ref>, the authors propose to additionally enforce continuity of first-order derivatives between different sub-PINNs to further reduce the training error close to the interface.</p><p>First steps regarding a direct comparison of PINNs and XPINNs with respect to generalization properties are presented in <ref type="bibr" target="#b39">[40]</ref>. Specifically, the authors derive an a priori generalization bound based on the complexity of the considered PDE problem as well as an a posteriori generalization bound based on the matrix norm of the neural network after optimization and use this theory to derive observations with respect to the generalization properties of XPINNs. On the one hand, the decomposition of the global problem into smaller subproblems in XPINNs decreases the complexity of each subproblem and hence can boost generalization. On the other hand, each subproblem is trained with a smaller amount of training data which tends to increase overfitting of the local models. In <ref type="bibr" target="#b39">[40]</ref>, different experimental results are presented which validate that the two factors in the derived generalization bounds lead to a tradeoff when comparing the performance of XPINNs to PINNs.</p><p>In <ref type="bibr" target="#b81">[82]</ref>, a unified parallel algorithm is presented for cPINNs and XPINNs which employs domain decomposition in space and space-time, respectively. The distributed framework in <ref type="bibr" target="#b81">[82]</ref> for the specific PINN extensions from <ref type="bibr" target="#b43">[44]</ref> and <ref type="bibr" target="#b42">[43]</ref> is constructed by a hybrid programming model using MPI <ref type="bibr" target="#b27">[28,</ref><ref type="bibr" target="#b83">84]</ref>. Within the unified framework, the authors compare the parallel performance of cPINNs and XPINNs for different forward problems. The experimental results indicate that cPINNs are more effective regarding communication cost whereas XPINNs provide greater flexibility such that they can also handle space-time domain decompositions for any differential equations as well as deal with arbitrarily shaped subdomains.</p><p>The authors of <ref type="bibr" target="#b85">[86]</ref> propose to automatically learn a domain decomposition of a PINN by incorporating conditional computing into the PINN framework in order to learn an arbitrary decomposition of the neural network, which is adaptively tuned during the training process. Here, conditional computing means that only certain neurons or units of a neural network are activated depending on the network input; see also <ref type="bibr" target="#b5">[6,</ref><ref type="bibr" target="#b78">79]</ref> for more details. Based on the idea of conditional computing the authors introduce GatedPINNs which rely on a number of experts which decompose the neural network and are each modeled by a simple neural network themselves. The outputs of the different experts are then aggregated by a linear or nonlinear gate network. The authors provide comparative experimental results for the GatedPINN and standard PINN approach and are able to reduce the training time significantly.</p><p>A related approach was recently introduced in <ref type="bibr" target="#b40">[41]</ref>, where also a gate network is trained to find an augmented domain decomposition and flexibel parameter sharing. Concretely, the gate network does not need any specific interface losses and as output data, provides a weight average of several local subnets. Additionally, it uses a flexible partial parameter sharing of the subnets and initializes the subnets with the hard decomposition obtained from XPINN, resulting in an augmented PINN (APINN). The authors of <ref type="bibr" target="#b40">[41]</ref> provide results for different PDEs comparing APINN to XPINN and classic PINNs showing that APINNs result in an improved performance and better generalization properties.</p><p>In <ref type="bibr" target="#b16">[17]</ref>, the authors use ideas from finite volume methods where the computational domain is partitioned into multiple cells to define a distributed PINN (DPINN) for the data-efficient solution of partial differential equations. Here, the authors decompose the computational domain into nonoverlapping cells, which can also be interpreted as the subdomains in a DDM, and train a separate, local PINN for each cell with a loss function based exclusively on collocation points from the interior of the cell. Each of these local PINNs is relatively simple and, for the results presented in <ref type="bibr" target="#b16">[17]</ref>, only two layers deep. In addition to the PINN losses for each cell, a loss term for the interface conditions is introduced which is associated with collocation points located on the boundary of the cells. This interface loss is inspired by the flux conditions of the finite volume method. Then, the DPINN approach is based on training all local PINNs together by minimizing the sum of all local losses plus the interface loss. In particular, the described approach requires the exchange of interface information in each step of the optimization approach used in the training of the network.</p><p>A related approach which mostly differs by the treatment of the boundary conditions between neighboring subdomains is presented in <ref type="bibr" target="#b2">[3]</ref>. There, the authors use an optimized Schwarz-type nonoverlapping domain decomposition for solving forward and inverse PDE problems using PINNs. Within each subdomain, physics and equality constrained artificial neural networks (PECANNs) <ref type="bibr" target="#b1">[2]</ref> are trained in parallel as solvers for each subdomain. Moreover, generalized Robin-type interface transmission conditions are considered as an additional constraint on the solution of each subdomain to ensure continuity. Hence, local information are exchanged at the end of each local training within each outer iteration of the described method. The authors of <ref type="bibr" target="#b2">[3]</ref> show that by incorporating the Robin-type interface constraints into the iterative learning process, the effectiveness and reliability of the method can be enhanced.</p><p>In <ref type="bibr" target="#b22">[23]</ref>, an end-to-end parallelization of the physics-informed neural PDE solver Mosaic Flow <ref type="bibr" target="#b91">[92]</ref> based on domain decomposition is presented. Roughly speaking, Mosaic Flow is an iterative algorithm inspired by the alternating Schwarz method designed for solving PDEs with arbitrary boundary conditions on diverse domains. It basically consists of two steps. First, local physics-informed PDE solvers (SDNets) are pretrained on small domains with arbitrary boundary conditions, using the discretized boundary function as input data; see also <ref type="bibr" target="#b91">[92]</ref> for more mathematical details. Then, in a second step, the Mosaic Flow predictor is trained which decomposes a large domain into overlapping subdomains and uses the pretrained SDNets as subdomain solvers. In <ref type="bibr" target="#b22">[23]</ref>, the authors combine data parallel training and domain parallelism for inference to develop a distributed domain decomposition algorithm for Mosaic Flow to achieve strong scalability for its parallel training on GPUs. Numerical results for the parallel solution of the Laplace equation on large domains, distributed on 32 GPUs, are presented.</p><p>A related approach which is also inspired by the alternating Schwarz method is presented in <ref type="bibr" target="#b84">[85]</ref>. In <ref type="bibr" target="#b84">[85]</ref>, the authors use the alternating Schwarz method and an overlapping domain decomposition to couple local PINNs and full order models, that is, local solutions obtained via the finite element, finite difference, or finite volume method with each other to accelerate the training of PINNs. Furthermore, three different approaches to enforce Dirichlet boundary conditions within the local subdomain PINNs are empirically compared. Concretely, the three different approaches are the following: A weak boundary condition enforcement through the loss function, a strong enforcement through a solution transformation, and a combination of both such that the boundary conditions are enforced strongly on the computational domain's boundary and weakly on the subdomains' boundaries. Numerical examples are provided for the one-dimensional steady state advection-diffusion equation with focus on the advection-dominated regime (high Péclet number). The presented results show that the convergence of the Schwarz method is strongly linked to the chosen boundary condition implementation within the local, coupled PINNs.</p><p>A different iterative approach to parallelize the training of PINNs while also reducing the communication cost is presented in <ref type="bibr" target="#b96">[97]</ref>. In <ref type="bibr" target="#b96">[97]</ref>, the authors propose an iteration method which is based on the classical additive Schwarz method. Hence, similarly as in <ref type="bibr" target="#b57">[58,</ref><ref type="bibr" target="#b59">60]</ref>, an outer training loop for the global network is defined such that, in each iteration of the outer training loop, decoupled smaller local problems are solved which are then stitched back together by a weighted average. In each outer iteration, the local problems obtain their boundary values from the current global iteration and an overlapping decomposition of the collocation points into subdomains is used. To compute the next iterate of the global problem, a weighted sum of the previous iterate and the partitioned neural network solution using a relaxation parameter is computed. Additionally, to further improve the convergence properties of the described approach, the authors of <ref type="bibr" target="#b96">[97]</ref> propose a two-level extension by solving an additional coarse problem with specific structure in each outer iteration. Note that related preliminary work has also been published in <ref type="bibr" target="#b48">[49,</ref><ref type="bibr" target="#b95">96]</ref> by the authors. In <ref type="bibr" target="#b48">[49]</ref>, first experimental results for the proposed additive Schwarz algorithm have been presented whereas <ref type="bibr" target="#b95">[96]</ref> contains first results regarding the convergence analysis of the approach.</p><p>In <ref type="bibr" target="#b45">[46]</ref>, the authors introduce hp-variational PINNs (hp-VPINNs) which are based on the variational formulation of the residuals of the considered PDE, similar to the approach considered in <ref type="bibr" target="#b57">[58]</ref>. In particular, the authors use piecewise polynomial test functions within the variational formulation of the considered PDE such that each test function v j is always a polynomial of a chosen order over the subdomain j and zero otherwise. Let us note that with respect to the implementation of this approach, the authors employ a single DNN to approximate the solution over the whole computational domain despite virtually decomposing the domain into several subdomains; see also <ref type="bibr" target="#b45">[46,</ref><ref type="bibr">Remark 2.1]</ref>. Due to the use of a single DNN no subdomain interface conditions have to be considered in the loss function. However, this makes it more difficult to parallelize hp-VPINNs. Different numerical examples of function approximation for continuous and discontinuous functions as well as for solving the Poisson equation are presented.</p><p>An approach which is closely related to <ref type="bibr" target="#b45">[46]</ref> and which is also based on the weak, that is, the variational form of a given system of PDEs is presented in <ref type="bibr" target="#b94">[95]</ref>. The idea of the presented neural networks is to integrate the weak formulation of the PDE in the loss function as well as data constraints and initial or boundary conditions. Due to the theory guided structure of the networks based on the weak formulation of the considered PDE the authors refer to their approach by the acronym TgNN-wf. In particular, similar to <ref type="bibr" target="#b45">[46]</ref>, the authors use locally defined test functions to perform a domain decomposition of the computational domain to accelerate the training process. As a further novelty, the authors formulate the original loss minimization problem into a Lagrangian duality problem in order to optimize the penalty term parameters of the different components of the loss function within the training process. The authors provide comparative results for the strong form TgNN and TgNN-wf for an unsteadystate 2D single-phase flow problem and a 1D two-phase flow problem in terms of accuracy, training time, and robustness with respect to noise in the training data.</p><p>In <ref type="bibr" target="#b80">[81]</ref>, the authors use an overlapping domain decomposition approach for the training process of penalty-free neural networks (PFNN), originally introduced in <ref type="bibr" target="#b79">[80]</ref>. Applying the ideas introduced in <ref type="bibr" target="#b79">[80]</ref> for PFNN, the resulting new PFNN-2 adopts two neural networks, with one network learning the initial condition and essential boundary conditions of a given PDE problem, and a second network approximating the solution of the PDE in its variational form on the remaining part of the domain. To speedup the learning process, the authors introduce an overlapping decomposition of the domain into subdomains and train two local networks, that is, one for the initial and boundary conditions and a second one for the local interior solution, for each subdomain. This approach requires direct exchange of information between neighboring subdomains to enforce continuity via the locally trained networks which learn the boundary conditions of each subdomain.</p><p>In <ref type="bibr" target="#b69">[70]</ref>, the authors transfer ideas from classical finite element methods where the solution of a PDE or an ODE is expressed as a sum of a finite set of basis functions with a compact support to PINNs. The resulting method uses local window functions to form a global function, that is, the global solution on the entire domain, and is referred to as Finite Basis Physics-Informed Neural Network (FBPINN). The global function is hence expressed as a sum of the localized window functions which are learned by local neural networks. In particular, the local window or basis functions are defined over small, overlapping subdomains such that, in FBPINNs, no additional interface condition is necessary. In <ref type="bibr" target="#b69">[70]</ref>, the authors present numerical results for both small and large, multi-scale problems.</p><p>The idea of FBPINNs is further developed in <ref type="bibr" target="#b13">[14]</ref> and <ref type="bibr" target="#b14">[15]</ref>. In <ref type="bibr" target="#b13">[14]</ref>, additive, multiplicative, and hybrid iteration methods based on a Schwarz-like domain decomposition method for the training of FBPINNs are introduced. In <ref type="bibr" target="#b14">[15]</ref>, these ideas are extended even further by adding multiple levels of domain decompositions to the solution ansatz, similar as in classical multilevel Schwarz methods. This results in improved convergence properties and increased accuracies in the considered PDE solutions and, at the same time, mitigates convergence problems related to the spectral bias of neural networks.</p><p>The performance and convergence properties of L-BFGS <ref type="bibr" target="#b61">[62]</ref> optimizers used for the training of PINNs are enhanced in <ref type="bibr" target="#b53">[54]</ref> by using nonlinear preconditioning strategies based on Schwarz-like domain decomposition approaches. More specifically, nonlinear additive and multiplicative preconditioners are constructed by decomposing the network model, that is, the corresponding parameters in a layer-wise manner. This is, in principle, different from the aforementioned approaches where ideas from DDMs are used to decompose the computational domain. The authors present results for both additive and multiplicative nonlinear preconditioners for different benchmark problems, indicating that the proposed layer-wise decomposition of the network can significantly accelerate the convergence of the L-BFGS optimizer.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2.">Domain decomposition for classical supervised and unsupervised machine learning algorithms. Apart from the wide application area of DDMs for</head><p>PINNs, the idea of domain decomposition has also been transferred to other machine learning algorithms of which we try to give a broad overview in this section. Note that the idea of DDMs is, on the one hand, applied to the training of different supervised machine learning models, for example, convolutional or residual neural networks, and, on the other hand, also to unsupervised algorithms, as, for example, principle component analysis (PCA); see Figure <ref type="figure" target="#fig_4">5</ref> for a schematic overview.</p><p>In <ref type="bibr" target="#b28">[29,</ref><ref type="bibr" target="#b29">30]</ref>, the idea of DDMs is transferred to the training of CNNs for different image recognition problems. The authors propose to decompose a global CNN along its width into a finite number of smaller, local subnetworks which can be trained independently from each other. In particular, the local CNNs are trained in parallel without any communication between the different processes. The obtained weights of the local subnetworks are then used as an initialization for the subsequently trained DD for classic ML; subsection 4.2 supervised ML unsupervised ML</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>neural networks other</head><p>ResNets; <ref type="bibr" target="#b30">[31]</ref> Fourier NN; <ref type="bibr" target="#b65">[66]</ref> RBFNs; <ref type="bibr" target="#b64">[65]</ref> CNNs; <ref type="bibr" target="#b28">[29,</ref><ref type="bibr" target="#b50">51]</ref> ELMs; <ref type="bibr" target="#b15">[16]</ref> GP; <ref type="bibr" target="#b70">[71]</ref> PCA;</p><p>[57] global network by using a transfer learning strategy. The approach can be interpreted as an analogy to nonlinear preconditioning <ref type="bibr" target="#b62">[63]</ref> and the decomposition of the inputs of the global CNN along its width corresponds to a decomposition of the input images into smaller partial images. The authors present results for different two-dimensional image data indicating that the suggested idea can significantly accelerate the training of the global network on a GPU cluster.</p><p>A slightly similar but different parallel training approach also for CNNs in image recognition has been proposed in <ref type="bibr" target="#b50">[51]</ref>. In <ref type="bibr" target="#b50">[51]</ref>, the authors decompose two-or threedimensional image data into nonoverlapping or overlapping subsets and train smaller CNNs operating exclusively on parts of the decomposed input data. Based on the decomposed image data, all local CNNs provide a probability distribution with respect to the different classes of the underlying image classification problem. Then, in a second step, a global coarse DNN is trained which evaluates the local decisions into a final, global decision. In particular, this approach does not require the training of a global, large CNN operating on the entire images and the smaller, local CNNs can be trained in parallel on different GPU clusters. The results provided for two-and threedimensional image data show a significant acceleration of the training and additionally, provide at least the same classification accuracies compared to the training of a single, global CNN for almost all tested datasets.</p><p>Another model parallel training approach based on domain decomposition, that is, a layer-parallel training approach has been suggested in <ref type="bibr" target="#b30">[31]</ref> for ResNets <ref type="bibr" target="#b33">[34]</ref>. In this work, the authors make use of the fact that the forward propagation through a ResNet can be interpreted as a forward Euler discretization of a time-dependent ordinary differential equation (ODE) <ref type="bibr" target="#b17">[18]</ref> where the time-dependent control variables represent the weights of the neural network. Hence, the time domain in the time-dependent ODE corresponds to the layer domain of a ResNet. Based on this interpretation, the authors employ a multigrid reduction in time approach <ref type="bibr" target="#b21">[22]</ref> to replace the classic forward and backward propagation in the training progress by a parallel nonlinear multigrid iteration applied to the layer domain such that chunks of layers can be processed in parallel. In <ref type="bibr" target="#b30">[31]</ref>, scalability and speedup results for this method are presented for three different image recognition problems.</p><p>In <ref type="bibr" target="#b65">[66]</ref>, domain decomposition techniques are used to define a parallel training process of trigonometric neural networks which use trigonometric activation functions. Based on a nonoverlapping domain decomposition, three local neural networks are trained for each subdomain. The first neural network, denoted as primary neural network is completely local, the second one, denoted as boundary neural network, learns for each subdomain the interface conditions with its neighbors, and the third one, denoted as modifier neural network, then learns the update for the primary network including the interface conditions. Finally, the local solution is defined as the sum of the primary and modifier network. This process is repeated for each subdomain until convergence.</p><p>Another work on the combination of DD and a special type of neural networks is presented in <ref type="bibr" target="#b64">[65]</ref>. The authors combine different types of radial basis function networks (RBFNs) <ref type="bibr" target="#b76">[77]</ref>, which typically use only one hidden layer, with the concept of domain decomposition to approximate nonlinear functions or to solve Poisson's equation on a rectangular domain. The computational domain is decomposed into nonoverlapping subdomains and each of the subdomains is discretized by a shallow RBFN. Based on this decomposition, the authors propose an iterative solution algorithm where, in each iteration, all local subproblems are solved using the RBFNs. Then, in each iteration of the outer training loop, the interface condition between the subdomains is estimated and updated using boundary integral equations.</p><p>In <ref type="bibr" target="#b15">[16]</ref>, the idea of extreme learning machines (ELMs) <ref type="bibr" target="#b41">[42]</ref> is combined with domain decomposition and local neural networks. Basically, in order to compute the solution for a given PDE, the authors of <ref type="bibr" target="#b15">[16]</ref> divide the domain into subdomains and represent the solution on each of these subdomains by a local feedforward neural network. To obtain a global solution, continuity constraints are imposed along the subdomain boundaries. Originating from the idea of ELMs, each local neural network consists of a small number of hidden layers, while its last hidden layer is typically wide. As in ELMs, the weights and bias coefficients in all hidden layers of the local neural networks are pre-set to random values and, during training, only the weight coefficients of the output layers of the local neural networks are training parameters. Moreover, also in analogy to ELMs, the overall neural network is trained by a linear or nonlinear least squares computation instead of using the backpropagation algorithm. The authors compare the presented method with the deep Galerkin method (DGM), the PINN method, and classical FEM.</p><p>In <ref type="bibr" target="#b70">[71]</ref>, the idea of domain decomposition is not transferred to a special type of neural network but, instead, to Gaussian Process (GP) regression <ref type="bibr" target="#b93">[94]</ref>. Given that the computational complexity O(N 3 ), where N is the number of training samples, is often a major limitation in GP regression, the main idea of the authors is to decompose the optimization problem related to the GP regression into smaller local optimization problems that provide local predictions. This is in analogy of decomposing a domain into smaller subdomains. To deal with the possible mismatch problem of the local predictions along the boundaries of neighboring subdomains, the authors of <ref type="bibr" target="#b70">[71]</ref> impose continuity constraints, analogously to interface conditions in DDMs.</p><p>In <ref type="bibr" target="#b56">[57]</ref>, the authors propose a local PCA approach which also relies on the idea of DDMs. The PCA is applied to different images which are decomposed into nonoverlapping smaller subimages. Here, instead of computing the principal components for ML-enhanced DD; section 5</p><p>ML to enhance convergence properties or comp. efficiency; subsection 5.1</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>ML as discretizations</head><p>or to replace local solvers; subsection 5.2</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Learning interface constraints</head><p>Learning optimal parameters; <ref type="bibr" target="#b6">[7,</ref><ref type="bibr" target="#b88">89]</ref> FETI-DP/ BDDC; <ref type="bibr" target="#b9">[10,</ref><ref type="bibr" target="#b35">36,</ref><ref type="bibr" target="#b36">37,</ref><ref type="bibr" target="#b51">52]</ref> Overlapping Schwarz; <ref type="bibr" target="#b52">[53,</ref><ref type="bibr" target="#b87">88]</ref> PINNs as solvers; <ref type="bibr" target="#b59">[60,</ref><ref type="bibr" target="#b68">69]</ref> Deep Ritz as solvers; <ref type="bibr" target="#b57">[58,</ref><ref type="bibr" target="#b58">59,</ref><ref type="bibr" target="#b86">87]</ref> Figure <ref type="figure">6</ref>.</p><p>Schematic representation of the articles reviewed in section 5 with respect to machine learning-enhanced domain decomposition methods.</p><p>the entire images, only principal components for the different subimages are determined. Then, in a second step, the local principal components are used to compute low-dimensional projections of the different subimages which are composed again to a lower dimensional representation of the original global image. The authors show empirically that the decomposed PCA requires a smaller number of principal components to provide an accurate low-dimensional representation of the original image compared to the global PCA. Moreover, the authors provide a mathematical proof that the local PCA reduces the summation pollution effect of the global PCA and thus, results in a lower or equal reconstruction error compared to the global PCA. In other words, the local PCA is never worse than the global PCA; see <ref type="bibr" target="#b56">[57]</ref> for more details.</p><p>5. Machine learning-enhanced domain decomposition methods. In this section, we review recent work which uses different, mainly supervised, machine learning algorithms to enhance different DDMs. In general, one can divide the approaches using ML to enhance DDMs into two classes; see also <ref type="bibr" target="#b37">[38]</ref>. The first class consists of methods where ML is used to improve the convergence properties or the computational efficiency within classical DDMs. Typically, this is done by learning or approximating optimal interface conditions or by learning other optimal parameters. Existing approaches of this class are considered in subsection 5.1. In the second class, different types of neural networks are used as discretization methods and replace classical local subdomain or coarse solvers based on finite elements or finite differences. Existing methods of this class are summarized in subsection 5.2. For a schematic overview of the existing literature, see Figure <ref type="figure">6</ref>.</p><p>5.1. Machine learning to enhance convergence properties or computational efficiency of domain decomposition methods. As explained in section 2, introducing appropriate global communication and interface conditions between subdomains in a DDM is a crucial task to ensure the correct and globally continuous solution as well as a satisfactory convergence behavior. Hence, a number of different attempts have been made to automatically construct such interface conditions, for example, by using regression neural networks.</p><p>In <ref type="bibr" target="#b9">[10]</ref>, the authors propose an approach to learn an adaptive coarse space for BDDC (Balancing Domain Decomposition by Constraints) algorithms for stochastic elliptic PDEs. The authors focus on a specific adaptive coarse space <ref type="bibr" target="#b46">[47,</ref><ref type="bibr" target="#b47">48]</ref> where local generalized eigenvalue problems have to be solved for parts of the interface between neighboring subdomains. In particular, these eigenvalue problems depend on the (stochastic) coefficients of the PDE. Hence, the authors train a dense feedforward neural network to approximate the relation between the stochastic PDE coefficients and the adaptive coarse space. As an input for the neural networks, a truncation of the Karhunen-Loève expansion <ref type="bibr" target="#b97">[98]</ref> is used. Numerical results are presented for different oscillatory and high contrast coefficients, a fixed discretization of the domain Ω ⊂ R 2 , and a neural network with a single hidden layer. Note that, so far, this method is not independent of the discretization and thus has to be retrained for different mesh resolutions.</p><p>As a preparatory step to automatically construct an adaptive coarse space for DDMs, in <ref type="bibr" target="#b35">[36,</ref><ref type="bibr" target="#b36">37]</ref>, the authors present a supervised classification approach to identify parts of the interface where adaptive coarse constraints are necessary. Then, adaptive constraints resulting from the local generalized eigenvalue problem in <ref type="bibr" target="#b66">[67,</ref><ref type="bibr" target="#b67">68]</ref> are integrated into a FETI-DP (Finite Element Tearing and Interconnecting -Dual Primal) coarse space exclusively for edges or faces, respectively, which are categorized as critical by a pretrained neural network. In particular, the decision of the neural network is based on a sampling procedure of the coefficient function of the underlying elliptic PDE and is independent of the finite element discretization. Hence, the trained neural network can be evaluated for different finite element meshes as used in the training procedure and can be applied to both, two-and three-dimensional problems. Additionally, in <ref type="bibr" target="#b38">[39]</ref>, the described approach is also analogously applied to the AGDSW (Adaptive Generalized Dryja-Smith-Widlund) method <ref type="bibr" target="#b34">[35]</ref> in two spatial dimensions.</p><p>In <ref type="bibr" target="#b51">[52]</ref>, the work described above has been extended to directly learn the adaptive constraints to setup a robust FETI-DP coarse space in two spatial dimensions. Here, the authors train a fixed number of regression neural networks to directly predict an approximation of adaptive edge constraints. Again, the input data used for the neural networks rely on a mesh-independent sampling strategy such that the trained neural networks can be applied to different finite element mesh resolutions. Numerical results are provided for different elliptic PDE problems and realistic coefficient distributions orginating from a microsection of a dual-phase steel. In <ref type="bibr" target="#b49">[50]</ref>, these results are further extended to irregular decompositions obtained by the graph partitioning software METIS <ref type="bibr" target="#b44">[45]</ref>.</p><p>In order to provide a robust and efficient iterative solution method for the timeharmonic Maxwell's equations, in <ref type="bibr" target="#b52">[53]</ref>, the authors use a feedforward neural network to approximate the interface operator in an optimized Schwarz method <ref type="bibr" target="#b12">[13]</ref>. The concrete formulation of the optimized Schwarz method for the time-harmonic Maxwell's equations is based on <ref type="bibr" target="#b20">[21]</ref>. In <ref type="bibr" target="#b52">[53]</ref>, preliminary numerical results for a two-dimensional domain decomposed into two subdomains are provided. Additionally, comparative results for different network architectures and different activation functions are presented and compared with classical DDMs.</p><p>A related approach to learn optimal interface conditions also for an optimized Schwarz method <ref type="bibr" target="#b23">[24]</ref> using Graph Convolutional Neural Networks (GNNs) is suggested in <ref type="bibr" target="#b87">[88]</ref>. There, the authors aim to learn the subdomain interface matrices for both, structured grids where the optimal matrix values can be predicted by Fourier analysis and for unstructured grids where the optimal Schwarz parameters are generally not known. Hence, the GNNs are trained using as input the degrees of freedom of a discretized problem, its decomposition, and sparsity constraints on the subdomain interface matrices. As output, the networks predict approximated optimized values for these matrices. Additionally, the authors consider an improved loss function which is a relaxation of the ideal Frobenius norm minimization.</p><p>In <ref type="bibr" target="#b88">[89]</ref>, a new multigrid GNN (MG-GNN) architecture to learn optimized parameters in two-level DDMs is introduced. In particular, the new MG-GNN model is used to learn the Robin-type subdomain boundary conditions in a two-level optimized Schwarz method and the overall coarse-to-fine interpolator. In a way, the work in <ref type="bibr" target="#b88">[89]</ref> can thus be seen as an extension of the method in <ref type="bibr" target="#b87">[88]</ref>, where also GNNs are used to learn optimal interface conditions in a one-level optimized Schwarz method.</p><p>A slightly different approach, where not adaptive constraints themselves but interface conditions in form of varying overlap between neighboring subdomains are learned is presented in <ref type="bibr" target="#b6">[7]</ref>. More precisely, a method is suggested to optimize the width δ of the overlap in Schwarz methods such that the number of expected floating point operations until convergence is minimized. The authors compare four different regression algorithms for two-dimensional diffusion problems with jumps in the coefficient function. As input for the different regression algorithms, the authors use certain features collected for each subdomain as well as its neighborhood, as, for example, the maximal or minimal coefficient within certain sets of rows and columns of degrees of freedom in the surrounding of the boundary of the overlapping subdomain.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>5.2.</head><p>Replacing the subdomain solvers in domain decomposition methods by neural networks. In addition to learning optimal interface conditions to improve the robustness of DDMs, a different approach that has attracted much attention very recently is to replace the subdomain solvers by machine learning algorithms as, for example, different types of neural networks. As a starting point for this section, we consider again boundary value problem (2.1) and, in the following, review some works which aim to solve the local subdomain problems by training a neural network N with certain collocation points and the loss function given in (3.2) or (3.5), respectively.</p><p>In <ref type="bibr" target="#b59">[60]</ref> and <ref type="bibr" target="#b57">[58]</ref>, the subdomain solvers in a parallel overlapping Schwarz method are replaced by PINNs and the Deep Ritz method, respectively, such that each of these local networks solves a single subdomain problem. The latter method is named D3M in <ref type="bibr" target="#b57">[58]</ref> and the former method DeepDDM in <ref type="bibr" target="#b59">[60]</ref>. As explained above, in any DDM, it is crucial to exchange information between the local subdomains in order to obtain a continuous, global solution. In DeepDDM <ref type="bibr" target="#b59">[60]</ref> as well as in D3M <ref type="bibr" target="#b57">[58]</ref>, which are both based on a parallel overlapping Schwarz fixed point iteration, the exchange of information is enforced by additional boundary conditions, which change in each fixed-point iteration until convergence; see <ref type="bibr" target="#b60">[61]</ref> or <ref type="bibr" target="#b89">[90]</ref> for further details on the parallel overlapping Schwarz method. These additional boundary conditions result in a third loss term of the local subdomain networks with additional collocation points for the exchange of information between neighboring subdomains.</p><p>In <ref type="bibr" target="#b68">[69]</ref>, the authors extend the DeepDDM algorithm <ref type="bibr" target="#b59">[60]</ref> described above by a coarse space correction, similarly to what is done in traditional two-level DDMs <ref type="bibr" target="#b89">[90]</ref>. The aim is to improve the convergence properties of the resulting algorithm for an increasing number of subdomains due to the enhanced exchange of global information. To define a coarse problem, the authors of <ref type="bibr" target="#b68">[69]</ref> introduce an additional coarse sampling of the complete domain defined by a set of coarse collocation points. These coarse collocation points are then used as input data for an additional fully connected network that is trained subsequently after the local networks in each outer training iteration. The authors present numerical results for different elliptic boundary value problems indicating the advanced numerical scalability for an increasing number of subdomains compared to the original DeepDDM approach.</p><p>A different extension of the D3M approach <ref type="bibr" target="#b57">[58]</ref> is presented in <ref type="bibr" target="#b58">[59]</ref>. Here, the aim is to mitigate the spectral bias <ref type="bibr" target="#b63">[64,</ref><ref type="bibr" target="#b73">74,</ref><ref type="bibr" target="#b75">76]</ref> observed with the local networks in the original D3M approach by introducing new multi Fourier feature networks (MFFNet) in each local subdomain. This results in a new Fourier feature based deep DDM (F-D3M) which is more successful in approximating the high frequency modes of a PDE solution. In particular, in order to obtain satisfactory approximations for both, low and high frequency modes, the MFFNet consists of different subnetworks with different random frequencies of the Fourier features and whose outputs are concatenated with a linear layer to compute the final output of the MFFNet.</p><p>In <ref type="bibr" target="#b86">[87]</ref>, the subdomain solvers within a DDM are also replaced by a Deep Ritz approach but, in contrast to <ref type="bibr" target="#b57">[58]</ref>, the computational domain is decomposed into nonverlapping subdomains. In contrast to replacing the subdomain solvers by neural networks within an overlapping Schwarz method as done in D3M or DeepDDM, in its nonoverlapping counterpart a direct flux exchange across subdomain interfaces is required. In particular, simply replacing the subdomain solvers in nonoverlapping subdomains by the classic Deep Ritz approach often results in a local minimizer where the given Dirichlet boundary conditions are satisfied satisfactory but with inaccurate Neumann boundary conditions; see <ref type="bibr" target="#b86">[87]</ref>. In order to address the issue of the low accuracy of the related flux transmission between neighboring nonoverlapping subdomains, the authors of <ref type="bibr" target="#b86">[87]</ref> propose a compensated Deep Ritz method as subdomain solvers that enable reliable flux transmission in the presence of erroneous interface conditions. The compensated Deep Ritz method defines a weighted sum of the Ritz form of the loss function and the PINN residual loss given that PINNs are empirically found to provide more accurate estimates of partial derivatives. The authors provide numerical examples for elliptic problems and two and four subdomains.</p><p>6. Discussion and future work. In this paper, we have explored how established techniques and ideas from DDMs can effectively be combined with machine learning algorithms to develop major advances in SciML methods. In particular, we have categorized all reviewed work in the two main classes of DDMs for machine learning and machine learning-enhanced DDMs. By taking all cited work into account, we observe that, so far, higher efforts exist to implement ideas from DDMs into machine learning models than vice versa. However, in both areas, several ongoing challenges and opportunities for further developments and research exist.</p><p>In the field of DDMs for machine learning, a very large group of publications exists that use DDMs within physics-aware neural networks. Here, we have observed a strong focus of using DDMs as model or data parallelism to efficiently accelerate and distribute the training of physics-aware neural networks, or, in particular, PINNs. Furthermore, decomposing the training of one large global neural network into training several smaller neural networks in parallel can also have important impacts on the generalization properties of the underlying machine learning model. As investigated analytically in <ref type="bibr" target="#b39">[40]</ref>, decomposing the global optimization problem into smaller subproblems decreases the complexity of each subproblem which can improve the generalization of the resulting global model. On the other hand, each subproblem is trained with a smaller amount of training data which tends to increase overfitting of the local models. Thus, a tradeoff between both effects has to be considered. Additionally, training decoupled local PINN models in a preliminary phase which are subsequently aggregated into a global model can also help to mitigate the spectral bias often observed for deep neural networks.</p><p>Besides, concepts from DDMs have also been integrated into classical machine learning models, for example, CNNs for image recognition, ResNets, Gaussian Processing, or PCA. Here, the primary objective is also to distribute the training of the respective machine learning model to different GPUs in order to accelerate the required training time. As a secondary effect, also for DDMs in classical machine learning models, in some cases, an improvement of the accuracy of the trained model can be observed. For some models, a mathematical comparison of the original global model versus the decomposed model already exists, for example, <ref type="bibr" target="#b28">[29,</ref><ref type="bibr" target="#b56">57]</ref>, whereas for other cases, a mathematical proof of a corresponding correlation is still an open research question.</p><p>Within the second reviewed field of machine-learning enhanced DDMs, a range of work exists on learning interface conditions or restriction operators by regression neural networks. So far, all of these approaches are developed for concrete domain decomposition methods and test problems, for example, for FETI-DP and BDDC or optimized Schwarz methods for stationary diffusion problems, stochastic PDEs, or Maxwell's equations, respectively. Here, a possible priority for future work could be the aim to develop more universal approaches which can be applied to various problems and DDMs or are independent of the underlying finite element discretization. Currently, only some of the cited approaches partly fulfill such requirements. Additionally, some work on learning optimal parameters in DDMs exist, as, for example, learning the optimal width of overlap for overlapping subdomains, optimal stopping criterions, or optimal restriction operators. These efforts, considering the current state, are also restricted to very concrete cases where specific information with respect to the considered DDM and test problem are used as input data for different regression models. Thus, in this area, more generally valid approaches are also a topic of potential future research.</p><p>Finally, there are several efforts to use PINNs or Deep Ritz methods to replace the subdomain solvers or the discretization within classical DDMs. These approaches make use of the universal approximation capabilities of neural networks to represent, under certain assumptions on the activation function, etc., solutions of PDEs. However, there are some challenges within these approaches in order to be competitive with classical numerical methods for the solution of PDE problems. Most notably, most existing approaches require to be retrained for varying boundary and initial conditions which makes the training of such approaches computationally expensive and limits the applicability of the resulting models. Hence, practically relevant applications for such models have to be carefully thought of, for example, large-scale multi-physics problems, and more flexible surrogate models will much likely be an important topic of future research.</p><p>Neural PDE solvers or, more general, neural operators can offer a remedy for the described drawback that PINNs or Deep Ritz usually need to be retrained for varying boundary conditions. Neural operators are a type of model that is trained to approximate the PDE solution operator and to be evaluated for various instances of a boundary value problem with different boundary conditions. Practically, this means that the neural operator is trained with a representative set of discretized boundary functions as input data. With respect to the aim of applying neural operators to large, complex domains with arbitrary boundary conditions, some efforts have been made to combine neural operators with ideas from DDMs to enable the efficient solution of complex boundary value problems and a scalable training of these models. The different avenues of ongoing research, so far, still face several challenges, for example, with respect to applicability to irregular meshes, complex PDE solutions, and computationally expensive training. Hence, combining DDMs and other promising concepts as, for example, transformers with neural operators <ref type="bibr" target="#b31">[32]</ref> to address these challenges is likely to be a future research topic of rising interest and importance.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 .</head><label>1</label><figDesc>Figure 1. Schematic representation of the structure of this review paper. All reviewed work on the combination of machine learning and domain decomposition methods are clustered into the two main groups domain decomposition (DD) for machine learning (ML), section 4, and machine learning-enhanced domain decomposition, section 5.</figDesc><graphic coords="2,88.79,96.36,332.10,176.79" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 3 .</head><label>3</label><figDesc>Figure 3. Structure of a dense feedforward neural network with n input nodes (marked in green), m output nodes (marked in orange), and N hidden layers with K neurons per layer (marked in blue). Figure taken from [93, Fig. 7.1].</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 4 .</head><label>4</label><figDesc>Figure 4. Graphical representation of a PINN. The derivatives needed for the evaluation of the residual are computed using automatic differentiation in a backward propagation (red). Figure in modified form in [27, Fig. 3].</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Figure 5 .</head><label>5</label><figDesc>Figure 5. Schematic representation of the articles reviewed in subsection 4.2 with respect to domain decomposition methods in machine learning.</figDesc></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<author>
+			<persName><forename type="first">N</forename><surname>Baker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Alexander</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Bremer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Hagberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Kevrekidis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Najm</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Parashar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Patra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Sethian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Wild</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Willcox</surname></persName>
+		</author>
+		<idno type="DOI">10.2172/1484362</idno>
+		<ptr target="https://www.osti.gov/biblio/1484362" />
+		<title level="m">Brochure on Basic Research Needs for Scientific Machine Learning: Core Technologies for Artificial Intelligence</title>
+		<imprint>
+			<publisher>USDOE Office of Science</publisher>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note>United States</note>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Physics and equality constrained artificial neural networks: Application to forward and inverse problems with multi-fidelity data fusion</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Basir</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Senocak</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Computational Physics</title>
+		<imprint>
+			<biblScope unit="volume">463</biblScope>
+			<biblScope unit="page">111301</biblScope>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<title level="m" type="main">A Generalized Schwarz-type Non-overlapping Domain Decomposition Method using Physics-constrained Neural Networks</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Basir</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Senocak</surname></persName>
+		</author>
+		<ptr target="http://arxiv.org/abs/2307.12435" />
+		<imprint>
+			<date type="published" when="2023-07">July 2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Automatic differentiation in machine learning: a survey</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">G</forename><surname>Baydin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">A</forename><surname>Pearlmutter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">A</forename><surname>Radul</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">M</forename><surname>Siskind</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="page" from="5595" to="5637" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Demystifying Parallel and Distributed Deep Learning: An In-depth Concurrency Analysis</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Ben-Nun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Hoefler</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM Computing Surveys</title>
+		<imprint>
+			<biblScope unit="volume">52</biblScope>
+			<biblScope unit="page" from="1" to="43" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<author>
+			<persName><forename type="first">E</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P.-L</forename><surname>Bacon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Pineau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Precup</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/1511.06297" />
+		<title level="m">Conditional computation in neural networks for faster models</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Learning overlap optimization for domain decomposition methods</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Burrows</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Frochte</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Völske</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">B M</forename><surname>Torres</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Stein</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Knowledge Discovery and Data Mining</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="page" from="438" to="449" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Physics-informed neural networks for inverse problems in nano-optics and metamaterials</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Lu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Karniadakis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">Dal</forename><surname>Negro</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Optics express</title>
+		<imprint>
+			<biblScope unit="volume">28</biblScope>
+			<biblScope unit="page" from="11618" to="11633" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<title level="m" type="main">Deep learning with Python</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Chollet</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<publisher>Simon and Schuster</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Learning adaptive coarse spaces of BDDC algorithms for stochastic elliptic problems with oscillatory and high contrast coefficients</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Chung</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H.-H</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M.-F</forename><surname>Lam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Zhao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Mathematical and Computational Applications</title>
+		<imprint>
+			<biblScope unit="page">26</biblScope>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Scientific machine learning through physics-informed neural networks: Where we are and what&apos;s next</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Cuomo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">S</forename><surname>Di Cola</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Giampaolo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Rozza</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Raissi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Piccialli</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Scientific Computing</title>
+		<imprint>
+			<biblScope unit="volume">92</biblScope>
+			<biblScope unit="page">88</biblScope>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Error estimates for physics-informed neural networks approximating the Navier-Stokes equations</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>De Ryck</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">D</forename><surname>Jagtap</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Mishra</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IMA Journal of Numerical Analysis</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Optimized Schwarz methods for Maxwell&apos;s equations</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Dolean</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">J</forename><surname>Gander</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Gerardo-Giorda</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">SIAM Journal on Scientific Computing</title>
+		<imprint>
+			<biblScope unit="volume">31</biblScope>
+			<biblScope unit="page" from="2193" to="2213" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<title level="m" type="main">Finite basis physics-informed neural networks as a Schwarz domain decomposition method</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Dolean</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Heinlein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Mishra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Moseley</surname></persName>
+		</author>
+		<ptr target="http://arxiv.org/abs/2211.05560" />
+		<imprint>
+			<date type="published" when="2023-05">May 2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title level="m" type="main">Multilevel domain decompositionbased architectures for physics-informed neural networks</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Dolean</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Heinlein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Mishra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Moseley</surname></persName>
+		</author>
+		<ptr target="http://arxiv.org/abs/2306.05486" />
+		<imprint>
+			<date type="published" when="2023-06">June 2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Local Extreme Learning Machines and Domain Decomposition for Solving Linear and Nonlinear Partial Differential Equations</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Dong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Li</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computer Methods in Applied Mechanics and Engineering</title>
+		<imprint>
+			<biblScope unit="volume">387</biblScope>
+			<biblScope unit="page">114129</biblScope>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<monogr>
+		<title level="m" type="main">Distributed physics informed neural network for data-efficient solution to partial differential equations</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Dwivedi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Parashar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Srinivasan</surname></persName>
+		</author>
+		<ptr target="http://arxiv.org/abs/1907.08967" />
+		<imprint>
+			<date type="published" when="2019-07">July 2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">A proposal on machine learning via dynamical systems</title>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">E</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Communications in Mathematics and Statistics</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="page" from="1" to="11" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">The Deep Ritz method: a Deep Learning-Based Numerical Algorithm for Solving Variational Problems</title>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">E</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Yu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Communications in Mathematics and Statistics</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="page" from="1" to="12" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Surrogate convolutional neural network models for steady computational fluid dynamics simulations</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Eichinger</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Heinlein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Klawonn</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Electronic Transactions on Numerical Analysis</title>
+		<imprint>
+			<biblScope unit="volume">56</biblScope>
+			<biblScope unit="page" from="235" to="255" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">A quasi-optimal domain decomposition algorithm for the time-harmonic Maxwell&apos;s equations</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">El</forename><surname>Bouajaji</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Thierry</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Antoine</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Geuzaine</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Computational Physics</title>
+		<imprint>
+			<biblScope unit="volume">294</biblScope>
+			<biblScope unit="page" from="38" to="57" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Parallel time integration with multigrid</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">D</forename><surname>Falgout</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Friedhoff</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">V</forename><surname>Kolev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">P</forename><surname>Maclachlan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">B</forename><surname>Schroder</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">SIAM Journal on Scientific Computing</title>
+		<imprint>
+			<biblScope unit="volume">36</biblScope>
+			<biblScope unit="page" from="635" to="C661" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<monogr>
+		<title level="m" type="main">Breaking Boundaries: Distributed Domain Decomposition with Scalable Physics-Informed Neural PDE Solvers</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Feeney</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Bostanabad</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Chandramowlishwaran</surname></persName>
+		</author>
+		<ptr target="http://arxiv.org/abs/2308.14258" />
+		<imprint>
+			<date type="published" when="2023-08">Aug. 2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Optimized Schwarz methods</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">J</forename><surname>Gander</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Halpern</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Nataf</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Twelfth International Conference on Domain Decomposition Methods</title>
+		<meeting><address><addrLine>Chiba, Japan, Citeseer</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2001">2001</date>
+			<biblScope unit="page" from="15" to="28" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<monogr>
+		<title level="m" type="main">Deep learning</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Courville</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>MIT press Cambridge</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<monogr>
+		<title level="m" type="main">Learning the solution operator of twodimensional incompressible Navier-Stokes equations using physics-aware convolutional neural networks</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Grimm</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Heinlein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Klawonn</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2308.02137</idno>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Estimating the time-dependent contact rate of SIR and SEIR models in mathematical epidemiology using physics-informed neural networks</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Grimm</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Heinlein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Klawonn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lanser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Weber</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Electronic Transactions on Numerical Analysis</title>
+		<imprint>
+			<biblScope unit="volume">56</biblScope>
+			<biblScope unit="page" from="1" to="27" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">MPI-The Complete Reference</title>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">D</forename><surname>Gropp</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Huss-Lederman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Lumsdaine</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">The MPI Extensions</title>
+		<meeting><address><addrLine>Cambridge, MA, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>MIT Press</publisher>
+			<date type="published" when="1998">1998</date>
+			<biblScope unit="volume">2</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Decomposition and composition of deep convolutional neural networks and training acceleration via sub-network transfer learning</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Gu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X.-C</forename><surname>Cai</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ETNA -Electronic Transactions on Numerical Analysis</title>
+		<imprint>
+			<biblScope unit="volume">56</biblScope>
+			<biblScope unit="page" from="157" to="186" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Decomposition and Preconditioning of Deep Convolutional Neural Networks for Training Acceleration</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Gu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X.-C</forename><surname>Cai</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Series Title: Lecture Notes in Computational Science and Engineering</title>
+		<meeting><address><addrLine>Cham</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer International Publishing</publisher>
+			<date type="published" when="2022">2022</date>
+			<biblScope unit="volume">145</biblScope>
+			<biblScope unit="page" from="153" to="160" />
+		</imprint>
+	</monogr>
+	<note>Domain Decomposition Methods in Science and Engineering XXVI</note>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Layerparallel training of deep residual neural networks</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Gunther</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Ruthotto</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">B</forename><surname>Schroder</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">C</forename><surname>Cyr</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">R</forename><surname>Gauger</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">SIAM Journal on Mathematics of Data Science</title>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="page" from="1" to="23" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">GNOT: A general neural operator transformer for operator learning</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Hao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Su</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Ying</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Dong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Cheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Song</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Zhu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Machine Learning</title>
+		<imprint>
+			<publisher>PMLR</publisher>
+			<date type="published" when="2023">2023</date>
+			<biblScope unit="page" from="12556" to="12569" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<monogr>
+		<title level="m" type="main">Neural networks and learning machines</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Haykin</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+			<publisher>Pearson Education India</publisher>
+		</imprint>
+	</monogr>
+	<note>3. ed.</note>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Deep Residual Learning for Image Recognition</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Sun</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the IEEE conference on computer vision and pattern recognition</title>
+		<meeting>the IEEE conference on computer vision and pattern recognition</meeting>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="770" to="778" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">An adaptive GDSW coarse space for two-level overlapping Schwarz methods in two dimensions</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Heinlein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Klawonn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Knepper</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Rheinbach</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Domain Decomposition Methods in Science and Engineering XXIV</title>
+		<meeting><address><addrLine>Cham</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="volume">125</biblScope>
+			<biblScope unit="page" from="373" to="382" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Machine Learning in Adaptive Domain Decomposition Methods -Predicting the Geometric Location of Constraints</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Heinlein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Klawonn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lanser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Weber</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">SIAM J. Sci. Comput</title>
+		<imprint>
+			<biblScope unit="volume">41</biblScope>
+			<biblScope unit="page" from="3887" to="A3912" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<analytic>
+		<title level="a" type="main">Combining Machine Learning and Adaptive Coarse Spaces -A Hybrid Approach for Robust FETI-DP Methods in Three Dimensions</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Heinlein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Klawonn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lanser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Weber</surname></persName>
+		</author>
+		<idno>pp. S816-S838</idno>
+	</analytic>
+	<monogr>
+		<title level="j">SIAM J. Sci. Comput</title>
+		<imprint>
+			<biblScope unit="volume">43</biblScope>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+	<note>Special Section Copper Mountain 2020</note>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">Combining Machine Learning and Domain Decomposition Methods for the Solution of Partial Differential Equations-A Re-view</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Heinlein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Klawonn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lanser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Weber</surname></persName>
+		</author>
+		<idno type="DOI">10.1002/gamm.202100001</idno>
+		<ptr target="https://doi.org/10.1002/gamm.202100001" />
+	</analytic>
+	<monogr>
+		<title level="j">GAMM-Mitt</title>
+		<imprint>
+			<biblScope unit="volume">44</biblScope>
+			<biblScope unit="page">e202100001</biblScope>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<analytic>
+		<title level="a" type="main">Predicting the geometric location of critical edges in adaptive GDSW overlapping domain decomposition methods using deep learning</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Heinlein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Klawonn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lanser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Weber</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Domain Decomposition Methods in Science and Engineering</title>
+		<imprint>
+			<biblScope unit="volume">XXVI</biblScope>
+			<biblScope unit="page" from="307" to="315" />
+			<date type="published" when="2023">2023</date>
+			<publisher>Springer</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">When Do Extended Physics-Informed Neural Networks (XPINNs) Improve Generalization?</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Hu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">D</forename><surname>Jagtap</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Karniadakis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Kawaguchi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">SIAM Journal on Scientific Computing</title>
+		<imprint>
+			<biblScope unit="volume">44</biblScope>
+			<biblScope unit="page" from="3158" to="A3182" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<analytic>
+		<title level="a" type="main">Augmented Physics-Informed Neural Networks (APINNs): A gating network-based soft domain decomposition methodology</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Hu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">D</forename><surname>Jagtap</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Karniadakis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Kawaguchi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Engineering Applications of Artificial Intelligence</title>
+		<imprint>
+			<biblScope unit="volume">126</biblScope>
+			<biblScope unit="page">107183</biblScope>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title level="a" type="main">Extreme learning machine: theory and applications</title>
+		<author>
+			<persName><forename type="first">G.-B</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q.-Y</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C.-K</forename><surname>Siew</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neurocomputing</title>
+		<imprint>
+			<biblScope unit="volume">70</biblScope>
+			<biblScope unit="page" from="489" to="501" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b42">
+	<analytic>
+		<title level="a" type="main">Extended Physics-Informed Neural Networks (XPINNs): A Generalized Space-Time Domain Decomposition Based Deep Learning Framework for Nonlinear Partial Differential Equations</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">D</forename><surname>Jagtap</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Karniadakis</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Communications in Computational Physics</title>
+		<imprint>
+			<biblScope unit="volume">28</biblScope>
+			<biblScope unit="page" from="2002" to="2041" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b43">
+	<analytic>
+		<title level="a" type="main">Conservative physics-informed neural networks on discrete domains for conservation laws: Applications to forward and inverse problems</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">D</forename><surname>Jagtap</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Kharazmi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Karniadakis</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computer Methods in Applied Mechanics and Engineering</title>
+		<imprint>
+			<biblScope unit="volume">365</biblScope>
+			<biblScope unit="page">113028</biblScope>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b44">
+	<monogr>
+		<title level="m" type="main">METIS: Unstructured Graph Partitioning and Sparse Matrix Ordering System, Version</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Karypis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Kumar</surname></persName>
+		</author>
+		<ptr target="http://www.cs.umn.edu/~metis" />
+		<imprint>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b45">
+	<analytic>
+		<author>
+			<persName><forename type="first">E</forename><surname>Kharazmi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Karniadakis</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">hp-VPINNs: Variational Physics-Informed Neural Networks With Domain Decomposition</title>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+			<biblScope unit="volume">374</biblScope>
+			<biblScope unit="page">113547</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b46">
+	<analytic>
+		<title level="a" type="main">BDDC and FETI-DP preconditioners with adaptive coarse spaces for three-dimensional elliptic problems with oscillatory and high contrast coefficients</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">H</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Chung</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Computational Physics</title>
+		<imprint>
+			<biblScope unit="volume">349</biblScope>
+			<biblScope unit="page" from="191" to="214" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b47">
+	<analytic>
+		<title level="a" type="main">A BDDC algorithm with enriched coarse spaces for twodimensional elliptic problems with oscillatory and high contrast coefficients</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">H</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">T</forename><surname>Chung</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Multiscale Model. Simul</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="page" from="571" to="593" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b48">
+	<analytic>
+		<title level="a" type="main">Domain Decomposition Algorithms for Physics-Informed Neural Networks</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">H</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">J</forename><surname>Yang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Series Title: Lecture Notes in Computational Science and Engineering</title>
+		<meeting><address><addrLine>Cham</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer International Publishing</publisher>
+			<date type="published" when="2022">2022</date>
+			<biblScope unit="volume">XXVI</biblScope>
+			<biblScope unit="page" from="697" to="704" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b49">
+	<monogr>
+		<title level="m" type="main">Learning adaptive FETI-DP constraints for irregular domain decompositions. TR series</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Klawonn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lanser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Weber</surname></persName>
+		</author>
+		<ptr target="https://kups.ub.uni-koeln.de/64122/" />
+		<imprint>
+			<date type="published" when="2022-11">November 2022</date>
+			<publisher>Springer LNCSE</publisher>
+			<biblScope unit="volume">2022</biblScope>
+			<pubPlace>Germany</pubPlace>
+		</imprint>
+		<respStmt>
+			<orgName>Center for Data and Simulation Science, University of Cologne</orgName>
+		</respStmt>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b50">
+	<monogr>
+		<title level="m" type="main">A domain decomposition-based CNN-DNN architecture for model parallel training applied to image recognition problems</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Klawonn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lanser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Weber</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/2302.06564" />
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b51">
+	<analytic>
+		<title level="a" type="main">Learning adaptive coarse basis functions of FETI-DP</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Klawonn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lanser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Weber</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Computational Physics</title>
+		<imprint>
+			<biblScope unit="volume">496</biblScope>
+			<biblScope unit="page">112587</biblScope>
+			<date type="published" when="2024">2024</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b52">
+	<monogr>
+		<title level="m" type="main">Domain Decomposition with Neural Network Interface Approximations for time-harmonic Maxwell&apos;s equations with different wave numbers</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Knoke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Kinnewig</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Beuchler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Demircan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">U</forename><surname>Morgner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Wick</surname></persName>
+		</author>
+		<ptr target="http://arxiv.org/abs/2303.02590" />
+		<imprint>
+			<date type="published" when="2023-03">Mar. 2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b53">
+	<monogr>
+		<title level="m" type="main">Enhancing training of physics-informed neural networks using domain-decomposition based preconditioning strategies</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kopanicáková</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Kothari</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Karniadakis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Krause</surname></persName>
+		</author>
+		<ptr target="http://arxiv.org/abs/2306.17648" />
+		<imprint>
+			<date type="published" when="2023-06">June 2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b54">
+	<analytic>
+		<title level="a" type="main">Conditional physics informed neural networks</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kovacs</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Exl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kornell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Fischbacher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Hovorka</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Gusenbauer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Breth</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Oezelt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Yano</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Sakuma</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Communications in Nonlinear Science and Numerical Simulation</title>
+		<imprint>
+			<biblScope unit="volume">104</biblScope>
+			<biblScope unit="page">106041</biblScope>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b55">
+	<analytic>
+		<title level="a" type="main">Generalization and network design strategies</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lecun</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Connectionism in perspective</title>
+		<imprint>
+			<date type="published" when="1989">1989</date>
+			<biblScope unit="volume">19</biblScope>
+			<biblScope unit="page">18</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b56">
+	<analytic>
+		<title level="a" type="main">Summation pollution of principal component analysis and an improved algorithm for location sensitive data</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Cai</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Numerical Linear Algebra with Applications</title>
+		<imprint>
+			<biblScope unit="volume">28</biblScope>
+			<biblScope unit="page">e2370</biblScope>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b57">
+	<analytic>
+		<title level="a" type="main">D3M: A deep domain decomposition method for partial differential equations</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Tang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Liao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Access</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="page" from="5283" to="5294" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b58">
+	<monogr>
+		<title level="m" type="main">A deep domain decomposition method based on Fourier features</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Xia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Liao</surname></persName>
+		</author>
+		<ptr target="http://arxiv.org/abs/2205.01884" />
+		<imprint>
+			<date type="published" when="2022-05">May 2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b59">
+	<analytic>
+		<title level="a" type="main">Deep domain decomposition method: Elliptic problems</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Xiang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Xu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Mathematical and Scientific Machine Learning</title>
+		<imprint>
+			<publisher>PMLR</publisher>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page" from="269" to="286" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b60">
+	<analytic>
+		<title level="a" type="main">On the Schwarz alternating method. I</title>
+		<author>
+			<persName><forename type="first">P.-L</forename><surname>Lions</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">First International Symposium on Domain Decomposition Methods for Partial Differential Equations</title>
+		<meeting><address><addrLine>Paris; SIAM, Philadelphia, PA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="1987">1987. 1988</date>
+			<biblScope unit="page" from="1" to="42" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b61">
+	<analytic>
+		<title level="a" type="main">On the limited memory BFGS method for large scale optimization</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">C</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Mathematical programming</title>
+		<imprint>
+			<date type="published" when="1989">1989</date>
+			<biblScope unit="volume">45</biblScope>
+			<biblScope unit="page" from="503" to="528" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b62">
+	<analytic>
+		<title level="a" type="main">A nonlinear elimination preconditioned inexact Newton method for blood flow problems in human artery with stenosis</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Luo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W.-S</forename><surname>Shiu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X.-C</forename><surname>Cai</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Computational Physics</title>
+		<imprint>
+			<biblScope unit="page">108926</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b63">
+	<monogr>
+		<title level="m" type="main">Theory of the frequency principle for general deep neural networks</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Luo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z.-Q</forename><forename type="middle">J</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Zhang</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/1906.09235" />
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b64">
+	<monogr>
+		<title level="m" type="main">Mesh-free radial basis function network methods with domain decomposition for approximation of functions and numerical solution of Poisson&apos;s equations, Engineering Analysis with Boundary Elements</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Mai-Duy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Tran-Cong</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2002">2002</date>
+			<biblScope unit="volume">26</biblScope>
+			<biblScope unit="page" from="133" to="156" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b65">
+	<analytic>
+		<title level="a" type="main">Solving Differential Equations by Artificial Neural Networks and Domain Decomposition</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Malek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">Emami</forename><surname>Kerdabadi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Iranian Journal of Science</title>
+		<imprint>
+			<biblScope unit="volume">47</biblScope>
+			<biblScope unit="page" from="1233" to="1244" />
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b66">
+	<analytic>
+		<title level="a" type="main">Adaptive selection of face coarse degrees of freedom in the BDDC and the FETI-DP iterative substructuring methods</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Mandel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Sousedík</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Comput. Methods Appl. Mech. Engrg</title>
+		<imprint>
+			<biblScope unit="volume">196</biblScope>
+			<biblScope unit="page" from="1389" to="1399" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b67">
+	<analytic>
+		<title level="a" type="main">Adaptive BDDC in three dimensions</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Mandel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Sousedík</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Sístek</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Simulation</title>
+		<imprint>
+			<biblScope unit="volume">82</biblScope>
+			<biblScope unit="page" from="1812" to="1831" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">Math. Comput</note>
+</biblStruct>
+
+<biblStruct xml:id="b68">
+	<monogr>
+		<title level="m" type="main">A coarse space acceleration of deep-DDM</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Mercier</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Gratton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Boudier</surname></persName>
+		</author>
+		<ptr target="http://arxiv.org/abs/2112.03732" />
+		<imprint>
+			<date type="published" when="2021-12">Dec. 2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b69">
+	<analytic>
+		<title level="a" type="main">Finite basis physics-informed neural networks (FBPINNs): a scalable domain decomposition approach for solving differential equations</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Moseley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Markham</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Nissen-Meyer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Advances in Computational Mathematics</title>
+		<imprint>
+			<biblScope unit="volume">49</biblScope>
+			<biblScope unit="page">62</biblScope>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b70">
+	<analytic>
+		<title level="a" type="main">Domain Decomposition Approach for Fast Gaussian Process Regression of Large Spatial Data Sets</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Park</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">Z</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Ding</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page" from="1697" to="1728" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b71">
+	<analytic>
+		<title level="a" type="main">A survey of methods for distributed machine learning</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Peteiro-Barral</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Guijarro-Berdiñas</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Progress in Artificial Intelligence</title>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="page" from="1" to="11" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b72">
+	<analytic>
+		<title level="a" type="main">Numerical Approximation of Partial Differential Equations</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Quarteroni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Valli</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="s">Springer Series in Computational Mathematics</title>
+		<imprint>
+			<date type="published" when="2008">2008</date>
+			<publisher>Springer</publisher>
+			<pubPlace>Berlin Heidelberg, 2</pubPlace>
+		</imprint>
+	</monogr>
+	<note>nd ed.</note>
+</biblStruct>
+
+<biblStruct xml:id="b73">
+	<analytic>
+		<title level="a" type="main">On the spectral bias of neural networks</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Rahaman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Baratin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Arpit</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Draxler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Hamprecht</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Courville</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Machine Learning</title>
+		<imprint>
+			<publisher>PMLR</publisher>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="5301" to="5310" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b74">
+	<analytic>
+		<title level="a" type="main">Physics-informed neural networks: a deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Raissi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Perdikaris</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Karniadakis</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Computational Physics</title>
+		<imprint>
+			<biblScope unit="volume">378</biblScope>
+			<biblScope unit="page" from="686" to="707" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b75">
+	<analytic>
+		<title level="a" type="main">The convergence rate of neural networks for learned functions of different frequencies</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Ronen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Jacobs</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Kasten</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Kritchman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<biblScope unit="page">32</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b76">
+	<analytic>
+		<title level="a" type="main">Three learning phases for radial-basisfunction networks</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Schwenker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">A</forename><surname>Kestler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Palm</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural networks</title>
+		<imprint>
+			<biblScope unit="volume">14</biblScope>
+			<biblScope unit="page" from="439" to="458" />
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b77">
+	<monogr>
+		<author>
+			<persName><forename type="first">S</forename><surname>Shalev-Shwartz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ben-David</surname></persName>
+		</author>
+		<title level="m">Understanding Machine Learning</title>
+		<imprint>
+			<publisher>Cambridge University Press</publisher>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b78">
+	<monogr>
+		<title level="m" type="main">Outrageously large neural networks: The sparsely-gated mixture-of-experts layer</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Shazeer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mirhoseini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Maziarz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Davis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Le</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Hinton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Dean</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/1701.06538" />
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b79">
+	<analytic>
+		<title level="a" type="main">PFNN: A penalty-free neural network method for solving a class of second-order boundary-value problems on complex geometries</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Sheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Yang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Computational Physics</title>
+		<imprint>
+			<biblScope unit="volume">428</biblScope>
+			<biblScope unit="page">110085</biblScope>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b80">
+	<analytic>
+		<title level="a" type="main">PFNN-2: A Domain Decomposed Penalty-Free Neural Network Method for Solving Partial Differential Equations</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Sheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Yang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Communications in Computational Physics</title>
+		<imprint>
+			<biblScope unit="volume">32</biblScope>
+			<biblScope unit="page" from="980" to="1006" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b81">
+	<analytic>
+		<title level="a" type="main">Parallel physics-informed neural net-works via domain decomposition</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Shukla</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">D</forename><surname>Jagtap</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">E</forename><surname>Karniadakis</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Computational Physics</title>
+		<imprint>
+			<biblScope unit="volume">447</biblScope>
+			<biblScope unit="page">110683</biblScope>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b82">
+	<analytic>
+		<title level="a" type="main">EikoNet: Solving the Eikonal Equation with Deep Neural Networks</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">D</forename><surname>Smith</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Azizzadenesheli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><forename type="middle">E</forename><surname>Ross</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Geoscience and Remote Sensing</title>
+		<imprint>
+			<biblScope unit="volume">59</biblScope>
+			<biblScope unit="page" from="10685" to="10696" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b83">
+	<analytic>
+		<title level="a" type="main">MPI-The Complete Reference</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Snir</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Otto</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Huss-Lederman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Walker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Dongarra</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">The MPI Core</title>
+		<meeting><address><addrLine>Cambridge, MA, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>MIT Press</publisher>
+			<date type="published" when="1998">1998</date>
+			<biblScope unit="volume">1</biblScope>
+		</imprint>
+	</monogr>
+	<note>nd ed.</note>
+</biblStruct>
+
+<biblStruct xml:id="b84">
+	<monogr>
+		<title level="m" type="main">Domain decomposition-based coupling of physics-informed neural networks via the Schwarz alternating method</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Snyder</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Tezaur</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Wentland</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/2311.00224" />
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b85">
+	<monogr>
+		<title level="m" type="main">Large-scale Neural Solvers for Partial Differential Equations</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Stiller</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Bethke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Böhme</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Pausch</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Torge</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Debus</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Vorberger</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Bussmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Hoffmann</surname></persName>
+		</author>
+		<ptr target="http://arxiv.org/abs/2009.03730" />
+		<imprint>
+			<date type="published" when="2020-09">Sept. 2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b86">
+	<monogr>
+		<title level="m" type="main">Domain Decomposition Learning Methods for Solving Elliptic Problems</title>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Yi</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/2207.10358" />
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b87">
+	<monogr>
+		<title level="m" type="main">Learning Interface Conditions in Domain Decomposition Solvers</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Taghibakhshi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Nytko</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Zaman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Maclachlan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Olson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>West</surname></persName>
+		</author>
+		<ptr target="http://arxiv.org/abs/2205.09833" />
+		<imprint>
+			<date type="published" when="2022-10">Oct. 2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b88">
+	<monogr>
+		<title level="m" type="main">MG-GNN: Multigrid Graph Neural Networks for Learning Multilevel Domain Decomposition Methods</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Taghibakhshi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Nytko</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">U</forename><surname>Zaman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Maclachlan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Olson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>West</surname></persName>
+		</author>
+		<ptr target="http://arxiv.org/abs/2301.11378" />
+		<imprint>
+			<date type="published" when="2023-03">Mar. 2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b89">
+	<analytic>
+		<author>
+			<persName><forename type="first">A</forename><surname>Toselli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Widlund</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Domain Decomposition Methods-Algorithms and Theory</title>
+		<title level="s">Springer Series in Computational Mathematics</title>
+		<meeting><address><addrLine>Berlin</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer-Verlag</publisher>
+			<date type="published" when="2005">2005</date>
+			<biblScope unit="volume">34</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b90">
+	<analytic>
+		<title level="a" type="main">A survey on distributed machine learning</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Verbraeken</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Wolting</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Katzy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Kloppenburg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Verbelen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">S</forename><surname>Rellermeyer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Acm computing surveys (csur)</title>
+		<imprint>
+			<biblScope unit="volume">53</biblScope>
+			<biblScope unit="page" from="1" to="33" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b91">
+	<analytic>
+		<title level="a" type="main">Mosaic flows: A transferable deep learning framework for solving PDEs on unseen domains</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Planas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Chandramowlishwaran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Bostanabad</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computer Methods in Applied Mechanics and Engineering</title>
+		<imprint>
+			<biblScope unit="volume">389</biblScope>
+			<biblScope unit="page">114424</biblScope>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b92">
+	<monogr>
+		<title level="m" type="main">Efficient and robust FETI-DP and BDDC methods -Approximate coarse spaces and deep learning-based adaptive coarse space</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Weber</surname></persName>
+		</author>
+		<ptr target="http://kups.ub.uni-koeln.de/id/eprint/55179" />
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+		<respStmt>
+			<orgName>Universität zu Köln</orgName>
+		</respStmt>
+	</monogr>
+	<note type="report_type">PhD thesis</note>
+</biblStruct>
+
+<biblStruct xml:id="b93">
+	<monogr>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">K</forename><surname>Williams</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">E</forename><surname>Rasmussen</surname></persName>
+		</author>
+		<title level="m">Gaussian processes for machine learning</title>
+		<meeting><address><addrLine>Cambridge, MA</addrLine></address></meeting>
+		<imprint>
+			<publisher>MIT press</publisher>
+			<date type="published" when="2006">2006</date>
+			<biblScope unit="volume">2</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b94">
+	<analytic>
+		<title level="a" type="main">Weak form theory-guided neural network (TgNN-wf ) for deep learning of subsurface single-and two-phase flow</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Rong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Computational Physics</title>
+		<imprint>
+			<biblScope unit="volume">436</biblScope>
+			<biblScope unit="page">110318</biblScope>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b95">
+	<monogr>
+		<title level="m" type="main">Additive Schwarz algorithms for neural network approximate solutions</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">J</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">H</forename><surname>Kim</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/2211.00225" />
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b96">
+	<monogr>
+		<title level="m" type="main">Iterative algorithms for partitioned neural network approximation to partial differential equations</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">J</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">H</forename><surname>Kim</surname></persName>
+		</author>
+		<ptr target="http://arxiv.org/abs/2211.00225" />
+		<imprint>
+			<date type="published" when="2023-08">Aug. 2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b97">
+	<analytic>
+		<title level="a" type="main">An efficient, high-order perturbation approach for flow in random porous media via Karhunen-Loeve and polynomial expansions</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Lu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Computational Physics</title>
+		<imprint>
+			<biblScope unit="volume">194</biblScope>
+			<biblScope unit="page" from="773" to="794" />
+			<date type="published" when="2004">2004</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

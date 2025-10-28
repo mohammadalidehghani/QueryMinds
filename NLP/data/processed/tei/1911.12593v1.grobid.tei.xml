@@ -1,0 +1,893 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Computer Systems Have 99 Problems, Let&apos;s Not Make Machine Learning Another One</title>
+				<funder ref="#_NCtQp4v">
+					<orgName type="full">NIST</orgName>
+				</funder>
+				<funder ref="#_ufGXUVT">
+					<orgName type="full">NRF</orgName>
+				</funder>
+				<funder ref="#_e9c98Fe">
+					<orgName type="full">National Science Foundation</orgName>
+					<orgName type="abbreviated">NSF</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2019-11-28">28 Nov 2019</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">David</forename><surname>Mohaisen</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution" key="instit1">University of Central Florida</orgName>
+								<orgName type="institution" key="instit2">George Mason University</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Songqing</forename><surname>Chen</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution" key="instit1">University of Central Florida</orgName>
+								<orgName type="institution" key="instit2">George Mason University</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Computer Systems Have 99 Problems, Let&apos;s Not Make Machine Learning Another One</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2019-11-28">28 Nov 2019</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">361B1D25B7E50CE65A8ABFCEF506D52E</idno>
+					<idno type="arXiv">arXiv:1911.12593v1[cs.CY]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Machine learning techniques are finding many applications in computer systems, including many tasks that require decision making: network optimization, quality of service assurance, and security. We believe machine learning systems are here to stay, and to materialize on their potential we advocate a fresh look at various key issues that need further attention, including security as a requirement and system complexity, and how machine learning systems affect them. We also discuss reproducibility as a key requirement for sustainable machine learning systems, and leads to pursuing it.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>I. INTRODUCTION</head><p>Over the past decade, machine learning has grown as scientific and perhaps independent discipline for the study of statistical models that can help in performing tasks, such as classification, without relying on explicitly defined rules, and rather on patterns and inferences made from data used for building those "data models". For example, samples of data are typically used in machine learning algorithms to build a model in a process called "model training", which (the model) then is used for making decisions concerning samples of the same type as those used in building the model.</p><p>The applications of machine learning in computer and networked systems are ubiquitous, with hundreds of applications and thousands of publications emerging every year. Those applications include areas of computer networks and simulation <ref type="bibr" target="#b0">[1]</ref>, pattern recognition <ref type="bibr" target="#b1">[2]</ref>, general designs <ref type="bibr" target="#b2">[3]</ref>, data quality assurance <ref type="bibr" target="#b3">[4]</ref>, attack detection and security enhancement <ref type="bibr" target="#b4">[5]</ref>, <ref type="bibr" target="#b5">[6]</ref>, <ref type="bibr" target="#b6">[7]</ref>, <ref type="bibr" target="#b7">[8]</ref>, network and computer systems optimization through forecasting and classification <ref type="bibr" target="#b8">[9]</ref>, user behavior analysis for prioritization and optimization <ref type="bibr" target="#b9">[10]</ref>, <ref type="bibr" target="#b10">[11]</ref>, among many others. Machine learning techniques, including shallow and deep learning, have been widely utilized to problems in the computer and networked systems space, covering fundamental problems such as congestion control <ref type="bibr" target="#b11">[12]</ref>, traffic management <ref type="bibr" target="#b12">[13]</ref>, resource management <ref type="bibr" target="#b13">[14]</ref>, and quality of service (QoS) management and assurance <ref type="bibr" target="#b14">[15]</ref>. Some might argue that the use of machine learning in many of those applications is unjustifiable, as is becoming apparent in various of our community gatherings, arguing that the use of machine learning is driven by the general hype surrounding an emerging research area, and perhaps other alternatives and existing approaches should be utilized, including model-based (but not learning) algorithms that have been widely utilized and shown to provide good results in the literature. Some others have painted a different reality: machine learning is the only approach ahead for most if not all problems.</p><p>In this paper, we take a middle ground: machine learning is here to stay, and machine learning applications in many computer systems in general and networked systems in particular are perhaps justified, important, and necessary. However, in order for a meaningful use of machine learning in this area to materialize, various problems are certain, and addressing those problems as a first step requires a significant attention and effort from the community. More so, those problems require a fresh look, for that they are forever new with the particulars of machine learning systems. To instantiate our position, we consider three dimensions: security, complexity, and reproducibility. We highlight facets of those dimensions that require attention so that the introduction, integration, and utilization of machine learning algorithms into computer and networked systems are useful and usable. Organization. The rest of this paper is organized as follows.</p><p>In section II, we address security of machine learning systems. In section III, we discuss various issues with the inherent complexity of machine learning systems, and how they might affect the operation of computer systems. In section IV we draw attention to reproducibility, a central issue affecting the sustainability of this domain and our views on how to partly address it. Section V has concluding remarks.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>II. SECURITY IS NOT A FEATURE</head><p>For long time, security and privacy have been considered as a feature, and not as a core computer system requirement, except when the computer system itself is built around security (e.g., authentication systems). For example, in networked systems, Distributed Denial of Service (DDoS) attacks are still prevalent today <ref type="bibr" target="#b15">[16]</ref>, <ref type="bibr" target="#b16">[17]</ref> in great part because the Internet was first designed in principle as a medium of communication between endpoints, taking into account the reliability of the communication, and without any consideration for source authentication. It was envisioned back then that security would be addressed at the application layer, or incrementally by employing upgrades to existing protocols.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Time for Experiential Learning: A Prologue</head><p>The past 30 years are a testimony of the failure of this argument. With a few exceptions, upgrades to insecure protocols, such as IP, DNS, and BGP, to add security features through alternatives, such as IPSec, DNSSEC, and BGPSec, have been fiercely resisted for many reasons, including overhead (e.g., computation overhead for signature verification) and trust (e.g., key certification). Where those new upgrades are not resisted, the shift to utilizing them has been very slow for the lack of incentives: utilizing those protocols in some cases means utilizing new stacks of hardware, by replacing existing infrastructure, which is quite expensive, with very little return if such upgrades are to be done eventually.</p><p>Although not clearly visible yet, we expect the same scenario to repeat itself with machine learning algorithms being advocated today for every application. A natural question that might become apparent in this context is the following: why would we need to have security measures and an understanding of the security capabilities of a machine learning algorithm employed in a non-security application, e.g., resource management, queuing, quality of service, etc.? In other words, what are the faces of similarity, if any, between machine learning algorithms employed in computer systems and those of Internet protocols? The answer is multi-fold.</p><p>First, while not apparent, security-broadly defined-is arguably part of those applications' basic guarantees. For example, one possible expected non-security guarantee of certain queuing algorithms is fairness. Allowing such an algorithm through machine learning to efficiently and reliably ensure fairness, while not explicitly stated as a security requirement, as a core security requirement. Having a secure machine learning algorithm, where the operating of the algorithm will help ensure the final outcome of the application in which it is employed, is essentially a requirement, not a feature.</p><p>Second, we believe that machine learning needs to be viewed as part of the systems in which they are employed, and not as a stand-alone and separate component that does not influence the system. That is in fact the modus operandi in many systems and their design utilizing machine learning. To that end, a simple modification in the machine learning algorithm might affect the performance of the system, causing, among other outcomes, a violation of the very basic guarantees of overall computer system. As demonstrated in the machine learning literature, this change can be in the algorithm itself or the input to the algorithm. Eventually, machine learning algorithms are implemented as a software; e.g., as in the widely used machine learning libraries, such as TensorFlow, Keras, Theano, PyTorch, and Pandas, among many others. Modifying the algorithms could be as simple as exploiting a vulnerability (e.g., buffer overflow). Worse yet, machine learning algorithms are prone to adversarial examples: examples are are not necessarily out of the training dataset, but that once are slightly modified (or perturbed) they could be used to cause misclassification by the machine learning algorithm (e.g., labeling a malicious sample as benign).</p><p>Third, the community has been advocating translating machine learning algorithms used in systems into hardware for performance reasons. Implementing those algorithms in hardware, without having a clear understanding of their security properties, nor of their resilience to manipulated input will eventually raise the cost of reversal: employing a more secure machine learning algorithm will require replacing the hardware implementation of insecure machine learning algorithms.</p><p>Based on that, we envision various directions that are worthwhile, including the following.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. On Defining Realistic Threat Models</head><p>Understanding the security of machine learning algorithms is only possible once we have a clear formulation of a threat model (or models) outlining the capabilities and adversarial goals. As a security community, we are very obsessed with threat modeling, and less so for the machine learning and systems community as the community does not seem to agree on the terms. Having those models is not an intellectual exercises, but is of paramount importance for analysis, evaluation, and comparison of systems. Moreover, standardized threat models in a way would help indirectly affirm capabilities of different systems based on the model they are analyzed within (as a framework). A direct translation of threat models used for the abstract analysis of machine learning algorithms is plausible for that they are often theoretical in assuming unbounded capabilities. Realistically defining and standardizing threat models for machine learning systems would be a natural step drawing on their use model.</p><p>A starting point towards this task would be by benefiting from the existing literature on machine learning systems and threat modeling in the adversarial machine learning community, and by outlining -for a class of systems -capabilities of users and adversaries, and objectives of the adversaries. Given the decision making nature of most applications in which machine learning is utilized, those objectives can be then characterized, for example, as an intent to reduce confidence in this decision, to lead to a totally wrong but arbitrary decision (non-targeted misclassification), or to lead to a wrong decision of a particular choice (i.e., targeted misclassification). We note that the models, while might be general and encompass multiple applications, the ramifications of outcome might be application-specific. For example, with confidence reduction being the objective of an adversary, the machine learning model's output might not necessarily be a wrong outcome (e.g., imagine that the confidence of the model itself is being used as the model outcome for classification using thresholding). In such a case, understanding the operation of the system will entirely change how realistic, significant, or even meaningful is an attack of such nature.</p><p>A second but equally important space for exploration would be capabilities associated with adversaries we will have to subject our machine learning systems to in order to analyze them. There has been a great deal of efforts in the learning (theory) community in general, and by the machine learning community in particular, in outlining capabilities into models, including white-box, gray-box, and black-box adversaries. Having a clear definition of those adversaries, especially in the context of machine learning systems as they are applied to various applications, would be essential. For example, while the white-box attack (whereby the adversary knows everything) and the black-box (whereby the adversary has an oracle-access to the model) are well understood, and are perhaps easy to translate to machine learning systems and applications, understanding which of those models is more relevant to a given system/application (or class of class of them) would be very important. With the potential difficultly of translating models across applications, it seems reasonable to annotate those broad classes of models into a hierarchy, and understand their relationship for different learning tasks, as those are going to eventually be of interest to analyze and contrast. Finally, while the gray model is perhaps figurative, it would be perhaps worthwhile to understand the degrees of gray associated with this model for different settings, applications, tasks, and contexts, and the relationships between them. Those definitions would perhaps benefit from outlining capabilities such as direct access to models and training data, oracle (or indirect) access to the model, and sample access (i.e., pairs of known sample input and the corresponding output). Using that as a broad model would a first step, but weighing in on how relevant each model is to a given application would certainly be essential, especially given the broad set of computer systems and applications in which they are employed.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. Understanding the Space of Robust Machine Learning</head><p>Per Google scholar, there are more than 13,000 publications on adversarial machine learning in 2019 alone, not to mention that the year is not over yet (this text was written in November). In other words, it is not the lack of work on understanding the robustness of machine learning algorithms, but a) that few works exist on developing more robust machine learning algorithms that are easy to integrate in complex systems at reasonable cost, and b) few works that actually examine the robustness of machine learning algorithms in context. We highlight our concern with with both issues.</p><p>Examining machine learning algorithms in context (particularly in computer systems) is a key element that is lacking in the literature, and we (as a community) should pay more attention to that exploration. For example, there has been several studies in the literature on examining the robustness of (deep and shallow) machine learning algorithms against adversarial examples. In the context of computer vision, an ideal example to highlight the idea is the physical world attack on traffic signs: it was shown to be possible to launch a targeted attack making a detector (in a self-driving car, for example) detect the modified stop sign as a speed limit sign (for 45 mph) <ref type="bibr" target="#b17">[18]</ref>. While a clever attack, highlighting the shortcomings of deep learning networks and how easy it is to fool them by simple modifications, would only work in that context. In essence, the input sample from which the deep features are extract have no other purpose than the visual representation, recognized by a human, in a human-driven car, or by a sensor/classifier in self-driving cars. In most other computer systems, that is never the case: samples ingested by the machine learning algorithms embody an applicationlevel and system operation logic that is often very complex, and inducing changes in the feature space would result in manipulating this logic. Such manipulation would essentially pronounce those adversarial examples useless. In the context of machine-learning based systems for anomaly detection, for example, modifying flows arbitrarily and independently may corrupt those flows, invaliding the key objective of the adversary: misclassification while keeping the sample intact <ref type="bibr" target="#b18">[19]</ref>.</p><p>Another example arise in the context of software classification, where the objective of the adversary is to force the machine learning algorithm to misclassify a malicious software (malware) as a benign one, for example <ref type="bibr" target="#b19">[20]</ref>, <ref type="bibr" target="#b20">[21]</ref>, <ref type="bibr" target="#b21">[22]</ref>. In that context, there has been several works that provide involved approaches for such a task. Some of those approaches, for example, start with the feature space (a vector representation in the frequency domain; e.g., counts of bytes, header information, and flags), add some noise on the features, and force the machine learning system to misclassify the sample for which the features are extracted into malicious. This approach indeed works, except that it makes the strong assumption that the adversary has access to the pipeline of the operation of the machine learning algorithm/system <ref type="bibr" target="#b22">[23]</ref>. In other words, the approach makes the strong assumption that the adversary will be able to inject such noise in the pipeline at a stage between the actual input of a functional malware (or benign) sample and the execution of the machine learning algorithm on the abstract representation of this sample into a feature space. This is an unrealistic assumption.</p><p>To relax this assumption, one can perhaps advocate one of two approaches: assuming a white-box model of an attack, one can perhaps pursue a backpropagation approach, whereby the noise itself is backpropagated from the feature space to the sample representation, or a forward-propagation whereby some modifications are introduced in the sample to generate a feature representation of interest (that is, a feature representation the results in the misclassification). While that would only relax the attack model, again, it would not necessarily guarantee a functioning sample. The backpropagation approach, although might be impractical and expensive, may as well corrupt the sample. On the other hand, the forward propagation approach, while could possibly result in a functioning sample, it may not result in a misclassification (given the constraints on the perturbation in the raw sample space).</p><p>All in all, those issues call for further investigation into new metrics beyond misclassification, particularly metrics that are driven from the computer system application space to explain the results; e.g., executability, consistency, quality, etc.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>III. WATCH FOR THE COMPLEXITY</head><p>As aforementioned, machine learning has been considered as an essential component in many systems and applications and is being considered for solving many problems. However, complexity is an intrinsic feature of many of those machine learning algorithms <ref type="bibr" target="#b23">[24]</ref>, making it difficult to imagine how such algorithms would fit in such systems without interfering with their basic properties if they could fit at all. Model Complexity. Deep learning algorithms-such as artificial neural networks (ANN), recurrent neural networks (DNN), long short-term memory (LSTM), and convolutional neural networks (CNN)-are proposed to aid the security or operation (as an optimization subsystem) of various systems, including enterprise networks, Internet of Things (IoT) networks <ref type="bibr" target="#b24">[25]</ref>, <ref type="bibr" target="#b25">[26]</ref>, <ref type="bibr" target="#b26">[27]</ref>, Mixed Reality (MR) systems <ref type="bibr" target="#b27">[28]</ref>, etc. Models of those machine learning systems are determined by the number of parameters, and are often in the order of thousands of parameters, amounting to 1-1000 Megabyte (e.g., the size allowed by the Amazon Machine Learning (AML) platform).</p><p>While some of those computer systems might be appropriate for hosting those models (e.g., enterprise <ref type="bibr" target="#b28">[29]</ref>), some others might not. For example, such machine learning systems are unimaginable in the context of an on-device model in a home network system (in the IoT application). Such restriction calls for optimizations that should take into account reducing the complexity of models to a minimal size, and perhaps offloading the model on a dedicated hardware, thus indirectly increasing the complexity of the system. Introducing such components in the system, as a necessity due to introducing the machine learning component, would affect multiple aspects of the system, not the least of which the attack surface. Latency, Software, and Hardware Footprints. An additional concern to address is how to integrate such complex machine learning subsystems into a computer system pipeline. A majority of the literature on machine learning systems considers those systems in isolation, assuming a straightforward integration, which is rarely the case. We believe that particular considerations when designing machine learning techniques for computer systems should include, among other things, latency, software footprint, and hardware footprint.</p><p>• Latency Networked systems designs nowadays aim to reduce latency to sub-10 millisecond margins on the Internet, often for application constraints. For example, in MR/VR applications, having an end-to-end latency of more than 15 milliseconds would pronounce such systems unusable (i.e., such a latency would result in poor experience, causing some users dizziness). The same phenomenon is present in multiple applications, and is not limited to MR/VR. To ensure such an end-to-end latency, the impact of the machine learning algorithms needs to be minimized. It is unclear, for example, with such large models and latency constraints, how to integrate machine learning algorithms in certain computer systems with such a low latency. It is our prediction that machine learning algorithms, eventually, would not be a viable solution for that restriction alone.</p><p>• Software and Hardware Footprint While storing the model would not require a lot of code representation (since using the model would be as simple as repeated multiplication operations, for example), it is sometimes beneficial to store the training code in the pipeline of the machine learning subsystem, e.g., for model retraining. Such a model, if made available in the system, needs to be integrated with system code (e.g., network buffers in the case of network optimization applications). Having a complex code would potentially expose the system in its entirety to vulnerabilities, and call for reducing the code to the minimal functional components, while utilizing best practices and approaches for ensuring its security and reliability. Similarly, where hardware implementation is pursued for implementing machine learning subsystems, similar attention needs to be paid to how the increase in complexity affects the operation of the overall system, including energy consumption (see section II for more details on how security needs to be considered as a first citizen to reduce the cost of upgrades).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>IV. ADDRESSING THE REPRODUCIBILITY CRISIS</head><p>In 2016, more than 1,500 scientists (including engineers; <ref type="url" target="https://tinyurl.com/y7bdswpj">https://tinyurl.com/y7bdswpj</ref> were surveyed on the reproducibility of scientific work and more than 70% of them have pointed out that they failed to reproduce another scientist's experiments. What is more alarming is that 52% of the surveyed scientists pointed out that they failed to reproduce their own work! Machine learning is no exception, either. A recent study surveying 30 research papers on machine learning approaches for texting mining has found that 27 (90%) of them did not provide the raw data, 13 (43%) did not provide sufficient details on data pre-processing, 9 (30%) did not provide sufficient details on the feature representation and 19 (63%) did not provide sufficient details on feature selection. Almost all of them did not provide code, 12 (40%) did not provide algorithm details, and 15 (50%) did not provide an executable file. All of them did not provide link to data partitions, data indices, or seed values, while 29 (97%) of them did not provide appropriate version of the software used. The list goes on and on, and the state of affair in the world of the reproducibility is quite ugly.</p><p>In major machine learning and system conferences, various initiatives have emerged around artifacts collection and evaluation, whereby a committee of selected researchers is tasked with checking the availability of artifacts, and evaluating them as functional or reusable. Upon that, a badge of available artifacts, function, or reusable is assigned to the work. However, to the best of our knowledge, those efforts are still optional, and a small minority of authors opt-out to submitting those artifacts. While a step in the right direction, sharing those artifacts with the evaluating committee a) does not necessarily mean that the results are reproducible, and b) does not mean that the artifacts would be accessible to the community beyond the evaluation committee or the evaluation time.</p><p>In computer systems, as highlighted earlier, reproducibility depends on a lot of interdependent pieces, and not only the machine learning algorithms developed for a certain task. For example, performance evaluation and validation taking into account model complexity, measured by the time it takes to train or test the model, would depend on the used hardware, optimization parameters, settings, etc., and having those "parameters" standardized would be essential. Moreover, for a class of applications (e.g., QoS, QoE, energy optimization, anomaly detection, etc.), having standard traces addressing various aspects of the computer system and representative of the various use scenarios would be essential. Data alone is not sufficient to addressing reproducibility, but essential. Other components include software, configurations, and libraries.</p><p>One approach to facilitating reproducibility would to share those settings as lightweight containers or fully-fledged virtual machines with those installed in them. It is ideal to share the machine learning system in a form or another. For example, when developed as a software, the code should be made accessible, and if not accessible, perhaps a detailed description of the main building block should be made available for reproducibility. Even when not being able to share their code with others for reproducing results (e.g., for intellectual property or privacy constraints), they can still aid reproducibility by running their code/system on standardized settings and benchmark datasets.</p><p>We believe addressing reproducibility is in an essence a core requirement for the sustainability of scientific endeavor, and a close attention must be paid to facilitating this requirement by ensuring that machine learning systems are shared in the public space in standard format that improve reproducibility.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>V. CONCLUDING REMARKS</head><p>Machine learning systems are here to stay. They might not be the solution to every problem in computer systems, given the heterogeneity of those systems and their requirements, but they promise various capabilities and optimizations in many others, thus are beneficial. To materialize the potential of machine learning systems, and not add to an already complex systems space, we advocate that more effort needs to be paid to at least three directions in the machine learning systems community: security, complexity, and reproducibility.</p></div>		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><p>Acknowledgement. This work was supported in part by a <rs type="funder">NRF</rs> grant <rs type="grantNumber">2016K1A1A2912757</rs>, a <rs type="funder">NSF</rs> grant <rs type="grantNumber">CNS-1524462</rs>, and a <rs type="funder">NIST</rs> grant <rs type="grantNumber">70NANB18H272</rs>.</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_ufGXUVT">
+					<idno type="grant-number">2016K1A1A2912757</idno>
+				</org>
+				<org type="funding" xml:id="_e9c98Fe">
+					<idno type="grant-number">CNS-1524462</idno>
+				</org>
+				<org type="funding" xml:id="_NCtQp4v">
+					<idno type="grant-number">70NANB18H272</idno>
+				</org>
+			</listOrg>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Large-scale network parameter configuration using an on-line simulation framework</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Ye</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">T</forename><surname>Kaur</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Kalyanaraman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Yuksel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE/ACM Transactions on Networking (TON)</title>
+		<imprint>
+			<biblScope unit="volume">16</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="777" to="790" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Pattern recognition and machine learning</title>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">M</forename><surname>Bishop</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+			<publisher>Springer Science+ Business Media</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Shmcaffe: A distributed deep learning platform with shared memory buffer for hpc architecture</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ahn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Lim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Choi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mohaisen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Kang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2018 IEEE 38th International Conference on Distributed Computing Systems (ICDCS)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="1118" to="1128" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">On quality control and machine learning in crowdsourcing</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lease</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Workshops at the Twenty-Fifth AAAI Conference on Artificial Intelligence</title>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Analyzing and detecting emerging internet of things malware: A graph-based approach</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Alasmary</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Khormali</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Anwar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Park</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Choi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Abusnaina</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Awad</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Nyang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mohaisen</surname></persName>
+		</author>
+		<idno type="DOI">10.1109/JIOT.2019.2925929</idno>
+		<ptr target="https://doi.org/10.1109/JIOT.2019.2925929" />
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Internet of Things Journal</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="8977" to="8988" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Thriving on chaos: Proactive detection of command and control domains in internet of things-scale botnets using DRIFT</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Spaulding</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Park</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Nyang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mohaisen</surname></persName>
+		</author>
+		<idno type="DOI">10.1002/ett.3505</idno>
+		<ptr target="https://doi.org/10.1002/ett.3505" />
+	</analytic>
+	<monogr>
+		<title level="j">Trans. Emerging Telecommunications Technologies</title>
+		<imprint>
+			<biblScope unit="volume">30</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">XLF: A cross-layer framework to secure the internet of things (iot)</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mohaisen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Chen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">39th IEEE International Conference on Distributed Computing Systems, ICDCS 2019</title>
+		<meeting><address><addrLine>Dallas, TX, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2019">July 7-10, 2019, 2019</date>
+			<biblScope unit="page" from="1830" to="1839" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Adversarial learning attacks on graph-based iot malware detection systems</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Abusnaina</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Khormali</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Alasmary</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Park</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Anwar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mohaisen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">39th IEEE International Conference on Distributed Computing Systems, ICDCS 2019</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="1296" to="1305" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Machine learning: Trends, perspectives, and prospects</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">I</forename><surname>Jordan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">M</forename><surname>Mitchell</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Science</title>
+		<imprint>
+			<biblScope unit="volume">349</biblScope>
+			<biblScope unit="issue">6245</biblScope>
+			<biblScope unit="page" from="255" to="260" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Machine learning for user modeling</title>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">I</forename><surname>Webb</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">J</forename><surname>Pazzani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Billsus</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">User modeling and user-adapted interaction</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="issue">1-2</biblScope>
+			<biblScope unit="page" from="19" to="29" />
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Crime scene reconstruction: Online gold farming network analysis</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Kwon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mohaisen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Woo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">K</forename><surname>Kim</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Information Forensics and Security</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="544" to="556" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Intelligent vehicle power control based on machine learning of optimal control parameters and prediction of road type and traffic congestion</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Park</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Kiliaris</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">L</forename><surname>Kuang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A</forename><surname>Masrur</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">M</forename><surname>Phillips</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><forename type="middle">L</forename><surname>Murphey</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Vehicular Technology</title>
+		<imprint>
+			<biblScope unit="volume">58</biblScope>
+			<biblScope unit="issue">9</biblScope>
+			<biblScope unit="page" from="4741" to="4756" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<monogr>
+		<title level="m" type="main">A survey on deep packet inspection for intrusion detection systems</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Abuhmed</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mohaisen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Nyang</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:0803.0037</idno>
+		<imprint>
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Dynamic multicore resource management: A machine learning approach</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">F</forename><surname>Martinez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Ipek</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE MICRO</title>
+		<imprint>
+			<biblScope unit="page" from="8" to="17" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Training network administrators in a game-like environment</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Arslan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Yuksel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">H</forename><surname>Gunes</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Network and Computer Applications</title>
+		<imprint>
+			<biblScope unit="volume">53</biblScope>
+			<biblScope unit="page" from="14" to="23" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">An adversary-centric behavior modeling of DDoS attacks</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mohaisen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Chen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">37th IEEE International Conference on Distributed Computing Systems</title>
+		<imprint>
+			<date type="published" when="2017">2017. 2017</date>
+			<biblScope unit="page" from="1126" to="1136" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Capturing ddos attack dynamics behind the scenes</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mohaisen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Chang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Chen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Detection of Intrusions and Malware, and Vulnerability Assessment -12th International Conference</title>
+		<meeting><address><addrLine>Milan, Italy</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2015-07-09">2015. July 9-10, 2015. 2015</date>
+			<biblScope unit="page" from="205" to="215" />
+		</imprint>
+	</monogr>
+	<note>DIMVA</note>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<title level="m" type="main">Robust physical-world attacks on deep learning models</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Eykholt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Evtimov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Fernandes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Rahmati</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Xiao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Prakash</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Kohno</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Song</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1707.08945</idno>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Examining the robustness of learning-based ddos detection in software defined networks</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Abusnaina</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Khormali</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Nyang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Yuksel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mohaisen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the IEEE conference on dependable and secure computing</title>
+		<meeting>the IEEE conference on dependable and secure computing</meeting>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<monogr>
+		<title level="m" type="main">Atmpa: Attacking machine learning-based malware visualization detection methods via adversarial examples</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Li</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Adversarial examples for malware detection</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Grosse</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Papernot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Manoharan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Backes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">D</forename><surname>Mcdaniel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 22nd European Symposium on Research Computer Security -ESORICS, Part II</title>
+		<meeting>the 22nd European Symposium on Research Computer Security -ESORICS, Part II</meeting>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="62" to="79" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Android malware detection using complex-flows</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Shen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">D</forename><surname>Vecchio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mohaisen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">Y</forename><surname>Ko</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Ziarek</surname></persName>
+		</author>
+		<idno type="DOI">10.1109/TMC.2018.2861405</idno>
+		<ptr target="https://doi.org/10.1109/TMC.2018.2861405" />
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Mob. Comput</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="1231" to="1245" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">COPYCAT: practical adversarial attacks on visualization-based malware detection</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Khormali</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Abusnaina</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Nyang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mohaisen</surname></persName>
+		</author>
+		<ptr target="http://arxiv.org/abs/1909.09735" />
+	</analytic>
+	<monogr>
+		<title level="j">CoRR</title>
+		<imprint>
+			<date type="published" when="1909">1909.09735, 2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<monogr>
+		<title level="m" type="main">Mxnet: A flexible and efficient machine learning library for heterogeneous distributed systems</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Xiao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Zhang</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1512.01274</idno>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Verifying internet of things safety and security in physical spaces</title>
+		<author>
+			<persName><forename type="first">Z</forename><forename type="middle">B</forename><surname>Celik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Mcdaniel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Tan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Babun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">S</forename><surname>Uluagac</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Security Privacy</title>
+		<imprint>
+			<biblScope unit="volume">17</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="30" to="37" />
+			<date type="published" when="2019-09">Sep. 2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">A context-aware framework for detecting sensor-based threats on smart devices</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">K</forename><surname>Sikder</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Aksu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">S</forename><surname>Uluagac</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Mobile Computing</title>
+		<imprint>
+			<biblScope unit="page" from="1" to="1" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Sota: Secure overthe-air programming of iot devices</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">B</forename><surname>Yesilyurt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Aksu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Uluagac</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Beyah</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">MILCOM 2018 -2018 IEEE Military Communications Conference (MILCOM)</title>
+		<imprint>
+			<date type="published" when="2018-10">Oct 2018</date>
+			<biblScope unit="page" from="1" to="8" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Toward lowlatency and ultra-reliable virtual reality</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">S</forename><surname>Elbamby</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Perfecto</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Bennis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Doppler</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Network</title>
+		<imprint>
+			<biblScope unit="volume">32</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="78" to="84" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Malicious behavior detection using windows audit logs</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Berlin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Slater</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Saxe</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 8th ACM Workshop on Artificial Intelligence and Security</title>
+		<meeting>the 8th ACM Workshop on Artificial Intelligence and Security</meeting>
+		<imprint>
+			<publisher>ACM</publisher>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="page" from="35" to="44" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

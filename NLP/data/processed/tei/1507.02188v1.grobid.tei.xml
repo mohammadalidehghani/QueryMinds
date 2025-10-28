@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">AutoCompete: A Framework for Machine Learning Competitions</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2015-07-08">8 Jul 2015</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Abhishek</forename><surname>Thakur</surname></persName>
+							<email>thakur@aisbi.de</email>
+							<affiliation key="aff0">
+								<orgName type="institution" key="instit1">AISBI</orgName>
+								<orgName type="institution" key="instit2">University of Paderborn</orgName>
+								<address>
+									<country key="DE">Germany</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">AutoCompete: A Framework for Machine Learning Competitions</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2015-07-08">8 Jul 2015</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">0C69E0463E77B4501A7CCC9F8106BE0C</idno>
+					<idno type="arXiv">arXiv:1507.02188v1[stat.ML]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:04+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>auto-machine learning, predictive modelling</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>In this paper, we propose AutoCompete, a highly automated machine learning framework for tackling machine learning competitions. This framework has been learned by us, validated and improved over a period of more than two years by participating in online machine learning competitions. It aims at minimizing human interference required to build a first useful predictive model and to assess the practical difficulty of a given machine learning challenge. The proposed system helps in identifying data types, choosing a machine learning model, tuning hyper-parameters, avoiding over-fitting and optimization for a provided evaluation metric. We also observe that the proposed system produces better (or comparable) results with less runtime as compared to other approaches.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.">Introduction</head><p>In the industry, business analysts are usually not concerned with the algorithms, feature selection, feature engineering or selection of appropriate hyperparameters. All they want is a fast track to a highly accurate predictive model which they can apply with minimum knowledge and effort on their problems and datasets. To satisfy this need, many "one-click" machine learning platforms have emerged that specifically target those users. Platforms such as Google Predict and BigML take the dataset as input from the end user and provide them with a predictive model for the dataset and a web service to consume it but that is beyond the scope of this paper.</p><p>In machine learning research, this topic has arrived under the umbrella term AutoML that subsumes and integrates disjunct areas of research such as identification of the problem (classification/regression, identifying the type of data, types of features and selection of features). Besides connecting these areas, AutoML also offers the possibility to delve into meta-learning where generalization from one dataset would tell which approaches can also be applied successfully on similar datasets.</p><p>We propose a system that automates a lot of the classical machine learning cycle and tries to build a predictive model without (or with a very little) human interference.</p><p>With the advent of various popular machine learning competition platforms such as CodaLab <ref type="bibr">(Codalab)</ref>, <ref type="bibr">Kaggle (Kaggle)</ref>, DrivenData (DrivenData), etc., it is now easy to gather a broad set of distinct datasets with different features that represent real-world machine learning problems. Our hypothesis is that, an AutoCompete framework to ease the life of a business user should be able to benefit from the learnings of a human expert on a large enough set of ML competitions at least in the form of codified knowledge. We use this knowledge to train the AutoCompete system tackle different types of datasets. The system has been trained from knowledge acquired over a period of more than two years and more than 100 machine learning competitions. Figure <ref type="figure" target="#fig_0">1</ref> shows the performance of our human expert supported by earlier versions of this framework in selected machine learning competitions. It is to be noted that the good performance is obtained as a result of both the human expert and the AutoCompete framework. The framework was developed over time and new pipelines were added according to the requirement of the datasets seen by the human expert.</p><p>This paper is divided into five sections. Section 2 discusses our approach to Auto-Compete. In section 3 we discuss the main components of the proposed AutoCompete framework followed by section 4 which discusses results on standard datasets and comparison with other such systems. Section 5 gives the conclusion and future work along with the feasibility of such a system.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.">Base Framework</head><p>As most competition datasets follow this layout, our current AutoCompete system works only with datasets in tabular format. Such a dataset can be defined as a set X and a vector y, where, every row in X represents a sample and every corresponding row in y is the label (or output feature) of that sample. Every column of X is an input feature. The proposed system is presently unable to deal with datasets in other formats. If such a dataset is encountered, a human expert is invited to convert the format which can then be used for predictive modelling using the proposed AutoCompete system.</p><p>The most important components of the proposed AutoCompete system, as depicted in Figure <ref type="figure" target="#fig_1">2</ref> are the ML Model Selector and Hyper-parameter Selector. In addition to these, there is a data splitter, data type identifier, feature stacker, decomposition tools and feature selector.</p><p>Once a tabular data is fed into the AutoCompete system, the very first step taken by it is splitting the dataset into training and validation sets. If a classification task is encountered, the dataset is split in a stratified manner, such that both the training and validation set have the same distribution of labels. The validation set is always kept separate from any transformations being used on the training set and is not touched at any point in the pipeline.</p><p>All the transformations on the training set are saved and then applied on the validation set in the end. This ensures that the system is not over-fitting and the models thus produced as a result of the AutoCompete pipeline generalize on unseen datasets. Once the splitting is done, the type of features are identified. The data types for every feature can be supplied by the user. However, if the manually specified data types are not available, the system distinguishes between different features on its own by applying basic heuristics. For example, if text dataset is encountered, AutoCompete system will deploy natural language processing based algorithms and text transformers. For others, data type is identified and appropriate transformations are used. Each transformation is then fed through a feature selection mechanism which in turn sends the selected features and the transformation pipeline through model selector and hyper-parameter selector. The transformation and the model with the best performance is used in the end. The next section describes the most important components of the AutoCompete system in greater detail and also the strategy used for selection of models and tuning hyperparameters.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">Components of AutoCompete</head><p>The Dataset component of the AutoCompete framework receives the data from user in a tabular form. The data is splitted into training and validation set using the Splitter component. Various identifiers then identify the type of data and pass it to different pipelines and preprocessing steps. At every stage, the dataset is sent to ML Model Selector for model selection and evaluation. The Stacker takes the different types of preprocessed features and stacks them into one dataset for further decomposition and feature selection. Feature selection is also performed on the original dataset. The final output is the best pipeline with highest score or lowest loss in the evaluation.</p><p>Two major components of the proposed AutoCompete framework are the ML Model Selector and Hyper-parameter Selector, as highlighted in Figure <ref type="figure" target="#fig_1">2</ref>. Table <ref type="table" target="#tab_0">1</ref> shows the different classification and regression algorithms currently used by the AutoCompete framework. In addition to the modules specified in Table <ref type="table" target="#tab_0">1</ref>, we also introduce bagging and boosting for different models for improved performance at a later stage. We propose two different selectors for selection of model and the corresponding hyperparameters: (a) random search, (b) grid-search on a given parameter space. For both random search and grid search a parameter space is specified in the AutoCompete module according to different types of datasets encountered in the past.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Classification Regression</head><p>For example, in case of a text dataset, the modules selected are Term Frequency -Inverse Document Frequency followed by a decomposition method such as Singular Value Decomposition. After the decomposition process, the models Random Forest <ref type="bibr" target="#b3">(Breiman, 2001)</ref> and Support Vector Machines (Burges, 1998) are selected for initial results. To make the system fast, we tune only certain hyper-parameters and have a specified search space for these parameters. In case the Random Forest module is selected, we limit our search to number of estimators, minimum number of samples at each split and maximum number of features to be used by each estimator. Similarly, in case of SVMs, the kernel is fixed to radial basis function (rbf) and only the penalty parameter and gamma (kernel coefficient) is tuned.</p><p>It is observed that even though we limit our system to tuning only certain parameters, we get results comparable to systems like hyperopt <ref type="bibr" target="#b9">(Komer et al., 2014</ref>) (these results have been discussed in the Experiments section) and also the results are obtained faster.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.">Experiments</head><p>We tested our framework on standard datasets such as MNIST <ref type="bibr">(Lecun and Cortes)</ref>, newsgroup-20 <ref type="bibr">(Lang)</ref>, adult dataset, smartphone dataset for human activity prediction <ref type="bibr" target="#b0">(Anguita et al., 2012)</ref> and housing dataset. These five datasets selected differ a lot from each other in terms of the number of variables, kind of data, machine learning task type to be applied and selection of evaluation metrics. They, thus, form a nice benchmark that can be used to develop other AutoML algorithms and frameworks on. Results on adult dataset with a much smaller number of variables are presented first. For a small dataset like this one, AutoCompete selects a few fast models and then optimizes the hyper-parameters for the model with highest area under the ROC curve. AUC is chosen as the evaluation metric since the labels are skewed and a threshold on predicted probabilities will be more intuitive than classification accuracy.</p><p>Figure <ref type="figure" target="#fig_2">3</ref> shows the models which were evaluated and their performance on the Adult dataset. The selected model with a grid based hyper-parameters for small dataset gives an AUC of 0.88. For MNIST, the parameters were chosen using both random search and grid search. A pipeline with PCA was selected with Random Forest as the model as prior information about the type of data is available to us. The accuracy on the test dataset was reported to be 0.96. Current framework is limited to 30 minutes of wall time and models are not evaluated further if this limit is reached.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Algorithm</head><p>Accuracy Score Convnets 99.8% hyperopt-sklearn 98.7% libsvm grid-search 98.6% AutoCompete 96%</p><p>Table <ref type="table">3</ref>: Results on MNIST dataset</p><p>In case of Newsgroups-20 dataset, the AutoCompete framework takes less than 10 minutes of wall time to beat hyperopt's results <ref type="bibr" target="#b9">(Komer et al., 2014)</ref>. The pipeline chosen in this case was a text transformer (TF-IDF) and logistic regression.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Algorithm</head><p>Weighted The next two datasets, we tested AutoCompete framework on were the smartphone dataset and housing dataset. The smartphone dataset is a classification dataset and housing dataset on the other hand is a regression dataset. Smartphone dataset consists of 561 variables and all of them are numeric and housing dataset consists of 14 attributes which are a mixture of categorical, integers and real numbers. The selected pipeline and scores obtained on evaluation for all the datasets are shown in Table <ref type="table">5</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Dataset</head><p>Selected Pipeline Evaluation Score Smartphone Logistic Regression 0.921 (AUC) Housing RF(Features) + SVR 2.3 (RMSE) MNIST PCA + RF 0.96 (Accuracy) Newsgroup-20 TFIDF + LR 0.864 (Weighted F1) Adult Model Stacker 0.85 (AUC)</p><p>Table 5: Selected pipeline and evaluation score for different datasets</p><p>We also used AutoCompete in the AutoML Challenge. For the challenge, the Auto-Compete system did not require any human interference. We ranked 2nd in the Phase0 of the competition. Since the AutoML phase required python code submission, which is still under development for AutoCompete, we did not participate in that phase. This will be incorporated and AutoCompete will be used in all the upcoming phases of the AutoML challenge. The results are shown in Figure <ref type="figure" target="#fig_3">4</ref>. All the computations were performed on a laptop with 4th gen Intel Core i7-4650U Processor (3.3 GHz, 4M Cache) and 16 GB RAM without any GPU power.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.">Conclusion and Future Work</head><p>We introduce a highly automated framework for tackling machine learning problems. The framework and all pipelines inside were learned and designed based on the experience obtained by taking part in hundreds of machine learning competition over a period of two years. The comparison of AutoCompete with well established frameworks like hyperopt <ref type="bibr" target="#b9">(Komer et al., 2014)</ref> tells us that there is a high potential in AutoCompete in terms of minimizing human effort and bringing machine learning to masses. The proposed framework enables a novice in machine learning to create and build benchmarks for tabular datasets without much (or any) intervention. It is also seen that the system performs nicely on machine learning challenges. The underlying implementation is based purely on Python and scikit-learn <ref type="bibr" target="#b12">(Pedregosa et al., 2011)</ref> with some modules written in Cython.</p><p>To extend the research in this field, our next steps (currently under research) would be to include a gender based genetic algorithm (GGA) <ref type="bibr" target="#b1">(Ansótegui et al., 2009)</ref>, Sequential Model-based Algorithm Configuration <ref type="bibr" target="#b7">(Hutter et al., 2011)</ref> and TPE <ref type="bibr" target="#b2">(Bergstra et al., 2011)</ref> for both selection of the machine learning model and tuning the hyper-parameters. Our future research also includes better stacking, ensembling of models and model blending to optimize for a required evaluation metric. We plan to release a usable version in the future and it will be available on the website of our research group.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Number of participants v/s rank obtained in various machine learning competitions (log scaled). Only the data for Kaggle is shown here.</figDesc><graphic coords="2,138.74,90.85,330.89,583.48" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: Base framework of the proposed system. Pink lines represent the most common path followed.</figDesc><graphic coords="4,90.00,90.86,477.75,359.50" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 3 :</head><label>3</label><figDesc>Figure 3: ROC AUC for different model evaluations on the Adult dataset.</figDesc><graphic coords="6,110.98,377.32,386.40,186.60" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 4 :</head><label>4</label><figDesc>Figure 4: Our result in the AutoML challenge.</figDesc><graphic coords="8,90.00,90.86,479.85,157.50" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 1 :</head><label>1</label><figDesc>Classification and regression modules present in the current AutoCompete framework</figDesc><table><row><cell>Random Forest</cell><cell>Random Forest</cell></row><row><cell cols="2">Gradient Boosting Gradient Boosting</cell></row><row><cell cols="2">Logistic Regression Logistic Regression</cell></row><row><cell>Ridge Classifier</cell><cell>Ridge</cell></row><row><cell>Naive Bayes</cell><cell>Lasso</cell></row><row><cell>SVM</cell><cell>Support Vector Regression</cell></row><row><cell cols="2">Nearest Neighbors Linear Regressor</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>Table 2 :</head><label>2</label><figDesc>Table 2 shows the different parameters for the datasets used. Datasets used for testing AutoCompete framework</figDesc><table><row><cell>Dataset</cell><cell cols="2">No. of Variables Task Type</cell></row><row><cell>MNIST</cell><cell>784</cell><cell>Multiclass Classification</cell></row><row><cell cols="2">Newsgroup-20 ˜100k</cell><cell>Multiclass Classification</cell></row><row><cell>Adult</cell><cell>14</cell><cell>Binary Classification</cell></row><row><cell>Smartphone</cell><cell>561</cell><cell>Binary Classification</cell></row><row><cell>Housing</cell><cell>14</cell><cell>Regression</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_2"><head>Table 4 :</head><label>4</label><figDesc>Results on Newsgroups-20 dataset</figDesc><table><row><cell></cell><cell>Average F1 Score</cell></row><row><cell cols="2">AutoCompete 0.864</cell></row><row><cell cols="2">hyperopt-sklearn 0.856</cell></row><row><cell>SVMTorch</cell><cell>0.848</cell></row><row><cell>LibSVM</cell><cell>0.843</cell></row></table></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Human activity recognition on smartphones using a multiclass hardware-friendly support vector machine</title>
+		<author>
+			<persName><forename type="first">Davide</forename><surname>Anguita</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alessandro</forename><surname>Ghio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Luca</forename><surname>Oneto</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xavier</forename><surname>Parra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jorge</forename><forename type="middle">L</forename><surname>Reyes-Ortiz</surname></persName>
+		</author>
+		<idno type="DOI">10.1007/978-3-642-35395-6_30</idno>
+		<ptr target="http://dx.doi.org/10.1007/978-3-642-35395-6_30" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 4th International Conference on Ambient Assisted Living and Home Care, IWAAL&apos;12</title>
+		<meeting>the 4th International Conference on Ambient Assisted Living and Home Care, IWAAL&apos;12<address><addrLine>Berlin, Heidelberg</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer-Verlag</publisher>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="216" to="223" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">A Gender-Based Genetic Algorithm for the Automatic Configuration of Algorithms Principles and Practice of Constraint Programming -CP 2009</title>
+		<author>
+			<persName><forename type="first">Carlos</forename><surname>Ansótegui</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Meinolf</forename><surname>Sellmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kevin</forename><surname>Tierney</surname></persName>
+		</author>
+		<idno type="DOI">10.1007/978-3-642-04244-7\14</idno>
+		<ptr target="http://cs.brown.edu/~{}sello/PAPER/cp09-gbac.pdf" />
+	</analytic>
+	<monogr>
+		<title level="s">Lecture Notes in Computer Science</title>
+		<imprint>
+			<biblScope unit="volume">5732</biblScope>
+			<biblScope unit="page" from="142" to="157" />
+			<date type="published" when="2009">2009</date>
+			<publisher>Springer</publisher>
+			<pubPlace>Berlin / Heidelberg, Berlin, Heidelberg</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Algorithms for hyper-parameter optimization</title>
+		<author>
+			<persName><forename type="first">James</forename><forename type="middle">S</forename><surname>Bergstra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rémi</forename><surname>Bardenet</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yoshua</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Balázs</forename><surname>Kégl</surname></persName>
+		</author>
+		<ptr target="http://papers.nips.cc/paper/4443-algorithms-for-hyper-parameter-optimization.pdf" />
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<editor>
+			<persName><forename type="first">J</forename><surname>Shawe-Taylor</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">R</forename><forename type="middle">S</forename><surname>Zemel</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">P</forename><forename type="middle">L</forename><surname>Bartlett</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">F</forename><surname>Pereira</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">K</forename><forename type="middle">Q</forename><surname>Weinberger</surname></persName>
+		</editor>
+		<imprint>
+			<publisher>Curran Associates, Inc</publisher>
+			<date type="published" when="2011">2011</date>
+			<biblScope unit="volume">24</biblScope>
+			<biblScope unit="page" from="2546" to="2554" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Random forests</title>
+		<author>
+			<persName><forename type="first">Leo</forename><surname>Breiman</surname></persName>
+		</author>
+		<idno type="DOI">10.1023/A:1010933404324</idno>
+		<ptr target="http://dx.doi.org/10.1023/A:1010933404324" />
+	</analytic>
+	<monogr>
+		<title level="j">Mach. Learn</title>
+		<idno type="ISSN">0885-6125</idno>
+		<imprint>
+			<biblScope unit="volume">45</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="5" to="32" />
+			<date type="published" when="2001-10">October 2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">A tutorial on support vector machines for pattern recognition</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">C</forename><surname>Christopher</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Burges</surname></persName>
+		</author>
+		<idno type="DOI">10.1023/A:1009715923555</idno>
+		<ptr target="http://dx.doi.org/10.1023/A:1009715923555" />
+	</analytic>
+	<monogr>
+		<title level="j">Data Min. Knowl. Discov</title>
+		<idno type="ISSN">1384-5810</idno>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="121" to="167" />
+			<date type="published" when="1998-06">June 1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<title/>
+		<author>
+			<persName><surname>Codalab</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Codalab</surname></persName>
+		</author>
+		<ptr target="http://www.codalab.com/" />
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title/>
+		<author>
+			<persName><surname>Drivendata</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Drivendata</surname></persName>
+		</author>
+		<ptr target="http://www.drivendata.com/" />
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Sequential model-based optimization for general algorithm configuration</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Hutter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">H</forename><surname>Hoos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Leyton-Brown</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. of LION-5</title>
+		<meeting>of LION-5</meeting>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+			<biblScope unit="page">507523</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<title/>
+		<author>
+			<persName><surname>Kaggle</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Kaggle</surname></persName>
+		</author>
+		<ptr target="http://www.kaggle.com/" />
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Hyperopt-sklearn: Automatic hyperparameter configuration for scikit-learn</title>
+		<author>
+			<persName><forename type="first">Brent</forename><surname>Komer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">James</forename><surname>Bergstra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chris</forename><surname>Eliasmith</surname></persName>
+		</author>
+		<ptr target="https://dl.dropboxusercontent.com/u/380268/scipy_proceedings_2014/pdfs/komer.pdf" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 13th Python in Science Conference</title>
+		<meeting>the 13th Python in Science Conference</meeting>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="33" to="39" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">20 newsgroups data set</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lang</surname></persName>
+		</author>
+		<ptr target="http://www.ai.mit.edu/people/jrennie/20Newsgroups/" />
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<monogr>
+		<author>
+			<persName><forename type="first">Yann</forename><surname>Lecun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Corinna</forename><surname>Cortes</surname></persName>
+		</author>
+		<ptr target="http://yann.lecun.com/exdb/mnist/" />
+		<title level="m">The MNIST database of handwritten digits</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Scikit-learn: Machine learning in Python</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Pedregosa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Varoquaux</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gramfort</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Michel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Thirion</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Grisel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Blondel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Prettenhofer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Weiss</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Dubourg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Vanderplas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Passos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Cournapeau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Brucher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Perrot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Duchesnay</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page" from="2825" to="2830" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

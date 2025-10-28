@@ -1,0 +1,945 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">DIFFERENTIAL REPLICATION IN MACHINE LEARNING A PREPRINT</title>
+				<funder ref="#_gVCepQU">
+					<orgName type="full">Generalitat de Catalunya</orgName>
+				</funder>
+				<funder ref="#_mJzMyDR">
+					<orgName type="full">Spanish</orgName>
+				</funder>
+				<funder>
+					<orgName type="full">AGAUR</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Irene</forename><surname>Unceta</surname></persName>
+							<email>irene.unceta@bbvadata.com</email>
+						</author>
+						<author>
+							<persName><forename type="first">Jordi</forename><surname>Nin</surname></persName>
+							<email>jordi.nin@esade.edu</email>
+						</author>
+						<author>
+							<persName><forename type="first">Oriol</forename><surname>Pujol</surname></persName>
+							<email>oriol_pujol@ub.edu</email>
+						</author>
+						<author>
+							<affiliation key="aff0">
+								<orgName type="department" key="dep1">Analytics Department of Mathematics and Computer Science</orgName>
+								<orgName type="department" key="dep2">Department of Operations, Innovation and Data Sciences</orgName>
+								<orgName type="institution" key="instit1">BBVA Data</orgName>
+								<orgName type="institution" key="instit2">Universitat de Barcelona</orgName>
+								<orgName type="institution" key="instit3">Universitat Ramon Llull</orgName>
+								<address>
+									<country>ESADE</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<affiliation key="aff1">
+								<orgName type="department">Department of Mathematics and Computer Science</orgName>
+								<orgName type="institution">Universitat de Barcelona</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main">DIFFERENTIAL REPLICATION IN MACHINE LEARNING A PREPRINT</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">B8BF420E90FBA89773A34B03309E09E2</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>When deployed in the wild, machine learning models are usually confronted with data and requirements that constantly vary, either because of changes in the generating distribution or because external constraints change the environment where the model operates. To survive in such an ecosystem, machine learning models need to adapt to new conditions by evolving over time. The idea of model adaptability has been studied from different perspectives. In this paper, we propose a solution based on reusing the knowledge acquired by the already deployed machine learning models and leveraging it to train future generations. This is the idea behind differential replication of machine learning models.</p><p>1 Survival of the fittest "If during the long course of ages and under varying conditions of life, organic beings vary at all in the several parts of their organization, [...] I think it would be a most extraordinary fact if no variation ever had occurred useful to each being's own welfare, in the same way as so many variations have occurred useful to man. But if variations useful to any organic being do occur, assuredly individuals thus characterized will have the best chance of being preserved in the struggle for life; and from the strong principle of inheritance they will tend to produce offspring similarly characterized. This principle of preservation, I have called, for the sake of brevity, Natural Selection." [Charles Darwin, Origin of the Species, p.127, 1859] Natural Selection explores how organisms adapt to a changing environment in their struggle for survival <ref type="bibr" target="#b0">[1]</ref>. Survival in this context is intrinsically defined by a complex and generally unknown fitness function that governs the life of all living creatures. The closer they move towards the optimal value of this function, the better fit they are to face the hard conditions imposed by their environment and, hence, the better chance they have at survival. This pressure imposed by the environment is not unique to living organisms. It is also present in artifacts of human culture, business and society, including everything from economic changes, adjustment of moral and ethical concerns, regulatory revisions or the reframing of societal rules that results from unexpected global crises. In a smaller scale, it is also present in machine learning model deployment.</p><p>Machine learning models are only a part of the larger ecosystem entailed by a machine learning system. A machine learning system comprises all the elements that interact with a model throughout its lifespan. These include the data and their different sources, the deployment infrastructure, the governance protocol, or the general regulatory framework. Components of a machine learning system may be both internal and external to the company. This means that they are often out of the data practitioner's control. Plus, given the variable nature of most of its external components, a machine</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>learning system's environment is prone to change in time. The Gartner Data Science Team Survey <ref type="bibr" target="#b1">[2]</ref> found that over 60% of machine learning models developed in companies are never actually put into production, due mostly to a lack of alignment with environmental demands. To survive in such an ecosystem, machine learning models need to adapt to new conditions by learning to evolve over time. This notion of adaptability has been present in the literature since the early times of machine learning, as practitioners have had to devise ways in which to adapt theoretical proposals to their everyday life scenarios <ref type="bibr" target="#b2">[3,</ref><ref type="bibr" target="#b3">4,</ref><ref type="bibr" target="#b4">5]</ref>. As the discipline has evolved, so have the available techniques to this end. Consider, for example, situations where the underlying data distribution changes resulting in a concept drift. Traditional batch learners were incapable of adapting to such drifts. Online learning algorithms were devised <ref type="bibr" target="#b5">[6]</ref> to succeed in this task by iteratively updating their knowledge according to the data shifts. In other situations, it is not the data that change but the business needs themselves. For instance, fraud detection algorithms <ref type="bibr" target="#b6">[7]</ref> are regularly retrained to incorporate new types of fraud. Commercial machine learning applications are designed to answer very specific business objectives that may evolve in time. Take, for example, the case where a company wants to focus on a new client portfolio. This may require evolving from a binary classification setting to a multi-class configuration <ref type="bibr" target="#b7">[8]</ref>. Under such circumstances, the operational point of a trained classifier can be changed to adapt it to the new policy. Alternatively, it is also possible to add patches in the form of wrappers to already deployed models. These endow models with new traits or functionalities that help them adapt to the new data conditions, either globally <ref type="bibr" target="#b8">[9]</ref> or locally <ref type="bibr" target="#b9">[10]</ref>.</p><p>In contrast, when it is the very nature of the system that changes, alternatives are scarce. When change affects the entire ecosystem of a model, most existing solutions are not applicable. Say, for example, that one of the original input attributes is no longer available, that a devised black-box solution is required to be interpretable or that updated software licenses require moving to a new production environment. It is such drastic changes in the demands of a machine learning system that this article is concerned with.</p><p>A straightforward solution in this context is to discard the existing model and re-train a new one. However, by discarding the given solution, we loose all the acquired knowledge and have to rebuild and validate the full machine learning stack. This is seldom the most efficient not the most effective way for tackling this challenge. In this paper, we explore this problem and advocate for imitating the way in which biological systems adapt to changes. In particular, we stress the importance of reusing the knowledge acquired by the already existing machine learning model in order to train a second generation that is better adapted to th enew conditions.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Modelling adaptation to new environments</head><p>Adaptation of machine learning models to new scenarios or domains is a well known problem in the machine learning literature. The most well known research branches are transfer learning and domain adaptation. Domain adaptation usually deals with changes in the data distributions as time evolves, or with learning knowledge representations for one domain such that they can be transferred to another related target domain. For example, due to the COVID-19 pandemic, several countries decided to accept card payments without introducing the pin up to 50 euros instead of the previous 20 euros limit, in order to minimize the interactions of card holders with the points of selling. This domain modification may affect to the fraud card detection algorithms, requiring modifications in their usage.</p><p>Conversely, transfer learning refers to the specific case where the knowledge acquired when solving one task is recycled to solve a different, yet related task <ref type="bibr" target="#b10">[11]</ref>. In general, the problem of transfer learning can be mathematically framed as follows. Given source and target domains D s and D t and their corresponding tasks T s and T t , the goal of transfer learning is to build a target conditional distribution P (y t |x t ) in D t for task T t from the information obtained when learning D s and T s , where T s = T t and D s = D t . Advantages of this kind of learning when compared with traditional learning are that learning is performed much faster, requiring less data, and even achieving better accuracy results.</p><p>In this work we focus in a different adaptation problem. In our described scenario, the task remains the same but the existing solution is no longer fit because of changes in the environmental constraints. We can frame the problem at hand using the former notation as follows. Given a domain D s , its corresponding task T , and the set of original environmental constraints C s that make the solution of this problem feasible we assume an scenario were a hypothesis space H s has been defined. In this context, we want to learn a new solution for the same task and for a new target scenario defined by the set of feasibility constraints C t , where C t = C s . This may or may not require the definition of a new hypothesis space H t . In a concise form and considering an optimization framework this can be rewritten as</p><p>Scenario I for T in D s maximize for h∈Hs P (y|x; h) subject to C s → Scenario II for T in D t maximize f or h∈Ht P (y|x; h) subject to C t</p><p>This problem corresponds to that of environmental adaptation. Under this notation, the original solution corresponds to a model h s that belongs to the hypothesis space H s defined for the first scenario. This is a model that fulfills the constraints C s and maximizes P (y|x; h) for a training dataset S = {(x, y)}, defined by task the T on the domain D s . Adaptation involves transitioning from this original scenario to Scenario II; a process which may be straightforward. Although, in general, this is not the case.</p><p>The solution obtained for the first scenario may be unfeasible in the second; thus, effectively ceasing the lifespan of the learned model. This happens when h s is outside of the feasible set defined by C t . In the most benevolent case, there may exist another solution from the original hypothesis space, H s , that fulfills the new constraints. However, there might be no overlapping between the set of constraints C t and the set of models defined by H s . This implies that no model of that hypothesis space can be considered a solution. In such cases, adaptation involves definition of a new hypothesis space H t altogether. Take, for example, the case of an application with a multivariate Gaussian kernel support vector machine. Assume that due to changes in the existing regulation, models are required to be fully interpretable in the considered application. The new set of constraints is not compatible with the original scenario and hence we would require a complete change of substrate.</p><p>In this scenario, we introduce the notion of differential replication of machine learning models as an efficient approach to ensure model survival in a new demanding environment, by building on knowledge acquired in previous generations. This is solving for scenario II considering the solution obtained for Scenario I. Differential replications ensures the environmental adaptation of machine learning models when they are subjected to constant changes.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Differential replication</head><p>"When copies are made with variation, and some variations are in some tiny way "better" (just better enough so that more copies of them get made in the next batch), this will lead inexorably to the ratcheting process of design improvement Darwin called evolution by natural selection." [Daniel Dennett, Breaking the Spell, p. <ref type="bibr">78,</ref><ref type="bibr">2006]</ref> Solving the former environmental adaptation problem can sometimes be straightforwardly done by discarding the existing model and re-training a new one. This is possible when the new model hypothesis space H t is required to provide feasible solutions for the constraint set C t . However, it is worth considering the costs of this approach. In general, rebuilding a model from scratch (i) implies obtaining the clearance from legal, business, ethical, and engineering departments, (ii) does not guarantee that a good or better solution of the objective function will be achieved<ref type="foot" target="#foot_0">foot_0</ref> , (iii) requires a whole new iteration of the machine learning pipeline, which is costly and time-consuming, (iv) assumes full access to the training dataset, which may no longer be available or require a very complex version control process. Plus, in many companies machine learning solutions are kept up-to-date using automated systems that continuously evaluate and retrain models; a technique known as continuous learning. Note, however, that this may take huge storage space, due to the need to save all the new incoming information. Hence, in the best case scenario, re-training is an expensive and difficult approach that assumes a certain level of knowledge that is not always guaranteed. Nonetheless, this is the most commonly used technique for solving this environmental adaptation problem. In what follows we consider other techniques.</p><p>Environmental adaptation is well known for living beings. Under the theory of Natural Selection, adaptation relies on changes in the phenotype of a species over several generations to guarantee its survival and evolution. This is sometimes referred to as differential reproduction. In the same lines, we define differential replication of a machine learning model as a cloning process in which traits are inherited from generation to generation while at the same time adding variations that make descendants more suitable/fit to the new environment.</p><p>More formally, differential replication refers to the process of finding a solution h t that fulfills the constraints C t , i.e. it is a feasible solution, while preserving/inheriting features from h s . Note that, in general, P (y|x; h t ) ∼ P (y|x; h s ). In the best case scenario, we would like to preserve or improve the performance of the source solution h s , also known as the parent. However, this is requirement that may not always be achieved. In a biological simile, requiring a guepard to be able to fly may imply loosing its ability to run fast. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Differential replication mechanisms</head><p>In this section, we consider existing approaches to implement differential replication in its attempt to solve the problem of environmental adaptation.</p><p>The notion of differential replication is built on top of two concepts. First, there is some inheritance mechanism that is able to transfer key aspects from the previous generation to the next. That would account for the name of replication.</p><p>Second, the next generation should display new features or traits not present in their parents. This corresponds to the idea of differential. These new traits should make the new generation more fit to current environment to enable environmental adaptation of the offspring.</p><p>Particularizing to machine learning models, implementing the concept of differential may involve a fundamental change in the substratum of the given model. This means we need a new hypothesis space that will ensure that part of the models in that space fulfill the constraints of the new environment C t . Consider, for example, the case of a large ensemble of classifiers. In highly time demanding tasks, this model may be too slow to provide real time prediction when deployed into production. Differential replication of this model enables moving from this architecture to a simpler, more efficient one, such as that of a shallow neural network <ref type="bibr" target="#b11">[12]</ref>. This "child" network can inherit the decision behavior of its predecessor while at the same time being more fit to the new environment.</p><p>Conversely, replication requires that some behavioral aspect be inherited by the next generation. Usually, it is the model's decision behavior that is inherited, so that the next generation will replicate the parent decision boundary.</p><p>Replication can be attained in many different ways. As shown in Fig. <ref type="figure" target="#fig_0">1</ref>, depending on the amount of knowledge that is assumed about the initial data and model, mechanisms for inheritance can be categorized as follows:</p><p>• Inheritance by sharing the dataset: Two models trained on the same data are bound to learn similar decision boundaries. This is the weakest form of inheritance possible, were no actual information is transferred from source to target. Here the decision boundary is reproduced indirectly and mediated through the data themselves. Re-training falls under this category. This form of inheritance requires no access to the parent model, but assumes knowledge of its training data.</p><p>• Inheritance using edited data: Editing is the methodology that allows data selection for training purposes <ref type="bibr" target="#b12">[13,</ref><ref type="bibr" target="#b13">14,</ref><ref type="bibr" target="#b14">15]</ref>. Editing can be used to preserve those data that are relevant to the decision boundary learned by the original solution and use them to train the next generation. Take, for example, the case where the source hypothesis space corresponds to the family of support vector machines. In training a differential replica, one could retain only those data points that were identified as support vectors. This mechanism assumes full access to the model internals, as well as to the training data.</p><p>• Inheritance using model driven enriched data: Data enrichment is a form of adding new information to the training dataset through either the features or the labels. In this scenario, each data sample in the original training set is augmented using information from the parent decision behavior. For example, a sample can be enriched by adding additional features using the prediction results of a set of classifiers. Alternatively, if instead of learning hard targets one considers using the output of the parent's class probability outputs or logits as soft-targets, this richer information can be exploited to build a new generation that is closer in behavior to the parent. Under this category fall methods like model distillation <ref type="bibr" target="#b11">[12,</ref><ref type="bibr" target="#b15">16,</ref><ref type="bibr" target="#b16">17,</ref><ref type="bibr" target="#b17">18]</ref>, as well as techniques such as label regularization <ref type="bibr" target="#b18">[19,</ref><ref type="bibr" target="#b19">20]</ref> and label refinery <ref type="bibr" target="#b20">[21]</ref>. In general, this form of inheritance requires access to the source model and is performed under the assumption of full knowledge of the training data.</p><p>• Inheritance by enriched data synthesis A similar scenario is that where the original training data is not accessible, but the model internals are open for inspection. In this situation, the use of synthetic datasets has been explored <ref type="bibr" target="#b11">[12,</ref><ref type="bibr" target="#b21">22]</ref>. In some cases, intermediate information about the representations learned by the source model are also used as a training set for the next generation. This form of inheritance can be understood as a zero-shot distillation <ref type="bibr" target="#b22">[23]</ref>.</p><p>• Inheritance of internals model's knowledge: In some cases, it is possible to access the internal representations of the parent model, so that more explicit knowledge can be used to build the next generation <ref type="bibr" target="#b23">[24,</ref><ref type="bibr" target="#b24">25]</ref>. For example, if both parent and child are neural networks, one can force the mid-layer representations to be shared among them <ref type="bibr" target="#b25">[26]</ref>. Alternatively, one could use the second level rules of a decision tree to guide the next generation of rule-based decision models.</p><p>• Inheritance by copying In highly regulated environments, access to the original training samples or to the model internals is not possible. In this context, experience can also be transmitted from one model to its differential replica using synthetic data points labelled according to the hard predictions of the source model. This has been referred to as copying <ref type="bibr" target="#b26">[27]</ref>.</p><p>Note that on top of a certain level of knowledge about either the data or the model, or both, some of the techniques listed above often impose also additional restrictions on the considered scenarios. Techniques such as distillation, for example, assume that the original model can be controlled by the data practitioner, i.e. internals of the model can be tuned to force specific representations of the given input throughout the adaptation process. In certain environments this may be possible, but generally it is not.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Differential replication in practice</head><p>To illustrate the utility of differential replication, we describe six different scenarios where it can be exploited to ensure a devised machine learning solution adapts to different changes in its environment.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Intelligible explanations of non-linear phenomena</head><p>A widely established technique to provide explanations is to use linear models, such as logistic regression. Model parameters, i.e. the linear coefficients associated to the different attributes, can be exploited to provide explanations to different audiences. Although this approach works in simple scenarios where the variables do not need to be modified nor pre-processed, this is never the case for real life applications, where variables are usually redesigned before training and new more complex features are often introduced. This is even worse when, in order to improve model performance, data scientists create a large set of new variables, such as bi-variate ratios or logarithm scaled variables, to capture non-linear relations between original attributes that linear models cannot handle during the training phase. This results in new variables being obfuscated and therefore often not intelligible for humans.</p><p>A straightforward solution using differential replication is to replace the whole predictive system, composed by both the pre-processing/feature engineering step and the machine learning model by a copy that considers both steps as a single black box model <ref type="bibr" target="#b27">[28]</ref>. Doing this, we are able to deobfuscate model variables by training copies to learn the decision outputs of trained models directly from the raw data attributes without any pre-process.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Moving to a different software environment</head><p>In-company infrastructure is subject to continuous updates due to the rapid pace with which new software versions are released to the market. Changes in the organizational structure of a company may drive the engineering department to change course. Say, for example, that a company whose products were originally based on Google's Tensorflow package <ref type="bibr" target="#b28">[29]</ref> makes the strategic decision of moving to Pytorch <ref type="bibr" target="#b29">[30]</ref>. In doing so, they might decide to re-train all models from scratch in the new environment. This is a long and costly process that can even result in a loss of performance. Specially if original data is not available or the in-house data scientist are new to this framework. Alternatively, using differential replication, the knowledge acquired by the existing solutions could be exploited in the form of hard or soft labels or as additional data attributes for the new generation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Mitigating bias in prediction</head><p>As a model is tested against new data throughout its lifespan, of its learned biases may be made apparent. Under such circumstances, one may wish to transit to a new model that inherits the original predictive performance but which ensures non-discriminatory outputs. A possible option is to edit the sensitive attributes to remove any bias, reducing in this way the disparate impact in the task T , and then training a new model on the edited dataset. Alternatively, in very specific scenarios where the sensitive information is not leaked through additional features, it is possible to build a copy by removing the protected data variables <ref type="bibr" target="#b30">[31]</ref>. Or even, redesign the hypothesis space considering a loss function to account for the fairness dimension when training subsequent generations.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Concept drift in batch learning</head><p>Batch machine learning models are rendered obsolete by their inability to adapt to a change in the data distribution.</p><p>When this happens the most straightforward solution is to wait until there are enough samples of the new distribution and re-train the model. However, this solution is timely and often expensive. A faster solution is to use the idea of differential replication to create a new enriched dataset able to detect the data drift. For example, including the soft targets and a timestamp attribute in the target domain, D t . Then, train a new model using this enriched dataset that replicates the decision behavior of the previously trained classifier. Finally, we also need to allow the new model to accept new incoming data samples to be learned. This second characteristic can be added by incorporating the online requirement in the C t constrains for the differential replication process <ref type="bibr" target="#b31">[32]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Privacy preserving models</head><p>Developing good machine learning models requires abundant data. The more accessible the data, the more effective a model will be. In real applications, training machine learning models usually requires collecting a large volume of data from users, often including sensitive information. Directly releasing these models trained using user data could derive in privacy breaches, as the risk of leaking sensitive information encoded in the public model increases.</p><p>Differential replication can be used to avoid this issue by is training another model, usually a simpler one, that replicates the learned decision behavior but which preserves the privacy of the original training set by not being directly linked to these data. The use of distillation techniques in the context of teacher-student networks, for example, has been reported to be successful in this task <ref type="bibr" target="#b32">[33,</ref><ref type="bibr" target="#b33">34]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Model standarization for auditing purposes</head><p>Auditing machine learning models is not an easy task. When an auditor wants to audit several models under the same constraints, it is required that all models audited fulfill an equivalent set of requirements. Those requirements may limit the use of certain software libraries, or of certain model architectures. Usually, even within the same company, each model is designed and trained on its own basis. As research in machine learning grows, new models are continuously devised. However, this fast growth in available techniques hinders the possibility of having a deep understanding of those models and makes the assessment of some auditing dimensions a nearly impossible task.</p><p>In this scenario, differential replication can be used to establish a small set of canonical models into which all others can be translated. In this sense, deep knowledge of these set of canonical models would be enough to drive auditing tests. For example, let us consider that the canonical model is a deep learning architecture with a certain configuration. Any other model can be translated into this particular architecture using differential replication<ref type="foot" target="#foot_1">foot_1</ref> . The auditing process need then only consider how to probe the canonical deep network to report impact assessment.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">Conclusions</head><p>In this paper we have described a general framework based on knowledge reuse from generation to generation to extend the useful life of machine learning models by adapting them to their changing environment. To tackle this issue of environmental adaptation, we have proposed a mechanism inspired in how biological organisms evolve: differential replication. Differential replication allows machine learning models to modify their behavior to meet the new requirements defined by the environment. We envision this replication mechanism as a projection operator able to translate the decision behavior of a machine learning model into a new hypothesis space with different characteristics. This allows traits of a given classifier to be inherited by another, more suitable under the new premises. We have listed different inheritance mechanisms to achieve this goal, depending on specific knowledge availability scenarios. These range from the more permissive inheritance by sharing the dataset to the more restrictive inheritance by copying, which is the solution requiring less knowledge about the parent model and training data. Finally, we provide examples of how differential replication applies in practice for six different real-life scenarios.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Graphical representation of inheritance mechanisms in terms of their knowledge of the data and the model internals.</figDesc><graphic coords="4,142.20,72.00,327.59,271.36" type="bitmap" /></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0"><p>The objective function in this scenario corresponds to P (y|x; h).</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_1"><p>Provided the capacity of the network is large enough to replicate the given decision boundary.</p></note>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>Acknowledgements</head><p>This work has been partially funded by the <rs type="funder">Spanish</rs> project <rs type="grantNumber">PID2019-105093GB-I00</rs> (<rs type="affiliation">MINECO/FEDER, UE</rs>), and by <rs type="funder">AGAUR</rs> of the <rs type="funder">Generalitat de Catalunya</rs> through the Industrial PhD grant <rs type="grantNumber">2017-DI-25</rs>.</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_mJzMyDR">
+					<idno type="grant-number">PID2019-105093GB-I00</idno>
+				</org>
+				<org type="funding" xml:id="_gVCepQU">
+					<idno type="grant-number">2017-DI-25</idno>
+				</org>
+			</listOrg>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title level="m" type="main">On The Origin of Species by Means of Natural Selection, or Preservation of Favoured Races in the Struggle for Life</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Darwin</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1859">1859</date>
+			<publisher>John Murray</publisher>
+			<pubPlace>London, UK</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Magic quadrant for data science and machine learning platforms</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Idoine</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Krensky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Linden</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Brethenoux</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<publisher>Gartner Research</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Engaging the ethics of data science in practice</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Barocas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Boyd</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Communications of the ACM</title>
+		<imprint>
+			<biblScope unit="volume">60</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<biblScope unit="page" from="23" to="25" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Fairer machine learning in the real world: Mitigating discrimination without collecting sensitive data</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Veale</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Binns</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Bid Data &amp; Society</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="1" to="17" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">The fallacy of inscrutability</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Kroll</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Philosophical Transactions of the Roya Society</title>
+		<imprint>
+			<biblScope unit="volume">376</biblScope>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Large scale online learning</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Bottou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Le Cun</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 17th International Conference on Neural Information Processing Systems</title>
+		<meeting>the 17th International Conference on Neural Information Processing Systems<address><addrLine>Cambridge, MA, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>MIT Press</publisher>
+			<date type="published" when="2004">2004</date>
+			<biblScope unit="page" from="217" to="234" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">End-to-end neural network architecture for fraud scoring in card payments</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">A</forename><surname>Gómez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Arevalo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Paredes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Nin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Pattern Recognition Letters</title>
+		<imprint>
+			<biblScope unit="volume">105</biblScope>
+			<biblScope unit="page" from="175" to="181" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Online error-correcting output codes</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Escalera</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Masip</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Puertas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Radeva</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Pujol</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Pattern Recognition Letters</title>
+		<imprint>
+			<biblScope unit="volume">32</biblScope>
+			<biblScope unit="page" from="458" to="467" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Uncertainty estimation for black-box classification models: a use case for sentiment analysis</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Mena</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Brando</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Pujol</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Vitrià</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Pattern Recognition and Image Analysis</title>
+		<title level="s">Lecture Notes in Computer Science</title>
+		<imprint>
+			<date type="published" when="2019">2019. 2019</date>
+			<biblScope unit="volume">11867</biblScope>
+			<biblScope unit="page" from="29" to="40" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Why should i trust you?: Explaining the predictions of any classifier</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">T</forename><surname>Ribeiro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Singh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Guestrin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 22th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining</title>
+		<meeting>the 22th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining<address><addrLine>New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>Association for Computing Machinery</publisher>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="1135" to="1144" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">A survey on transfer learning</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Pan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Yang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Knowledge and Data Engineering</title>
+		<imprint>
+			<biblScope unit="volume">22</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page" from="1345" to="1359" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Model compression</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Buciluȃ</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Caruana</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Niculescu-Mizil</surname></persName>
+		</author>
+		<idno type="DOI">10.1145/1150402.1150464</idno>
+		<ptr target="https://doi.org/10.1145/1150402.1150464" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 12th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining</title>
+		<meeting>the 12th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining<address><addrLine>New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>Association for Computing Machinery</publisher>
+			<date type="published" when="2006">2006</date>
+			<biblScope unit="page" from="535" to="541" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Application of proximity graphs to editing nearest neighbor decision rule</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Bhattacharya</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Poulsen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Toussaint</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Symposium on Information Theory</title>
+		<imprint>
+			<date type="published" when="1981">1981</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Geometric decision rules for instance-based learning algorithms</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Bhattacharya</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Mukherjee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">T</forename><surname>Toussaint</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the First International Conference on Pattern Recognition and Machine Intelligence</title>
+		<meeting>the First International Conference on Pattern Recognition and Machine Intelligence<address><addrLine>Berlin, Heidelberg</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer-Verlag</publisher>
+			<date type="published" when="2005">2005</date>
+			<biblScope unit="page" from="60" to="69" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title level="m" type="main">Application of the gabriel graph to instance based learning</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Mukherjee</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2004">2004</date>
+		</imprint>
+		<respStmt>
+			<orgName>Simon Fraser University</orgName>
+		</respStmt>
+	</monogr>
+	<note type="report_type">Ph.D. dissertation</note>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Distilling the knowledge in a neural network</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Hinton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Vinyals</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Dean</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">NIPS Deep Learning and Representation Learning Workshop</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Rethinking the inception architecture for computer vision</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Szegedy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Vanhoucke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ioffe</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Shlens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Wojna</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR)</title>
+		<meeting>the 2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR)<address><addrLine>Washington, DC, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>IEEE Computer Society</publisher>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="2818" to="2826" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<title level="m" type="main">Knowledge distillation in generations: More tolerant teachers educate better students</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Xie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Qiao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">L</forename><surname>Yuille</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1805.05551</idno>
+		<ptr target="https://arxiv.org/pdf/1805.05551.pdf" />
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">When does label smoothing help</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Müller</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Kornblith</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Hinton</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 33rd Conference on Neural Information Processing Systems</title>
+		<meeting>the 33rd Conference on Neural Information Processing Systems<address><addrLine>Cambridge, MA, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>MIT Press</publisher>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Revisiting knowledge distillation via label smoothing regularization</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Yuan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">E</forename><surname>Tay</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Feng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2020 IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops (CVPRW)</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<title level="m" type="main">Label refinery: Improving imagenet classification through label progression</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Bagherinezhad</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Horton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Rastegari</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Farhadi</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1805.02641</idno>
+		<ptr target="https://arxiv.org/abs/1805.02641" />
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Using a neural network to approximate an ensemble of classifiers</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zeng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Martinez</surname></persName>
+		</author>
+		<idno type="DOI">10.1023/A:1026530200837</idno>
+		<ptr target="https://doi.org/10.1023/A:1026530200837" />
+	</analytic>
+	<monogr>
+		<title level="j">Neural Processing Letters</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="225" to="237" />
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<monogr>
+		<title level="m" type="main">Zero-shot knowledge distillation in deep networks</title>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">K</forename><surname>Nayak</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">R</forename><surname>Mopuri</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Shaj</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">V</forename><surname>Babu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Chakraborty</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1905.08114</idno>
+		<ptr target="https://arxiv.org/abs/1905.08114" />
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<monogr>
+		<title level="m" type="main">Knowledge distillation from internal representations</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Aguilar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Ling</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Yao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Xing</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Fan</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Guo</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1910.03723</idno>
+		<ptr target="https://arxiv.org/abs/1910.03723" />
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<monogr>
+		<title level="m" type="main">Explaining knowledge distillation by quantifying the knowledge</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Cheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Rao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Zhang</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2003.03622</idno>
+		<ptr target="https://arxiv.org/pdf/2003.03622.pdf" />
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Transactional compatible representations for high value client identification: A financial case study</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Unceta</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Nin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Pujol</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Complex Networks XI: Proceedings of the 11th Conference on Complex Networks CompleNet 2020</title>
+		<meeting><address><addrLine>Berlin, Heidelberg</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page" from="334" to="345" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<monogr>
+		<title level="m" type="main">Copying machine learning classifiers</title>
+		<idno type="arXiv">arXiv:1903.01879</idno>
+		<ptr target="https://arxiv.org/abs/1903.01879" />
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Towards global explanations for credit risk scoring</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Unceta</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Nin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Pujol</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Workshop on Challenges and Opportunities for AI in Financial Services: the Impact of Fairness, Explainability, Accuracy, and Privacy (FEAP-AI4Fin)</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Tensorflow: A system for large-scale machine learning</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Abadi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Barham</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Davis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Dean</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Devin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ghemawat</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Irving</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Isard</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 12th {USENIX} Symposium on Operating Systems Design and Implementation</title>
+		<meeting>the 12th {USENIX} Symposium on Operating Systems Design and Implementation</meeting>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="265" to="283" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Automatic differentiation in pytorch</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Paszke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Gross</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Chintala</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Chanan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Devito</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Desmaison</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Antiga</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Lerer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 32th International Conference on Neural Information Processing Systems</title>
+		<meeting>the 32th International Conference on Neural Information Processing Systems<address><addrLine>Red Hook, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>Curran Associates, Inc</publisher>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="8024" to="8035" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Using copies to remove sensitive data: A case study on fair superhero alignment prediction</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Unceta</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Nin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Pujol</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Pattern Recognition and Image Analysis</title>
+		<title level="s">Lecture Notes in Computer Science</title>
+		<meeting><address><addrLine>Berlin, Heidelberg</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2019">2019. 2019</date>
+			<biblScope unit="volume">11867</biblScope>
+			<biblScope unit="page" from="182" to="193" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">From batch to online learning using copies</title>
+		<ptr target="http://ebooks.iospress.nl/volumearticle/52828" />
+	</analytic>
+	<monogr>
+		<title level="m">Artificial Intelligence Research and Development</title>
+		<meeting><address><addrLine>Amsterdam, Netherlands</addrLine></address></meeting>
+		<imprint>
+			<publisher>IOS press</publisher>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="volume">319</biblScope>
+			<biblScope unit="page" from="125" to="134" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Patient-driven privacy control through generalized distillation</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Celik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Lopez-Paz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Mcdaniel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2017 IEEE Symposium on Privacy-Aware Computing</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="1" to="12" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Private model compression via knowledge distillation</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Bao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Cao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">S</forename><surname>Yu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 33rd AAAI Conference on Artificial Intelligence</title>
+		<meeting>the 33rd AAAI Conference on Artificial Intelligence</meeting>
+		<imprint>
+			<publisher>AAAI Press</publisher>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="1190" to="1198" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

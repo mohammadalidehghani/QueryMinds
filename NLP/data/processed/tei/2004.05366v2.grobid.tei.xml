@@ -1,0 +1,1207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">In-Machine-Learning Database: Reimagining Deep Learning with Old-School SQL</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2020-04-14">14 Apr 2020</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Len</forename><surname>Du</surname></persName>
+							<email>len.du@anu.edu.au</email>
+							<affiliation key="aff0">
+								<orgName type="institution">Australian National University</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main">In-Machine-Learning Database: Reimagining Deep Learning with Old-School SQL</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2020-04-14">14 Apr 2020</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">3B4C7B80B47BA4CD3606E36CFD687844</idno>
+					<idno type="arXiv">arXiv:2004.05366v2[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>In-database machine learning has been very popular, almost being a cliche. However, can we do it the other way around? In this work, we say yes by applying plain old SQL to deep learning, in a sense implementing deep learning algorithms with SQL.</p><p>Most deep learning frameworks, as well as generic machine learning ones, share a de facto standard of multidimensional array operations, underneath fancier infrastructure such as automatic differentiation. As SQL tables can be regarded as generalisations of (multi-dimensional) arrays, we have found a way to express common deep learning operations in SQL, encouraging a different way of thinking and thus potentially novel models. In particular, one of the latest trend in deep learning was the introduction of sparsity in the name of graph convolutional networks, whereas we take sparsity almost for granted in the database world.</p><p>As both databases and machine learning involve transformation of datasets, we hope this work can inspire further works utilizing the large body of existing wisdom, algorithms and technologies in the database field to advance the state of the art in machine learning, rather than merely integerating machine learning into databases.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.">INTRODUCTION</head><p>Both machine learning and databases obviously involve transformation of (or computation over) collections of numbers. Combining the two fields is then an obvious conclusion. But the way of such fusion seems to have been unilateral. Much more effort has been spent towards providing machine learning capabilities in a database context, or so-called In-Database Machine Learning <ref type="bibr" target="#b18">[18]</ref>, compared to integeration in the opposite direction, which we call In-Machine-Learning Database.</p><p>We speculate that the connotation of databases has been more towards systems than towards algorithms, compared to that of machine learning, making it seemingly more natural to apply the latter to the former. Modern machine learning, in particular deep learning, has been growing into expansive software systems as well, which suggests us to seriously consider the reverse.</p><p>In this work we get back at the basic (or not so basic) notion of transforming collections of numbers and try substituting the typical operations in machine learning with the most prominent tool in databases, i.e. SQL, to see whatever novel we can find under this different perspective.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.">RELATED WORK</head><p>In this section, we review some representative works connecting the two fields of machine learning (in particular, deep learning) and databases, so that we can position this work properly in the whole data science landscape. In particular, reviewing these works helps us with a bird's-eye view of why the relational model, having been ubiquitous in databases since the beginning of the field, should still interest those at the tip of deep learning research.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">Machine Learning in Databases</head><p>MADlib <ref type="bibr" target="#b10">[10]</ref> is probably the apex of the classical approach where machine learning subroutines are provided as blackboxes in SQL. MADlib also focuses on conventional machine learning rather than deep learning.</p><p>SciDB <ref type="bibr" target="#b30">[30,</ref><ref type="bibr" target="#b29">29]</ref> substitutes relational tables with multidimensional arrays. In-database linear algebra and analytics can then be added, resulting in a crossover between a numerical library and a database.</p><p>Tensor-Relational Model <ref type="bibr" target="#b14">[14]</ref> is an elaborated treatise on the role of multidimensional arrays in relational databases.</p><p>MLog <ref type="bibr" target="#b18">[18]</ref> provides a domain-specific language designed for deep learning. The MLog language is integerated into RDBMS by mixing with SQL. It operates on multidimensional arrays (tensors) rather than relational tables. The implementation compiles MLog into TensorFlow <ref type="bibr" target="#b1">[1]</ref> programs.</p><p>In <ref type="bibr" target="#b25">[25]</ref>, array operations, automatic differentiation and gradient descent are implemented via SQL extensions. <ref type="bibr" target="#b33">[33]</ref> envisioned some possible ways to enhance database functionality with deep learning, beyond ease of access of deep learning in databases.</p><p>A strong argument favouring in-database machine learning is that databases are often mature distributed systems, so distributed machine learning would supposedly require little extra effort on the user in a database setting. <ref type="bibr" target="#b20">[20]</ref> explores such a setting.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">Database Functionality in General Machine</head><p>Learning Settings</p><p>Despite claimed as an in-database framework, AIDA <ref type="bibr" target="#b5">[5,</ref><ref type="bibr" target="#b4">4]</ref> provides a client interface to a SQL server in the Python language, which is the de facto standard in the machine learning world, AIDA also shifts some of the computation to the server side, or more precisely, a Python interpreter embedded in the database server. So AIDA is best understood as implementing (low-level computation of) machine learning in a database, and then providing the augmented database to machine learning to the user.</p><p>ML2SQL <ref type="bibr" target="#b26">[26,</ref><ref type="bibr" target="#b27">27]</ref> compiles a unified declarative domainspecific language to both database operations in SQL and ML-style array operations in python.</p><p>SystemML <ref type="bibr" target="#b3">[3]</ref> and its successor SystemDS <ref type="bibr" target="#b2">[2]</ref> also provide a unified language, but they use non-relational databases.</p><p>TensorLog <ref type="bibr" target="#b12">[12]</ref> implements probabilistic logic, essential to probabilistic databases, over typical deep learning infrastructure.</p><p>In addition to machine learning in databases, <ref type="bibr" target="#b33">[33]</ref> also envisions providing system-level facilities and distributed computation developed in the database community to deep learning.</p><p>Finally, the Pandas <ref type="bibr" target="#b19">[19]</ref> library familiar to data scientist already provides some essential relational functionalities such as JOIN and SELECT.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3">Neural Networks Designed for Relational Models</head><p>There are also neural networks specifically designed for learning relations. <ref type="bibr" target="#b32">[32]</ref> summerizes very well the effort in this regard before the "deep learning takeover", including Graph Neural Networks (GNN) <ref type="bibr" target="#b23">[23]</ref>, and Relational Neural Networks <ref type="bibr" target="#b31">[31]</ref>.</p><p>In the more recent surge of deep learning, <ref type="bibr" target="#b22">[22]</ref> explores a general deep learning architecture whose outputs are relations, with applications to understanding scenes. <ref type="bibr" target="#b21">[21]</ref> combines relational reasoning with recurrent neural networks. <ref type="bibr" target="#b35">[35]</ref> further applies the architecture in <ref type="bibr" target="#b22">[22]</ref> to complex reinforcement learning tasks. <ref type="bibr" target="#b13">[13]</ref> employs a modified logistic regression over hidden layers to learn relations. Lifted Relational Neural Networks <ref type="bibr" target="#b28">[28]</ref> combines first-order logic with neural networks to learn relational structures.</p><p>Note that all of these models designed to learn relations, while worth mentioning, overlap little with our claim that relational-model-based SQL can be used as building blocks for general deep learning.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.4">Relational Models versus Graph Convolutional Networks</head><p>Even being the "fanciest of the fanciest" topic in Machine Learning, Graph convolutional network <ref type="bibr" target="#b16">[16]</ref> (GCN) can't escape the link to relational models <ref type="bibr" target="#b24">[24]</ref>. <ref type="bibr" target="#b22">[22]</ref> advocates relating relational models and graph convolutional networks, as well as deep learning in general, with extensive review.</p><p>One interesting fact about GCNs is that GPUs no longer make the usual vast speedups. Even without consideration of relations, GPUs failed to accelerate beyond one order of magnitude <ref type="bibr" target="#b16">[16]</ref>. We speculate that it is something inherent given the underlying sparsity, posing the same challenge to deep learning and databases alike.</p><p>Apparently, edges of graphs are relations. But relations are not always edges -they could be hyperedges! From the point of view of the relational people, it is really a nobrainer that we could have hypergraph variants of GCNs. <ref type="bibr" target="#b7">[7]</ref> discusses them without addressing relational models while <ref type="bibr" target="#b34">[34]</ref> and <ref type="bibr" target="#b11">[11]</ref> address both relational models and hypergraph neural networks.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">ARCHITECTURE</head><p>In this part, we give a big picture of our proposed way of doing deep learning with SQL. While the meaning of deep learning may not be exact enough to prevent intentionally creating a counterexample to our arguments, actual instances of deep learning almost universally follow the structures described here, at least in a practical, computational sense. (2) Evaluate ∂{(D, P) ∂P ;</p><p>(3) Update P ; end Algorithm 2: Deep learning control flow that stochastic gradient descent uses network predicting the next symbol given a prefix would be trained with Algorithm 3, in a self-supervised fashion, where the samples are encoded one megasequence of vectors S. Load S ; Initialize P ; while not meeting stopping criteria do (1) Evaluate {(S, P): (1a) Initialize hidden states H ( typically with zeroes ); (1b) for S (embeddings of ) sub-sequence of S do (1b1) Evaluate network output (embeddings of predicted sub-sequence) S and update hidden states H with (S , H) ← f1(S , H, P) ; (1b2) Evaluate per-sub-sequence loss f2(S , S) by comparing prediction S and the corresponding (embeddings of) sub-sequence of S ; end (1c) compute total loss {(S, P) by summing or averaging all per-sub-sequence losses ;</p><p>(2) Evaluate ∂{(S, P) ∂P ;</p><p>(3) Update P ; end (2) Evaluate ∂{(I, P) ∂I ;</p><p>(3) Update I ; end Algorithm 4: Control flow for neural style transfer the content image I and style image I are never modified once loaded. In practice, it is often possible to leave out I in the iterative optimization altogether so long as I is used as the initial value of I <ref type="bibr">[6]</ref>. Adversial example generation, like fast gradient sign attack <ref type="bibr" target="#b9">[9]</ref>, works in a very similar way by perturbing D to maximize {(D, P) in Algorithm 1 rather than perturbing P to minimize it. The phenomenal generative adversarial network (GAN) pipes two ordinary networks with parameter sets P1 and P2 together and run two optimizations in lockstep as shown in Algorithm 5. Function f1 along with parameters P1 is the so-called generator network producing fake samples given noise as input, while the discriminator network with parameters P2 trying work out a score for each of both these fake samples and the real ones given as the training set. Then, one number representing how well the scores separate the two types of samples is summarized from the scores. Finally the two sets of parameters are optimized with respect to this number, albeit with Initialize P1, P2; Load true samples D; while not meeting stopping criteria do</p><p>(1) Evaluate {(D, N , P1, P2) = f2(D, f1(N , P1), P2) where N is some kind of noise ;</p><p>(2) Evaluate ∂{(D, N , P1, P2) ∂P1 and ∂{(D, N , P1, P2) ∂P2 ;</p><p>(3) Update P1 (maximizing) and P2 (minimizing) according to respective gradients; end Algorithm 5: Control flow for generative adversarial networks opposite signs. Surely the order of steps ( <ref type="formula">2</ref>) and (3) does not matter.</p><p>While there could be other ways to code a deep learning program, the pattern is quite clear. The control flows of deep learning programs are relatively simple, whereas the bulk of the effort are distributed to the design of the models, manifesting primarily in Step (1) of each example, among the 3 major steps conveniently partitioned out of the main loops.</p><p>As for Step (2) and ( <ref type="formula">3</ref>), there is a separation of concern here. Pragmatically, a major breakthrough that enabled the explosive progress of deep learning is the automatic differentiation. While still an active field of research, development of new deep learning models can be separated from studying automatic differentiation (Step (2)) itself. We can mix and match different flavors of control flows with different optimization algorithms, or more precisely, different update strategies (Step (3)). While some combinations work better than others, in general inventors of new deep learning models do not concern themselves with which update strategy to pick until tuning the performance of the model.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Tensor to Relations and back again</head><p>Modern deep learning infrastructure has been almost universally built upon array-oriented programming paradigms. In this work, we concern ourselves with expressing the deep learning model { in (a very limited set of) SQL.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.">DL-IN-SQL BY EXAMPLES</head><p>While we are far from a formal proof that SQL can express every possible deep learning model because of the obvious lack of precise definition of the latter, we nevertheless demonstrate how the bread-and-butter constructs of deep learning can be expressed in SQL.</p><p>Here, we use an example deep learning task in stark contrast to typical database-related ones, to demonstrate that our architechture is really geared towards deep learning in general. We will introduce how frequent layers can be cast into SQL along the way. Without further ado, we begin the demonstration.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Image Classifier Convolutional Networks</head><p>In this example, we demonstrate how to specify a convolutional neural network for computer vision in SQL.</p><p>The model takes N sample images together as input, where N varies depending on how the model is used. The model is 𝑁×3×32×32 array (𝑁 sample images) conv1 relu1 𝑁×6×28×28 array 6×3×5×5 array (convolution kernel) 6-element array (biases) 𝑁×6×28×28 array pool1 (2×2) 𝑁×6×14×14 array conv2 16×6×5×5 array (convolution kernel) 16-element array (biases) 𝑁×16×10×10 array relu2 𝑁×16×10×10 array pool2 (2×2) 𝑁×16×5×5 array flatten 𝑁×400 array full-connect-1 120×400 array (weights) 120-element array (biases) 𝑁×120 array relu3 𝑁×120 array full-connect-2 84×120 array (weights) 84-element array (biases) 𝑁×84 array relu4 𝑁×84 array full-connect-3 10×84 array (weights) 10-element array (biases) 𝑁×10 array (prediction scores) 𝑁-element integer array (class labels) cross-entropy loss (scalar) fixed for 10 classes, and 32 × 32 RGB images. Computationally, the neural network displays the structure illustrated in Figure <ref type="figure" target="#fig_0">1</ref>. To make things crystal clear, we have drawn all parameters of the network explicitly, so each step of computation in a box does not contain any states. This is quite different from many illustrations found elsewhere. For instance, in deep learning jargon, the first convolutional layer would conceptually include both conv1 in the box and the two parameter arrays (kernel and biases) marked in blue, usually not shown explicitly in diagrams. Now, we essentially need to express the boxed steps of computation in SQL, with data D in red and paramters P in blue given as SQL tables.</p><p>First and foremost, let us see what we can do with the convolution step conv1 . In the SQL context, we provide the 4-dimensional (N ×3×32×32) array of N sample images as a relation samples with the following 5 columns.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>image, channel, r, c INTEGER val REAL</head><p>The names and types of the columns should be quite selfexplanatory. The column image refers to indices in the first dimension of the original 4D array, taking the values from 0 to (N -1) (inclusive). Similarly, the column channel refers to which one of the three (RGB) channels (2nd dimension), while r and c refer to which row (3rd dimension) and which column (4th dimension) respectively. The column val stores the actual values in the array, obviously.</p><p>Similarly, the the 6×3×5×5 array of the convolution kernel is presented as a relation conv1 weight with 5 columns.</p><p>out channel, in channel, r, c INTEGER weight REAL And the biases to the convolutional layer corresponds to a 2-column relation conv1 bias. out channel INTEGER bias REAL With the input relation ready, we can execute the computation of conv1 with CREATE TABLE commands. We do this in two steps. Firstly, we put the results of the convolution itself into conv1 unbiased. CREATE TABLE conv1_unbiased AS SELECT image , out_channel AS channel , samples .r -conv1_weight . r AS r1 , samples .c -conv1_weight . c AS c1 , SUM ( val * weight ) AS val FROM samples , conv1_weight WHERE channel = in_channel AND r1 BETWEEN 0 AND 32 -5 AND c1 BETWEEN 0 AND 32 -5 GROUP BY image , channel , r1 , c1 ; Then we apply the biases to get conv1 out. CREATE TABLE conv1_out AS SELECT image , channel , r1 AS r , c1 AS c , val + bias AS val FROM conv1_unbiased , conv1_bias WHERE channel = out_channel ; The ReLU layer relu1 is embarrassingly simple to compute. CREATE TABLE relu1_out AS SELECT image , channel , r , c , MAX (0 , val ) AS val FROM conv1_out Executing max-pooling ( pool1 ) is also straight-forward. CREATE TABLE pool1_out AS SELECT image , channel , r /2 AS r , c /2 AS c , MAX ( val ) AS val FROM relu1_out GROUP BY image , channel , r , c ; Now the remaining computation steps up till flatten are almost identical to what we have listed except for table names and array dimensions. We skip them to assume having evaluated the output of pool2 . flatten is almost as simple as ReLU. CREATE TABLE flatten_out AS SELECT image , ( channel * 5 + r )*5+ c AS i , val FROM pool2_out ; A fully-connected layer like fc1 is treated just like a convolution layer, only simpler. The weights and biases are put in the SQL context as fc1_weight with out dim, in dim INTEGER weight REAL and fc1_bias with out dim INTEGER bias REAL . Then we can compute fc1_out by applying weights and biases in two consecutive steps. CREATE TABLE fc1_unbiased AS SELECT image , out_dim AS i , SUM ( val * weight ) AS val FROM flatten_out , fc1_weight WHERE i = in_dim GROUP BY image , out_dim ; CREATE TABLE fc1_out AS SELECT image , i , val + bias AS val FROM fc1_unbiased , fc1_bias WHERE i = out_dim ;</p><p>At this point the computation in SQL up to the output of full-connect-3 should be clear. At this stage we could claim that we have specified the neural network per se. It is enough for executing inference. However for training, we still have to show how to compute cross-entropy .</p><p>Cross-entropy loss for one sample of computed label weights x whose correct label is l is given by loss(x, l) = -x l + log( j exp(xj)) .</p><p>And we choose to compute the loss over the N samples as the mean over each sample. Assume the output of full-connect-3 to be fc3_out.</p><p>First we compute the right side of + with CREATE TABLE x_ent_losses_r AS SELECT image , LOG ( SUM ( EXP ( val ))) AS r FROM fc3_out GROUP BY image ; where LOG() and EXP() are obviously (element-wise) natural logarithm and exponentiation. The left hand side is just selecting one of 10 element, listed as follows list it for clarity. CREATE TABLE x_ent_losses_l AS SELECT fc3_out . image , -val AS l FROM fc3_out , labels WHERE fc3_out . image = labels . image AND i = label ; Then we combine both sides to get loss for each image CREATE TABLE x_ent_losses AS SELECT image , l + r AS val FROM x_ent_losses_l NATURAL JOIN x_ent_losses_r ; 𝑁×𝑀 array (𝑁 flat samples) gc1 relu1 𝑁×𝐻 array 𝑀×𝐻 array (weights) 𝐻-element array (biases) 𝑁×𝐻 array 𝑁×𝐶 array (prediction scores) 𝑁-element integer array (class labels) cross-entropy loss (scalar) 𝑁×𝑁 sparse matrix 𝐴 (adjacency) gc2 𝐻×𝐶 array (weights) 𝐶-element array (biases) Figure 2: Structure of the simple examplar Graph Convolutional Network. Steps of computation are framed , while their inputs and outputs are not. Data (parts of D) are marked in red, while parameters (parts of P) are marked in blue. and then finally the average loss CREATE TABLE x_ent_loss AS SELECT SUM ( val )/ COUNT ( val ) FROM x_ent_losses ; as an 1-row table. Now we have finished specifying a deep learning model entirely in SQL.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Graph Convolutional Network</head><p>Now let us see a baisc Graphan Convolutional Network (GCN) setup in SQL. This GCN is adapted from a simplified version of that in <ref type="bibr" target="#b17">[17]</ref>, as a very neat tutorial provided by the same author <ref type="bibr" target="#b15">[15]</ref>. We further remove the dropout to simplify things, which moderately increases the computation load and slightly increases overfitting while not changing major results.</p><p>The structure of the whole forward computation is as shown in Figure <ref type="figure">2</ref>. This time we assume N samples of M features to be classified into C classes, with one hidden layer of size H in-between. This structure is actually much simpler than the previous example, the only really new things being the Graph Convolutional layers ( gc1 and gc2 ) and the accompanying (N × N ) adjacency matrix A. So we will focus on them.</p><p>From a computational point-of-view, what the Graph Convolutional layer can be considered as two consecutive matrix multiplications plus biasing, despite named convolutional layers. That is, the computation before biasing can be simply expressed as AXW , where X denotes the input of the layer and W denotes the weights. Take gc1 for example, X is an N × M matrix while while W is M × H. Then we can add the biases with Yi,j = (AXW )i,j + Bj , for all i ∈ {1..N }, j ∈ {1..H}, B being the biases of the layer gc1 .</p><p>Now continuing with gc1 , we assume the following tables in the SQL world. samples ( i INTEGER , j INTEGER , val REAL ); gc1_w ( i INTEGER , j INTEGER , weight REAL ); gc1_b ( i INTEGER , bias REAL ); adj ( i INTEGER , j INTEGER , val REAL ); Drawing from previous experience from fully-connected layers, We can easily reproduce the above forward computation in SQL with CREATE TABLE gc1_mid AS SELECT samples . i AS i , gc1_w . j AS j , SUM ( val * weight ) AS val FROM samples , gc1_w WHERE samples . j == gc1_w . i GROUP BY samples .i , gc1_w . j ; for the intermediate matrix product XW , and subsequently CREATE TABLE gc1_out AS SELECT adj . i AS i , gc1_mid . j AS j , SUM ( adj . val * gc1_mid . val ) + bias AS val FROM adj , gc1_mid , gc1_b WHERE adj . j == gc1_mid . i AND gc1_mid . j == gc1_b . i GROUP BY adj .i , gc1_mid . j ;</p><p>for the whole biased output. The symmetric adjacency matrix A has zeroes for pairs of vertices without an edge in-between and non-zeroes for those connected by an edge. Furthermore, the adjacency matrix is row-normalized from a typical adjacency matrix of 0's and 1's. That is, each row sums to either 1 if there are any edges on the vertex or 0 if the vertex is complete isolated. And so does each column because of symmetry.</p><p>The adjacency matrix here is usually a sparse matrix. Or to put it another way, the sparsity is essential to its practical effectiveness, which in turn was probably an important precondition to its current popularity. Yet in the SQL world we do not treat sparsity as something special. Actually we take sparsity for granted. While how to create an implementation running as fast as array-based deep-learning frameworks is no easy task, we already have battle-hardened semantics and standards in the database world.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.">DISCUSSION</head><p>The notion that databases provides the data for dedicated machine learning components to work on has been seldom questioned when unifiying the two fields. But we may as well go to the extent that we build machine learning programs in terms of databases.</p><p>In general, we could consider databases as the most featurerich deep learning framework in the future. We look at databases and we know what can be added to deep learning.</p><p>One often overlooked fact is that datasets are processed as arrays, implying an order while they are not supposed to. Relational algebra and subsequently SQL take care of this automatically.</p><p>The biggest challenge for implementation would be to port automatic differentation to relational algebra. However it could also be implemented over yet another layer of flat array framework with automatic differentiation, treated as some kind of linear memory to sidestep automatic differentiation from the ground up.</p><p>Databases have been dealing with sparse data to begin with. While directly run deep learning in database engine may not be competitive as random access too much to be fast at batch processing, we can certainly continue to bring experience in database to machine learning for a very long time to come. Perhaps when new deep learning models are proposed, the machine learning researchers will find the database community waiting for them.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>3. 1</head><label>1</label><figDesc>The (Usual) Way of Deep learningA deep learning model can usually be regarded as a scalar function {(D, P), where D denotes a set of inputs (data) and P denotes the model parameters. Our hypothetic goal is to find argmin P {(D0, P) where D0 can be interpreted as either the set of all possible inputs or a test set. The global minimization is usually intractable. So the learning process involves some iterative optimization involving the gradients ∂{(D, P) ∂P . The iterative optimization takes the steps shown in Algorithm 1. This is the most basic Load training set as D ; Randomly initialize P ; while not meeting stopping criteria do (1) Evaluate {(D, P) ; (2) Evaluate ∂{(D, P) ∂P (taken care of by automatic differentiation; not necessarily mathematically precise) ; (3) Update P with a new value computed with the old P and ∂{(D, P) ∂P (may carry over state from previous iterations) ; end Algorithm 1: Typical deep learning control flow pattern. Some deep learning algorithms follow alternative versions. In real world scenarios, it is often only possible to train with stochastic gradient descent which follows the general pattern outlined in Algorithm 2, where only a subset of D is picked for training each iteration. A recurrent neural Load D ; Initialize P ; while not meeting stopping criteria do (1) Evaluate {(D , P) where D ∈ D (chosen per iteration) ;</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Algorithm 3 :</head><label>3</label><figDesc>Control flow for training recurrent neural networksEven unconventional uses of deep learning are not so unconventional in terms of control flows. Neural style transfer<ref type="bibr" target="#b8">[8]</ref> follows the pattern in Algorithm 4, essentially just switching the argument in Algorithm 1 from P to D. Note that Load content image I and style image I ; Initialize image I ( maybe randomly but usually I ← I ); Load (pre-trained) P ; while not meeting stopping criteria do(1) Evaluate {(I, I , I , P) ;</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Structure of the CNN for classifying images. Steps of computation are framed , while their inputs and outputs are not. Data (parts of D) are marked in red, while parameters (parts of P) are marked in blue.</figDesc></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title/>
+		<author>
+			<persName><surname>References</surname></persName>
+		</author>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">TensorFlow: Large-scale machine learning on heterogeneous systems</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Abadi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Agarwal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Barham</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Brevdo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Citro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">S</forename><surname>Corrado</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Davis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Dean</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Devin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ghemawat</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Harp</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Irving</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Isard</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Jia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Jozefowicz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Kaiser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kudlur</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Levenberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Mané</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Monga</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Moore</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Murray</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Olah</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Schuster</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Shlens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Steiner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Sutskever</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Talwar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Tucker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Vanhoucke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Vasudevan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Viégas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Vinyals</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Warden</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Wattenberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Wicke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zheng</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+	<note>Software available from tensorflow.org</note>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<title level="m" type="main">Systemds: A declarative machine learning system for the end-to-end data science lifecycle</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Boehm</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Antonov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Dokter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Ginthoer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Innerebner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Klezin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Lindstaedt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Phani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Rath</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Systemml: Declarative machine learning on spark</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Boehm</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">W</forename><surname>Dusenberry</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Eriksson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">V</forename><surname>Evfimievski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">M</forename><surname>Manshadi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Pansare</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Reinwald</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">R</forename><surname>Reiss</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Sen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">C</forename><surname>Surve</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the VLDB Endowment</title>
+		<meeting>the VLDB Endowment</meeting>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="page" from="1425" to="1436" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Aida: abstraction for advanced in-database analytics</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">V</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">De</forename><surname>Moor</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Kemme</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the VLDB Endowment</title>
+		<meeting>the VLDB Endowment</meeting>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="page" from="1400" to="1413" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Making an RDBMS data scientist friendly: Advanced in-database interactive analytics with visualization support</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">V</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">De</forename><surname>Moor</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Kemme</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">PVLDB</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="issue">12</biblScope>
+			<biblScope unit="page" from="1930" to="1933" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">How much deep learning does neural style transfer really need? an ablation study</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Du</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">The IEEE Winter Conference on Applications of Computer Vision (WACV)</title>
+		<imprint>
+			<date type="published" when="2020-03">March 2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Hypergraph neural networks</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Feng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>You</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Ji</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Gao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the AAAI Conference on Artificial Intelligence</title>
+		<meeting>the AAAI Conference on Artificial Intelligence</meeting>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="volume">33</biblScope>
+			<biblScope unit="page" from="3558" to="3565" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Image style transfer using convolutional neural networks</title>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">A</forename><surname>Gatys</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">S</forename><surname>Ecker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Bethge</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition</title>
+		<meeting>the IEEE Conference on Computer Vision and Pattern Recognition</meeting>
+		<imprint>
+			<date type="published" when="2016-06">Jun 2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<title level="m" type="main">Explaining and harnessing adversarial examples</title>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">J</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Shlens</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Szegedy</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1412.6572</idno>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">The madlib analytics library</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">M</forename><surname>Hellerstein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Ré</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Schoppmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">Z</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Fratkin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gorajek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">S</forename><surname>Ng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Welton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Feng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Li</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the VLDB Endowment</title>
+		<meeting>the VLDB Endowment</meeting>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="volume">5</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Dynamic hypergraph neural networks</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Jiang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Wei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Feng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Cao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Gao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 28th International Joint Conference on Artificial Intelligence</title>
+		<meeting>the 28th International Joint Conference on Artificial Intelligence</meeting>
+		<imprint>
+			<publisher>AAAI Press</publisher>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="2635" to="2641" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Tensorlog: Deep learning meets probabilistic databases</title>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">W C F Y</forename><surname>Kathryn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Mazaitis</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Artificial Intelligence Research</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="page" from="1" to="15" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Relnn: A deep neural model for relational learning</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">M</forename><surname>Kazemi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Poole</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Thirty-Second AAAI Conference on Artificial Intelligence</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title level="m" type="main">TensorDB and tensor-relational model (TRM) for efficient tensor-relational operations</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kim</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+		<respStmt>
+			<orgName>Arizona State University</orgName>
+		</respStmt>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">N</forename><surname>Kipf</surname></persName>
+		</author>
+		<ptr target="https://github.com/tkipf/pygcn" />
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<monogr>
+		<title level="m" type="main">Semi-supervised classification with graph convolutional networks</title>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">N</forename><surname>Kipf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Welling</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<title level="m" type="main">Semi-supervised classification with graph convolutional networks</title>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">N</forename><surname>Kipf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Welling</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1609.02907</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Towards declarative in-database machine learning</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Cui</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Mlog</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the VLDB Endowment</title>
+		<meeting>the VLDB Endowment</meeting>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="page" from="1933" to="1936" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Data structures for statistical computing in python</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Mckinney</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 9th Python in Science Conference</title>
+		<editor>
+			<persName><forename type="first">S</forename><surname>Van Der Walt</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">J</forename><surname>Millman</surname></persName>
+		</editor>
+		<meeting>the 9th Python in Science Conference</meeting>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+			<biblScope unit="page" from="51" to="56" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">In-database distributed machine learning: Demonstration using teradata sql engine</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">S</forename><surname>Sandha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Cabrera</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Al-Kateb</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Nair</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Srivastava</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. VLDB Endow</title>
+		<meeting>VLDB Endow</meeting>
+		<imprint>
+			<date type="published" when="2019-08">Aug. 2019</date>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page">18541857</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Relational recurrent neural networks</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Santoro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Faulkner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Raposo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Rae</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Chrzanowski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Weber</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wierstra</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Vinyals</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Pascanu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Lillicrap</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in neural information processing systems</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="7299" to="7310" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">A simple neural network module for relational reasoning</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Santoro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Raposo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">G</forename><surname>Barrett</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Malinowski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Pascanu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Battaglia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Lillicrap</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<editor>
+			<persName><forename type="first">I</forename><surname>Guyon</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">U</forename><forename type="middle">V</forename><surname>Luxburg</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">S</forename><surname>Bengio</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">H</forename><surname>Wallach</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">R</forename><surname>Fergus</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">S</forename><surname>Vishwanathan</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">R</forename><surname>Garnett</surname></persName>
+		</editor>
+		<imprint>
+			<publisher>Curran Associates, Inc</publisher>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="volume">30</biblScope>
+			<biblScope unit="page" from="4967" to="4976" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">The graph neural network model</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Scarselli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Gori</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">C</forename><surname>Tsoi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Hagenbuchner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Monfardini</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Neural Networks</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="61" to="80" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Modeling relational data with graph convolutional networks</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Schlichtkrull</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">N</forename><surname>Kipf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Bloem</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Van Den</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Berg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Titov</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Welling</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">European Semantic Web Conference</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="593" to="607" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">In-database machine learning: Gradient descent and tensor algebra for main memory database systems</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Schüle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Simonis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Heyenbrock</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kemper</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Günnemann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Neumann</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">BTW</title>
+		<imprint>
+			<date type="published" when="2019">2019. 2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Ml2sql -compiling a declarative machine learning language to sql and python</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">E</forename><surname>Schüle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Bungeroth</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Vorona</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kemper</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Günnemann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Neumann</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">EDBT</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<monogr>
+		<title level="m" type="main">Mlearn: A declarative machine learning language for database systems</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Schle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Bungeroth</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kemper</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Gnnemann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Neumann</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">1-4, 06 2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Lifted relational neural networks: Efficient learning of latent relational structures</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Sourek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Aschenbrenner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Zelezny</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Schockaert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Kuzelka</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Artificial Intelligence Research</title>
+		<imprint>
+			<biblScope unit="volume">62</biblScope>
+			<biblScope unit="page" from="69" to="100" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Scidb: A database management system for applications with complex analytics</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Stonebraker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Brown</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Becla</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computing in Science and Engg</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page">5462</biblScope>
+			<date type="published" when="2013-05">May 2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">The architecture of scidb</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Stonebraker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Brown</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Poliakov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Raman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 23rd International Conference on Scientific and Statistical Database Management</title>
+		<meeting>the 23rd International Conference on Scientific and Statistical Database Management<address><addrLine>Berlin, Heidelberg</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer-Verlag</publisher>
+			<date type="published" when="2011">2011</date>
+			<biblScope unit="volume">11</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Classifying relational data with neural networks</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Uwents</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Blockeel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Inductive Logic Programming</title>
+		<editor>
+			<persName><forename type="first">S</forename><surname>Kramer</surname></persName>
+		</editor>
+		<editor>
+			<persName><forename type="first">B</forename><surname>Pfahringer</surname></persName>
+		</editor>
+		<meeting><address><addrLine>Berlin, Heidelberg; Berlin Heidelberg</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2005">2005</date>
+			<biblScope unit="page" from="384" to="396" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Neural networks for relational learning: an experimental comparison</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Uwents</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Monfardini</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Blockeel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Gori</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Scarselli</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning</title>
+		<imprint>
+			<date type="published" when="2011">03 2011</date>
+			<biblScope unit="volume">82</biblScope>
+			<biblScope unit="page" from="315" to="349" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Database meets deep learning: Challenges and opportunities</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Jagadish</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">C</forename><surname>Ooi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K.-L</forename><surname>Tan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM SIGMOD Record</title>
+		<imprint>
+			<biblScope unit="volume">45</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="17" to="22" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">Hypergcn: A new method for training graph convolutional networks on hypergraphs</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Yadati</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Nimishakavi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Yadav</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Nitin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Louis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Talukdar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="1509" to="1520" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Deep reinforcement learning with relational inductive biases</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Zambaldi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Raposo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Santoro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Bapst</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Babuschkin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Tuyls</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Reichert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Lillicrap</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Lockhart</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Shanahan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Langston</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Pascanu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Botvinick</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Vinyals</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Battaglia</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Learning Representations</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

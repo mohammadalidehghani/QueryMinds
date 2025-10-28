@@ -1,0 +1,1351 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">An Introduction to MM Algorithms for Machine Learning and Statistical Estimation</title>
+				<funder>
+					<orgName type="full">ARC</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2016-11-12">November 12, 2016</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Hien</forename><forename type="middle">D</forename><surname>Nguyen</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">School of Mathematics and Physics</orgName>
+								<orgName type="institution">University of Queensland</orgName>
+								<address>
+									<settlement>St. Lucia</settlement>
+								</address>
+							</affiliation>
+							<affiliation key="aff1">
+								<orgName type="department">Centre for Advanced Imaging</orgName>
+								<orgName type="institution">University of Queensland</orgName>
+								<address>
+									<settlement>St. Lucia</settlement>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">An Introduction to MM Algorithms for Machine Learning and Statistical Estimation</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2016-11-12">November 12, 2016</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">2ADAE6C546C1AB4D6982D6EA49768C7E</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>MM (majorization-minimization) algorithms are an increasingly popular tool for solving optimization problems in machine learning and statistical estimation. This article introduces the MM algorithm framework in general and via three popular example applications: Gaussian mixture regressions, multinomial logistic regressions, and support vector machines. Specific algorithms for the three examples are derived and numerical demonstrations are presented. Theoretical and practical aspects of MM algorithm design are discussed.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Let X ∈ X ⊂ R p and Y ∈ Y ⊂ R q be random variables, which we shall refer to as the input and target variables, respectively. We shall denote a sample of n independent and identically distributed (IID) pairs of variables D = {(X i , Y i )} n i=1 1 arXiv:1611.03969v1 <ref type="bibr">[stat.CO]</ref> 12 Nov 2016 as the data, and D = {(x i , y i )} n i=1 as an observed realization of the data. Under the empirical risk minimization (ERM) framework of <ref type="bibr">Vapnik (1998, Ch. 1)</ref> or the extremum estimation (EE) framework of <ref type="bibr">Amemiya (1985, Ch. 4</ref>), a large number of machine learning and statistical estimation problems can be phrased as the computation of</p><formula xml:id="formula_0">min θ∈Θ R θ; D or θ = arg min θ∈Θ R θ; D ,<label>(1)</label></formula><p>where R θ; D is a risk function defined over the observed data D and is dependent on some parameter θ ∈ Θ.</p><p>Common risk functions that are used in practice are the negative log-likelihood functions, which can be expressed as When Y = {-1, 1}, a common problem in machine learning is to construct a classification function f (x i ; θ) that minimizes the classification (0-1) risk</p><formula xml:id="formula_1">R θ; D = - 1 n n i=1 log f (x i , y i ; θ) ,</formula><formula xml:id="formula_2">R θ; D = 1 n n i=1 I {y i = f (x i ; θ)} ,</formula><p>where f : X → Y and I {A} = 1 if proposition A is true and 0 otherwise. Unfortunately, the form of the classification risk is combinatorial and thus necessitates the use of surrogate classification risks of the form</p><formula xml:id="formula_3">R θ; D = 1 n n i=1 ψ (x i , y i , f (x i ; θ)) ,</formula><p>where ψ : R p ×{-1, 1} 2 → [0, ∞) and ψ (x, y, y) = 0 for all x and y [cf. <ref type="bibr">Scholkopf &amp; Smola (2002, Def. 3.1)</ref>]. An example of a machine learning algorithm that minimizes a surrogate classification risk is the support vector machine (SVM)</p><p>of <ref type="bibr" target="#b11">Cortes &amp; Vapnik (1995)</ref>. The linear-basis SVM utilizes a surrogate risk function, where ψ (x, y, f (x; θ)) = max {0, 1yf (x; θ)}is the hinge loss function,</p><formula xml:id="formula_4">f (x; θ) = α + β x, and θ = α, β ∈ Θ ⊂ R p+1 .</formula><p>The task of computing (1) may be complicated by various factors that fall outside the scope of the traditional calculus formulation for optimization [cf. <ref type="bibr">Khuri (2003, Ch. 7)</ref>]. Such factors include the lack of differentiability of R or difficulty in obtaining closed-form solutions to the first-order condition (FOC) equation ∇ θ R = 0, where ∇ θ is the gradient operator with respect to θ, and 0 is a zero vector.</p><p>The MM (majorization-minimization) algorithm framework is a unifying paradigm for simplifying the computation of (1) when difficulties arise, via iterative minimization of surrogate functions. MM algorithms are particularly attractive due to the monotonicity and thus stability of their objective sequences as well as global convergence of their limits, in general settings.</p><p>A comprehensive treatment on the theory and implementation of MM algorithms can be found in <ref type="bibr" target="#b30">Lange (2016)</ref>. Summaries and tutorials on MM algorithms for various problems can be found in <ref type="bibr" target="#b2">Becker et al. (1997)</ref>, <ref type="bibr" target="#b25">Hunter &amp; Lange (2004)</ref>, <ref type="bibr">Lange (2013, Ch. 8)</ref>, <ref type="bibr" target="#b31">Lange et al. (2000)</ref>, <ref type="bibr">Lange et al. (2014)</ref>, <ref type="bibr">McLachlan &amp; Krishnan (2008, Sec. 7</ref>.7), <ref type="bibr" target="#b60">Wu &amp;</ref><ref type="bibr">Lange (2010), and</ref><ref type="bibr">Zhou et al. (2010)</ref>. Some theoretical analyses of MM algorithms can be found in de Leeuw &amp; <ref type="bibr" target="#b13">Lange (2009)</ref>, <ref type="bibr">Lange (2013, Sec. 12.4)</ref>, <ref type="bibr" target="#b35">Mairal (2015), and</ref><ref type="bibr" target="#b57">Vaida (2005)</ref>.</p><p>It is known that MM algorithms are generalizations of the EM (expectationmaximization) algorithms of <ref type="bibr" target="#b15">Dempster et al. (1977)</ref> [cf. <ref type="bibr">Lange (2013, Ch. 9)</ref>].</p><p>The recently established connection between MM algorithms and the successive upper-bound maximization (SUM) algorithms of <ref type="bibr" target="#b54">Razaviyayn et al. (2013)</ref> further shows that the MM algorithm framework also covers the concave-convex procedures <ref type="bibr" target="#b61">[Yuille &amp; Rangarajan (2003)</ref>; CCCP], proximal algorithms <ref type="bibr" target="#b51">(Parikh &amp; Boyd, 2013)</ref>, forward-backward splitting algorithms <ref type="bibr" target="#b10">[Combettes &amp; Pesquet (2011)</ref>; FBS], as well as various incarnations of iteratively-reweighed leastsquares algorithms (IRLS) such as those of <ref type="bibr" target="#b2">Becker et al. (1997)</ref> and <ref type="bibr" target="#b31">Lange et al. (2000)</ref>; see <ref type="bibr" target="#b22">Hong et al. (2016)</ref> for details.</p><p>It is not possible to provide a complete list of applications of MM algorithms to machine learning, statistical estimation, and signal processing problems. We present a comprehensive albeit incomplete summary of applications of MM algorithms in Table <ref type="table">1</ref>. Further examples and references can be found in <ref type="bibr" target="#b22">Hong et al. (2016)</ref> and <ref type="bibr" target="#b30">Lange (2016)</ref>.</p><p>In this article, we will present the MM algorithm framework via applications to three examples that span the scope of statistical estimation and machine learning problems: Gaussian mixtures of regressions (GMR), multinomiallogistic regressions (MLR), and SVM estimations. The three estimation prob-Table <ref type="table">1</ref>: MM algorithm applications and references.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Application</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>References</head><p>Bradley-Terry models estimation <ref type="bibr" target="#b23">(Hunter, 2004;</ref><ref type="bibr" target="#b31">Lange et al., 2000)</ref> Convex and shape-restricted regressions <ref type="bibr">(Chi et al., 2014)</ref> Dirichlet-multinomial distributions estimation <ref type="bibr">(Zhou &amp; Lange, 2010;</ref><ref type="bibr" target="#b64">Zhou &amp; Zhang, 2012)</ref> Elliptical symmetric distributions estimation <ref type="bibr" target="#b2">(Becker et al., 1997)</ref> Fully-visible Boltzmann machines estimation <ref type="bibr" target="#b50">(Nguyen &amp; Wood, 2016)</ref> Gaussian mixtures estimation <ref type="bibr" target="#b45">(Nguyen &amp; McLachlan, 2015)</ref> Geometric and sigmoidal programming <ref type="bibr">(Lange &amp; Zhou, 2014)</ref> Heteroscedastic regressions <ref type="bibr" target="#b12">(Daye et al., 2012;</ref><ref type="bibr" target="#b46">Nguyen et al., 2016a)</ref> Laplace regression models estimation <ref type="bibr" target="#b46">(Nguyen &amp; McLachlan, 2016a;</ref><ref type="bibr">Nguyen et al., 2016b)</ref> Least <ref type="bibr" target="#b2">(Becker et al., 1997;</ref><ref type="bibr" target="#b31">Lange et al., 2000)</ref> Linear mixed models estimation <ref type="bibr">(Lange et al., 2014)</ref> Logistic and multinomial regressions <ref type="bibr" target="#b6">(Bohning &amp; Lindsay, 1988;</ref><ref type="bibr" target="#b5">Bohning, 1992)</ref> Markov random field estimation <ref type="bibr">(Nguyen et al., 2016c)</ref> Matrix completion and imputation <ref type="bibr" target="#b36">(Mazumder et al., 2010;</ref><ref type="bibr">Lange et al., 2014)</ref> Mixture of experts models estimation <ref type="bibr" target="#b44">(Nguyen &amp; McLachlan, 2014</ref><ref type="bibr" target="#b46">, 2016a)</ref> Multidimensional scaling <ref type="bibr" target="#b31">(Lange et al., 2000)</ref> Multivariate t distributions estimation <ref type="bibr" target="#b60">(Wu &amp; Lange, 2010)</ref> Non-negative matrix factorization <ref type="bibr" target="#b34">(Lee &amp; Seung, 1999)</ref> Poisson regression estimation <ref type="bibr" target="#b31">(Lange et al., 2000)</ref> Point to set minimization problems <ref type="bibr">(Chi &amp; Lange, 2014;</ref><ref type="bibr">Chi et al., 2014)</ref> Polygonal distributions estimation <ref type="bibr">(Nguyen &amp; McLachlan, 2016b)</ref> Quantile regression estimation <ref type="bibr">(Hunter &amp; Lange, 2000)</ref> SVM estimation <ref type="bibr" target="#b13">(de Leeuw &amp; Lange, 2009;</ref><ref type="bibr" target="#b60">Wu &amp; Lange, 2010)</ref> Transmission tomography image reconstruction <ref type="bibr" target="#b14">(De Pierro, 1993;</ref><ref type="bibr" target="#b2">Becker et al., 1997)</ref> Variable selection in regression via regularization <ref type="bibr" target="#b26">(Hunter &amp; Li, 2005;</ref><ref type="bibr">Lange et al., 2014)</ref> lems will firstly be presented in Section 2. The MM algorithm framework will be presented in Section 3 along with some theoretical results. MM algorithms for the three estimation problems are presented in Section 4. Numerical demonstrations of the MM algorithms are presented in Section 5. Conclusions are then drawn in Section 6.</p><formula xml:id="formula_5">|•| d -norm regressions</formula><p>2 Example problems</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">Gaussian mixture of regressions</head><p>Let X arise from a distribution with unknown density function f X (x), which does not depend on the parameter θ (X can be non-stochastic). Conditioned </p><formula xml:id="formula_6">f Y |X,c (y|x; B c , Σ c ) = φ (y; B c x, Σ c ) ,<label>(2)</label></formula><p>where B c ∈ R q×p , Σ c is a positive-definite q × q matrix covariance matrix, and</p><formula xml:id="formula_7">φ (y; µ, Σ) = (2π) -d/2 |Σ| -1/2 exp - 1 2 (y -µ) Σ (y -µ)<label>(3)</label></formula><p>is the multivariate Gaussian distribution with mean vector µ and covariance matrix Σ. The conditional (in Z) characterization (2) leads to the marginal characterization</p><formula xml:id="formula_8">f Y |X (y|x; θ) = g c=1 π c φ (y; B c x, Σ c ) ,<label>(4)</label></formula><p>where θ contains the parameter elements π c , B c , and Σ c , for c ∈ [g]. We refer to the characterization (4) as the GMR model.</p><p>The GMR model was first proposed by <ref type="bibr" target="#b52">Quandt (1972)</ref> for the q = 1 case and an EM algorithm for the same case was proposed in <ref type="bibr" target="#b16">DeSarbo &amp; Cron (1988)</ref>. To the best of our knowledge, the general multivariate case (q &gt; 1)</p><p>of characterization 4 was first considered in <ref type="bibr" target="#b27">Jones &amp; McLachlan (1992)</ref>. See <ref type="bibr" target="#b39">McLachlan &amp; Peel (2000)</ref> regarding mixture models in general.</p><p>Given data D, the estimation of a GMR model requires the minimization of the negative log-likelihood risk</p><formula xml:id="formula_9">R θ; D = - 1 n n i=1 log f Y |X (y i |x i ; θ) = - 1 n n i=1 log g c=1 π c φ (y i ; B c x i , Σ c ) .<label>(5)</label></formula><p>The difficulty with computing (1) for ( <ref type="formula" target="#formula_9">5</ref>) arises due to the lack of a closedform solution to the FOC equation ∇ θ R = 0. This is due to the log-sum-exp functional form that is embedded in each log-likelihood element.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">Multinomial-logistic regressions</head><p>Let X arise from a distribution with unknown density function f X (x), which does not depend on the parameter θ (X can be non-stochastic). Suppose that Y = [g] for g ∈ N and let the conditional relationship between Y and X be characterized by</p><formula xml:id="formula_10">P (Y = c|X = x; θ) = exp β c x g d=1 exp β d x , (<label>6</label></formula><formula xml:id="formula_11">)</formula><p>where θ contains the parameter elements</p><formula xml:id="formula_12">β c ∈ R p for c ∈ [g -1]</formula><p>, and β g = 0.</p><p>We refer to the characterization (2.2) as the MLR model.</p><p>The MLR model is a well-studied and widely applied formulation for categorical variable regression in practice. See for example <ref type="bibr">Amemiya (1985, Sec. 9</ref>.3) and <ref type="bibr">Greene (2003, Sec. 21.7</ref>.1) for a statistical and econometric perspective, and <ref type="bibr">Bishop (2006, Sec. 4.3.4</ref>) for a <ref type="bibr">McLachlan (1992, Ch. 8)</ref> for some machine learning and pattern recognition points of view.</p><p>Given data D, the estimation of a MLR model requires the minimization of the negative log-likelihood risk</p><formula xml:id="formula_13">R θ; D = - 1 n n i=1 g c=1 [P (Y = c|X = x; θ)] I{y=c} = - 1 n g c=1 n i=1 I {y i = c} β c x i + 1 n n i=1 log g c=1 exp β c x i . (7)</formula><p>The difficulty with computing (1) for ( <ref type="formula">7</ref>), like (5), arises from the lack of a closed form solution to the FOC equation ∇ θ R = 0. Due to the general convexity of MLR risk [cf. <ref type="bibr" target="#b0">Albert &amp; Anderson (1984)</ref>], the usual strategy for computing (1) is via a Newton-Raphson algorithm.</p><p>Let H θ = ∇ θ ∇ θ be the Hessian operator. It is noted in <ref type="bibr">Bishop (2006, Sec. 4.3.4</ref>) that the Hessian H θ R consists of (g -1) g/2 blocks of p × p matrices with forms</p><formula xml:id="formula_14">∇ βc ∇ β d R = n i=1 I {y i = c} I [c,d] -I {y i = c} x i x i , for c, d ∈ [g -1]</formula><p>and c ≤ d, where I is the identity matrix and</p><formula xml:id="formula_15">I [c,d] is the element in its cth row and dth column. Since H θ R is therefore [(g -1) p] × [(g -1) p],</formula><p>inversion may be difficult for large values of either g or p. Thus, a method that avoids the full computation or inversion of the Hessian is desirable.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3">Support vector machines</head><p>Let X arise from a distribution with unknown density function f X (x), which does not depend on the parameter θ (X can be non-stochastic). Suppose that Y = {-1, 1} and the relationship between X and Y is unknown. For a linearbasis SVM, we wish to construct an optimal hyperplane (i.e. α + β X = 0;</p><p>α ∈ R and β ∈ R p ) such that the signs of Y and α + β X are the same, with high probability. From data D, an optimal hyperplane can be estimated by computing (1) for the risk</p><formula xml:id="formula_16">R θ; D = 1 n n i=1 I y i = sign α + β x i ,<label>(8)</label></formula><p>where sign (x) = 1 if x &gt; 0, sign (x) = -1 if x &lt; 0, and sign (0) = 0. Here, <ref type="formula" target="#formula_16">8</ref>) is combinatorial in nature, it is difficult to manipulate. As such, a surrogate risk function can be constructed from the hinge loss function ψ (x, y, f (x; θ)) = max 0, 1y α + β x to obtain the form</p><formula xml:id="formula_17">θ = α, β ∈ Θ ⊂ R p+1 . Since (</formula><formula xml:id="formula_18">R θ; D = 1 n n i=1 ψ (x i , y i , f (x i ; θ)) = 1 n n i=1 max 0, 1 -y i α + β x i .</formula><p>Finally, it is common practice to add a quadratic penalization term to avoid overfitting to the data and improve the generalizability of the estimated hyperplane. Under penalization, the linear-basis SVM can be estimated by computing</p><p>(1) for the surrogate risk</p><formula xml:id="formula_19">R θ; D = 1 n n i=1 max 0, 1 -y i α + β x i + λβ β,<label>(9)</label></formula><p>where λ ≥ 0 is a penalty term.</p><p>The difficulty in computing (1) for ( <ref type="formula" target="#formula_19">9</ref>) arises due to the lack of differentiability of (9) in θ, due to the hinge loss function. Traditionally, (1) has been computed via a constrained quadratic programming formulation of (9) using Karush-Kuhn-Tucker (KKT) conditions; see <ref type="bibr" target="#b7">Burges (1998)</ref> for example. We will demonstrate that it is possible to compute (1) without a constrained formulation via an MM algorithm.</p><p>Since the introduction of SVMs by <ref type="bibr" target="#b11">Cortes &amp; Vapnik (1995)</ref>, there have been numerous articles and volumes written on the topic. Some high-quality texts in the area include <ref type="bibr" target="#b21">Herbrich (2002)</ref>, <ref type="bibr" target="#b55">Scholkopf &amp; Smola (2002)</ref>, and <ref type="bibr" target="#b56">Steinwart &amp; Christmann (2008)</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">MM algorithms</head><p>Suppose that we wish to obtain</p><formula xml:id="formula_20">min θ∈Θ O (θ) or θ = arg min θ∈Θ O (θ) ,<label>(10)</label></formula><p>for some difficult to manipulate objective function O, where Θ is a subset of some Euclidean space. Instead of operating on O, we can sconsider an easier to manipulate majorizer of O at some point υ ∈ Θ instead.</p><p>Definition 1. We say that M (θ; υ) is a majorizer of objective O (θ) if:</p><formula xml:id="formula_21">(i) for every θ ∈ Θ, O (θ) = M (θ; θ) holds. (ii) for every θ, υ ∈ Θ such that θ = υ, O (θ) ≤ M (θ; υ) holds.</formula><p>Let θ (0) be some initial value and θ (r) be a sequence of iterates (in r) for computing (10). Definition 1 suggests the following scheme that we will refer to as an MM algorithm.</p><p>Definition 2. Let θ (0) be some initial value and θ (r) be the rth iterate. We say that θ (r+1) is the (r + 1) th iterate of an MM algorithm if it satisfies r) .</p><formula xml:id="formula_22">θ (r+1) = arg min θ∈Θ M θ; θ (</formula><p>From Definitions 1 and 2, we can deduce the monotonicity property of all MM algorithms. That is, if θ (r) is an sequence of MM algorithm iterates, the objective sequence O θ (r) is monotonically decreasing in r.</p><p>Proposition 1. If M (θ; υ) be a majorizer of the objective O (θ) and θ (r) is a sequence of MM algorithm iterates, then</p><formula xml:id="formula_23">O θ (r+1) ≤ M θ (r+1) ; θ (r) ≤ M θ (r) ; θ (r) = O θ (r) .<label>(11)</label></formula><p>Remark 1. It is notable that an algorithm need not be an MM algorithm in the strict sense of Definition 2 in order for (11) to hold. In fact, any algorithm where the (r + 1) th iterate satisfies</p><formula xml:id="formula_24">θ (r+1) ∈ θ ∈ Θ : M θ; θ (r) ≤ M θ (r) ; θ (r)</formula><p>will generate a monotonically decreasing sequence of objective evaluates. Such an algorithm can be thought of as a generalized MM algorithm, analogous to the generalized EM algorithms of <ref type="bibr" target="#b15">Dempster et al. (1977)</ref>; see also <ref type="bibr">McLachlan &amp; Krishnan (2008, Sec. 3.3)</ref>.</p><p>Starting from some initial value θ (0) , let θ (∞) = lim r→∞ θ (r) be the limit point of a sequence of algorithm iterates, if it exists. The following result from <ref type="bibr" target="#b54">Razaviyayn et al. (2013)</ref> provides a strong statement regarding the global convergence of MM algorithm iterate sequences.</p><p>Proposition 2. Starting from some initial value θ (0) , if θ (∞) is the limit point of an MM algorithm sequence of iterates θ (r) (i.e. satisfying Definition 2), then</p><formula xml:id="formula_25">θ (∞)</formula><p>is a stationary point of the problem (10). Remark 2. Proposition 2 only guarantees the convergence of MM algorithm iterates to a stationary point and not a global, or even a local minimum. As such, for problems over difficult objective functions, multiple or good initial values are required in order to ensure that the obtained solution is of a high quality. Furthermore, Proposition 2 only guarantees convergence to a stationary point of (10) if a limit point exists for the chosen starting value. If a limit point does not exist then the MM algorithm objective sequence may diverge. This is a common problem in ML estimation of Gaussian mixture models [cf. McLachlan &amp; Peel (2000, Sec. 3.9.1)].</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Useful majorizers</head><p>There is an abundant literature on functions that can be used as majorizers and applications of such functions. Some early and fundamental works such as <ref type="bibr" target="#b2">Becker et al. (1997)</ref>, <ref type="bibr" target="#b5">Bohning (1992)</ref>, <ref type="bibr" target="#b6">Bohning &amp; Lindsay (1988)</ref>, De Pierro (1993), and Heiser (1995) established many of the basic techniques for majorization. More modern majorizers for statistical and generic optimization problems can be found in <ref type="bibr" target="#b29">Lange (2013)</ref>, <ref type="bibr" target="#b30">Lange (2016), and</ref><ref type="bibr" target="#b37">McLachlan &amp;</ref><ref type="bibr" target="#b38">Krishnan (2008)</ref>.</p><p>We now present three majorizers that will be useful in constructing MM algorithms for the problems from Section 2.</p><formula xml:id="formula_26">Fact 1. Let O (θ) = ψ a θ where ψ : [0, ∞) → R is a convex function. If a, θ, υ ∈ [0, ∞) d for some d ∈ N, then O (θ) is majorized by M (θ; υ) = d c=1 a c υ c a υ ψ a υ υ c θ c ,</formula><p>where a c , θ c , ν c are the cth elements of a, θ, υ, respectively, for c ∈</p><formula xml:id="formula_27">[d]. Fact 2. Let O (θ) be twice differentiable in θ. If θ, υ ∈ Θ ⊂ R d and H -H θ O</formula><p>is positive semidefinite for all θ, then O (θ) is majorized by</p><formula xml:id="formula_28">M (θ; υ) = O (υ) + ∇O (υ) (θ -υ) + 1 2 (θ -υ) H (θ -υ) . Fact 3. Let d ∈ [1, 2] and let O (θ) = |θ| d . If θ, υ = 0, then O (θ) is majorized by M (θ; υ) = d 2 |υ| d-2 θ 2 + 1 - d 2 |υ| d .</formula><p>As an example, using Fact 3, the functions O 1 (θ) = |θ| and O 1.5 (θ) = |θ| 1.5</p><p>can be majorized at υ = 1/2 by M 1 (θ; 1/2) = θ 2 + 1/4 and M 1.5 (θ; 1/2) = 12θ 2 + 1 / 8 √ 2 , respectively. Plots of the example objectives and respective majorizers appear in Figure <ref type="figure" target="#fig_2">1</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Examples of MM algorithms</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Gaussian mixture of regressions</head><p>We use the notation from Section 2.1. Given the rth iterate of an MM algorithm, for each i ∈ [n], set ψ =log, and let a = (1, ..., 1),</p><formula xml:id="formula_29">θ = (π 1 φ (y i ; B 1 x i , Σ 1 ) , ..., π g φ (y i ; B g x i , Σ g )) ,</formula><p>and Fact 1 suggests a majorizer for (5) of the form</p><formula xml:id="formula_30">υ = π 1 φ y i ; B (r) 1 x i , Σ (r) 1 , ..., π g φ y i ; B (r) g x i , Σ<label>(r)</label></formula><formula xml:id="formula_31">M θ; θ (r) = - g c=1 n i=1 τ (r) ci [log π c + log φ (y i ; B c x i , Σ c )] + g c=1 n i=1 τ (r) ci log τ (r) ci , (<label>12</label></formula><formula xml:id="formula_32">)</formula><p>where τ</p><formula xml:id="formula_33">(r) ci = π c φ y i ; B (r) c x i , Σ (r) c / g d=1 π d φ y i ; B (r) d x i , Σ (r) d , for each c ∈ [g] and i ∈ [n].</formula><p>Simplifying the first term of ( <ref type="formula" target="#formula_31">12</ref>) via (3) yields</p><formula xml:id="formula_34">M θ; θ (r) = - g c=1 n i=1 τ (r) ci log π c + 1 2 g c=1 n i=1 τ (r) i log |Σ c | + 1 2 g c=1 n i=1 τ (r) ci (y i -B c x i ) Σ -1 (y i -B c x i )<label>(13)</label></formula><p>+C (r) , where C (r) is a constant that does not depend on the parameter θ.</p><p>Under the restrictions on π c , we must minimize (13) over the constrained parameter space</p><formula xml:id="formula_35">Θ = θ : π c &gt; 0, g c=1 π c = 1, B c ∈ R q×p , Σ c is positive definite, c ∈ [g] .</formula><p>This can be achieved by computing the roots of ∇ θ Λ = 0, where</p><formula xml:id="formula_36">Λ θ; θ (r) = M θ; θ (r) + λ g c=1 π c -1</formula><p>is the Lagrangian with multiplier λ ∈ R. The resulting (r + 1) th iterate of the MM algorithm for the ML estimation of the GMR model can be defined as θ (r) , which contains the elements</p><formula xml:id="formula_37">π (r+1) c = n -1 n i=1 τ (r)</formula><p>ci , ( <ref type="formula">14</ref>)</p><formula xml:id="formula_38">B (r+1) c = n i=1 τ (r) ci y i x i n i=1 τ (r) ci x i x i -1 , (<label>15</label></formula><formula xml:id="formula_39">)</formula><p>and</p><formula xml:id="formula_40">Σ c = n i=1 τ (r) ci y i -B (r+1) c x i y i -B (r+1) c x i n i=1 τ (r) ci . (<label>16</label></formula><formula xml:id="formula_41">)</formula><p>Remark 3. The MM algorithm defined by updates ( <ref type="formula">14</ref>)-( <ref type="formula" target="#formula_40">16</ref>) is exactly the same as the EM algorithm for ML estimation that is derived in <ref type="bibr" target="#b27">Jones &amp; McLachlan (1992)</ref>. There are numerous cases where MM and EM algorithms coincide and some conditions under which such coincidences occur are explored in <ref type="bibr" target="#b40">Meng (2000)</ref>.</p><p>Remark 4. Note that updates ( <ref type="formula" target="#formula_38">15</ref>) and ( <ref type="formula" target="#formula_40">16</ref>) require matrix additions, multiplications, and inversions that may be computationally prohibitive if n, p, and q are large. It is possible to modify the MM algorithm via the techniques from <ref type="bibr" target="#b45">Nguyen &amp; McLachlan (2015)</ref> to avoid such matrix computations. Such modifications come at a cost of slower convergence of the algorithm, but can make GMR feasible for data sets that were prohibitively large without such changes.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Multinomial-logistic regressions</head><p>We use the notation from Section 2.2. Consider only the cth set of parameter elements β c . The gradient and second-order derivatives of R with respect to β c can be written as</p><formula xml:id="formula_42">∇ βc R = - 1 n n i=1 I {y i = c} - exp β c x i g d=1 exp β d x i x i</formula><p>and</p><formula xml:id="formula_43">∇ βc ∇ β c R = 1 n n i=1 exp β c x i g d=1 exp β d x i 1 - exp β c x i g d=1 exp β d x i x i x i . Define Π = exp β c x / g d=1 exp β d x ; it can be shown that Π (1 -Π) ≤ 1/4 via calculus. Thus, we have the fact that ∆/4 -∇ βc ∇ β c R is positive definite, since ∆ = n -1 n i=1</formula><p>x i x i is positive definite except for in pathological cases. Let θ (r) be the rth iterate of the MM algorithm, Fact 1 yields the majorizers</p><formula xml:id="formula_44">M c β c ; θ (r) = R θ (r) ; D + ∇ βc R θ (r) β c -β (r) c + 1 8 β c -β (r) c ∆ β c -β (r) c ,<label>(17)</label></formula><p>for each c ∈ [g -1], by setting H = ∆/4. Here, ∇ βc R θ (r) is the gradient with respect to β c , with θ evaluated at θ (r) .</p><p>Given θ (r) , M c β c ; θ (r) can be globally minimized by solving the FOC equation ∇ βc M c = 0, which yields the solution</p><formula xml:id="formula_45">β * c = β (r) c + 4∆ -1 ∇ βc R θ (r) .<label>(18)</label></formula><p>Since only the cth parameter element is majorized by ( <ref type="formula" target="#formula_44">17</ref>), the solution (18)</p><p>suggests the following algorithm: let θ (r) be the rth iterate of the algorithm, on the (r + 1) th iteration, set</p><formula xml:id="formula_46">θ (r+1) = β (r+1) 1 , ..., β<label>(r+1)</label></formula><p>g-1 according to the update rule</p><formula xml:id="formula_47">β (r+1) c =        β * c if c = 1 + (r mod g -1) , β<label>(r) c otherwise.</label></formula><p>(</p><formula xml:id="formula_48">)<label>19</label></formula><p>Remark 5. The algorithm as defined by update rule (18) is an example of a generalized MM algorithm as discussed in Remark 1 and thus satisfies inequality (11) but does not satisfy the conditions for Proposition 2. To show the global convergence of rule (18), we can note that it is an example of a block SUM algorithm and demonstrate the satisfaction of the assumptions for <ref type="bibr">Razaviyayn et al. (2013, Thm. 2</ref>).</p><p>Remark 6. The update rule (18) allows for blockwise update of the parameter elements β c rather than all at once, as is required via a Newton-Raphson approach. Furthermore, the only large matrix computation that is required is the matrix inversion of ∆, which is only required to be conducted once as it does not depend on the iterates θ (r) .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.3">Support vector machines</head><p>We use the notation from Section 2.3. Consider the identity</p><formula xml:id="formula_49">max {a, b} = 1 2 |a -b| + a + b 2<label>(20)</label></formula><p>for a, b ∈ R. Using (20) and Fact 3, we can derive the majorizer</p><formula xml:id="formula_50">M (θ; υ) = 1 4 |υ| (θ + |υ|) 2 ,</formula><p>for the objective O (θ) = max {0, θ}, at υ = 0. To avoid the singularity at υ = 0, de Leeuw &amp; Lange (2009) suggests the approximate majorizer</p><formula xml:id="formula_51">M (θ; υ) = 1 4 |υ| + (θ + |υ|) 2 ,<label>(21)</label></formula><p>where = 10 -5 is sufficiently small for double-precision computing. Using (21), we can majorize (9) at the rth algorithm iterate by making the substitutions</p><formula xml:id="formula_52">θ = 1 -y i α + β x i and υ = 1 -y i α (r) + β (r) x i , for each i ∈ [n].</formula><p>The resulting majorizer of n times the risk (9) at θ (r) has the form</p><formula xml:id="formula_53">M θ; θ (r) = n i=1 1 4w (r) i + w (r) i + 1 -y i α + β x i 2 + nλβ β,<label>(22)</label></formula><p>where w</p><formula xml:id="formula_54">(r) i = 1 -y i α (r) + β (r) x i , for each i. Write x i = y i , y i x i and w(r) i = w (r)</formula><p>i + 1 for each i, and let Ĩ = diag (0, 1, ..., 1) and</p><formula xml:id="formula_55">Ω (r) = diag 1 4w (r) 1 + , ...,<label>1 4w (r) n +</label></formula><p>.</p><p>Put xi in the ith row of the matrix X ∈ R n×(p+1) , and set w (r) = w(r) 1 , ..., w(r) n .</p><p>We can write ( <ref type="formula" target="#formula_53">22</ref>) in matrix form as</p><formula xml:id="formula_56">M θ; θ (r) = w (r) -Xθ Ω (r) w (r) -Xθ + nλθ Ĩθ.<label>(23)</label></formula><p>Majorizer ( <ref type="formula" target="#formula_56">23</ref>) is in quadratic form and thus has the global minimum solution</p><formula xml:id="formula_57">θ (r+1) = X Ω (r) X + nλ Ĩ -1</formula><p>X Ω (r) w (r) . ( <ref type="formula">24</ref>)</p><p>The MM algorithm for the linear-basis SVM can thus be defined via the IRLS rule (24).</p><p>Remark 7. The MM algorithm defined via ( <ref type="formula">24</ref>) is similar to the IRLS algorithm of <ref type="bibr" target="#b41">Navia-Vasquez et al. (2001)</ref>. However, whereas our weightings are obtained via simple majorization, the weightings used by <ref type="bibr" target="#b41">Navia-Vasquez et al. (2001)</ref> are obtained via careful manipulation of the KKT conditions.</p><p>5 Numerical demonstrations</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1">Gaussian mixture of regressions</head><p>There are numerous packages in the R (R Core Team, 2016) programming language that implement the EM/MM algorithm for estimating GMR models; see Remark 3. These packages include EMMIXcontrasts <ref type="bibr" target="#b42">(Ng et al., 2014)</ref>, flexmix <ref type="bibr" target="#b19">(Grun &amp; Leisch, 2008)</ref>, and mixtools <ref type="bibr" target="#b3">(Benaglia et al., 2009)</ref>.</p><p>Using R, we simulate data according to Case 2 of the sampling experiments of <ref type="bibr" target="#b52">Quandt (1972)</ref>. That is, we simulate n = 120 observations, where X i =</p><p>(1, U i ) with U i uniformly distributed between 10 and 20, for i ∈ [n]. Conditioned on X i = x i , we simulate Y i according to the two-component GMR model</p><formula xml:id="formula_58">f Y |X (y i |x i ; θ) = 1 2 φ (y i ; (1, 1) x i , 2) + 1 2 φ (y i ; (0.5, 1.5) x i , 2.5) .</formula><p>In Table <ref type="table" target="#tab_1">2</ref>, we present the negative log-likelihood risk (5) values for 20 iterations of the EM/MM algorithm to estimate a g = 2 component GMR using the regmixEM function from mixtools, for a single instance of the experimental setup. We see that the risk values are monotonically decreasing in accordance with Proposition 1. Figure <ref type="figure">2</ref> display the simulated data, the generative mean model, and the fitted conditional mean functions ŷc (x) = bc1 , bc2 x, for each of the fitted GMR components c = 1, 2. Here the estimate of the parameter elements bc1 , bc2 are contained within θ.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2">Multinomial-logistic regressions</head><p>With R, we utilize algorithm (19) to compute (1) for the problem of estimating an MLR for the Fisher's Iris data set <ref type="bibr" target="#b17">(Fisher, 1936)</ref>. The data is a part of the core datasets package of R and contains n = 150 observations, 50 each, from  0.0 0.5 1.0 1.5 2.0 2.5 3.0 0 50 100 150 log10 iterations Risk Figure 3: Negative log-likelihood risk versus log 10 iterations for the MLR model fitted to the iris data set. The solid line indicates the MM algorithm-obtained sequence, and the dashed line indicates the sequence obtained from the multinom function.</p><p>g = 3 species of irises. Each observation consists of a feature vector</p><formula xml:id="formula_59">u i = (Sepal Length i , Sepal Width i , Petal Length i , Petal Width i ) ,</formula><p>along with a species name y i ∈ {Setosa, Versicolor, Virginica}, for i ∈ [n]. We map the species names to the set [g] for convenience and set x i = 1, u i .</p><p>A plot of the negative log-likelihood risk versus the logarithm of the number of iterations is presented in Figure <ref type="figure">3</ref>, along with the risk sequence obtained from the multinom function of the nnet package <ref type="bibr" target="#b59">(Venables &amp; Ripley, 2002)</ref>, which solves the same problem. The difference in convergence speed between the two algorithms is not surprising as multinom utilizes a Newton-Raphson algorithm, which exhibits quadratic-rate convergence to stationary points within a close enough radius to the limit point, whereas MM algorithms only exhibit linear-rate convergence [cf. <ref type="bibr">Lange (2013, Ch. 12)</ref>].</p><p>Remark 8. Some practical suggestions for acceleration of convergence speed for MM algorithms are provided in <ref type="bibr">Lange (2016, Ch. 7)</ref>. The simplest of such suggestions is to simply double each MM iterate. That is, if at the (r + 1) th step, we make the update θ (r+1) = U θ (r) , then we instead make the update</p><formula xml:id="formula_60">θ (r+1) = θ (r) + 2 U θ (r) -θ (r) .</formula><p>At most, the new updates can halve the number of iterations required. However, fulfillment of inequality ( <ref type="formula" target="#formula_23">11</ref>) is no longer guaranteed.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.3">Support vector machines</head><p>For ease of visualization, we now concentrate on the first n = 100 observations from the iris data, at the two input variables</p><formula xml:id="formula_61">x i = (Sepal Length i , Sepal Width i ) for i ∈ [n].</formula><p>The species names, Setosa and Versicolor, are mapped to -1 and 1, respectively, and thus y i ∈ {-1, 1} depending on the species of observation i. A linear-basis SVM is fitted using algorithm (24) with λ = 0.1 for 30 iterations.</p><p>Table <ref type="table" target="#tab_2">3</ref> presents the risk (9) at each IRLS/MM iteration, and Figure <ref type="figure" target="#fig_4">4</ref> displays the resulting seperating hyperplane.</p><p>From Table <ref type="table" target="#tab_2">3</ref>, we note that the IRLS/MM algorithm convergences quickly in the SVM problem and that the risk is monotonically decreasing as expected.</p><p>Further, we note that for this subset of the iris data, the separating hyperplane can perfectly separate the two classes; this is not always possible in general.  </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">Conclusions</head><p>The MM algorithm framework is a popular tool for deriving useful algorithms for problems in machine learning and statistical estimation. We have introduced and demonstrated its usage in three example applications: Gaussian mixture regressions, multinomial logistic regressions, and support vector machines; which are commonly applied by practitioners for solving real-world problems. We note that there are aspects of the MM algorithm framework that we have omitted for brevity. For example, we have not discussed the manner in which to choose to terminate an MM algorithm, as this is often a contentious point. A good discussion on the relative merits of different methods can be found in Lange <ref type="bibr">(2013, Sec. 11.5)</ref>. Additionally, we have not discussed the many computational benefits of MM algorithms, such as parallelizability and distributability. A case study of parallelizability for heteroscedastic regression is provided in <ref type="bibr" target="#b46">Nguyen et al. (2016a)</ref>. General discussions regarding the implementation of MM algorithms on graphical processing units, in parallel, are provided in <ref type="bibr">Zhou et al. (2010)</ref>.</p><p>It is hoped that this article demonstrates the usefulness and ubiquity of the MM algorithm framework to the reader. For enthusiastic and interested readers, we highly recommend the outstanding treatment of the topic in Lange (2016).</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><figDesc>where f (x, y; θ) is a density function over the support of X and Y , which takes parameter θ. The minimization of the risk in this case yields the maximum likelihood (ML) estimate for the data D, given the parametric family f . Another common risk function is the |•| d -norm difference between the target variable and some function f of the input:f (x i ; θ)| d , where d ∈ [1, 2], y i ∈ R,and f (x; θ) is some predictive function of y i with parameter θ that takes x as an input. Setting d = 1 and d = 2 yield the common least-absolute deviation and least-squares criteria, respectively. Furthermore, taking f (x; θ) = θ x and d = 2 simultaneously yields the classical ordinary least-squares criterion. Here Θ ⊂ R p and the superscript indicates matrix transposition.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><figDesc>on X = x, suppose that Y can arise from one of g ∈ N possible component regression regimes. Let Z be a random variable that indicates the component from which Y arises, such that P (Z = c) = π c , where c ∈ [g] ([g] = {1, 2, ..., g}), π c &gt; 0, and g c=1 π c = 1. Write the conditional probability density of Y given X = x and Z = c as</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Examples of majorizers for objectives of the form O (θ) = |θ| d at the point υ = 1/2, for d = 1, 1.5. The solid lines indicate the objectives and the dashed lines indicate the majorizers.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 2 :Figure 3 :</head><label>23</label><figDesc>Figure 2: Example of an instance of the Case 2 of the sampling experiments of Quandt (1972). Solid lines indicate generative mean functions according to the g = 2 different components of the mixture, and dashed lines indicate fitted mean functions ŷc (x) for c = 1, 2.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Figure 4 :</head><label>4</label><figDesc>Figure 4: Separating hyperplane between for the classification problem of separating the Setosa and Versicolor irises by their sepal length and width. The dashed line indicates the SVM-obtained separating hyperplane. The Circles and Triangles indicate Setosa and Versicolor irises, respectively.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><figDesc>Although example-based, the techniques that are introduced in this article are by no means restricted to the specific examples, nor even to machine learning and statistical estimation; see Chi et al. (2014) and Lange &amp; Zhou (2014) for example.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>Table 2 :</head><label>2</label><figDesc>Negative log-likelihood risk for the estimation of a g = 2 component GMR model via an EM/MM algorithm.</figDesc><table><row><cell>Iteration Risk 1 325.8761 11 Iteration Risk 294.5583 2 317.1869 12 294.5501 3 314.0193 13 294.5477 4 311.5091 14 294.5470 5 308.0247 15 294.5468 6 302.8068 16 294.5467 7 297.5655 17 294.5467 8 295.1926 18 294.5467 9 294.6909 19 294.5467 10 294.5865 20 294.5467</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_2"><head>Table 3 :</head><label>3</label><figDesc>SVM risk for the iris data with λ = 0.1, obtained via the IRLS/MM algorithm.</figDesc><table><row><cell>Iteration Risk 1 47.36808 16 Iteration Risk 47.20901 2 47.29061 17 47.20895 3 47.26262 18 47.20891 4 47.25164 19 47.20888 5 47.24096 20 47.20886 6 47.23068 21 47.20885 7 47.22281 22 47.20884 8 47.21746 23 47.20884 9 47.21405 24 47.20883 10 47.21193 25 47.20883 11 47.21064 26 47.20883 12 47.20988 27 47.20883 13 47.20946 28 47.20882 14 47.20923 29 47.20882 15 47.20910 30 47.20882</cell></row></table></figure>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>Acknowledgment</head><p>The author is grateful to <rs type="person">Prof. Geoffrey McLachlan</rs> for his constant encouragement and support. The author thanks the <rs type="funder">ARC</rs> for their financial support.</p></div>
+			</div>
+			<listOrg type="funding">
+			</listOrg>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">On the existence of maximum likelihood estimates in logistic regression models</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Albert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">A</forename><surname>Anderson</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Biometrika</title>
+		<imprint>
+			<biblScope unit="volume">71</biblScope>
+			<biblScope unit="page" from="1" to="10" />
+			<date type="published" when="1984">1984</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Advanced Econometrics</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Amemiya</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1985">1985</date>
+			<publisher>Harvard University Press</publisher>
+			<pubPlace>Cambridge</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">P</forename><surname>Becker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lange</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">EM algorithms without missing data</title>
+		<imprint>
+			<date type="published" when="1997">1997</date>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="page" from="38" to="54" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">mixtools: An R package for analyzing finite mixture models</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Benaglia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Chauveau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">R</forename><surname>Hunter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">S</forename><surname>Young</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Statistical Software</title>
+		<imprint>
+			<biblScope unit="volume">32</biblScope>
+			<biblScope unit="page" from="1" to="29" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">M</forename><surname>Bishop</surname></persName>
+		</author>
+		<title level="m">Pattern Recognition And Machine Learning</title>
+		<meeting><address><addrLine>New York</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Multinomial logistic regression algorithm</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Bohning</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Annals of the Institute of Statistical Mathematics</title>
+		<imprint>
+			<date type="published" when="1992">1992</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Monotonicity of quadratic-approximation algorithms</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Bohning</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">R</forename><surname>Lindsay</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Annals of the Institute of Mathematical Statistics</title>
+		<imprint>
+			<biblScope unit="volume">40</biblScope>
+			<biblScope unit="page" from="641" to="663" />
+			<date type="published" when="1988">1988</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">A tutorial on support vector machines for pattern recognition</title>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">J C</forename><surname>Burges</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Data Mining and Knowledge Discovery</title>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="page" from="121" to="167" />
+			<date type="published" when="1998">1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">A look at the generalized Heron problem through the lens of majorization-minimization</title>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">C</forename><surname>Chi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lange</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="s">The American Mathematical Monthly</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Distance majorization and its applications</title>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">C</forename><surname>Chi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lange</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Mathematical Programming Series A</title>
+		<imprint>
+			<biblScope unit="volume">146</biblScope>
+			<biblScope unit="page" from="409" to="436" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">Fixed-Point Algorithms for Inverse Problems in Science and Engineering, chapter Proximal splitting methods in signal processing</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Combettes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J.-C</forename><surname>Pesquet</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+			<publisher>Springer</publisher>
+			<biblScope unit="page" from="185" to="212" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Support-vector networks</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Cortes</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Vapnik</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Machine Learning</title>
+		<imprint>
+			<date type="published" when="1995">1995</date>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="page" from="273" to="297" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">High-dimensional heteroscedastic regression with an application to eQTL analysis</title>
+		<author>
+			<persName><forename type="first">Z</forename><forename type="middle">J</forename><surname>Daye</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Li</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Biometrics</title>
+		<imprint>
+			<biblScope unit="volume">68</biblScope>
+			<biblScope unit="page" from="316" to="326" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Sharp quadratic majorization in one dimension</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>De Leeuw</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lange</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computational Statistics and Data Analysis</title>
+		<imprint>
+			<biblScope unit="volume">53</biblScope>
+			<biblScope unit="page" from="2471" to="2484" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">On the relation between the ISRA and the EM algorithm for positron emission tomography</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">R</forename><surname>De Pierro</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Medical Imaging</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page" from="328" to="333" />
+			<date type="published" when="1993">1993</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Maximum likelihood from incomplete data via the EM algorithm</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">P</forename><surname>Dempster</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">M</forename><surname>Laird</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">B</forename><surname>Rubin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the Royal Statistical Society Series B</title>
+		<imprint>
+			<biblScope unit="volume">39</biblScope>
+			<biblScope unit="page" from="1" to="38" />
+			<date type="published" when="1977">1977</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">A maximum likelihood methodology for clusterwise linear regressions</title>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">S</forename><surname>Desarbo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">L</forename><surname>Cron</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Classification</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="page" from="249" to="282" />
+			<date type="published" when="1988">1988</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">The use of multiple measurments in taxonomic problems</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">A</forename><surname>Fisher</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Annals of Eugenics</title>
+		<imprint>
+			<biblScope unit="page" from="179" to="188" />
+			<date type="published" when="1936">1936</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">H</forename><surname>Greene</surname></persName>
+		</author>
+		<title level="m">Econometric Analysis</title>
+		<meeting><address><addrLine>New Jersey</addrLine></address></meeting>
+		<imprint>
+			<publisher>Prentice Hall</publisher>
+			<date type="published" when="2003">2003</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Flexmix version 2: finite mixtures with concomitant variables and varying and constant parameters</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Grun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Leisch</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Statistical Software</title>
+		<imprint>
+			<biblScope unit="volume">28</biblScope>
+			<biblScope unit="page" from="1" to="35" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<monogr>
+		<title level="m" type="main">Recent Advances in Descriptive Multivariate Analysis, chapter Convergent computing by iterative majorization: theory and applications in multidimensional data analysis</title>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">J</forename><surname>Heiser</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1995">1995</date>
+			<publisher>Clarendon Press</publisher>
+			<biblScope unit="page" from="157" to="189" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<monogr>
+		<author>
+			<persName><forename type="first">R</forename><surname>Herbrich</surname></persName>
+		</author>
+		<title level="m">Leaning Kernel Classifiers: Theory and Algorithms</title>
+		<meeting><address><addrLine>Cambridge</addrLine></address></meeting>
+		<imprint>
+			<publisher>MIT Press</publisher>
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">A unified algorithmic framework for block-structured optimization involving big data: with applications in machine learning and signal process</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Hong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Razaviyayn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z.-Q</forename><surname>Luo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J.-S</forename><surname>Pang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Signal Processing Magazine</title>
+		<imprint>
+			<biblScope unit="volume">33</biblScope>
+			<biblScope unit="page" from="57" to="77" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">MM algorithms for generalized Bradley-Terry models</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">R</forename><surname>Hunter</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Annals of Statistics</title>
+		<imprint>
+			<biblScope unit="volume">32</biblScope>
+			<biblScope unit="page" from="384" to="406" />
+			<date type="published" when="2004">2004</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Quantile regression via an MM algorithm</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">R</forename><surname>Hunter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lange</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Computational and Graphical Statistics</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="page" from="60" to="77" />
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">A tutorial on MM algorithms</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">R</forename><surname>Hunter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lange</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The American Statistician</title>
+		<imprint>
+			<biblScope unit="volume">58</biblScope>
+			<biblScope unit="page" from="30" to="37" />
+			<date type="published" when="2004">2004</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Variable selection using MM algorithms</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">R</forename><surname>Hunter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Li</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Annals of Statistics</title>
+		<imprint>
+			<biblScope unit="page">33</biblScope>
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Fitting finite mixture models in a regression context</title>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">N</forename><surname>Jones</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">J</forename><surname>Mclachlan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Australian Journal of Statistics</title>
+		<imprint>
+			<biblScope unit="volume">34</biblScope>
+			<biblScope unit="page" from="233" to="240" />
+			<date type="published" when="1992">1992</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<monogr>
+		<title level="m" type="main">Advanced Calculus with Applications in Statistics</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">I</forename><surname>Khuri</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2003">2003</date>
+			<publisher>Wiley</publisher>
+			<pubPlace>New York</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<monogr>
+		<title level="m" type="main">Optimization</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lange</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<publisher>Springer</publisher>
+			<pubPlace>New York</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<monogr>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lange</surname></persName>
+		</author>
+		<title level="m">MM Optimization Algorithms</title>
+		<meeting><address><addrLine>Philadelphia</addrLine></address></meeting>
+		<imprint>
+			<publisher>SIAM</publisher>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Optimization transfer using surrogate objective functions</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lange</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">R</forename><surname>Hunter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Yang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Computational and Graphical Statistics</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="page" from="1" to="20" />
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Nextgeneration statistical genetic: modeling, penalization, and optimization in high-dimensional data</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lange</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">C</forename><surname>Papp</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">S</forename><surname>Sinsheimer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">M</forename><surname>Sobel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Annual Review of Statistis and Its Application</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="page" from="22" to="23" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">MM algorithms for geometric and signomial programming</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lange</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Zhou</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Mathematical Programming Series A</title>
+		<imprint>
+			<biblScope unit="volume">143</biblScope>
+			<biblScope unit="page" from="339" to="356" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">Learning the parts of objects by non-negative matrix factorization</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">D</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">S</forename><surname>Seung</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<biblScope unit="volume">401</biblScope>
+			<biblScope unit="page" from="788" to="791" />
+			<date type="published" when="1999">1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Incremental majorization-minimization optimization with application to large-scale machine learning</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Mairal</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">SIAM Journal of Optimization</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="page" from="829" to="855" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<analytic>
+		<title level="a" type="main">Spectral regularization algorithms for learning large incomplete matrices</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Mazumder</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Hastie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Tibshirani</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="page" from="2287" to="2322" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<monogr>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">J</forename><surname>Mclachlan</surname></persName>
+		</author>
+		<title level="m">Discriminant Analysis And Statistical Pattern Recognition</title>
+		<meeting><address><addrLine>New York</addrLine></address></meeting>
+		<imprint>
+			<publisher>Wiley</publisher>
+			<date type="published" when="1992">1992</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<monogr>
+		<title level="m" type="main">The EM Algorithm And Extensions</title>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">J</forename><surname>Mclachlan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Krishnan</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2008">2008</date>
+			<publisher>Wiley</publisher>
+			<pubPlace>New York</pubPlace>
+		</imprint>
+	</monogr>
+	<note>2 edition</note>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<monogr>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">J</forename><surname>Mclachlan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Peel</surname></persName>
+		</author>
+		<title level="m">Finite Mixture Models</title>
+		<meeting><address><addrLine>New York</addrLine></address></meeting>
+		<imprint>
+			<publisher>Wiley</publisher>
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<analytic>
+		<title level="a" type="main">Optimization transfer using surrogate objective functions: Discussion</title>
+		<author>
+			<persName><forename type="first">X.-L</forename><surname>Meng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Computational and Graphical Statistics</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="page" from="35" to="43" />
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title level="a" type="main">Weighted least squares training of support vector classifiers leading to compact and adaptive schemes</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Navia-Vasquez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Perez-Cruz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Artes-Rodriguez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">R</forename><surname>Figueiras-Vidal</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Neural Networks</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page" from="1047" to="1059" />
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b42">
+	<monogr>
+		<author>
+			<persName><forename type="first">S.-K</forename><surname>Ng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Mclachlan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Wang</surname></persName>
+		</author>
+		<title level="m">EMMIXcontrasts: Contrasts in mixed effects for EMMIX model with random effects</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b43">
+	<analytic>
+		<title level="a" type="main">A block minorization-maximization algorithm for heteroscedastic regression</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">D</forename><surname>Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">R</forename><surname>Lloyd-Jones</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">J</forename><surname>Mclachlan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Signal Processing Letters</title>
+		<imprint>
+			<biblScope unit="volume">23</biblScope>
+			<biblScope unit="page" from="1031" to="1135" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b44">
+	<analytic>
+		<title level="a" type="main">Asymptotic inference for hidden process regression models</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">D</forename><surname>Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">J</forename><surname>Mclachlan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2014 IEEE Statistical Signal Processing Workshop</title>
+		<meeting>the 2014 IEEE Statistical Signal Processing Workshop</meeting>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b45">
+	<analytic>
+		<title level="a" type="main">Maximum likelihood estimation of Gaussian mixture models without matrix operations</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">D</forename><surname>Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">J</forename><surname>Mclachlan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Data Analysis and Classification</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="page" from="371" to="394" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b46">
+	<analytic>
+		<title level="a" type="main">Laplace mixture of linear experts</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">D</forename><surname>Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">J</forename><surname>Mclachlan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computational Statistics and Data Analysis</title>
+		<imprint>
+			<biblScope unit="volume">93</biblScope>
+			<biblScope unit="page" from="177" to="191" />
+			<date type="published" when="2016">2016a</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b47">
+	<analytic>
+		<title level="a" type="main">Maximum likelihood estimation of triangular and polygonal distributions</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">D</forename><surname>Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">J</forename><surname>Mclachlan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computational Statistics and Data Analysis</title>
+		<imprint>
+			<biblScope unit="volume">106</biblScope>
+			<biblScope unit="page" from="23" to="36" />
+			<date type="published" when="2016">2016b</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b48">
+	<analytic>
+		<title level="a" type="main">Laplace mixture autoregressive models</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">D</forename><surname>Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">J</forename><surname>Mclachlan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">F P</forename><surname>Ullmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">L</forename><surname>Janke</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Statistics and Probability Letters</title>
+		<imprint>
+			<biblScope unit="volume">110</biblScope>
+			<biblScope unit="page" from="18" to="24" />
+			<date type="published" when="2016">2016b</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b49">
+	<analytic>
+		<title level="a" type="main">Spatial clustering of time-series via mixture of autoregressions models and Markov Random Fields</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">D</forename><surname>Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">J</forename><surname>Mclachlan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">F P</forename><surname>Ullmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">L</forename><surname>Janke</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Statistica Neerlandica</title>
+		<imprint>
+			<biblScope unit="volume">70</biblScope>
+			<biblScope unit="page" from="414" to="439" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b50">
+	<analytic>
+		<title level="a" type="main">A block successive lower-bound maximization algorithm for the maximum pseudolikelihood estimation of fully visible Boltzmann machines</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">D</forename><surname>Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">A</forename><surname>Wood</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural Computation</title>
+		<imprint>
+			<biblScope unit="volume">28</biblScope>
+			<biblScope unit="page" from="485" to="492" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b51">
+	<analytic>
+		<title level="a" type="main">Proximal algorithms</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Parikh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Boyd</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Foundations and Trends in Optimization</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="page" from="123" to="231" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b52">
+	<analytic>
+		<title level="a" type="main">A new approach to estimating switching regressions</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">E</forename><surname>Quandt</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the American Statistical Association</title>
+		<imprint>
+			<biblScope unit="volume">67</biblScope>
+			<biblScope unit="page" from="306" to="310" />
+			<date type="published" when="1972">1972</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b53">
+	<analytic>
+		<title level="a" type="main">R: a language and environment for statistical computing</title>
+		<author>
+			<persName><forename type="first">Team</forename><surname>Core</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">R Foundation for Statistical Computing</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b54">
+	<analytic>
+		<title level="a" type="main">A unified convergence analysis of block successive minimization methods for nonsmooth optimization</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Razaviyayn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Hong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z.-Q</forename><surname>Luo</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">SIAM Journal of Optimization</title>
+		<imprint>
+			<biblScope unit="volume">23</biblScope>
+			<biblScope unit="page" from="1126" to="1153" />
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b55">
+	<monogr>
+		<author>
+			<persName><forename type="first">B</forename><surname>Scholkopf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">J</forename><surname>Smola</surname></persName>
+		</author>
+		<title level="m">Learning with Kernels</title>
+		<meeting><address><addrLine>Cambridge</addrLine></address></meeting>
+		<imprint>
+			<publisher>MIT Press</publisher>
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b56">
+	<monogr>
+		<title level="m" type="main">Support Vector Machine</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Steinwart</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Christmann</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2008">2008</date>
+			<publisher>Springer</publisher>
+			<pubPlace>New York</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b57">
+	<analytic>
+		<title level="a" type="main">Parameter convergence for EM and MM algorithms</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Vaida</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Statistica Sinica</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="page" from="831" to="840" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b58">
+	<monogr>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">N</forename><surname>Vapnik</surname></persName>
+		</author>
+		<title level="m">Statistical Learning Theory</title>
+		<meeting><address><addrLine>New York</addrLine></address></meeting>
+		<imprint>
+			<publisher>Wiley</publisher>
+			<date type="published" when="1998">1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b59">
+	<monogr>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">N</forename><surname>Venables</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">D</forename><surname>Ripley</surname></persName>
+		</author>
+		<title level="m">Modern Applied Statistics With S</title>
+		<meeting><address><addrLine>New York</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b60">
+	<analytic>
+		<title level="a" type="main">The MM alternative to EM</title>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">T</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lange</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Statistical Science</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="page" from="492" to="505" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b61">
+	<analytic>
+		<title level="a" type="main">The concave-convex procedure</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">L</forename><surname>Yuille</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Rangarajan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural Computation</title>
+		<imprint>
+			<biblScope unit="volume">15</biblScope>
+			<biblScope unit="page" from="915" to="936" />
+			<date type="published" when="2003">2003</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b62">
+	<analytic>
+		<title level="a" type="main">MM algorithms for some discrete multivariate distributions</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lange</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Computational and Graphical Statistics</title>
+		<imprint>
+			<biblScope unit="volume">19</biblScope>
+			<biblScope unit="page" from="645" to="665" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b63">
+	<analytic>
+		<title level="a" type="main">Graphical process units and high-dimensional optimization</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Lange</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A</forename><surname>Suchard</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Statistical Science</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="page" from="311" to="324" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b64">
+	<analytic>
+		<title level="a" type="main">EM vs MM: a case study</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Computational Statistics and Data Analysis</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

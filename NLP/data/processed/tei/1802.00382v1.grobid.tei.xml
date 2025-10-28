@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Classifying medical notes into standard disease codes</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Amitabha</forename><surname>Karmakar</surname></persName>
+							<email>amitkarmakar@berkeley.edu</email>
+							<affiliation key="aff0">
+								<orgName type="institution">University of California Berkeley</orgName>
+								<address>
+									<region>CA</region>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Classifying medical notes into standard disease codes</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">B08AA468859EF3FDE41FB885CF3A4562</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>We investigate the automatic classification of patient discharge notes into standard disease labels. We find that Convolutional Neural Networks with Attention outperform previous algorithms used in this task, and suggest further areas for improvement.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Electronic Health Records (EHRs) have grown significantly over the years and now include an unprecedented amount and variety of patient information, including demographics, vital sign measurements, laboratory test results, prescriptions, procedures performed, digitized notes, imaging reports, mortality etc. They usually contain both structured data (e.g. admission dates) as well as unstructured data (e.g. notes written by doctors).</p><p>Provided it can be processed, the information in these records -especially the unstructured data -holds the promise of new medical insights and improved medical care, such as faster detection of epidemics, identification of symptoms, personalized treatment, or a more detailed understanding of treatment outcomes.</p><p>One such gains is a more automated and accurate way to report diseases. Since 1967, the World Health Organization (WHO) has developed an International Classification of Diseases (ICD) to "monitor the incidence and prevalence of diseases, observe reimbursements and resource allocation trends, and keep track of safety and quality guidelines"<ref type="foot" target="#foot_0">foot_0</ref> . Currently this ICD labeling is done manually by administrative personnel based on definitions and is subject to interpretation and errors <ref type="foot" target="#foot_1">2</ref> .</p><p>In this paper, we focus our efforts on the automatic labeling of discharge notes from the MIMIC<ref type="foot" target="#foot_2">foot_2</ref> Database into ICD codes. This public database of EHRs contains data points on about 41,000 patients from an intensive care units between 2001 and 2012, including notes on close ot 53,000 admissions. MIMIC has already been</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Background</head><p>The problem of assigning ICD codes automatically to discharge summaries has previously been studied. Among the most recent research publications, we can distinguish two types of efforts: papers trying to predict the ICD codes in all their complexity, and those more numerous who focus on a smaller domain.</p><p>Full ICD codes: Perotte et al. ( <ref type="formula">2014</ref>) used the MIMIC II dataset to predict the original ICD codes. They experimented with two approaches: one that treats each ICD9 code independently of each other (flat classifier), and one that leverages the hierarchical nature of ICD9 codes into its modeling (hierarchy-based classifier). They used a novel evaluation metrics, which reflected the distances among source ICD9 tree and predicted codes and their locations in the ICD9 tree. They found that the hierarchy-based classifier outperformed the flat classifier.</p><p>Simplified ICD codes: Other researchers focused their efforts on a smaller number of ICD codes, and found their best results using Convolutional Neural Networks (CNNs). Gerhman et al. ( <ref type="formula">2017</ref>) relabeled 1.6K clinical notes from MIMIC III using their own 10 labels. They find that CNNs outperform other approaches based on n-gram models, and Natural Entity Recognition (NER). <ref type="foot" target="#foot_3">4</ref>Our Approach: In this paper, we focused on improving techniques applied to the simplified ICD code problem. While CNNs seem well suited, some characteristics of discharge notes raise possibilities for other approaches.</p><p>Medical notes describe a temporal sequence of events and tests, to which CNNs are oblivious, on the contrary to Long Short-Term Memory (LSTM) models. Additionally, notes are long, with an average length of around 1500 words. Because of this large context, we also explored Attention models which do not seem to have been applied to this problem domain before.</p><p>Last, we briefly investigated how the two approaches (full and simplified ICD codes) could be reunited by adapting the training metric.</p><p>We focused on the classification of hospital admission discharge notes into ICD-9 codes, using the MIMIC III database <ref type="bibr" target="#b10">(Johnson et al., 2016)</ref> for comparison purposes.</p><p>We can broadly break our approach to this multilabel multi-class problem into the steps detailed below: output labeling, input preprocessing, training and output metrics, and algorithms.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Output labeling</head><p>The ICD-9 nomenclature applied by MIMIC III contains about 14,000 numerical codes representing all possible diagnoses and procedures<ref type="foot" target="#foot_4">foot_4</ref> . Out of those 14,000, 5,932 distinct codes are used to describe the 52,696 hospital admissions of the database, with 1,112 codes appearing only once.</p><p>This creates an issue for classification algorithms since many codes would need to be predicted with few or no example in the training set. Fortunately, the ICD codes are organized in a hierarchical tree, see Figure <ref type="figure" target="#fig_0">1</ref>. As a result, we identified 3 mains methods to deal with the high number of classes:</p><p>• Restrict the labels to the most common Level 5 codes, method used by some project reports. 7 We start by selecting the 20 most common codes (see Figure <ref type="figure" target="#fig_1">2</ref>)</p><p>• Relabel all codes into a smaller class of codes. This approach was done manually by <ref type="bibr" target="#b0">(Gehrmann et al., 2017)</ref>. Here, we take advantage of the ICD hierarchy, and simply relabel notes into the 17 nodes of depth 1. 8</p><p>• A third possible approach -to explore in further work -would be to keep all labels, but use a "hierarchical metric", i.e. discounting errors if labels are in the same ICD branch.</p><p>Intuitively, we can expect the second approach to perform better, since i) the codes represent very different realities, whereas common codes may be related, and ii) the distribution is less balanced. An additional benefit is that we have access to the full dataset for training (53K) instead of just a subset if we had re annotated the dataset manually or if we take the most common codes (46k).</p><p>The third untested approach would allow to keep all codes intact, and hence be more precise in the labeling.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Note preprocessing</head><p>The database presents multiple clinical notes categories including things like Radiology, Nutrition, Pharmacy, or Social Work. Here, we focus on Discharge Summaries,<ref type="foot" target="#foot_6">foot_6</ref> which already provide a synthesis of different aspects.</p><p>To process those notes, we go through relatively common steps that we summarize briefly here: we put words in lower case, remove most special characters, separate contractions, canonize numbers, and tokenized the resulting words.</p><p>The results is a vectorized set of notes, which can reach 10,924 words. Since some of our algorithms require a fixed length input, we truncate and pad the notes so that the output has a length of 5,000 words. This is done without loss of generality, since 99.5% of the notes meet this criteria.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Embedding</head><p>Unfortunately, even after the previous steps, the wording is still not standardized. Like some unpublished papers, we can see at least 13 ways that write hypercholesterolemia, for instance. <ref type="foot" target="#foot_7">10</ref>One way to solve this issue would be to use Named Entity Recognition (NER). Some implementations exist which are tailored to the medical realm, such as Apache cTAKES or MetaMap. However, previous papers <ref type="bibr" target="#b0">(Gehrmann et al., 2017)</ref> find that embeddings perform better, trusting embeddings' ability to make "misspellings, synonyms and abbreviations of an original word learn similar embeddings". Therefore we used trainable embeddings, sometimes pre-trained with the Glove algorithm on Wiki<ref type="foot" target="#foot_8">foot_8</ref> or on the MIMIC notes to account for the vocabulary specificity.</p><p>Note that some papers such as (Perotte et al., 2014) use TF-IDF, either to restrict the original vocabulary size or to transform notes into continuous components.</p><p>Here since we use embeddings of size 100, we can keep Figure 3: Original distribution of note length our original vocabulary of 60,619 with limited impact to our calculation time.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.4">Training Loss Function</head><p>For multi-label classifications like this one, an approach is to convert the problem into single binary classification tasks. This would not work for ICD-9 codes since the ones assigned to a clinical-note may not be independent (some medical conditions are correlated).</p><p>An early procedure for multi-label classification using NNs was BP-MLL which uses a novel pairwise ranking loss function for training <ref type="bibr" target="#b3">(Zhang et al., 2006)</ref>, but later research found that cross entropy produces better results <ref type="bibr" target="#b2">(Nam et al., 2013)</ref>. In this work, we use the latter.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.5">Algorithms</head><p>For all of our models, we used standard software and evaluation methods. 12 12 Data is split between training (70 %), validation (15%) and test (15%) sets. Models were implemented using Tensorflow and Keras. Training optimizer used was Adam. Our models are using L2 regularizations and Dropouts, which</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.5.1">Baseline and Linear Models</head><p>Our Baseline model simply predicts the 4 most common ICD-9 codes for each clinical note. This performs better than more complicated alternatives, for example Gehrmann et al. ( <ref type="formula">2017</ref>) used a 3-gram Logistic Regression with relatively poor results (Table <ref type="table">1</ref>).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.5.2">CNN</head><p>CNNs have been used for image multi-label classification. Although the invariances are different between an image and a text, this sounds similar to our problem.</p><p>This work implements a CNN for text classification replicating the architecture presented by <ref type="bibr" target="#b4">Kim (2014)</ref> and based on hyper parameters tested by <ref type="bibr" target="#b0">Gehrmann et al. (2017)</ref>.</p><p>The CNN model has one layer of convolution which used 4 different sized windows. Each window takes 2,3,4 or 5 words and applies 100 filters, encompassing the full embedding size.</p><p>We use this model to classify into Level 5 ICD-9 codes and first-level ICD-9 codes in the hierarchy.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.5.3">LSTM</head><p>According to <ref type="bibr" target="#b5">Yin et al. (2017)</ref> the state-of-the-art on many NLP tasks often switches between CNNs and RNNs (LSTM in this case), his paper lists different past studies where sometimes a CNN performs better and other times a LSTM.</p><p>Hence we implement a LSTM model to see if some of the discharge note features (e.g. temporal sequence) make it a better candidate. Since we have a relatevely small file (56K records), we start with a single layer LSTM to keep the number of parameters low. We didn't find published papers regarding classifying clinical notes using LSTM, however we did find a report on the web. 13</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.5.4">Attention</head><p>As explored in Section 3.2, the average length of discharge clinical notes is 1639 words. The text to classify proved its efficiency.Default parameters were used. may be too long for a LSTM or CNN to remember all relevant information. <ref type="bibr" target="#b6">Raffel et al. (2016)</ref> displayed better performance in many NLP tasks on long text using Attention. Here, we seek to emulate his results by implementing algorithms based on the formulas presented in <ref type="bibr" target="#b6">(Raffel et al., 2016)</ref> and <ref type="bibr" target="#b7">Yang et al. (2016)</ref>.</p><p>LSTM with Attention: The LSTM cell returns not only the last hidden state but all the intermediate ones that are then sent to the attention layer which creates a new vector representing the clinical note for the output layer classification.</p><p>CNN with Attention: The MaxPooling element in the CNN network is replaced by the Attention layer in order to create a vector representing all relevant information and not only taking in account max values. A model like this one is mentioned in <ref type="bibr" target="#b8">Yin et al. (2016)</ref> Hierarchical Attention: This model was implemented based on <ref type="bibr" target="#b7">Yang et al. (2016)</ref> which specifically targets document classifications. It has two levels of attention mechanisms, the first one creates vectors that represent each sentence, using attention mechanism across words; and the second level creates a vector that represent the document using attention mechanisms across sentences. <ref type="bibr" target="#b7">Yang et al. (2016)</ref> uses Bidirectional GRUs while we use LSTMs for a fair comparision with the flat LSTM models.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.6">Threshold Calibration</head><p>The resulting vector from the neural network may be interpreted as a probability of the individual ICD-9 codes (each cell has a value 0-1, but does not sum to 1). To complete the prediction, we must convert the vector to binary values.</p><p>There are several methods for selecting a Threshold <ref type="bibr">(Zhang et al., 2016)</ref>. We used a constant threshold maximizing the overall F1-score. In future work, we could explore methods building a (linear) model on top of the intermediate vector.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.7">Performance Metrics</head><p>We use the F1 metric on the validation data to evaluate performance in all models and compare results with previous work on classifying MIMIC clinical notes and text classification in general.<ref type="foot" target="#foot_9">foot_9</ref> </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Results and Discussion</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Comparing CNN with previous work</head><p>In order to compare F1 performance results with the CNN model built by <ref type="bibr" target="#b0">Gehrmann et al. (2017)</ref>, we took into consideration the dataset size and number of classes.</p><p>Gehrmann's re-labeling approach is similar to our relabeling using the first-level ICD-9 codes in the ICD code hierarchy. Even though we have access to 52.6K records, we use a subset to relate to the 1.6K records used by <ref type="bibr" target="#b0">Gehrmann et al. (2017)</ref>. Since we have 17 classes, 7 more than the ones used by Gehrmann , we run our model with a dataset of 5K records.</p><p>Our CNN obtains similar result to Gehrmann et al., with a F1 score of 76.2%, compare to their F1 score of 76% (see Table <ref type="table">1</ref>).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Source</head><p>Labels Methods Rec F1 Gehrmann et al., 2017 10 own labels LR 3-gram 1.6K 34.6 Gehrmann et al., 2017 10 own labels CNN 1.6K 76 This Paper 17 ICD-9 CNN 5K 76.2 Table 1: Classification of MIMIC clinical notes into labels representing high level phenotype categories (20 epochs for both CNN models)</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Testing CNN, LSTM and Attention</head><p>To improve on this initial result, we ran experiments with the different models to identify the two more promising. These experiments run with a 5K notes, the 17 first level ICD-9 codes, using 5 epochs. The results are presented in Table <ref type="table">2</ref> We tested LSTMs with and without attention mechanisms, CNN with and without attention mechanisms and a Hierarchical LSTM model with Attention layers.</p><p>From the results in Table <ref type="table">2</ref> we can see that CNN models do perform better than LSTM on classifying the MIMIC medical notes.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Source</head><p>Methods Recs F1 This Paper LSTM 5k 64.6 This Paper LSTM-Attention 5k 67 This Paper Hierarchical LSTM-Attention 5k 67.6 This Paper CNN 5k 69 This Paper CNN-Attention 5k 72.8 Table 2: Classification of MIMIC clinical notes into Level 1 ICD-9 Codes. Evaluation with 17 classes, 5k records, 5 epochs</p><p>We can also see that there is a significant improvement on F1 scores when applying attention mechanism to LSTM and CNN models. The LSTM with Attention model outperforms the standard LSTM by 2.4% and the CNN with Attention model outperforms the standard CNN model by 3.8%.</p><p>On the other hand, the Hierarchical LSTM with Attention mechanisms had only a small increase (0.6%) in performance results on regards to the Flat LSTM with Attention. This is smaller than we expected based on similar classification tasks by <ref type="bibr" target="#b7">Yang et al. (2016)</ref>, where a difference of 3% is reported, but on larger datasets. This model has twice the number of parameters than the flat models, which would impact performance for relatevely small files like the one we are using, this could be a reason for just a small improvement in the f1 score. We also tried GRUs instead of LSTMs to compare with <ref type="bibr" target="#b7">Yang et al. (2016)</ref> results and the difference was still the same.</p><p>Another possible reason our Hierarchical model is not performing much better is the tokenization of sentences. The model bases its predictions on the results on each sentence, and if the sentences are not identified correctly in the first place, then the rest of the model will not perform well. We did inspect suspicious long sentences which were not incorrect, they were lab reports. We would inspect closely the sentence tokenization process in further work.</p><p>The two most promising models are CNN and CNN with Attention, even the standard CNN model outperforms the Hierarchical model.</p><p>CNN models could be seen as hierarchical: the convolutional sliding windows create segments of the document (like sentences do) and they are collapsed into vectors representing a higher level of abstraction. In as sense CNN are finding the best segments in the document regardless of sentences separations. This may explain why the CNN models are getting a better performance than the Hierarchical models.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.3">CNN performance with full data set</head><p>Here we show results from running the CNN models with the full data set.</p><p>First we classify clinical notes into the 20 most common Level 5 ICD-9 codes for comparison purposes: we can see that our model outperformed previous work (see Table <ref type="table">3</ref>).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Source</head><p>Methods N. Rec F1 Perotte et al., 2014 Hierarchal SVM (all codes) 22K 39.5 Previous Project Reports<ref type="foot" target="#foot_10">foot_10</ref> LSTM 32K 41.6 This paper Baseline 46K 35 This paper CNN 46K 72.4 Table 3: Classification of MIMIC clinical notes into most common Level 5 ICD-9 Codes To go further, we trained both CNN Models to classify clinical notes into Level 1 ICD-9 codes in the hierarchy (see Table 4). As anticipated earlier, the plain CNN model executed with the 52.6K records got a F1-score of 79.7%, outperforming any other model in previous work, due to i) a larger dataset, ii) better separated labels, and iii) a more imbalanced label distribution (see Section 3.1). Source Methods Recs F1 This Paper Baseline 52.6K 53 This Paper CNN 52.6K 79.7 This Paper CNN w/ Attention 52.6K 78.2 Table 4: Classification of MIMIC clinical notes into 17 Level 1 ICD-9 Codes</p><p>However at this stage, the CNN ATT model still overfits: even though it had the highest score during the experimental runs with 5K records and 5 epochs, it didn't reach the best f1-score when running it with the full data set. Further work would explore hyperparameters tuning and evaluating the number of parameters to attempt undoing the over fitting situation.</p><p>We believe the CNN models can still be improved by inspecting in more detail cases where the model predicted a false positive or false negative, and working on hyper-parameters. This would be one of the first tasks to do in further work regarding these models.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.4">Pre-trained Embeddings</head><p>We used trainable embeddings, as described in Section 3.3. Our two attempts to initialize them with pretrained values were unsuccessful.</p><p>Using the Wiki Glove pre-trained embeddings led to a minor decrease in performance (about 0.001%) compared to an empty embedding matrix, which could be expected since Medical clinical notes have a vocabulary that differs from most Wiki pages. In fact, half of our vocabulary was not found on the Wiki Glove pretrained embeddings.</p><p>We then created our own pre-trained embeddings using the Glove algorithm on all the MIMIC discharge notes. The result was a small performance improvement of 0.01%.</p><p>As part of future work, we think that using pretrained embeddings on millions of clinical notes would improve the performance of models processing clinical notes, this is an example of such type of work 16 .</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Conclusions and outlook</head><p>In this paper, we tested several alternative approaches for classifying ICD-9 codes.</p><p>We showed that our a CNN models outperform significantly the F1 scores reported by previous work on Level 1 or Level 5 codes, while LSTMs and Hierarchical model displayed lower performance.</p><p>However for the problem of automatic labeling to be solved, models need to increase both in performance and in the precision of the codes that they allocate. Our results highlight several areas to further that goal:</p><p>• optimization of CNN model with Attention, given promising results on small datasets</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Sample ICD9 path 6</figDesc><graphic coords="2,72.00,364.21,226.78,187.73" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: Penetration of top 20 Level 5 codes (left) and all Level 1 codes (right)</figDesc><graphic coords="3,72.00,82.72,453.55,157.84" type="bitmap" /></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0"><p>http://www.who.int/classifications/icd/en/</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_1"><p>See recent articles on opiod overdose statistics in the US https://tinyurl.com/y8zc3xcq</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="3" xml:id="foot_2"><p>Medical Information Mart for Intensive Care https://mimic.physionet.org proven valuable for efforts similar to ours, which will make comparisons more accurate.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="4" xml:id="foot_3"><p>Using cTAKES http://ctakes.apache.org/ arXiv:1802.00382v1 [cs.LG] 1 Feb 2018</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="5" xml:id="foot_4"><p>ICD-10 (current version) has around</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_5"><p>68,000 labels 7 https://cs224d.stanford.edu/reports/lukelefebure.pdf8  Excluding 798 which appears only once</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="9" xml:id="foot_6"><p>There are 2 types of discharge summaries, reports and addendum, we focused on the reports</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="10" xml:id="foot_7"><p>https://cs224d.stanford.edu/reports/priyanka.pdf</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="11" xml:id="foot_8"><p>https://nlp.stanford.edu/projects/glove/</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="14" xml:id="foot_9"><p>For multi-label classifications, sklearn offers several options, we used the F1 'micro' option which calculates global counts for true positives, false negatives and false positives.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="15" xml:id="foot_10"><p>https://cs224d.stanford.edu/reports/priyanka.pdf</p></note>
+		</body>
+		<back>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>• better adapt embeddings to clinical notes</p><p>• broaden the number of ICD codes, gradually or by adapting the training metric Finally we note that ICD codes are associated with a textual definition which could be directly compared with the clinical notes themselves.</p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">A Comparison of Rule-Based and Deep Learning Models for Patient Phenotyping. MIT Critical Data, Laboratory for Computational Physiology</title>
+		<author>
+			<persName><forename type="first">Sebastian</forename><surname>Gehrmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Franck</forename><surname>Dernoncourt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yeran</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Eric</forename><forename type="middle">T</forename><surname>Carlson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Joy</forename><forename type="middle">T</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jonathan</forename><surname>Welt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">John</forename><surname>Foote</surname><genName>Jr</genName></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Edward</forename><surname>Moseley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David</forename><forename type="middle">W</forename><surname>Grant</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Patrick</forename><forename type="middle">D</forename><surname>Tyler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Leo</forename><surname>Anthony Celi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Harvard John A. Paulson School of Engineering and Applied Sciences</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<publisher>Massachusetts Institute of Technology, Harvard T.H. Chan School of Public Health</publisher>
+		</imprint>
+		<respStmt>
+			<orgName>Philips Research North America, Beth Israel Deaconess Medical Center, Massachusetts General Hospital, Tufts University School of Medicine, University of Massachusetts, Washington University School of Medicine</orgName>
+		</respStmt>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Diagnosis code assignment: models and evaluation metrics</title>
+		<author>
+			<persName><forename type="first">Rimma</forename><surname>Adler Perotte</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Karthik</forename><surname>Pivovarov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nicole</forename><surname>Natarajan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Frank</forename><surname>Weiskopf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nomie</forename><surname>Wood</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Elhadad</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<publisher>NewYork Presbyterian Hospital</publisher>
+			<pubPlace>New York, New York, USA; New York; Oxford, UK</pubPlace>
+		</imprint>
+		<respStmt>
+			<orgName>Department of Biomedical Informatics, Columbia; University ; Department of Engineering, University of Oxford</orgName>
+		</respStmt>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<author>
+			<persName><forename type="first">J</forename><surname>Nam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Loza Menca</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Gurevych</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Furnkranz</surname></persName>
+		</author>
+		<title level="m">Large-scale Multi-label Text Classification -Revisiting Neural Networks</title>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+	<note>ArXiv e-prints</note>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Multi-label neural networks with applications to functional genomics and text categorization</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">L</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><forename type="middle">H</forename><surname>Zhou</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Knowledge and Data Engineering</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="page">13381351</biblScope>
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<monogr>
+		<title level="m" type="main">Convolutional Neural Networks for Sentence Classification</title>
+		<author>
+			<persName><forename type="first">Yoon</forename><surname>Kim</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<pubPlace>New York University</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<title level="m" type="main">Mo Yu and Hinrich Schutze Comparative Study of CNN and RNN for Natural Language Processing</title>
+		<author>
+			<persName><forename type="first">Wenpeng</forename><surname>Yin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Katharina</forename><surname>Kann</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<pubPlace>CIS, LMU Munich, Germany, IBM Research, USA</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">Ellis Feed-Forward Networks With Attention can solve some long-term memory problems</title>
+		<author>
+			<persName><forename type="first">Colin</forename><surname>Raffel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">W</forename><surname>Daniel</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016. 2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">Eduard Hovy Hierarchical Attention Networks for Document Classification</title>
+		<author>
+			<persName><forename type="first">Zichao</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Diyi</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chris</forename><surname>Dyer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xiaodong</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alex</forename><surname>Smola</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>Microsoft Research</publisher>
+			<pubPlace>Redmond</pubPlace>
+		</imprint>
+		<respStmt>
+			<orgName>Carnegie Mellon University</orgName>
+		</respStmt>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<monogr>
+		<title level="m" type="main">Attention-Based Convolutional Neural Network for Modeling Sentence Pairs</title>
+		<author>
+			<persName><forename type="first">Wenpeng</forename><surname>Yin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hinrich</forename><surname>Schutze</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bing</forename><surname>Xiang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bowen</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Abcnn</forename></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>Microsoft Research</publisher>
+			<pubPlace>Redmond</pubPlace>
+		</imprint>
+		<respStmt>
+			<orgName>Carnegie Mellon University</orgName>
+		</respStmt>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Review on Multi-Label Learning Algorithms</title>
+		<author>
+			<persName><forename type="first">Min-Ling</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhi-Hua</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on knowledge and data engineering</title>
+		<imprint>
+			<biblScope unit="volume">26</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">MIMIC-III, a freely accessible critical care database</title>
+		<author>
+			<persName><forename type="first">Aew</forename><surname>Johnson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">J</forename><surname>Pollard</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Shen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Lehman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Feng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Ghassemi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Moody</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Szolovits</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">A</forename><surname>Celi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mark</forename><surname>Rg</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/sdata.2016.35</idno>
+	</analytic>
+	<monogr>
+		<title level="m">Scientific Data</title>
+		<imprint>
+			<date type="published" when="2016">2016. 2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

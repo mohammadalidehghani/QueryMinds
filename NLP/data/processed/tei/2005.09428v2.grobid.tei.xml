@@ -1,0 +1,1536 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Quantum-Classical Machine learning by Hybrid Tensor Networks</title>
+				<funder ref="#_DwFVUg2">
+					<orgName type="full">Tianjin Natural Science Foundation of China</orgName>
+				</funder>
+				<funder ref="#_FHzfhWU">
+					<orgName type="full">Science &amp; Technology Development Fund of Tianjin Education Commission for Higher Education</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2024-08-14">14 Aug 2024</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Ding</forename><surname>Liu</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">School of Computer Science and Technology</orgName>
+								<orgName type="institution">Tiangong University</orgName>
+								<address>
+									<postCode>300387</postCode>
+									<settlement>Tianjin</settlement>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Jiaqi</forename><surname>Yao</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">School of Computer Science and Technology</orgName>
+								<orgName type="institution">Tiangong University</orgName>
+								<address>
+									<postCode>300387</postCode>
+									<settlement>Tianjin</settlement>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Zekun</forename><surname>Yao</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">School of Computer Science and Technology</orgName>
+								<orgName type="institution">Tiangong University</orgName>
+								<address>
+									<postCode>300387</postCode>
+									<settlement>Tianjin</settlement>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Quan</forename><surname>Zhang</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">School of Computer Science and Technology</orgName>
+								<orgName type="institution">Tiangong University</orgName>
+								<address>
+									<postCode>300387</postCode>
+									<settlement>Tianjin</settlement>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Quantum-Classical Machine learning by Hybrid Tensor Networks</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2024-08-14">14 Aug 2024</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">FC89D693AE5C0FF5E38942843E2DF2BC</idno>
+					<idno type="arXiv">arXiv:2005.09428v2[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Tensor networks (TN) have found a wide use in machine learning, and in particular, TN and deep learning bear striking similarities. In this work, we propose the quantum-classical hybrid tensor networks (HTN) which combine tensor networks with classical neural networks in a uniform deep learning framework to overcome the limitations of regular tensor networks in machine learning.</p><p>We first analyze the limitations of regular tensor networks in the applications of machine learning involving the representation power and architecture scalability. We conclude that in fact the regular tensor networks are not competent to be the basic building blocks of deep learning. Then, we discuss the performance of HTN which overcome all the deficiency of regular tensor networks for machine learning. In this sense, we are able to train HTN in the deep learning way which is the standard combination of algorithms such as Back Propagation and Stochastic Gradient Descent. We finally provide two applicable cases to show the potential applications of HTN, including quantum states classification and quantum-classical autoencoder. These cases also demonstrate the great potentiality to design various HTN in deep learning way.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>I. INTRODUCTION.</head></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>In recent years, tensor networks (TN) have drawn more attention as one of the most powerful numerical tools for studying quantum many-body systems <ref type="bibr" target="#b0">[1]</ref><ref type="bibr" target="#b1">[2]</ref><ref type="bibr" target="#b2">[3]</ref><ref type="bibr" target="#b3">[4]</ref>. Furthermore, TN have been recently applied to many research areas of machine learning <ref type="bibr" target="#b4">[5]</ref><ref type="bibr" target="#b5">[6]</ref><ref type="bibr" target="#b6">[7]</ref><ref type="bibr" target="#b7">[8]</ref>, such as image classification <ref type="bibr" target="#b8">[9]</ref><ref type="bibr" target="#b9">[10]</ref><ref type="bibr" target="#b10">[11]</ref>, dimensionality reduction <ref type="bibr" target="#b11">[12,</ref><ref type="bibr" target="#b12">13]</ref>, generative model <ref type="bibr" target="#b9">[10,</ref><ref type="bibr" target="#b13">14]</ref>, data compression <ref type="bibr" target="#b14">[15]</ref>, improving deep neural network <ref type="bibr" target="#b15">[16]</ref>, probabilistic graph model <ref type="bibr" target="#b16">[17]</ref>, quantum compressed sensing <ref type="bibr" target="#b17">[18]</ref>, even the promising way to implement quantum circuit <ref type="bibr" target="#b18">[19]</ref><ref type="bibr" target="#b19">[20]</ref><ref type="bibr" target="#b20">[21]</ref><ref type="bibr" target="#b21">[22]</ref><ref type="bibr" target="#b22">[23]</ref>. However, researchers encounter a serious computing complexity problem and raise the question: Are the tensor networks able to be the universal deep learning architecture? As we know, the theoretical foundation of deep neural networks is the principle of universal approximation which states that a feed-forward network with a single hidden layer is a universal approximator if and only if the activation function is not polynomial <ref type="bibr" target="#b23">[24,</ref><ref type="bibr" target="#b24">25]</ref>. In this context, the key point of the question of tensor network machine learning is whether TNs can also be universal approximators.</p><p>Some pioneering researches have begun to address this fundamental problem. Reference <ref type="bibr" target="#b25">[26]</ref> proposes the concept of generalized tensor networks to outperform regular tensor networks, particularly in terms of representation power. Specifically, they try to combine generalized tensor networks with convolution neural networks together and achieve some good results. In this approach, the convolutions are treated as a feature map, and the tensor network is placed in the final layer and used as the classifier.</p><p>Reference <ref type="bibr" target="#b26">[27]</ref> provides a mathematical analysis of the representation power of some typical tensor network factorizations of discrete multivariate probability distribu- * liuding@tiangong.edu.cn tions involving matrix product states (MPS), Born machines, and locally purified states (LPS). Reference <ref type="bibr" target="#b27">[28]</ref> discusses the equivalence between restricted boltzmann machines (RBM) and tensor network states. They prove that these kinds of specific neural networks can be translated into MPS and outline an efficient algorithm for doing so. Drawing on this insight, they quantify the representational power of RBM through the perspective of tensor networks. This insight into tensor networks and RBM guides the design of novel quantum deep learning architectures.</p><p>The intersection of physics and machine learning, quantum networks are relatively easy to deploy on quantum computers. Reference <ref type="bibr" target="#b28">[29]</ref> presents the framework of hybrid tensor networks, with building blocks including measurable quantum states and classically contractible tensors. Using hybrid tree tensor networks as an example, it demonstrates the method of efficiently simulating quantum systems on quantum computers with significantly smaller volumes than the target systems. This approach provides insights for simulating large practical problems within medium-scale quantum computers. The review article <ref type="bibr" target="#b29">[30]</ref> discusses how various tensor networks can be mapped to quantum computers, their utilization in machine learning and data encoding, and which implementation techniques can enhance their performance. Additionally, when parameters are randomly initialized, the size of initial gradients decreases exponentially with the increase in the number of quantum bits and circuit depth. To address this phenomenon, known as the "barren plateau", Reference <ref type="bibr" target="#b30">[31]</ref> proposes the MPS pretraining method.</p><p>Different from these previous works, we propose the concept of Hybrid Tensor Networks (HTN) which combine tensor networks with classical neural networks into a uniform deep learning framework. We show the schematic of this universal framework in Fig. <ref type="figure" target="#fig_0">1</ref>. By virtue of this framework, people are able to freely design HTN by adding any specific tensor network and any classical neural network at any part of the HTN.  TABLE I. Number of parameters of each model on MNIST classification. model MPS TTN LeNet-5 FCN HTN Test accuracy 98% 95% 99% 95% 98% Bond dimension 20 6 --3 Number of 6.3 1.4 1.2 2.4 7.7 parameters ×10 7 ×10 9 ×10 4 ×10 6 ×10 5</p><p>TABLE II. Number of parameters of each model on MNIST regression Lower bounds of MSE Loss O(10 -1 ) O(10 -2 ) FCN 8.6 × 10 3 6 × 10 4 CNN 6 × 10 2 3 × 10 3 TTN 4.3 × 10 4 1.4 × 10 6 HTN 6.5 × 10 3 2.6 × 10 4</p><p>And then train the whole network using the standard Back Propagation (BP) algorithm and Stochastic Gradient Descent (SGD). Therefore by introducing neurons with nonlinear activation, HTN will be a kind of universal approximator just like neural networks. More impor-tantly, HTN are capable of dealing with both quantum entanglement states and product states. In this way, the HTN will be a good choice for the implementation of a hybrid quantum-classical deep learning model, making it a promising choice for the implementation of hybrid quantum-classical deep learning models. In this paper, we discuss some preliminary ideas to design HTN and provide some applicable cases and numerical experiments. At the end, we give a brief discussion on the quantum feature engineering.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>II. LIMITATIONS OF REGULAR TENSOR NETWORKS MACHINE LEARNING</head><p>Although, as a kind of popular and powerful numerical tool in quantum many-body physics, regular tensor networks expose some limitations on machine learning, such as the limitations on representation and scalability in architecture. All of these limitations restrict the application of regular tensor networks in machine learning, especially for deep learning. In this section, we conclude and analyze some main points. 0 200 400 600 800 1000 0 0.05 0.1 epoch loss 2*2 grid 4*4 grid 8*8 grid (a) 0 200 400 600 800 1000 0 0.05 0.1 0.15 0.2 0.25 epoch loss 2*2 grid 4*4 grid 8*8 grid (b) FIG. 4. Training loss of quantum-classical autoencoder; (a) MNIST ; (b) Fashion-MNIST ; A. Representation</p><p>General neural networks (NNs) are characterized by the universal approximation theorem which states that the feed-forward networks are capable of approximating any continuous function, owing to the use of nonlinear activation. So we treat it as a kind of so-called universal approximator. Based on this, NNs become the fundamental building blocks of deep learning. In contrast, TNs are considered as multi-linear functions and therefore obey the superposition principle in quantum mechanics. This is characterized as the intrinsic feature of TNs in quantum many-body systems, but an obstacle to being a powerful universal approximator in machine learning. Therefore, nonlinear feature map functions are required to map all data points from the original feature space to the high-dimensional Hilbert space. In some previous works <ref type="bibr" target="#b8">[9,</ref><ref type="bibr" target="#b10">11]</ref>, people use the feature map which is introduced by (1) firstly as:</p><formula xml:id="formula_0">Cv s (x) = d -1 s -1 (cos( π 2 x)) d-s (sin( π 2 x)) s-1 (1)</formula><p>where d denotes the dimension of the physical index, and s runs from 1 to d. By using a larger d, the TTN has the potential to approximate a richer class of functions. Furthermore, reference <ref type="bibr" target="#b25">[26]</ref> discusses some other optional complex feature maps, even including neural networks such as CNNs. These works highlight the crucial role of the feature map in tensor network machine learning, as it determines whether and how well a tensor network can approximate a nonlinear function. This significant difference between TNs and NNs is illustrated in Fig. <ref type="figure" target="#fig_0">1</ref>. Deep neural networks are equipped with lots of non-linear activation in each layer and each neuron which guarantees its power of approximation. But in contrast, TNs strongly depend on the choice of the feature map, rendering them a multi-linear model in the high dimensional feature space, which strictly limits their power of approximation. It is also easy to understand this from the perspective of statistical machine learning theory such as Support Vector Machine (SVM). In the context of SVM, people always need to map original data points into a high-dimensional feature space and find a kernel function while addressing the nonlinear issue, and it is called the "kernel trick". However, in the context of tensor network machine learning, it is unreasonable to endow the TNs with the capacity of universal approximation just by this "kernel trick", especially when we want to build a complex and deep tensor network model.</p><p>Moreover, for a specific machine learning task, we always have to train a large-scale regular tensor network with more parameters than its corresponding classical neural network can pose a challenge. Taking the previous works as examples <ref type="bibr" target="#b10">[11,</ref><ref type="bibr" target="#b31">32]</ref>, we employed the TTN and MPS on the benchmark of handwritten digits classification. The parametric complexity is around O(D 5 ) for TTN and O(D 3 ) for MPS, in which D represents the bond dimension. This may result in the trouble of high parametric complexity since we often need to use a large bond dimension. The experimental results in Table <ref type="table">I</ref> show us the scale of a number of parameters in both TTN and MPS are far more than almost any classical model such as CNN and fully-connected network (FCN). For comparison, we also implement a HTN model and find the number of parameters it needs is less than FCN's, and of course far less than TTN's and MPS's. From the perspective of quantum simulation, we understand that simulating quantum computing on a classical computer always requires exponential growth of parameters with the size of the systems. It shows us a large number of parameters intrinsically leads to a severe problem --compared with the existing classical deep learning model, it is difficult to train a regular tensor network that has the same or better performance, even if it is impossible.</p><p>We also verify this conclusion by some preliminary regression experiments which directly show us how well the model can reach in the curve fitting. Table <ref type="table">II</ref> presents the benchmark results on the MNIST dataset. In this case, we change the classification task to a simple regression issue by setting the label as a corresponding scalar. Taking the class of image "6" as an example, we need to train a model that outputs a scalar which closes to "6" as soon as possible, rather than a classification vector. We then determine the lower bound of the Mean Square Error loss function (MSE) and find the minimum model that could reach this lower bound. Indeed, the lower bound of the loss function characterizes how well the model can fit the curve. Clearly, the TTN contains many more parameters than FCN and CNN to reach the same level of the lower bound. In this case, it has ranged from around 10 to 10 3 times larger than that of the FCN or CNN. It will lead to severe time-consuming problems and even in some worst cases, the training is likely to fail. Similar to the last case, we also find the number of parameters HTN needs is less than FCN's, and far less than TTN's.</p><p>It is worth noting that references <ref type="bibr" target="#b14">[15,</ref><ref type="bibr" target="#b15">16,</ref><ref type="bibr" target="#b32">[33]</ref><ref type="bibr" target="#b33">[34]</ref><ref type="bibr" target="#b34">[35]</ref> propose tensorizing neural networks or tensor regression networks. These are other feasible ways to take advantage of tensor networks in deep learning. But they are very different from the tensor network learning we talked about here. The motivation for tensorizing neural networks is to compress the weight matrix of neural networks using tensor decomposition to reduce computing complexity or save storage space. In this context, the models of tensorizing neural networks neither take quantum data into consideration nor involve the implementation of a quantum model.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Scalability</head><p>We also evaluate regular tensor networks from the perspective of scalability in architecture design. As we know, there are many deep learning models developed to tackle challenges in computer vision, natural language processing and speech recognition etc., such as the popular CNN <ref type="bibr" target="#b35">[36]</ref>, RNN, LSTM <ref type="bibr" target="#b36">[37]</ref>, GAN <ref type="bibr" target="#b37">[38]</ref>, Attention model and Transformer <ref type="bibr" target="#b38">[39]</ref> etc. So just like playing the Jenga game, people are always able to assemble all these models together depending on the engineering applications in practice, even for the designing of extremely deep and complex architecture. In contrast, the scale of tensor networks must be strictly restricted while applying them to quantum many-body systems or machine learning, given the rapid growth of computational complexity. So, it is hard to imagine a huge tensor network with thousands of layers could be simulated on classical computers and applied in machine learning. However, Reference <ref type="bibr" target="#b39">[40]</ref> proposed that Pan Zhang's team utilized a computing cluster equipped with 512 GPUs, dedicating 15 hours to successfully complete a sampling task of Google's Sycamore quantum supremacy circuit.</p><p>Specifically, we take the process of message passing into consideration and observe a significant difference in behavior between the tensor networks and neural networks. As we show in Fig. <ref type="figure" target="#fig_1">2</ref>(a), the input message passes through a neural network from the input side to the output side layer by layer. Specifically, for any single neuron, the message passing could be divided into two parts: weighted sum and fan-out. The operation of fan-out generates lots of copies of the output message and distributes them to the next layer. This mechanism guarantees the FIG. 6. HTN for Quantum-classical autoencoder. We create the encoder by two tensor network layers, and design three different decoders by using three different setups of deconvolutional layers.</p><p>one-to-many mapping could be implemented easily by neural networks but becomes an obstacle to regular tensor networks for machine learning. Fig. <ref type="figure" target="#fig_1">2(b)</ref> shows that message passing is implemented by contraction in regular tensor networks, and it is essentially the inverse operation of tensor decomposition. Reference <ref type="bibr" target="#b25">[26]</ref> proposed the generalized tensor networks to overcome this limitation by introducing the operation of copy which is marked by the red dot in Fig. <ref type="figure" target="#fig_1">2(c)</ref>.</p><p>This mechanism definitely limits the scalability of regular tensor networks in machine learning, especially in the case that we need to build a deep hierarchy.</p><p>Based on all these observations, we understand the limitation on architecture scalability is another severe problem for regular tensor network machine learning. Due to this, we think it's not a good way to build a huge, deep and complex deep learning model by regular tensor networks for the practical applications of machine learning. Therefore, how can we take the advantage of tensor networks for deep learning? The solution we try to offer is the Hybrid Tensor Network.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>III. HYBRID TENSOR NETWORKS</head><p>We propose the concept of Hybrid Tensor Networks (HTN) to overcome the limitations of both representation and scalability of regular tensor networks in machine learning. The basic idea is to introduce nonlinearity by the combination of tensor networks and neural networks. By doing so, we are able to embed a local tensor network into any existing popular deep learning framework very easily, involving both model and algorithm such as CNN, RNN, LSTM etc.. Then we could train a HTN by the standard Back Propagation algorithm (BP) and Stochastic Gradient Descend (SGD) which can be easily found in any deep learning literature <ref type="bibr" target="#b40">[41]</ref>. Suppose we have a HTN which formed in the sequence of n tensor network layers T 1 , T 2 , ..., T n , and subsequent m neural network layers L 1 , L 2 , ..., L m . The cost function is denoted as Cost. Then we could compute the partial derivative to the ith tensor network layer owing to the BP algorithm by <ref type="bibr" target="#b1">(2)</ref>.</p><formula xml:id="formula_1">C ∂Cost ∂ Ti = ∂Cost ∂ Lm • ∂ Lm ∂ Lm-1 • • • ∂ L1 ∂ Tn • ∂ Tn ∂ Tn-1 • • • ∂ Ti+1 ∂ Ti (2)</formula><p>Since the operation of tensor contraction defined as ( <ref type="formula" target="#formula_2">3</ref>) is doubtless differentiable,</p><formula xml:id="formula_2">CT [k] i+1 = α 1 ... α p T [1] i,α1 T [2] i,α2 ... T [p] i,αp<label>(3)</label></formula><p>where T</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>[k]</head><p>i+1 represents the kth tensor in the i + 1 layer. So the last term of (2) can be deduced as (4),</p><formula xml:id="formula_3">C ∂ T [k] i+1 ∂ Ti [j] = ∂ α 1 ... α p T [1] i,α1 ... T [j] i,αj ... T [p] i,αp ∂ Ti [j] = {α 1 ... α p }\{αj } T [1] i,α1 ... T [j-1] i,αj-1 T [j+1] i,αj+1 ... T [p] i,αp<label>(4</label></formula><p>) where T</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>[j]</head><p>i represents the jth tensor in the ith layer. And the rest terms of (2) could be calculated easily according to the principle of neural networks. Then, we can update this tensor by using the gradient descend method as <ref type="bibr" target="#b4">(5)</ref>,</p><formula xml:id="formula_4">CT ′ i = Ti -η ∂Cost ∂ Ti<label>(5)</label></formula><p>where η denotes the learning rate. Indeed all tensors in HTN could be updated layer by layer following this way. Therefore, it guarantees that the HTN can be trained in the uniform optimization framework which combines BP and SGD. Some popular deep learning open-source software libraries such as Tensorflow <ref type="bibr" target="#b41">[42]</ref> and Pytorch <ref type="bibr" target="#b42">[43]</ref> offer powerful automatic differentiation program libraries which could help us implement HTN very easily. Furthermore, we test the speedup of tensor contraction on the GPU platform, which is shown in Fig. <ref type="figure">3</ref>. It confirms the feasibility of implementing the HTN model by utilizing the GPU platform, and sheds light on the potential, complex and practical applications of large-scale HTN model in the real world.</p><p>It is worth noting that, in contrast to previous work that combines tensor networks and neural networks <ref type="bibr" target="#b25">[26]</ref>, we treat tensor networks as the "quantum units" responsible for extracting quantum features from input states.</p><p>So for the designing of a deep HTN, the first consideration is to determine the role that tensor networks will play. We present our two preliminary attempts on quantum states classification and quantum-classical autoencoder in the following.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Quantum states classification</head><p>We design a simple HTN architecture with two tree tensor network layers followed by three dense neural network layers to verify its practicability in classification problems. In this case, we first transform the input images into quantum product states without entanglement, which is formed as <ref type="bibr" target="#b5">(6)</ref>,</p><formula xml:id="formula_5">C |Φ = |φ(x 1 ) ⊗ |φ(x 2 ) • • • ⊗ • |φ(x n ) (6)</formula><p>where x 1 , x 2 , ..., x n represents each pixel; |Φ is the product states we get in the high dimensional Hilbert space; φ denotes the feature map we mentioned by <ref type="bibr" target="#b0">(1)</ref>. We define the tree tensor network as |Ψ , so these two tree tensor network layers encode the |Φ into the intermediate low dimensional states |C by tensor contraction, i.e. |C = Ψ |Φ . Afterward, these intermediate states could be processed by neural networks. Finally, the subsequent dense neural network layers classify the intermediate C into 10 corresponding categories by using the cross entropy cost function and the popular Adam training algorithm <ref type="bibr" target="#b43">[44]</ref> which is derived from the standard SGD. The cross entropy is defined as <ref type="bibr" target="#b6">(7)</ref> CCroEn(L, P ) = -n i=1 L (C i )log (P (C i )) <ref type="bibr" target="#b6">(7)</ref> where L refers to the label and P is the predicted output by HTN. As can be observed, in analogy with the classical CNNs, the tensor network layers play a similar role to the convolutional layers.But different from it, tensor networks are more applicable to quantum state processing because they naturally represent the structure and properties of quantum states. Quantum states typically exhibit highly entangled properties, and tensor networks provide an effective method for describing and processing this entanglement. We benchmark it on the popular MNIST and Fashion-MNIST datasets. The training set consists of 60 000 (28 × 28) gray-scale images, with 10 000 testing examples. For the simplicity of coding, we rescaled them to (32×32) images by padding zeros pixels. We show the schematic in Fig. <ref type="figure" target="#fig_3">5</ref>. It is easy to get 98% test accuracy on MNIST and 90% test accuracy on Fashion-MNIST by using this simple HTN architecture without using any deep learning tricks. The overview of experimental results for numerous classical models on these tasks can be found on the official websites: of MNIST (<ref type="url" target="http://yann.lecun.com/exdb/mnist/">http://yann.lecun.com/exdb/mnist/</ref>) and Fashion- FIG. 8. Quantum-Classical Autoencoder on Fashion-MNIST;</p><p>MNIST (<ref type="url" target="https://github.com/zalandoresearch/fashion-">https://github.com/zalandoresearch/fashion-</ref>mnist). Though our method applies to the complex number HTN, we assume all tensors are real for simplicity. Our code of the implementation is available at <ref type="bibr" target="#b44">[45]</ref>, and people can find the setup of parameters in detail from it.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Quantum-Classical Autoencoder</head><p>We then demonstrate the application of quantum autoencoder by using a variety of HTNs. For simplicity, we still benchmark all models on MNIST and Fashion-MNIST datasets. In this case, the encoder is formed by a tensor network which compresses the input quantum states into low-dimensional intermediate states. Next, these compressed intermediate states could be recovered by a series of typical classical neural networks. We con-tinue to use the Adam training algorithm, but change the cost function as MSE (Mean Square Error):</p><formula xml:id="formula_6">CM SE = 1 n n i=1 I i -O i 2<label>(8)</label></formula><p>where I is the input data, and O denotes the reconstructed data. Fig. <ref type="figure">6</ref> shows us the basic architecture and we can find the detailed setup of parameters in our code which is available at <ref type="bibr" target="#b44">[45]</ref>.</p><p>We show a series of experimental results in both Fig. <ref type="figure" target="#fig_4">7</ref> and Fig. <ref type="figure">8</ref>, and provide the evaluation indicators Compression Ratio (CR) and PSNR (Peak Signal-to-Noise Ratio) which is defined as <ref type="bibr" target="#b8">(9)</ref>:</p><formula xml:id="formula_7">CP SN R = 10 * log 10     max 2 I 1 mn m i=1 n j=1 (O i,j -P i,j ) 2     (9)</formula><p>where max I indicates the max value of input data.</p><p>We compress input product states into intermediate representations in three different scales i.e. 8*8 grids, 4*4 grids and 2*2 grids. It should be noted that larger grids benefit from saving more original input information so that we can reconstruct better images from it and have a better PSNR score. This is evident in both Fig. <ref type="figure" target="#fig_4">7</ref> and Fig. <ref type="figure">8</ref>. In contrast, the smaller intermediate representations will have higher CR. So it is necessary to strike a balance between them in the practical quantum information application. We also plot the loss curve of both cases in Fig. <ref type="figure">4</ref>, and it clearly shows us the process of training a HTN. Moreover, it definitely shows us the case of 8*8 will reach a lower loss value and produce a better recovery image.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. Quantum feature engineering</head><p>Above two cases we present the potential of developing the new concept of quantum feature engineering which is the quantum version of feature engineering in machine learning. It is generally recognized that deep learning is an effective way to perform feature engineering since it is capable of extracting feature information automatically from the raw data. Such as during the process of training a convolutional neural network, the convolutional kernels will be trained as feature detectors to recognize, extract and assemble valuable feature information which will be used in the subsequent machine learning tasks such as classification, regression or sequential analysis etc.. In analogy to this standpoint, HTN could be treated as a well-defined hybrid quantum-classical model that is appropriate for quantum feature engineering. In which, the tensor network component we say it "quantum unit" is in charge of the recognition, extraction or assembling of quantum feature, and then transform it into the form of classical data.</p><p>Although we have no formal definition of what quantum feature exactly is in machine learning, we still started to investigate it involving quantum entanglement and fidelity by using TTN in our previous work <ref type="bibr" target="#b10">[11]</ref>. Ref. <ref type="bibr" target="#b45">[46]</ref> proposed the machine learning based approach in terms of quantum control and first proposed the concept of quantum feature engineering. Based on these, we think that quantum feature engineering will be a promising and significant area in quantum machine learning, and we anticipate that HTN will be an excellent choice of quantum feature engineering. In future work, it will help us to understand better how quantum features such as entanglement and fidelity affect the performance of machine learning.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>IV. PARAMETERIZED QUANTUM CIRCUITS</head><p>The article employs Parameterized Quantum Circuits (PQCs) to replicate the Hybrid Tensor Networks (HTN) discussed in the paper, utilizing the PennyLane <ref type="bibr" target="#b46">[47]</ref> and Pytorch packages to construct and simulate the HTN. Each pixel is allocated to the corresponding qubit during the PQCs construction, but the MNIST dataset is downsampled to 4*4 grayscale images due to hardware restrictions on the quantum simulation. The specific quantum experiments are segregated into two categories: classification and image reconstruction.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Classification on sixteen qubits</head><p>The MNIST dataset is downsampled to 16 (4*4 grayscale images). And we select 400 samples from 2 different classes (200/class) to create smaller datasets (from MNIST classes 0, 1). We divide these 400 samples into a train (300) and a test set (100).</p><p>Based on the HTN framework presented in Fig. <ref type="figure" target="#fig_0">1</ref>, we provide a comprehensive description of the quantum circuit that we implemented. The input stage performs normalization of the 4*4 image, and each pixel corresponds to a qubit. The Feature Map and Product States are constructed using the RY and Hadamard gates to achieve state preparation. The Tree Tensor Network applies the TNN wrapper network in PennyLane for initial model training on the dataset. We use the two-layer TNN function for simulation in this part and choose the RY gate for better fitting ability in network training. We added the measurement function at the end of the quantum circuit that can accept either specified wires or an observable that rotates the computational basis <ref type="bibr" target="#b46">[47]</ref>. Specific PQCs are illustrated in Fig. <ref type="figure">9(a)</ref>.</p><p>In our experiment, we employed Mean Squared Error (MSE) as the loss function for training PQCs. After 15 epochs, the loss function and accuracy of the network in the training set are shown in Fig. <ref type="figure" target="#fig_0">10</ref>(a), and we achieved 100% accuracy on the test set. 0 2 4 6 8 10 12 14 epoch 0.2 0.4 0.6 0.8 loss accuracy (a) 0 10 20 30 40 50 60 epoch 0.00 0.02 0.04 0.06 0.08 0.10 0.12 0.14 loss 10 12 14 16 18 20 22 24 PSNR loss PSNR (b) FIG. 10. Training loss of PQCs; (a) Classification ; (b) Image reconstruction.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Image reconstruction on sixteen qubits</head><p>We conduct experiments using the handwritten digit 1 from the MNIST dataset to implement image reconstruction with the Hybrid Tensor Networks (HTN) framework. The specific network model structure can be found in Fig. <ref type="figure">9</ref>(b), and the difference from the classification experiments lies in the measurement stage where we introduce four measurement nodes and reconstruct them into a 2*2 grayscale image. Afterward, we utilize three layers of deconvolution layers to achieve image reconstruction. In this experiment, we use the PSNR as the evaluation metric for the reconstructed graph. The loss function graph from the experiment is presented in Fig. <ref type="figure" target="#fig_0">10(b</ref>). We achieved a PSNR of 22.72 on the test set.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>V. DISCUSSION AND FUTURE WORK</head><p>We propose hybrid tensor networks that combine tensor networks with classical neural networks in a uniform framework in order to overcome the limitations of regu-lar tensor networks in machine learning. Based on the numerical experiments, we conclude with the following observations. (1) Regular tensor networks are not competent to be the basic building block of deep learning due to the limitations of representation power i.e. the absence of nonlinearity, and the restriction of scalability. (2) HTN overcomes the deficiency in representation power of the regular tensor network by the nonlinear function from neural network units, and offers good performance in scalability. (3) HTN could be trained by the standard combination of BP and SGD algorithms, allowing for infinite possibilities in designing HTN following deep learning principles. (4) HTN serves as an applicable implementation of quantum feature engineering that could be simulated on classical computers.</p><p>There are some interesting and potential research subjects to be left in our future works. The first one is to do deep learning on quantum entanglement data by HTN. Our preliminary experiments in this paper focus on dealing with product quantum states without entanglement, but it is natural to extend HTN to the scenario of quantum entanglement data formed by MPS or PEPS etc., which neural network is incapable of. Moreover, there are some works focusing on tensor network based quantum circuits which demonstrates an interesting way to do quantum machine learning <ref type="bibr" target="#b18">[19]</ref>. Additionally, some works focus on quantum-classical machine learning by using parameter quantum circuit <ref type="bibr" target="#b47">[48]</ref><ref type="bibr" target="#b48">[49]</ref><ref type="bibr" target="#b49">[50]</ref><ref type="bibr" target="#b50">[51]</ref><ref type="bibr" target="#b51">[52]</ref>. Inspired by these works, the HTN is able to be implemented by parameter quantum circuits in the future. In this case, the training algorithm should be revised to guarantee the isometry of each local tensor in the HTN.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>FIG. 1 .</head><label>1</label><figDesc>FIG. 1. Universal framework of Hybrid Tensor Networks.</figDesc><graphic coords="2,112.56,215.19,127.00,108.57" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>FIG. 2 .</head><label>2</label><figDesc>FIG. 2. Different ways of message passing on Neural Networks and Tensor Networks. The directions of message passing are denoted by blue arrows. For tensor network, the message passing is implemented by the operation of tensor contraction; (a) Neural Network ; (b) Regular tensor network; (c) Generalized tensor network, and the operation of copy is marked by red dot;</figDesc><graphic coords="2,246.24,221.36,127.00,102.40" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>FIG. 3 .FIG. 4 .</head><label>34</label><figDesc>FIG.3. Speeding up on triangle tensor network contraction by GPU platform. The time cost is plotted on logarithmic y-axis.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>FIG. 5 .</head><label>5</label><figDesc>FIG.5. HTN for quantum states classification. We embed two tree tensor network layers and three dense neural network layers.</figDesc><graphic coords="4,320.28,182.88,244.80,72.00" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>FIG. 7 .</head><label>7</label><figDesc>FIG. 7. Quantum-Classical Autoencoder on MNIST;</figDesc><graphic coords="6,93.72,320.75,431.80,228.37" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>FIG. 9 .FIG. 10 .</head><label>910</label><figDesc>FIG. 9. Quantum circuits of PQCs; (a) Classification ; (b) Image reconstruction ;</figDesc><graphic coords="8,93.72,482.32,431.80,167.60" type="bitmap" /></figure>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><p>Acknowledgments.-DL is grateful to <rs type="person">Shi-ju Ran</rs> for helpful discussions. And this work was supported by <rs type="funder">Tianjin Natural Science Foundation of China</rs> (<rs type="grantNumber">20JCYBJC00500</rs>) and the <rs type="funder">Science &amp; Technology Development Fund of Tianjin Education Commission for Higher Education</rs> (<rs type="grantNumber">2018KJ217</rs>).</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_DwFVUg2">
+					<idno type="grant-number">20JCYBJC00500</idno>
+				</org>
+				<org type="funding" xml:id="_FHzfhWU">
+					<idno type="grant-number">2018KJ217</idno>
+				</org>
+			</listOrg>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Matrix product states, projected entangled pair states, and variational renormalization group methods for quantum spin systems</title>
+		<author>
+			<persName><forename type="first">Frank</forename><surname>Verstraete</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Valentin</forename><surname>Murg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">Ignacio</forename><surname>Cirac</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:0907.2796</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Advances in Physics</title>
+		<imprint>
+			<biblScope unit="volume">57</biblScope>
+			<biblScope unit="page" from="143" to="224" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">A practical introduction to tensor networks: Matrix product states and projected entangled pair states</title>
+		<author>
+			<persName><forename type="first">Román</forename><surname>Orús</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1306.2164</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Annals of Physics</title>
+		<imprint>
+			<biblScope unit="volume">349</biblScope>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Advances on tensor network theory: symmetries, fermions, entanglement, and holography</title>
+		<author>
+			<persName><forename type="first">Román</forename><surname>Orús</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1407.6552</idno>
+	</analytic>
+	<monogr>
+		<title level="j">The European Physical Journal B</title>
+		<imprint>
+			<biblScope unit="volume">87</biblScope>
+			<biblScope unit="page">280</biblScope>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<monogr>
+		<title level="m" type="main">Review of tensor network contraction approaches</title>
+		<author>
+			<persName><forename type="first">Emanuele</forename><surname>Shi-Ju Ran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cheng</forename><surname>Tirrito</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xi</forename><surname>Peng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gang</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Maciej</forename><surname>Su</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Lewenstein</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1708.09213</idno>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Tensor networks for complex quantum systems</title>
+		<author>
+			<persName><forename type="first">Román</forename><surname>Orús</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature Reviews Physics</title>
+		<imprint>
+			<biblScope unit="page" from="1" to="13" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<author>
+			<persName><forename type="first">Stavros</forename><surname>Efthymiou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jack</forename><surname>Hidary</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stefan</forename><surname>Leichenauer</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1906.06329</idno>
+		<title level="m">Tensornetwork for machine learning</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<author>
+			<persName><forename type="first">Chase</forename><surname>Roberts</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ashley</forename><surname>Milsted</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Martin</forename><surname>Ganahl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Adam</forename><surname>Zalcman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bruce</forename><surname>Fontaine</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yijian</forename><surname>Zou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jack</forename><surname>Hidary</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Guifre</forename><surname>Vidal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stefan</forename><surname>Leichenauer</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1905.01330</idno>
+		<title level="m">Tensornetwork: A library for physics and machine learning</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">Tangentspace gradient optimization of tensor network for machine learning</title>
+		<author>
+			<persName><forename type="first">Zheng-Zhi</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shi-Ju</forename><surname>Ran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gang</forename><surname>Su</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2001.04029</idno>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Supervised learning with tensor networks</title>
+		<author>
+			<persName><forename type="first">E</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Miles</forename><surname>Stoudenmire</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David</forename><forename type="middle">J</forename><surname>Schwab</surname></persName>
+		</author>
+		<idno>1605.05775</idno>
+	</analytic>
+	<monogr>
+		<title level="j">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<biblScope unit="volume">29</biblScope>
+			<biblScope unit="page" from="4799" to="4807" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Unsupervised generative modeling using matrix product states</title>
+		<author>
+			<persName><forename type="first">Zhao-Yu</forename><surname>Han</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jun</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Heng</forename><surname>Fan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lei</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pan</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Physical Review X</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="page">31012</biblScope>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Machine learning by unitary tensor network of hierarchical tree structure</title>
+		<author>
+			<persName><forename type="first">Ding</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shi-Ju</forename><surname>Ran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Peter</forename><surname>Wittek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cheng</forename><surname>Peng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Raul</forename><forename type="middle">Blázquez</forename><surname>García</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gang</forename><surname>Su</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Maciej</forename><surname>Lewenstein</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">New Journal of Physics</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="page">73059</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Tensor networks for dimensionality reduction and large-scale optimization: Part 1 low-rank tensor decompositions</title>
+		<author>
+			<persName><forename type="first">Andrzej</forename><surname>Cichocki</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Namgil</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ivan</forename><surname>Oseledets</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Anh-Huy</forename><surname>Phan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Qibin</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Danilo</forename><forename type="middle">P</forename><surname>Mandic</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Others</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Foundations and Trends® in Machine Learning</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="page" from="249" to="429" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Tensor networks for dimensionality reduction and large-scale optimization: Part 2 applications and future perspectives</title>
+		<author>
+			<persName><forename type="first">Andrzej</forename><surname>Cichocki</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Anh-Huy</forename><surname>Phan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Qibin</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Namgil</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ivan</forename><surname>Oseledets</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Masashi</forename><surname>Sugiyama</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Danilo</forename><forename type="middle">P</forename><surname>Mandic</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Others</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Foundations and Trends® in Machine Learning</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="page" from="431" to="673" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Tree tensor networks for generative modeling</title>
+		<author>
+			<persName><forename type="first">Song</forename><surname>Cheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lei</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tao</forename><surname>Xiang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pan</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Physical Review B</title>
+		<imprint>
+			<biblScope unit="volume">99</biblScope>
+			<biblScope unit="page">155131</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title level="m" type="main">Shortcut matrix product states and its applications</title>
+		<author>
+			<persName><forename type="first">Zhuan</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pan</forename><surname>Zhang</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1812.05248</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Tensor regression networks</title>
+		<author>
+			<persName><forename type="first">Jean</forename><surname>Kossaifi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zachary</forename><surname>Lipton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aran</forename><surname>Khanna</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tommaso</forename><surname>Furlanello</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Anima</forename><surname>Anandkumar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">arXiv</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<monogr>
+		<title level="m" type="main">Bayesian tensor network and optimization algorithm for probabilistic machine learning</title>
+		<author>
+			<persName><forename type="first">Shi-Ju</forename><surname>Ran</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1912.12923</idno>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<title level="m" type="main">Quantum compressed sensing with unsupervised tensor network machine learning</title>
+		<author>
+			<persName><forename type="first">Zheng-Zhi</forename><surname>Shi-Ju Ran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shao-Ming</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gang</forename><surname>Fei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Maciej</forename><surname>Su</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Lewenstein</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1907.10290</idno>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Towards quantum machine learning with tensor networks</title>
+		<author>
+			<persName><forename type="first">William</forename><surname>Huggins</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Piyush</forename><surname>Patel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">Birgitta</forename><surname>Whaley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">Miles</forename><surname>Stoudenmire</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Quantum Science and Technology</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">A generative modeling approach for benchmarking and training shallow quantum circuits</title>
+		<author>
+			<persName><forename type="first">Marcello</forename><surname>Benedetti</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Delfina</forename><surname>Garcia-Pintos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Oscar</forename><surname>Perdomo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vicente</forename><surname>Leyton-Ortega</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yunseong</forename><surname>Nam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alejandro</forename><surname>Perdomo-Ortiz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">npj Quantum Information</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="page">45</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Matrix product state-based quantum classifier</title>
+		<author>
+			<persName><forename type="first">Amandeep</forename><surname>Singh Bhatia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mandeep</forename><surname>Kaur Saggi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ajay</forename><surname>Kumar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sushma</forename><surname>Jain</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural computation</title>
+		<imprint>
+			<biblScope unit="volume">31</biblScope>
+			<biblScope unit="page" from="1499" to="1517" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<monogr>
+		<title level="m" type="main">Efficient encoding of matrix product states into quantum circuits of one-and two-qubit gates</title>
+		<author>
+			<persName><forename type="first">Shi-Ju</forename><surname>Ran</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1908.07958</idno>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<monogr>
+		<title level="m" type="main">Quantum image classifier with single photons</title>
+		<author>
+			<persName><forename type="first">Kunkun</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lei</forename><surname>Xiao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Wei</forename><surname>Yi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shi-Ju</forename><surname>Ran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Peng</forename><surname>Xue</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2003.08551</idno>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Multilayer feedforward networks with a nonpolynomial activation function can approximate any function</title>
+		<author>
+			<persName><forename type="first">Moshe</forename><surname>Leshno</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vladimir</forename><forename type="middle">Ya</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Allan</forename><surname>Pinkus</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shimon</forename><surname>Schocken</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural networks</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="page" from="861" to="867" />
+			<date type="published" when="1993">1993</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Approximation capabilities of multilayer feedforward networks</title>
+		<author>
+			<persName><forename type="first">Kurt</forename><surname>Hornik</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural networks</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="page" from="251" to="257" />
+			<date type="published" when="1991">1991</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<monogr>
+		<title level="m" type="main">Supervised learning with generalized tensor networks</title>
+		<author>
+			<persName><forename type="first">Ivan</forename><surname>Glasser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nicola</forename><surname>Pancotti</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ignacio</forename><surname>Cirac</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1806.05964</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Expressive power of tensor-network factorizations for probabilistic modeling</title>
+		<author>
+			<persName><forename type="first">Ivan</forename><surname>Glasser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ryan</forename><surname>Sweke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nicola</forename><surname>Pancotti</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jens</forename><surname>Eisert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ignacio</forename><surname>Cirac</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="1496" to="1508" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Equivalence of restricted boltzmann machines and tensor network states</title>
+		<author>
+			<persName><forename type="first">Jing</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Song</forename><surname>Cheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Haidong</forename><surname>Xie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lei</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tao</forename><surname>Xiang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Physical Review B</title>
+		<imprint>
+			<biblScope unit="volume">97</biblScope>
+			<biblScope unit="page">85104</biblScope>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Quantum simulation with hybrid tensor networks</title>
+		<author>
+			<persName><forename type="first">Xiao</forename><surname>Yuan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jinzhao</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Junyu</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Qi</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">You</forename><surname>Zhou</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Physical Review Letters</title>
+		<imprint>
+			<biblScope unit="volume">127</biblScope>
+			<biblScope unit="page">40501</biblScope>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Tensor networks for quantum machine learning</title>
+		<author>
+			<persName><forename type="first">Hans-Martin</forename><surname>Rieser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Frank</forename><surname>Köster</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Arne</forename><surname>Peter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Raulf</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the Royal Society A</title>
+		<imprint>
+			<biblScope unit="volume">479</biblScope>
+			<biblScope unit="page">20230218</biblScope>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Matrix product state pre-training for quantum machine learning</title>
+		<author>
+			<persName><forename type="first">James</forename><surname>Dborin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Fergus</forename><surname>Barratt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vinul</forename><surname>Wimalaweera</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lewis</forename><surname>Wright</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><forename type="middle">G</forename><surname>Green</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Quantum Science and Technology</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="page">35014</biblScope>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Generative tensor network classification model for supervised machine learning</title>
+		<author>
+			<persName><forename type="first">Zheng-Zhi</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cheng</forename><surname>Peng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ding</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shi-Ju</forename><surname>Ran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gang</forename><surname>Su</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Physical Review B</title>
+		<imprint>
+			<biblScope unit="volume">101</biblScope>
+			<biblScope unit="page">75135</biblScope>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Tensorizing neural networks</title>
+		<author>
+			<persName><forename type="first">Alexander</forename><surname>Novikov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dmitrii</forename><surname>Podoprikhin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Anton</forename><surname>Osokin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dmitry</forename><forename type="middle">P</forename><surname>Vetrov</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in neural information processing systems</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="page" from="442" to="450" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<monogr>
+		<title level="m" type="main">Ultimate tensorization: compressing convolutional and fc layers alike</title>
+		<author>
+			<persName><forename type="first">Timur</forename><surname>Garipov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dmitry</forename><surname>Podoprikhin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alexander</forename><surname>Novikov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dmitry</forename><surname>Vetrov</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1611.03214</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">A tensorized transformer for language modeling</title>
+		<author>
+			<persName><forename type="first">Xindian</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Peng</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shuai</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nan</forename><surname>Duan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yuexian</forename><surname>Hou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ming</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dawei</forename><surname>Song</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="2232" to="2242" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Convolutional networks for images, speech, and time series</title>
+		<author>
+			<persName><forename type="first">Yann</forename><surname>Lecun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yoshua</forename><surname>Bengio</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">The handbook of brain theory and neural networks</title>
+		<imprint>
+			<date type="published" when="1995">1995. 1995</date>
+			<biblScope unit="volume">3361</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<analytic>
+		<title level="a" type="main">Long shortterm memory</title>
+		<author>
+			<persName><forename type="first">Sepp</forename><surname>Hochreiter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jürgen</forename><surname>Schmidhuber</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Neural computation</title>
+		<imprint>
+			<biblScope unit="volume">9</biblScope>
+			<biblScope unit="page" from="1735" to="1780" />
+			<date type="published" when="1997">1997</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">Generative adversarial nets</title>
+		<author>
+			<persName><forename type="first">Ian</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jean</forename><surname>Pouget-Abadie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mehdi</forename><surname>Mirza</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bing</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David</forename><surname>Warde-Farley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sherjil</forename><surname>Ozair</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aaron</forename><surname>Courville</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yoshua</forename><surname>Bengio</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in neural information processing systems</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="2672" to="2680" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<analytic>
+		<title level="a" type="main">Attention is all you need</title>
+		<author>
+			<persName><forename type="first">Ashish</forename><surname>Vaswani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Noam</forename><surname>Shazeer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Niki</forename><surname>Parmar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jakob</forename><surname>Uszkoreit</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Llion</forename><surname>Jones</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aidan</forename><forename type="middle">N</forename><surname>Gomez</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lukasz</forename><surname>Kaiser</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Illia</forename><surname>Polosukhin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in neural information processing systems</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="5998" to="6008" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">Solving the sampling problem of the sycamore quantum circuits</title>
+		<author>
+			<persName><forename type="first">Feng</forename><surname>Pan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Keyang</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pan</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Physical Review Letters</title>
+		<imprint>
+			<biblScope unit="volume">129</biblScope>
+			<biblScope unit="page">90502</biblScope>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<monogr>
+		<title level="m" type="main">Deep learning</title>
+		<author>
+			<persName><forename type="first">Ian</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yoshua</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aaron</forename><surname>Courville</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>MIT press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title level="a" type="main">Tensorflow: A system for large-scale machine learning</title>
+		<author>
+			<persName><forename type="first">Martín</forename><surname>Abadi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Paul</forename><surname>Barham</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jianmin</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhifeng</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andy</forename><surname>Davis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jeffrey</forename><surname>Dean</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Matthieu</forename><surname>Devin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sanjay</forename><surname>Ghemawat</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Geoffrey</forename><surname>Irving</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><surname>Isard</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">12th {USENIX} Symposium on Operating Systems Design and Implementation</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="265" to="283" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b42">
+	<monogr>
+		<title level="m" type="main">Automatic differentiation in pytorch</title>
+		<author>
+			<persName><forename type="first">Adam</forename><surname>Paszke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sam</forename><surname>Gross</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Soumith</forename><surname>Chintala</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gregory</forename><surname>Chanan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Edward</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zach</forename><surname>Devito</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zeming</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alban</forename><surname>Desmaison</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Luca</forename><surname>Antiga</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Adam</forename><surname>Lerer</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b43">
+	<monogr>
+		<title level="m" type="main">Adam: A method for stochastic optimization</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Diederik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jimmy</forename><surname>Kingma</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Ba</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1412.6980</idno>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b44">
+	<monogr>
+		<title level="m" type="main">The code of the implementation is available at</title>
+		<author>
+			<persName><forename type="first">Stanford</forename><surname>Scanning</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Repository</forename></persName>
+		</author>
+		<ptr target="https://github.com/dingliu0305/Hybrid-Tensor-Network" />
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b45">
+	<monogr>
+		<title level="m" type="main">Beyond quantum noise spectroscopy: modelling and mitigating noise with quantum feature engineering</title>
+		<author>
+			<persName><forename type="first">Akram</forename><surname>Youssry</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Gerardo</forename><forename type="middle">A</forename><surname>Paz-Silva</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Christopher</forename><surname>Ferrie</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2003.06827</idno>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b46">
+	<monogr>
+		<title level="m" type="main">Pennylane: Automatic differentiation of hybrid quantum-classical computations</title>
+		<author>
+			<persName><forename type="first">Ville</forename><surname>Bergholm</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Josh</forename><surname>Izaac</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Maria</forename><surname>Schuld</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Christian</forename><surname>Gogolin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shahnawaz</forename><surname>Ahmed</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vishnu</forename><surname>Ajith</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Sohaib Alam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Guillermo</forename><surname>Alonso-Linaje</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Akashnarayanan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ali</forename><surname>Asadi</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1811.04968</idno>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b47">
+	<monogr>
+		<title level="m" type="main">Hybrid quantum-classical neural network for generating quantum states</title>
+		<author>
+			<persName><forename type="first">Rongxin</forename><surname>Xia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sabre</forename><surname>Kais</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1912.06184</idno>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b48">
+	<monogr>
+		<title level="m" type="main">Unsupervised machine learning on a hybrid quantum computer</title>
+		<author>
+			<persName><surname>Js Otterbach</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Manenti</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Alidoust</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Bestwick</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Block</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Bloom</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Caldwell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Schuyler</forename><surname>Didier</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Fried</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Hong</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1712.05771</idno>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b49">
+	<analytic>
+		<title level="a" type="main">Training of quantum circuits on a hybrid quantum computer</title>
+		<author>
+			<persName><forename type="first">Daiwei</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Norbert</forename><forename type="middle">M</forename><surname>Linke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Marcello</forename><surname>Benedetti</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kevin</forename><forename type="middle">A</forename><surname>Landsman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Nhung</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Nguyen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Alejandro</forename><surname>Huerta Alderete</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Nathan</forename><surname>Perdomo-Ortiz</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Korda</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Charles</forename><surname>Garfoot</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Brecque</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Science advances</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="page">9918</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b50">
+	<monogr>
+		<title level="m" type="main">Stochastic gradient descent for hybrid quantum-classical optimization</title>
+		<author>
+			<persName><forename type="first">Ryan</forename><surname>Sweke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Frederik</forename><surname>Wilde</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Johannes</forename><surname>Meyer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Maria</forename><surname>Schuld</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Barthélémy</forename><surname>Paul K Fährmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jens</forename><surname>Meynard-Piganeau</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Eisert</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1910.01155</idno>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b51">
+	<monogr>
+		<title level="m" type="main">A path towards quantum advantage in training deep generative models with quantum annealers</title>
+		<author>
+			<persName><forename type="first">Walter</forename><surname>Vinci</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lorenzo</forename><surname>Buffoni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hossein</forename><surname>Sadeghi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Amir</forename><surname>Khoshaman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Evgeny</forename><surname>Andriyash</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Mohammad</forename><forename type="middle">H</forename><surname>Amin</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1912.02119</idno>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

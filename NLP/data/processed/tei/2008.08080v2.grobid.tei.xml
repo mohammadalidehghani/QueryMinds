@@ -1,0 +1,916 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="ro">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">mlr3proba: An R Package for Machine Learning in Survival Analysis</title>
+				<funder ref="#_5F84VbK">
+					<orgName type="full">German Federal Ministry of Education and Research (BMBF)</orgName>
+				</funder>
+				<funder ref="#_EATPBef">
+					<orgName type="full">EPSRC</orgName>
+				</funder>
+				<funder ref="#_KAEw8zx">
+					<orgName type="full">Deutsche Forschungsgemeinschaft (DFG)</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2020-12-14">14 Dec 2020</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Raphael</forename><surname>Sonabend</surname></persName>
+							<email>raphael.sonabend.15@ucl.ac.uk</email>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Statistical Science</orgName>
+								<orgName type="institution">University College London</orgName>
+								<address>
+									<postCode>WC1E 6BT</postCode>
+									<settlement>London</settlement>
+									<country key="GB">UK</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Franz</forename><forename type="middle">J</forename><surname>Király</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Statistical Science</orgName>
+								<orgName type="institution">University College London</orgName>
+								<address>
+									<postCode>WC1E 6BT</postCode>
+									<settlement>London</settlement>
+									<country key="GB">UK</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Andreas</forename><surname>Bender</surname></persName>
+							<affiliation key="aff1">
+								<orgName type="department">Department of Statistics</orgName>
+								<orgName type="institution">LMU Munich</orgName>
+								<address>
+									<postCode>80539</postCode>
+									<settlement>Munich</settlement>
+									<country key="DE">Germany</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Bernd</forename><surname>Bischl</surname></persName>
+							<affiliation key="aff1">
+								<orgName type="department">Department of Statistics</orgName>
+								<orgName type="institution">LMU Munich</orgName>
+								<address>
+									<postCode>80539</postCode>
+									<settlement>Munich</settlement>
+									<country key="DE">Germany</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Michel</forename><surname>Lang</surname></persName>
+							<affiliation key="aff1">
+								<orgName type="department">Department of Statistics</orgName>
+								<orgName type="institution">LMU Munich</orgName>
+								<address>
+									<postCode>80539</postCode>
+									<settlement>Munich</settlement>
+									<country key="DE">Germany</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">mlr3proba: An R Package for Machine Learning in Survival Analysis</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2020-12-14">14 Dec 2020</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">DE74F36471E4AF10C3550F1FFCF041AB</idno>
+					<idno type="DOI">10.1093/bioinformatics/xxxxxx</idno>
+					<idno type="arXiv">arXiv:2008.08080v2[stat.CO]</idno>
+					<note type="submission">Received on XXXXX; revised on XXXXX; accepted on XXXXX</note>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:06+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>picture(0,0) (-35,0)(1,0)30 (0,35)(0,-1)30 picture picture(0,0)(35,0)(-1,0)30 (0,35)(0,-1)30 picture "mlr3proba" -2020/12/15 -page 1 -#1 picture(0,0)(-35,0)(1,0)30 (0,-35)(0,1)30 picture picture(0,0)(35,0)(-1,0)30 (0,-35)(0,1)30 picture Doc-Start</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="ro">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Survival analysis is the field of statistics concerned with the estimation of time-to-event distributions while accounting for censoring and truncation. mlr3proba introduces survival modelling to the mlr3 <ref type="bibr">(Lang et al., 2019a)</ref> ecosystem of machine learning packages. By utilising a probabilistic supervised learning <ref type="bibr" target="#b9">(Gressmann et al., 2018)</ref> framework mlr3proba allows for multiple survival analysis predictions: predicting the time to an event, the probability of an event over time, and the relative risk of an event. mlr3proba includes an extensive collection of classical and machine learning models and many specialised survival measures.</p><p>The R programming language (R Core Team, 2020) provides extensive support for both survival analysis and machine learning via its core functionality and through open-source add-on packages available from CRAN and Bioconductor. mlr3proba leverages these packages by connecting a multitude of machine learning models and measures for survival analysis. mlr3proba currently supports simulation of survival data, classical survival models, prediction of survival distributions by machine learning, and support for high-dimensional data. Interfacing other packages in the mlr3 family provides functionality for optimisation, tuning, benchmarking, and more.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Implemented Functionality</head><p>A standard pipeline for survival analysis consists of: i) Defining a survival task as a set of features and survival outcome (time until the event and a censoring indicator); ii) Training a model on survival data, with the possibility of optimisation via tuning of hyper-parameters; iii) Making predictions from the trained model on new data; iv) Evaluating the quality of predictions with survival-specific measures, possibly including visualisation.</p><p>mlr3proba streamlines this process by: i) Standardising survival tasks, with the Surv object from the survival <ref type="bibr" target="#b26">(Therneau, 2015)</ref> package, into a single object capable of handling left-, interval-, and rightcensoring (TaskSurv); ii) Unifying all survival learners (LearnSurv*) with iii) prediction objects that clearly distinguish model prediction types (PredictionSurv); iv) Unifying survival measures for different survival prediction types (MeasureSurv*).</p><p>Careful design and documentation of models and measures clearly demonstrate the predictions that can be made by models or evaluated by measures. Each model can predict one or more of: response -a survival time, distr -a survival distribution, crank -a relative risk ranking, and lp -a linear predictor. distr predictions are cast into standardized distribution objects using the distr6 package <ref type="bibr" target="#b25">(Sonabend and Kiraly, 2019)</ref>, picture(0,0)(-35,0)(1,0)30 (0,35)(0,-1)30 picture picture(0,0)(35,0)(-1,0)30 (0,35)(0,-1)30 picture "mlr3proba" -2020/12/15 -page 2 -#2 picture(0,0)(-35,0)(1,0)30 (0,-35)(0,1)30 picture picture(0,0)(35,0)(-1,0)30 (0,-35)(0,1)30 picture 2 Sonabend et al.</p><p>which allows clean post-processing, such as predicting survival and hazard functions, amongst other uses. Any survival model implemented in mlr3proba can be tuned via mlr3tuning <ref type="bibr" target="#b17">(Lang et al., 2019b)</ref>, which includes several tuning methods (grid search, random search, generalized annealing and more) and termination criteria (based on iterations, runtime, and more) for nested resampling and optimisation on any survival measure. Additionally, all survival tasks and models can make use of mlr3pipelines <ref type="bibr" target="#b1">(Binder et al., 2020)</ref> for pre-processing, such as feature selection and variable encoding, and post-processing, such as prediction compositions (see below). Full details for these methods are available in the mlr3book (<ref type="url" target="https://mlr3book.mlr-org.com">https://mlr3book.mlr-org.com</ref>).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Implemented Classes</head><p>Learners More than 20 survival learners are currently implemented. These range from classical statistical models to machine learning methods. For the former, the 'usual' semi-and fully-parametric models are implemented, such as Cox PH <ref type="bibr" target="#b4">(Cox, 1972)</ref> and AFT models, as well as more advanced flexible spline methods <ref type="bibr" target="#b22">(Royston and Parmar, 2002)</ref> and penalized regression. Machine learning methods include random survival forests <ref type="bibr" target="#b12">(Ishwaran et al., 2008)</ref> (conditional inference, relative risk, log-rank splitting), gradient boosting machines (with multiple optimisation methods) <ref type="bibr" target="#b3">(Buhlmann and Hothorn, 2007)</ref>, Van Belle's support vector machines <ref type="bibr" target="#b27">(Van Belle et al., 2011)</ref>, and artificial neural networks <ref type="bibr" target="#b15">(Kvamme et al., 2019)</ref> (including DeepSurv, DeepHit, Cox-Time). Inclusion of Python-implemented survival neural networks via survivalmodels <ref type="bibr" target="#b24">(Sonabend, 2020)</ref> allows efficient cross-platform comparison of models.</p><p>Measures For comparison of different models, 19 survival measures are implemented in mlr3proba. These include quantitative calibration measures, such as van Houwelingen's β <ref type="bibr" target="#b28">(Van Houwelingen, 2000)</ref>, and visual comparisons of average distribution prediction to Kaplan-Meier. Implemented discrimination metrics include several measures of both concordance (e.g. <ref type="bibr" target="#b10">(Harrell et al., 1982)</ref> and <ref type="bibr">(Uno et al., 2011)</ref>) and time-dependent AUCs <ref type="bibr" target="#b11">(Heagerty et al., 2000)</ref>. Scoring rules are also implemented including the log-loss, integrated log-loss, integrated Graf (or Brier) score <ref type="bibr" target="#b8">(Graf et al., 1999)</ref>, and the Schmid/absolute score <ref type="bibr" target="#b23">(Schmid et al., 2011)</ref>. Several of these are implemented directly in mlr3proba with an Rcpp <ref type="bibr" target="#b6">(Eddelbuettel and Francois, 2011)</ref> implementation for fast and reliable performance.</p><p>Pipelines Pipelines provide a way to combine multiple pre-and postprocessing steps into an object that can be treated as a learner. Such pipelines can include general and survival-specific components. One particular use case is the (re-)casting of one prediction type to another. There are several different possible predictions that could be made by a survival learner that are not directly comparable, e.g. a relative risk cannot be directly compared to a survival distribution. Therefore mlr3proba extends the capabilities of any survival model by including pipelines that transform one prediction type to another. The distrcompositor pipeline transforms lp or crank predictions into distr predictions. Users have the option to specify the baseline distribution estimator (any learner implemented in mlr3proba) and the model form (proportional hazards, accelerated failure time, or proportional odds). Another useful pipeline is the crankcompositor, this transforms a distr prediction into a crank and/or response prediction using some summary measure of the distribution, for example the mean or median. Obtaining a survival time prediction from a distribution is simply a case of wrapping the model in the crankcompositor pipeline. By combining these two pipelines, any model in mlr3proba can make any prediction type. The mlr3pipelines functionality allows tuning of these and further pipelines to find the optimal parameters for these compositions.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Related Work</head><p>There are an increasing number of machine learning packages across programming languages, including caret <ref type="bibr" target="#b13">(Kuhn, 2008)</ref>, mlr <ref type="bibr" target="#b2">(Bischl et al., 2016)</ref>, tidymodels <ref type="bibr" target="#b14">(Kuhn and Wickham, 2020)</ref>, and scikit-learn <ref type="bibr" target="#b19">(Pedregosa et al., 2011)</ref>. However, functionality for survival analysis has been mostly limited to 'classical' statistical models with relatively few packages supporting a machine learning framework. R ships with the package survival <ref type="bibr" target="#b26">(Therneau, 2015)</ref>, which supports left-, interval-,and right-censoring, competing risks, time-dependent models, stratification, and model evaluation. However, the package is limited to classical statistical models, with no support for machine learning and limited support for formal comparison or non-linear models. The Python equivalent to this package is lifelines <ref type="bibr">(Davidson-Pilon et al., 2020)</ref>, which is again limited to a few classical models. pec <ref type="bibr" target="#b18">(Mogensen et al., 2014)</ref> implements no models itself but instead interfaces with many different survival packages to create survival probability predictions. The package's main focus is on model evaluation via prediction error curves ('pec's) with little support for model building/training and predicting. skpro <ref type="bibr" target="#b9">(Gressmann et al., 2018)</ref> is a probabilistic supervised learning interface in Python. skpro extends the scikit-learn <ref type="bibr" target="#b19">(Pedregosa et al., 2011)</ref> interface to probabilistic models and appears to be the only package (in any language) dedicated to domain-agnostic probabilistic supervised learning. The interface provides an infrastructure for machine learning based survival analysis with design choices influencing mlr3proba, but skpro does not currently support survival models. pysurvival <ref type="bibr" target="#b7">(Fotso et al., 2019</ref>) is another Python package, which implements classical and machine learning survival analysis models. The package has the advantage of being able to natively leverage specific neural network survival models, which are almost exclusively implemented in Python. Whilst not directly interfacing the scikit-learn interface, the package introduces unified functions for model fitting, predicting, and evaluation. scikit-survival <ref type="bibr" target="#b20">(Pölsterl, 2020)</ref> builds directly on scikit-learn to implement a few survival models and measures in a machine learning framework. Unlike pysurvival, no neural networks are included, thus the two packages complement each other well.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Future Developments</head><p>As of now, the package is limited to the single-event, right-censored setting. This is largely a limitation of the current implementations of the underlying learners. Future developments will focus on extensions to: stratified models, time-varying effects, left-censoring/truncation, interval censoring, competing risks, and multi-state models. A recently proposed framework could be used to support most of these tasks without modification of the underlying learners <ref type="bibr" target="#b0">(Bender et al., 2020)</ref>. Some extensions, however, might require updates to the learners. The near-future roadmap includes:</p><p>1. Expanding TaskSurv to accommodate the settings above. 2. Extending learners to handle (some of) the more complex settings. 3. Adding a learner-agnostic reduction pipeline for competing risks.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">Example</head><p>The example below demonstrates how to benchmark three survival models and make use of the distribution compositor. Line 1: Essential packages are loaded, mlr3proba always requires mlr3. Line 2: Extra packages are loaded, mlr3learners is required for the xgboost learner picture(0,0)(-35,0)(1,0)30 (0,35)(0,-1)30 picture picture(0,0)(35,0)(-1,0)30 (0,35)(0,-1)30 picture "mlr3proba" -2020/12/15 -page 3 -#3 picture(0,0)(-35,0)(1,0)30 (0,-35)(0,1)30 picture picture(0,0)(35,0)(-1,0)30 (0,-35)(0,1)30 picture mlr3proba 3 and mlr3pipelines is required for the distribution composition. Lines 3-4: Kaplan-Meier and Cox PH learners are initialized with default parameters.</p><p>Lines 5-7: The XGBoost learner, which doesn't provide predictions for the survival probability, is wrapped in the distrcompositor pipeline to transform its ranking prediction to a probabilistic prediction. Line 8: Learners are combined into a list for use in the benchmark function. Lines 9-11: A task is created from a subset of the rats dataset from survival, the outcome is specified with the 'time' and 'event' arguments. Line 12: A three-fold cross-validation resampling scheme is specified. Line 13: The infrastructure for the experiment is automatically determined by supplying the task(s), learners, and resampling method. Line 14: Learners are resampled according to the chosen scheme and benchmarked. Line 15: Predictions are aggregated over all folds and scored with the integrated log-loss to provide a final comparison.</p><p>&gt; library(mlr3); library(mlr3proba) &gt; library(mlr3learners); library(mlr3pipelines) &gt; kaplan = lrn("surv.kaplan") &gt; cox = lrn("surv.coxph") &gt; xgb = ppl("distrcompositor", + learner = lrn("surv.xgboost"), + estimator = "kaplan", form = "ph") &gt; learners = list(cox, kaplan, xgb) &gt; task = TaskSurv$new(id = "rats", + backend = survival::rats[,1:4], + time = "time", event = "status") &gt; resample = rsmp("cv", folds = 3) &gt; design = benchmark_grid(task, learners, resample) &gt; bm = benchmark(design) &gt; bm$aggregate(msr("surv.intlogloss"))</p></div>		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>Acknowledgements</head><p>RS receives a PhD stipend from <rs type="funder">EPSRC</rs> (<rs type="grantNumber">EP/R513143/1</rs>). AB and ML are funded by the <rs type="funder">German Federal Ministry of Education and Research (BMBF)</rs> under Grant No. <rs type="grantNumber">01IS18036A</rs> and by <rs type="funder">Deutsche Forschungsgemeinschaft (DFG)</rs> within the <rs type="programName">Collaborative Research Center SFB 876</rs> "<rs type="projectName">Providing Information by Resource-Constrained Analysis</rs>".</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_EATPBef">
+					<idno type="grant-number">EP/R513143/1</idno>
+				</org>
+				<org type="funding" xml:id="_5F84VbK">
+					<idno type="grant-number">01IS18036A</idno>
+				</org>
+				<org type="funded-project" xml:id="_KAEw8zx">
+					<orgName type="project" subtype="full">Providing Information by Resource-Constrained Analysis</orgName>
+					<orgName type="program" subtype="full">Collaborative Research Center SFB 876</orgName>
+				</org>
+			</listOrg>
+
+			<div type="availability">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>mlr3proba is available under an LGPL-3 license on CRAN and at <ref type="url" target="https://github.com/mlr-org/mlr3proba">https://github.com/mlr-org/mlr3proba</ref>, with further documentation at <ref type="url" target="https://mlr3book.mlr-org.com/survival.html">https://mlr3book.mlr-org.com/survival.html</ref>.</p></div>
+			</div>
+
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<author>
+			<persName><forename type="first">A</forename><surname>Bender</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Rügamer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Scheipl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Bischl</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2006.15442</idno>
+		<idno>arXiv: 2006.15442</idno>
+		<title level="m">A General Machine Learning Framework for Survival Analysis</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note>cs, stat</note>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<monogr>
+		<title level="m" type="main">mlr3pipelines: Preprocessing Operators and Pipelines for &apos;mlr3</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Binder</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Pfisterer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Bischl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Dandl</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">mlr: Machine Learning in R</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Bischl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Kotthoff</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Schiffner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Richter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Studerus</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Casalicchio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><forename type="middle">M</forename><surname>Jones</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">17</biblScope>
+			<biblScope unit="issue">170</biblScope>
+			<biblScope unit="page" from="1" to="5" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Boosting Algorithms: Regularization, Prediction and Model Fitting</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Buhlmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Hothorn</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Statist. Sci</title>
+		<imprint>
+			<biblScope unit="volume">22</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="477" to="505" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Regression Models and Life-Tables</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">R</forename><surname>Cox</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the Royal Statistical Society. Series B (Methodological)</title>
+		<imprint>
+			<biblScope unit="volume">34</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="187" to="220" />
+			<date type="published" when="1972">1972</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">C</forename><surname>Davidson-Pilon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Kalderstam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Jacobson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Kuhn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Zivich</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Williamson</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Abdealijk</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Datta</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Fiore-Gartland</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Parij</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wilson</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Gabriel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Moneda</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Moncada-Torres</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Stark</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Gadgil</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Jona</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Singaravelan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Besson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">S</forename><surname>Peña</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Anton</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Klintberg</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Growthjeff</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Noorbakhsh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Begun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Kumar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Hussey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Golland</surname></persName>
+		</author>
+		<imprint/>
+	</monogr>
+	<note>and jlim13 (2020). Camdavidsonpilon/lifelines: v0.25.6</note>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Rcpp: Seamless R and C++ Integration</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Eddelbuettel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Francois</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Statistical Software</title>
+		<imprint>
+			<biblScope unit="volume">40</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="1" to="18" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<monogr>
+		<title level="m" type="main">PySurvival: Open source package for survival analysis modeling</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Fotso</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Assessment and comparison of prognostic classification schemes for survival data</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Graf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Schmoor</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Sauerbrei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Schumacher</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Statistics in Medicine</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="page" from="2529" to="2545" />
+			<date type="published" when="1999">1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<monogr>
+		<title level="m" type="main">Probabilistic supervised learning</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Gressmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">J</forename><surname>Király</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Mateen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Oberhauser</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Evaluating the yield of medical tests</title>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">E</forename><surname>Harrell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">M</forename><surname>Califf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">B</forename><surname>Pryor</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">JAMA</title>
+		<imprint>
+			<biblScope unit="volume">247</biblScope>
+			<biblScope unit="issue">18</biblScope>
+			<biblScope unit="page" from="2543" to="2546" />
+			<date type="published" when="1982">1982</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Time-Dependent ROC Curves for Censored Survival Data and a Diagnostic Marker</title>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">J</forename><surname>Heagerty</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Lumley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">S</forename><surname>Pepe</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Biometrics</title>
+		<imprint>
+			<biblScope unit="volume">56</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="337" to="344" />
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Random survival forests</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Ishwaran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">U</forename><forename type="middle">B</forename><surname>Kogalur</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">H</forename><surname>Blackstone</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">S</forename><surname>Lauer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">The Annals of Applied Statistics</title>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="841" to="860" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Building Predictive Models in R Using the caret Package</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kuhn</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Statistical Software</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<date type="published" when="2008">2008. 2008</date>
+		</imprint>
+	</monogr>
+	<note>Issue</note>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kuhn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Wickham</surname></persName>
+		</author>
+		<title level="m">tidymodels: Easily Install and Load the &apos;Tidymodels&apos; Packages</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Time-to-event prediction with neural networks and Cox regression</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Kvamme</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ø</forename><surname>Borgan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Scheel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">129</biblScope>
+			<biblScope unit="page" from="1" to="30" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">a). mlr3: A modern objectoriented machine learning framework in R</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Binder</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Richter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Schratz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Pfisterer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Coors</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Au</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Casalicchio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Kotthoff</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Bischl</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Open Source Software</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="issue">44</biblScope>
+			<biblScope unit="page">1903</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">M</forename><surname>Lang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Richter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Bischl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Schalk</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019b</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<monogr>
+		<title level="m" type="main">Evaluating Random Forests for Survival Analysis using Prediction Error Curves</title>
+		<author>
+			<persName><forename type="first">U</forename><forename type="middle">B</forename><surname>Mogensen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Ishwaran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">A</forename><surname>Gerds</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Scikitlearn: Machine learning in Python</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Pedregosa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Varoquaux</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gramfort</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Michel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Thirion</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Grisel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Blondel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Prettenhofer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Weiss</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Dubourg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Vanderplas</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Passos</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Cournapeau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Brucher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Perrot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Duchesnay</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page" from="2825" to="2830" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">scikit-survival: A library for time-to-event analysis built on top of scikit-learn</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Pölsterl</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="issue">212</biblScope>
+			<biblScope unit="page" from="1" to="6" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<monogr>
+		<title level="m" type="main">R: A Language and Environment for Statistical Computing</title>
+		<author>
+			<persName><forename type="first">Team</forename><surname>Core</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Flexible parametric proportional-hazards and proportional-odds models for censored survival data, with application to prognostic modelling and estimation of treatment effects</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Royston</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">K</forename><surname>Parmar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Statistics in Medicine</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="issue">15</biblScope>
+			<biblScope unit="page" from="2175" to="2197" />
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">A Robust Alternative to the Schemper-Henderson Estimator of Prediction Error</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Schmid</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Hielscher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Augustin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><surname>Gefeller</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Biometrics</title>
+		<imprint>
+			<biblScope unit="volume">67</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="524" to="535" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<monogr>
+		<author>
+			<persName><forename type="first">R</forename><surname>Sonabend</surname></persName>
+		</author>
+		<title level="m">survivalmodels: Models for Survival Analysis</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<monogr>
+		<title level="m" type="main">distr6: The Complete R6 Probability Distributions Interface</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Sonabend</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Kiraly</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">On the C-statistics for Evaluating Overall Adequacy of Risk Prediction Procedures with Censored Survival Data</title>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">M</forename><surname>Therneau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Cai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Pencina</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">J</forename><surname>D'agostino</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">B</forename><surname>Wei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">J</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">A Package for Survival Analysis in S. Uno</title>
+		<imprint>
+			<date type="published" when="2011">2015. 2011</date>
+			<biblScope unit="volume">30</biblScope>
+			<biblScope unit="page" from="1105" to="1117" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Support vector methods for survival analysis: A comparison between ranking and regression approaches</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Van Belle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Pelckmans</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Van Huffel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">A</forename><surname>Suykens</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Artificial Intelligence in Medicine</title>
+		<imprint>
+			<biblScope unit="volume">53</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="107" to="118" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Validation, calibration, revision and combination of prognostic survival models</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">C</forename><surname>Van Houwelingen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Statistics in Medicine</title>
+		<imprint>
+			<biblScope unit="volume">19</biblScope>
+			<biblScope unit="issue">24</biblScope>
+			<biblScope unit="page" from="3401" to="3415" />
+			<date type="published" when="2000">2000</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

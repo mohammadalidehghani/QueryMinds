@@ -1,0 +1,1657 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Domain Knowledge in Artificial Intelligence: Using Conceptual Modeling to Increase Machine Learning Accuracy and Explainability</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Veda</forename><forename type="middle">C</forename><surname>Storey</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Jeffrey</forename><surname>Parsons</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Arturo</forename><surname>Castellanos Bueso</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Monica</forename><forename type="middle">Chiarini</forename><surname>Tremblay</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Roman</forename><surname>Lukyanenko</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Alfred</forename><surname>Castillo</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Wolfgang</forename><surname>Maass</surname></persName>
+						</author>
+						<title level="a" type="main">Domain Knowledge in Artificial Intelligence: Using Conceptual Modeling to Increase Machine Learning Accuracy and Explainability</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">C31BB9FE2743E34AE3689B41E98A0428</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2" ident="GROBID" when="2025-10-25T17:07+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">a91ee48</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=false, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], sentenceSegmentation=false, flavor=null</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>artificial intelligence</term>
+					<term>machine learning</term>
+					<term>Conceptual Modeling for Machine Learning (CMML) method</term>
+					<term>machine learning model performance</term>
+					<term>transparency</term>
+					<term>data preparation</term>
+					<term>domain knowledge Data &amp; Knowledge Engineering</term>
+					<term>2025 p. 2</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Machine learning enables the extraction of useful information from large, diverse datasets.</p><p>However, despite many successful applications, machine learning continues to suffer from performance and transparency issues. These challenges can be partially attributed to the limited use of domain knowledge by machine learning models. This research proposes using the domain knowledge represented in conceptual models to improve the preparation of the data used to train machine learning models. We develop and demonstrate a method, called the Conceptual Modeling for Machine Learning (CMML), which is comprised of guidelines for data preparation in machine learning and based on conceptual modeling constructs and principles. To assess the impact of CMML on machine learning outcomes, we first applied it to two real-world problems to evaluate its impact on model performance.</p><p>We then solicited an assessment by data scientists on the applicability of the method. These results demonstrate the value of CMML for improving machine learning outcomes.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>understanding and preparing data for use in the ML algorithms that comprise the models. ML models are built from data so the quality of the models depends upon the quality of the data used to create them <ref type="bibr" target="#b40">[41]</ref>. However, current ML approaches lack streamlined processes for improving the data quality and typically follow ad-hoc manual processes <ref type="bibr" target="#b68">[69]</ref>. In traditional data management, conceptual modeling (CM) comprises approaches to understanding how real-world entities and relationships among them are represented in data, typically by representing data semantics via graphical abstractions <ref type="bibr" target="#b20">[21]</ref>. However, the use of conceptual models to understand data is limited. We, therefore, propose using CM to improve ML by preparing data in ways that better reflect knowledge about what the data represents.</p><p>The ML community and, more broadly, the artificial intelligence (AI) community have long emphasized the need for a data-centric approach that focuses on the quality of the training data. As Press <ref type="bibr" target="#b63">[64]</ref> notes: "In the dominant model-centric approach to AI, according to [Andrew] Ng, you hold the data fixed and iteratively improve the model until the desired results are achieved. In the nascent data-centric approach to AI, consistency of data is paramount. To get to the right results, you hold the model or code fixed and iteratively improve the quality of the data." The data-centric AI movement aims to address the lack of tooling, best practices, and infrastructure for managing data in modern ML systems <ref type="bibr" target="#b66">[67]</ref>. The activities include data collection, data labeling, data preprocessing, data augmentation, data quality evaluation, data debt, and data governance. In practice, model-centric and data-centric approaches are iterativeley used. After training a baseline model of sufficient quality, data quality is improved by applying data-centric activities until the data quality stabilizes. This dual process is iteratively applied until a stopping rule applies.</p><p>Performing these activities well is challenging, with errors related to data management often leading to compounding events ("data cascades") that can cause negative effects ranging from low ML performance to discrimination and biases. Sambasivan et al <ref type="bibr" target="#b66">[67]</ref> found that these data cascades are avoidable through intentional practices, such as dataset documentation of data pipelines <ref type="bibr" target="#b54">[55]</ref>.</p><p>Another major challenge is ensuring process transparency when building models <ref type="bibr" target="#b12">[13]</ref>. Machine learning applications depend upon the experience and intuition of data scientists, which are often undocumented <ref type="bibr" target="#b5">[6,</ref><ref type="bibr" target="#b37">38]</ref>. Projects must be managed effectively by making the ML process transparent, repeatable, and</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Storey et al. 2025</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Domain Knowledge in AI</head><p>Data &amp; Knowledge Engineering, 2025 p. 3 auditable. For example, assessing highly sophisticated and opaque transformations of the input data can result in high accuracy when evaluating models, but provide little or no transparency on how the original features weigh on the predictions <ref type="bibr" target="#b0">[1,</ref><ref type="bibr" target="#b32">33]</ref>.</p><p>The objective of this research is to create a mechanism for improving both machine learning performance and process transparency. We propose a method for using domain knowledge, as found in conceptual models, to augment the data preparation needed to create training data sets to build machine learning models. The method is developed primarily for structured databases, but can be extended to non-structured databases.</p><p>The contribution is the creation and evaluation of a Conceptual Modeling for Machine Learning (CMML) method, comprised of a set of guidelines that can be applied to create effective training data sets prior to building machine learning models. To evaluate the usefulness of CMML, we first apply the method to data obtained from two real-world organizations in the United States to assess its potential to improve machine learning performance. We then conduct an applicability check of the proposed guidelines by engaging data scientists in a focus group setting.</p><p>Section 2 of this paper provides an overview of machine learning and conceptual modeling. Section 3 presents the Conceptual Modeling for Machine Learning (CMML) method. Section 4 reports on the evaluation tasks, with the implications discussed in Section 5. Section 6 concludes the paper.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Machine Learning and Conceptual Modeling</head><p>This section briefly reviews concepts related to machine learning needed to understand the development of the CMML method.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">Supervised Machine Learning</head><p>The most common type of machine learning is no doubtly supervised ML, although the intent of our work is to be generalizable to other types, such as unsupervised or reinforcement learning. This is because we focus on data semantics, with data a required input of all types of ML. A learning machine is a computer program that can improve its performance with experience for some class of tasks and</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Storey et al. 2025</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Domain Knowledge in AI</head><p>Data &amp; Knowledge Engineering, 2025 p. <ref type="bibr" target="#b3">4</ref> performance measures <ref type="bibr" target="#b10">[11]</ref>. Supervised machine learning uses labeled training and testing data 1 to build and evaluate models that represent patterns inferred from the data. Training data comprises variables (features), which are used in raw form or transformed into new features, to predict a target attribute of interest. Features sit between the data and models in the machine learning pipeline <ref type="bibr" target="#b24">[25,</ref><ref type="bibr" target="#b84">85]</ref>.</p><p>Increasingly, the goal of machine learning is to improve performance while enacting fair, transparent, auditable, and repeatable processes <ref type="bibr" target="#b3">[4]</ref>. Much of the effort in deploying machine learning algorithms goes into the design of preprocessing pipelines and data transformations that result in a representation of the data that can support effective machine learning <ref type="bibr" target="#b8">[9]</ref>.</p><p>For supervised machine learning, performance is the ability of a machine learning model to predict data in accordance with data used as input <ref type="bibr" target="#b10">[11]</ref> as shown below.</p><p>Supervised learning guides the learner in acquiring knowledge in a domain through examples so that new cases can be handled appropriately based on the implicitly learned patterns derived from similar cases <ref type="bibr" target="#b10">[11]</ref>. The accuracy of a model measures performance in predicting values of interest for unseen instances (i.e., ones not used to build the model).</p><p>The performance of machine learning performance is generally affected by: fit between data and model complexity (for instance, more complex methods, such as deep learning neural networks yielding more abstract, and ultimately more useful, representations for large datasets <ref type="bibr" target="#b2">[3,</ref><ref type="bibr" target="#b7">8,</ref><ref type="bibr" target="#b49">50]</ref>); improving the quality of data used to train and evaluate algorithms <ref type="bibr" target="#b40">[41,</ref><ref type="bibr" target="#b78">79]</ref> transforming training data into a form more amenable to learning <ref type="bibr" target="#b24">[25,</ref><ref type="bibr" target="#b59">60]</ref>; and increasing the size of training data <ref type="bibr" target="#b74">[75]</ref>. 1 For the remainder of this paper, we refer to the combination of training and testing data, simply, as training data.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Storey et al. 2025</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Domain Knowledge in AI</head><p>Data &amp; Knowledge Engineering, 2025 p. 5</p><p>Although deep learning methods can perform outstandingly well with a minimal amount of preprocessing or explicit feature construction on unstructured data (e.g., image, audio, and text) <ref type="bibr" target="#b30">[31]</ref>,</p><p>tabular data still pose a challenge to deep learning <ref type="bibr" target="#b11">[12,</ref><ref type="bibr" target="#b29">30]</ref> models <ref type="bibr" target="#b72">[73]</ref>, in which performance may strongly depend on the selected preprocessing strategy <ref type="bibr" target="#b30">[31]</ref>. There have been some efforts to augment ML processes with domain knowledge at different stages (e.g. <ref type="bibr" target="#b9">[10,</ref><ref type="bibr" target="#b35">36]</ref>). These efforts include: creating handcrafted feature engineering to improve the accuracy of the models, using transfer learning, where patterns learned by one ML model are repurposed, fine-tuned, or distilled into smaller models; and using knowledge graphs with explicit relationships among entities to help provide domain knowledge <ref type="bibr" target="#b13">[14,</ref><ref type="bibr" target="#b43">44,</ref><ref type="bibr" target="#b83">84]</ref>. Still, none of these works have attempted to enrich ML processes with rich domain rules (e.g., data cardinality, optionality of features or entities) as captured in organizational conceptual models.</p><p>Understanding patterns learned by ML models is often considered to be beyond reach, due to model complexity (black box). Representation learning targets methods for automatic discovery of human interpretable structures underlying data <ref type="bibr" target="#b8">[9]</ref>. For instance, variational autoencoders as a generalization of principle component analysis (PCA) learn latent representations that capture the probabilistic structure of data <ref type="bibr" target="#b42">[43]</ref>. The goal is to separate latent variables for better interpretation of the latent structure underlying data. Identifiability refers to methods that enable the determination of a unique, interpretable representation that can generate a dataset <ref type="bibr" target="#b69">[70]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2.">Process Transparency in Data Preparation</head><p>Machine learning tasks, such as identifying data sources, preparing data, and building and deploying models, are not systematized. However, several methods prescribe high-level activities for creating and deploying ML models. Two popular examples are the Cross-Industry Standard Process for Data Mining (CRISP-DM) and the Team Data Science Process (TDSP) Framework <ref type="bibr" target="#b28">[29,</ref><ref type="bibr" target="#b70">71]</ref>. Such methods require data cleaning as an important step in the ML process to improve accuracy or efficiency <ref type="bibr" target="#b21">[22]</ref>. In existing methods, training data preparation is largely ad hoc <ref type="bibr" target="#b36">[37]</ref> and based on intuition, judgment, or trial and error <ref type="bibr" target="#b24">[25]</ref>.</p><p>One survey of global ML practices concludes: "Everyone wants to do the model work, not the data work" [67] (p.6). The task of preparing the data before training ML models is Storey et al. 2025 Domain Knowledge in AI Data &amp; Knowledge Engineering, 2025 p. 6</p><p>"paradoxically…the most under-valued and de-glamorized aspect of AI" <ref type="bibr" target="#b66">[67]</ref> (p.1). The result is a real risk that unconscious bias from the data scientists or in the underlying data will be embedded in ML models. This is a main motivation for the CMML method.</p><p>Process transparency explicitly articulates the data preparation techniques applied and describes how the tasks involved in a machine learning initiative are related. For example, data preparation tasks can involve transforming raw data into a usable form. These transformations include binning, normalization, imputation of missing values, feature engineering, and dimensionality reduction (e.g., <ref type="bibr" target="#b33">[34]</ref>). There are accepted principles for working with datasets <ref type="bibr" target="#b73">[74]</ref>, as well as techniques for data cleaning <ref type="bibr" target="#b48">[49]</ref> and feature engineering to generate useful (e.g., predictive) features from a raw dataset <ref type="bibr" target="#b24">[25,</ref><ref type="bibr" target="#b59">60,</ref><ref type="bibr" target="#b84">85]</ref>. The techniques primarily focus on the statistical properties of the data; they do not provide an overall process for guiding data preparation to reflect domain knowledge. Manual feature engineering consists of extracting features from raw data and transforming them into formats suitable for the machine learning model. There is a general agreement among data scientists that the vast majority of time spent building a machine learning pipeline is allocated to feature engineering and data cleaning <ref type="bibr" target="#b84">[85]</ref>.</p><p>Most techniques used for feature engineering focus on ML performance without considering process transparency <ref type="bibr" target="#b59">[60]</ref>. Process transparency can be further diminished when using Automated Machine Learning (AutoML) techniques, which automate many ML steps <ref type="bibr" target="#b48">[49]</ref>. However, AutoML tools allow users to explicitly indicate their preference for either high performance (using computationally intensive and opaque transformations on training data) or improved transparency (using limited and more understandable transformations on training data) <ref type="bibr" target="#b34">[35]</ref>.</p><p>There is a well-recognized tradeoff between the objectives of process transparency and model performance <ref type="bibr" target="#b44">[45]</ref>. For example, neural networks perform extremely well, but any representation learning contained within the hidden layer is comprised of weights and biases applied to the combinations of inputs at each node. As the number of hidden layers increases, subsequent layers contain nodes with weights and biases of the previous layers as inputs, making interpretability challenging.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Storey et al. 2025</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Domain Knowledge in AI</head><p>Data &amp; Knowledge Engineering, 2025 p. 7</p><p>In some cases, applying more complex and sophisticated transformations of the input data, whether created automatically by the ML pipeline (e.g., automatic feature engineering, representation learning)</p><p>or by a data scientist (e.g., handcrafted feature engineering), may improve model performance. However, the lack of process transparency can decrease the effectiveness of such models. For example, while engaging in a feature engineering activity, data could be inappropriately manipulated by teams lacking domain experience, resulting in spurious or invalid relationships that can lead to inaccurate models.</p><p>During the early part of the COVID-19 pandemic many tools unintentionally used data that contained chest scans of children who did not have a COVID diagnosis as their examples of what non-covid cases looked like. As a result, the AI learned to identify children, not COVID-19 cases. Similarly, researchers built models using data that contained a mix of scans taken when patients were lying down or standing up. Because patients scanned while lying down were more likely to be seriously ill, the AI learned wrongly to predict serious COVID risk from a person's position; not from whether they had developed severe pneumonia. 2 Data scientists must understand the domain well enough to discern among competing transformations to determine those that better represent the domain <ref type="bibr" target="#b59">[60]</ref>. Process transparency can be improved by having data scientists select fewer and less opaque transformations <ref type="bibr" target="#b16">[17]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3">Modeling</head><p>Conceptual modeling arose as a response to the need to understand and model the domain for which an information system or its components (e.g., database) is being developed and has evolved over time <ref type="bibr" target="#b4">[5,</ref><ref type="bibr" target="#b31">32]</ref>). Conceptual modeling describes "aspects of the physical and social world for understanding and communication" <ref type="bibr" target="#b57">[58]</ref> (p.389). Entity-Relationship (ER) modeling is one of the most common approaches to creating conceptual models of data. The ER model, and its extensions, conceptualize a domain in terms of entity types that possess attributes 3 and participate in relationships with other entity types <ref type="bibr" target="#b20">[21,</ref><ref type="bibr" target="#b77">78]</ref>. Figure <ref type="figure" target="#fig_0">1</ref> illustrates the main constructs of the Extended ER (EER) model <ref type="bibr" target="#b77">[78]</ref>: entity type, attribute, and relationship.</p><p>2 <ref type="url" target="https://www.technologyreview.com/2021/07/30/1030329/machine-learning-ai-failed-covid-hospital-diagnosis-pandemic/">https://www.technologyreview.com/2021/07/30/1030329/machine-learning-ai-failed-covid-hospital-diagnosis-pandemic/</ref>  3 We refer to attributes within the context of conceptual modeling and as features within the context of machine learning.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Storey et al. 2025</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Domain Knowledge in AI</head><p>Data &amp; Knowledge Engineering, 2025 p. 8</p><p>An entity type represents a group of similar things of interest in an application domain and can be material or conceptual (Figure <ref type="figure" target="#fig_0">1a</ref>). A relationship is an association between entity types (Figure <ref type="figure" target="#fig_0">1c</ref>).</p><p>Attributes are characteristics of entity types and relationships (Figure <ref type="figure" target="#fig_0">1b</ref>). Composite attributes are comprised of other attributes (e.g., address is composed of street, city, state, and postal code). Derived attributes depend on the value of other attributes (e.g., age is derived from the date of birth and current date). Storey et al. 2025 Domain Knowledge in AI Data &amp; Knowledge Engineering, 2025 p. 9</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Construct Diagram Fragment Example</head><p>Cardinalities capture the minimum number of entities (0 or 1) that can participate in a relationship and the maximum (1 or many). A zero cardinality indicates optional participation by an entity type in a relationship, while a minimum cardinality of one indicates mandatory participation. These constructs abstract knowledge of a variety of business rules or constraints that apply in a real-world application.</p><p>Hierarchies of entity types are modeled by generalization/specialization. An entity subtype inherits all of the attributes of its supertypes and possesses one or more additional attributes or relationships.</p><p>When training data are extracted from an organizational database, the original data typically conform to some available conceptual model. However, in preparing data for training an ML model, information about entity types, relationships, and constraints is often lost when the data are reduced to a denormalized tabular structure. <ref type="foot" target="#foot_0">4</ref> Thus, conceptual modeling can affect ML model performance and facilitate transparency because using these entity types, relationships, and constraints can dictate the data transformation techniques for machine learning.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.4">Positioning within Conceptual Modeling and Machine Learning</head><p>Research in information systems has long emphasized the importance of conceptually representing the real-world knowledge and logic needed for effective systems design <ref type="bibr" target="#b82">[83]</ref>. These models provide a way to represent the facts, relationships, rules, and constraints of a domain. The ER community has contributed significantly to integrating conceptual modeling with machine learning. Nalchigar and Yu <ref type="bibr" target="#b58">[59]</ref> proposed the use of conceptual models to support requirements elicitation. Lukyanenko et al. <ref type="bibr" target="#b50">[51]</ref> propose conceptual models to support ML phases of the CRISP-DM cycle. <ref type="foot" target="#foot_1">5</ref> Maass et al. <ref type="bibr" target="#b52">[53]</ref>and <ref type="bibr" target="#b51">[52]</ref> propose a method for imposing the features weights of an ML model to enhance model interpretability.</p><p>Maass and Storey <ref type="bibr" target="#b53">[54]</ref> identified challenges associated with insufficient domain knowledge in ML, which conceptual models can potentially address. Corea et al. <ref type="bibr" target="#b23">[24]</ref> repurpose DMN (Decision Model and Notation) decision tables as coalitional games and apply Shapley-value analysis to quantify each input's marginal contribution, providing a faithful, model-native explanation of complex decision logic.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Domain Knowledge in AI</head><p>Data &amp; Knowledge Engineering, 2025 p. 10</p><p>Our work complements these theoretical foundations by providing specific operational guidelines for incorporating conceptual modeling principles into ML data preparation activities. In addition, research on Model Data Engineering (MDE) approaches complement these conceptual modeling efforts by systematically automating transformations and mappings between domain models and ML artifacts. This includes work by van de Reit 2008 <ref type="bibr" target="#b81">[82]</ref>, Burgueño et al. <ref type="bibr" target="#b15">[16]</ref>; Bucchiarone et al. <ref type="bibr" target="#b14">[15]</ref>; and Naveed <ref type="bibr" target="#b60">[61]</ref>. To facilitate code development, "Model-driven software engineering and human-computer interaction design can help in abstracting machine learning technology" and enabling automated code generation" (Bucchiarone et al. <ref type="bibr" target="#b15">[16]</ref>, p.8).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">CONCEPTUAL MODELING FOR MACHINE LEARNING METHOD</head><p>The Conceptual Modeling for Machine Learning (CMML) method, which we propose, incorporates domain knowledge contained in conceptual models into the data preparation process for machine learning applications. CMML is intended to improve machine learning model performance and process transparency for supervised machine learning tasks.</p><p>The foundation of the CMML method is based on the three main constructs of the Extended  3.1 Assumptions CMML is based on two main assumptions. First, a conceptual model of the domain is available in the form of an extended entity-relationship (EER) diagram. Second, a dataset is available containing a target attribute and sufficient relevant features to construct a machine learning model. The following scenario, adapted from Khatri et al. [42], illustrates the development of the guidelines, with its corresponding EER diagram shown in Figure 3. The machine learning objective is to predict a customer's lifetime value (target attribute), which is derived from the total of all the orders for a customer. The guidelines are at the conceptual level, with specific examples at the physical level. Storey et al. 2025 Domain Knowledge in AI Data &amp; Knowledge Engineering, 2025 p. 12 The method iterates over the constructs of the EER model (entity type, attributes, and relationships) to preserve the domain knowledge expressed in the EER diagram during data preparation. We define important terms of our method in Table <ref type="table">1</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Table 1. Conceptual Modeling for Machine Learning Terms</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Term Definition</head><p>Target attribute Attribute of an entity type that can be used as a target feature in a training dataset for machine learning Target-bearing entity Entity type that contains the target attribute</p><p>Predictor entity Entity type that contains attributes that will be used as feature variables in the ML training data</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Preparation</head><p>Entity types represent the classes of things of interest in a domain, such as CUSTOMER, VENDOR, and PRODUCT. Contemporary approaches to machine learning do not preserve knowledge about entity types or consider this domain knowledge when performing feature engineering <ref type="bibr" target="#b24">[25]</ref>. This knowledge can be preserved by labeling the features. Although appending descriptive information to features is a standard ML practice, there is no systematic method for doing so. Appending the name of the entity type to the names of features can improve transparency by providing a consistent naming convention to indicate the lineage of the attributes. In Figure <ref type="figure" target="#fig_3">3</ref>, the attribute Name appears in the PRODUCT and CUSTOMER entity types. Relabeling creates two differentiable features: PRODUCT_Name and CUSTOMER_Name. Appending the name of the entity type is also helpful for maintaining lineage information of new features created via dimensionality reduction or feature engineering. Dimensionality, or feature reduction, is a feature transformation technique that reduces the number of input variables in training data. Dimensionality reduction combines several features into one using techniques such as clustering or principal component analysis. It is commonly used to deal with sparse data or to reduce multicollinearity among features [65]. 6 This model follows the crow's feet notation with many to many relationships represented by another associative entity, thus ORDER_PRODUCT 46. Kroenke, D.M., et al., Database Concepts. 2010: Prentice Hall Upper Saddle River, NJ.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Storey et al. 2025</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Domain Knowledge in AI</head><p>Data &amp; Knowledge Engineering, 2025 p. <ref type="bibr" target="#b12">13</ref> Labeling the new feature with the corresponding entities will improve process transparency. For example, in Figure <ref type="figure" target="#fig_3">3</ref>, it is possible to cluster the demographic information for each customer to generate a new feature called "Demographic_Segmentation_CUSTOMER," which reduces dimensionality by removing more granular demographic information (e.g., address, region). The new feature name identifies the source entity type used in its derivation and includes it as a label. If more than one entity is involved in the transformation, the names of those entities are retained. For example, if we cluster customer and product information to generate a new feature, the name becomes:</p><p>"Benefit_Sought_CUSTOMER_PRODUCT".</p><p>Guideline 1 -Feature labeling. All features maintain the named entities of origin. When conducting feature engineering, preserve the name of all corresponding entities.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Attribute Guidelines</head><p>Whereas generally, attributes are turned into features in an ML pipeline, some valuable domain semantics can be lost in this process. We consider derived attributes and attributes with missing values to ensure we retain the semantics related to the attributes in an EER diagram. A derived attribute is an attribute whose value is not permanently stored in a database but calculated from the stored values of other attributes and/or additional available data (such as the current date) <ref type="bibr" target="#b38">[39]</ref>. For example, CUSTOMER_Age can be calculated based on the difference between the current date and CUSTOMER_DOB.</p><p>As another example, we can compute the AVERAGE_ORDER_TOTAL for all the orders a CUSTOMER placed. In CMML, we apply the derived attribute concept to derive features from the available data. Since derived attributes do not exist in the database tables, but are important attributes of their respective entity, they must be calculated and added to the ML training dataset as new features. In CMML, data scientists must identify possible derived features and assess if they have the data to derive them.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Guideline 2 -Derive features.</head><p>Identify derived attributes that can add more information than only using the attribute(s) in their raw form. For each derived</p><p>Storey et al. 2025 Domain Knowledge in AI Data &amp; Knowledge Engineering, 2025 p. 14 attribute, create a new feature, appropriately and descriptively labeled, and compute the value of the new feature for each record in the dataset.</p><p>A dataset that is used as input to ML can have missing values. A missing value that is not available or unknown but potentially knowable can be imputed using standard techniques, such as substitution, mean, interpolation, or extrapolation. However, a missing value might not apply to all members of an entity type. For example, CUSTOMER_level might not apply to all customers because some may not have joined a loyalty program. Missing values should be imputed only for those instances of the entity type for which the attribute is applicable. In this way, the entity-relationship model facilitates the identification of this case which might not be evident in the raw data.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Guideline 3 -Impute features.</head><p>Impute missing values of a feature in a data set if the value is applicable but unknown.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.4">Relationship Guidelines</head><p>The CMML method exploits the relationships between entity types based on their cardinalities, which indicate whether the entity participation is one to one (1:1), one to many (1:N), or many to many (N:M).</p><p>Machine learning algorithms are trained on a tabular flat-file dataset. Depending on the type of relationship, the data corresponding to each entity must be transformed to an adequate granularity to create a final dataset.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.4.1">One-to-One (1:1) Relationships</head><p>In a one-to-one relationship, an instance of one entity type can be related to at most one instance of another entity type (and vice versa). These two tables (representing the entities) would be joined at the physical level. There is one record for each occurrence of an entity, so the data that corresponds to the instances of the relationship is already in a form that can be used by ML.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.4.2">One-to-Many Relationships</head><p>In a one-to-many relationship, an instance of one entity type can be related to one or more instances of another entity type. As a result, there is a unit of analysis mismatch whereby the target-bearing entity is at a higher level of granularity than the predictor entities. To align the levels of unit of analysis, the data scientist will need to find a way to combine the data instances from each entity. Consider the customer/order scenario in Figure <ref type="figure">4</ref>, where each customer has at least one order. The task is to predict</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Storey et al. 2025</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Domain Knowledge in AI</head><p>Data &amp; Knowledge Engineering, 2025 p. <ref type="bibr" target="#b14">15</ref> Customer LTV, a derived attribute for CUSTOMER calculated from information about the customer's</p><p>ORDERs. Customer LTV appears on the one side of the relationship. The CUSTOMER entity type is a target-bearing entity because it contains the target attribute, CUSTOMER_LTV. It is also a predictor entity because it contains attributes that can be used as features (e.g., CUSTOMER_Age, CUSTOMER_Address, etc.).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Figure 4. CUSTOMER-ORDER EER Segment</head><p>If we retain the granularity of this data at the order level, it will result in data from an entity type being repeated multiple times. The same customer information is duplicated for each order by a customer, including the CUSTOMER_LTV. It is not useful to have multiple rows of LTV for each CUSTOMER.</p><p>Instead, these should be collapsed into one occurrence. Here, the target attribute is CUSTOMER_LTV and the features are anything from the CUSTOMER or ORDER tables. The repeating data is not included when there are several repeated rows for the target-bearing entity type (CUSTOMER).  Storey et al. 2025 Domain Knowledge in AI Data &amp; Knowledge Engineering, 2025 p. 16</p><p>When the target-bearing entity is on the one side of the relationship, we propose summarizing the records on the "many side" into a single row using an approach we call entity summarization. In Figure <ref type="figure" target="#fig_4">5</ref>, information about ORDERS can be captured by creating new, summarized features <ref type="bibr" target="#b24">(Duboue, 2020)</ref> that preserve information between instances of the target entity type (CUSTOMER) and associated instances of the predictor entity types (CUSTOMER and ORDER). For example, we capture the number of orders (summary feature) by creating a column called ORDER_Count. For Cust_ID 101, the ORDER_Count would be 1. Customer 101 has placed four orders, two online orders and two phone orders (two other summary features of nominal attributes), as shown in Figure <ref type="figure" target="#fig_6">6</ref>. For numerical attributes, we create summary statistics and other numerical transformations (counts, averages, sum, min, max, or ratios). For example, we conduct entity summarization on the total attribute of ORDER by using an average.  </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.4.3.">Many-to-Many Relationships</head><p>Many-to-many relationships can have relationship attributes, whereas one-to-one and one-to-many do not. The resulting relationships are two one-to-many relationships and one associative entity that contains the keys of the entities involved in the original relationship. The attributes of the original</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Storey et al. 2025</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Domain Knowledge in AI</head><p>Data &amp; Knowledge Engineering, 2025 p. 17 relationship can exist but could have a null value. For example, ORDER_PRODUCT links ORDER and PRODUCT entities and has relationship attributes: quantity, handling, and shipping. No further action is necessary since the many-to-many relationship has been split into two one-to-many relationships, so the guidelines for one-to-many can now be followed.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.4.4.">Generalization/Specialization</head><p>Generalization/specialization is a special entity type structure that captures the semantics of classes and subclasses that occur commonly in the real world. CMML exploits the generalization/specialization structure to identify potential quality issues in (subtypes) cases where the cardinality of the data is not one-to-one. In Figure <ref type="figure" target="#fig_3">3</ref> When using CMML in the presence of specialization, the subtypes are not always disjoint. Subtype overlap is where there are instances that are members of more than one subtype. These instances should be duplicated such that they are present in each TDSn of which they are a member. For example, while most products might only be of type consumer, retail, or manufacturer, a particular product could be a member of all three of these subtypes. Although each subtype captures only attributes specific to it, these overlap instances will have values across multiple subtypes. In all cases where there are subtypes, build each subtype's TDSn using: (1) only the instances that are members of that subtype, and (2) with</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Storey et al. 2025</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Domain Knowledge in AI</head><p>Data &amp; Knowledge Engineering, 2025 p. <ref type="bibr" target="#b17">18</ref> only the values specific to that subtype. The output for the discussed example would be three TDSn :</p><p>(TDS1) consumer product; (TDS2) retail product; and (TDS3) manufacturer products. A product that is a member of all three of these would be present in each, but with only those attributes that apply to each respective subtype. These data can be used to create a separate model for each subtype.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.5">Application of guidelines</head><p>Machine learning tasks and the data available for these tasks can vary. It is unlikely that a given machine learning task will require the use of all guidelines (e.g., there could be no missing values, or derived attributes). Therefore, combinations of guidelines may be used as needed. However, all tasks should adhere to Guideline 1, which seeks to maintain transparency by including the name of the entities of origin. Data scientists have multiple ways to receive data. These guidelines can be directly applied if they obtain the data from a relational database. However, if the data comes as a flat file (or files), such as when getting data from a data lake which commonly occurs, then the benefits to ML occur as summarized in Table <ref type="table">2</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Table 2. Summary of Guidelines</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Guideline</head><p>Benefits for ML G1. Feature labeling. All features maintain the named entities of origin. When conducting feature engineering, preserve the name of all the corresponding entities.</p><p>Ensures consistent naming convention and greater traceability of features. G2. Derive features. Identify derived features that can add more information than only using the variable(s) in their raw form. For each derived attribute, create a new feature, appropriately and descriptively labeled, and compute the value of the new feature for each record in the dataset.</p><p>Engineering features that represent the underlying problem domain.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>G3. Impute features. Impute missing values of an attribute in a data set only if the value is applicable but unknown.</head><p>Domain-aware and semantically appropriate imputation of missing values.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>G4. Summarize entity. When a one-to-many relationship creates data duplication, create a training dataset that removes training case duplication by summarizing the features on the many side of the relationship, creating counts for categorical variables and numeric summaries for continuous variables.</head><p>Removal of repetition in some of the attributes of the data.</p><p>Merging datasets that are at different granularities.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>G5. Create multiple training datasets. For generalization and specialization, build multiple training datasets (TDSn), one for each subtype, which will be used to train distinct models.</head><p>Ensuring imputation of missing features that only apply to certain entities.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Storey et al. 2025</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Domain Knowledge in AI</head><p>Data &amp; Knowledge Engineering, 2025 p. 19</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Evaluation</head><p>We demonstrate and evaluate the CMML method by applying it in a real-world context to show how it can improve ML performance and process transparency, and eliciting an assessment of the method from data scientists.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Application to Real-world Context: Foster Care</head><p>To assess the method within a real-world context, we obtained data from two foster care organizations in the United States, both motivated by an interest in using ML to improve their operations. 7 One author has deep domain knowledge due to extensive work with several foster care agencies for 15 years. Figure <ref type="figure" target="#fig_10">8</ref> shows a conceptual model that represents a typical foster care domain. For the foster care organizations we worked with, a child's overall length of stay is an episode. Episodes are managed within a foster care office by assigning them to caseworkers. A child could have more than one episode reported in the foster care reporting system. For example, a child could be permanently placed (episode 1) but later return to foster care (episode 2). Caseworkers must conduct a home visit (the location where a child is placed) periodically (which could vary depending upon the jurisdiction).</p><p>A location can have more than one foster child placement.</p><p>A significant challenge in foster care is identifying the characteristics of a foster care child or case (e.g., age, number of siblings, placement type) that predict the length of stay <ref type="bibr" target="#b6">[7]</ref>. A second 7 A foster care system in the United States is a temporary arrangement in which adults provide care for a child whose birthparents are unable to care for them. Foster care is usually arranged through the courts or a social service agency. The goal for a child in the foster care system is to reach a permanent living arrangement. In foster care, a child lives with a relative or non-relative adult who has been approved by the State, or by an agency licensed by the State.</p><p>challenge is detecting the over-prescription of psychotropic medications, medications prescribed to help children cope with behavioral problems, such as attention-deficit/hyperactivity disorder, depression, bipolar disorder, and psychotic disorders. Failure to identify at-risk children is highly problematic because adverse outcomes can include severe consequences, including death.</p><p>Two datasets were used to evaluate CMML. The first (case 1) was a structured database describing the placements of children in the foster care system. These data were used to build machine learning models to predict a child's length of stay (episode) in the system. The portion of Figure <ref type="figure" target="#fig_10">8</ref> that appears in dark gray is relevant to this use case. The second (case 2) was a database containing unstructured text notes about caseworkers' visits to foster care homes, which was used to build models to predict whether a child is prescribed psychotropic medication. The portion of Figure <ref type="figure" target="#fig_10">8</ref> that appears in white is relevant to this use case.</p><p>In case 1, the machine learning task was to evaluate the performance of models that predict the length of an episode. In case 2 (unstructured data), the machine learning task was to evaluate the performance of models that classify children as taking psychotropic medication(s) versus those who are not.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1.1">Case 1 -Prediction of Length of Stay (Estimation)</head><p>The data used to predict a foster care child's length of stay (episode) was extracted from a secured data portal that collects data on children entering and leaving the foster care system in real time. The portion of Figure <ref type="figure" target="#fig_10">8</ref> in dark gray and light gray illustrates the relevant part of the domain for applying the CMML method 8 . The data was stored in a relational database and exported into a flat file. The resulting dataset contained 25,462 placement records, representing 4,437 episodes and 9,942 children from January 1, 2015, to March 31, 2019. The target attribute was the length of an episode.</p><p>An example of DS0 is given in Figure <ref type="figure" target="#fig_11">9</ref>. The objective is to build a model that estimates the length of stay for a foster child. For example, foster care children reunified with parents or primary caretakers 8 Not all attributes are pictured in this diagram.</p><p>have a median length of stay of 66 days. In contrast, children placed in care via a court ordered placement have a median length of stay of 238 days.  <ref type="table" target="#tab_3">3</ref>. Each version results from applying one or more CMML guidelines to DS0 (in addition to guideline 1). One case which is comprised of one or more episodes. Sample Size: 4,437 Target attribute Mean: 440.47 SD: 340.70 Guidelines Applied: Guidelines 2 and 4 Guideline 2: Derive features-When summarizing the data (per guideline 4), several new derived attributes were created, such as counts of different placement types, number of total placements, one-hot encoding to capture all the different types of placements (such as group home, relative, foster parent). Guideline 4: Summarize entities -The targetbearing entity was EPISODE. The data in DS0 was aggregated for its respective case. Note that children could have more than one episode. We kept data aggregated to the episode level. Thus, a child having more than one episode could appear multiple times. Datasets: TDS2 -Younger, TDS3-Older Row Representation: Subsets of dataset consistent with the age of the child upon start of the episode Sample Size TDS2-Younger:12,436 Target attribute Mean: 645.39 SD: 381.51 Sample Size TDS3-Older:13,026 Guideline 5: Create multiple training datasets. We separated the data into two datasets based on standard, well-accepted child subclasses (age 7 or younger, 8 and older) (Courtney et al., 1996; Kadushin &amp; Martin, 1988). Target attribute Mean: 761.48 SD: 436.98</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Guideline Applied: Guideline 5</head><p>To demonstrate the robustness of our method, we used both popular ML algorithms (typically used by experienced ML teams) and a commercial AutoML tool <ref type="bibr" target="#b18">[19]</ref>. For the former, we selected Deep Learning algorithms <ref type="bibr" target="#b29">[30]</ref>, Random Forests <ref type="bibr" target="#b10">[11]</ref>, Gradient Boosting Machines (GBM) <ref type="bibr" target="#b27">[28]</ref>, and Light GBMs <ref type="bibr" target="#b39">[40]</ref>. These are well-known and generally effective ML techniques for tabular data <ref type="bibr" target="#b28">[29]</ref>. We used Python, and open source libraries sci-kit learn and h2o.ai <ref type="bibr" target="#b61">[62]</ref>. For AutoML, we created models using a popular commercial tool, called H2O Driverless AI <ref type="bibr" target="#b16">[17]</ref>. This tool automates the process of algorithm selection, feature engineering, and hyperparameter tuning.</p><p>Building actionable machine learning models involves comparing the performance of different models while considering different algorithms and hyperparameter tuning <ref type="bibr" target="#b80">[81]</ref>. The modeling was carried out using a general-purpose GPU compute Amazon AWS cloud instance with an Intel Xeon E5-2686 v4 (Broadwell) processor, 61 Gb RAM, NVIDIA K80 GPU (12 Gb), and h2oai-driverless-ai-1.8.5 AMI (Amazon Linux). We used RMSE (Root Mean Square Error) to measure predictive accuracy based on out-of-sample assessment (cross-validation) <ref type="bibr" target="#b71">[72]</ref>.</p><p>The RMSE and r 2 are standard ways to assess an ML model's estimation accuracy. Table <ref type="table" target="#tab_3">3</ref> shows these results. Bolded items indicate a significant reduction in RMSE or an increase in r 2 compared to the DS0based model. We also calculated the normalized RMSE (nRMSE) to ensure an appropriate comparison of RMSE across different datasets. The range of all the datasets was identical (min=0, max=1550).</p><p>As seen in Table <ref type="table" target="#tab_6">4</ref>, the results show that models built using TDS1, which applies Guideline 2 (derive features), and Guideline 4 (entity summarization) to DS0, consistently outperformed models built using DS0, with an average increase of 23.8% in explained variance across the various models and an average reduction in RMSE of 24 (7.4%). The application of Guideline 5 resulted in two subsets of the data: TDS2 (younger children) and TDS3 (older children). There was an improved performance for the TDS2 across all models, and improved performance for the TDS3 AutoML model. Combining the results for TDS2 and TDS3 for each model showed a 19% increase in explained variance with the AutoML model, however equivalent performance across the other four models to DS0. Although the RMSE and 𝑟𝑟 2 values suggest practical value, the paired prediction absolute errors were compared statistically between the best performing non-AutoML model for DS0, Random Forest, and the various TDSn datasets using Wilcoxon Signed-Rank Test. See Table <ref type="table" target="#tab_7">5</ref>. DS0 was also paired with the combined results of the TDS2-Younger and TDS3-Older, because these are disjoint subsets of the data contained in DS0. The p-value presented is two-tailed. The null hypotheses that the TDSn versions produced from DS0 using CMML had no effect on prediction errors (compared to DS0) were all rejected at 𝑎𝑎 = .05. Based on the evaluation, we conclude that applying the CMML method can improve the performance of ML models. To demonstrate transparency improvements following CMML, we applied Guideline 1 globally to label the features with the relevant entity names (e.g., CHILD, EPISODE, PLACEMENT). In Figure <ref type="figure" target="#fig_0">10</ref>, we show the final features (original or engineered) used in the model with their respective entity names (after applying Guideline 1). The top five final features used in Case 1 are shown in Figure <ref type="figure" target="#fig_0">10</ref> in descending order by importance. If no feature engineering was performed, the feature has "Original" identified in its label. Note that even for the transformed features, we now specify the name of the entity type Placement (e.g., PLACEMENT_OutcomeTrialHomeVisit), following Guideline 1. As readily seen from this illustration, PLACEMENT is the key predictor entity, something that would not be obvious by considering the features in isolation of the entities. Later, we demonstrate beliefs about transparency improvements based on CMML by conducting a focus group with target practitioners. 4.1.2 Case 2 -Prediction of Psychotropic Prescription (Classification)</p><p>This second machine learning project aimed to help caseworkers identify children taking psychotropic medication. The organization previously used a random selection method to identify potential positive cases of psychotropic drug use. The organization faced new mandates requiring monitoring of children taking psychotropic medication that could be overprescribed. This additional mandate added a new task to caseworkers' workload: analyzing random samples of existing home-visit notes, which document the interaction between the caseworker and the child at their home, to identify children who might be taking these medications. The organization contacted the researchers to seek assistance in identifying cases where children were receiving these medications.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Storey et al. 2025</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Domain Knowledge in AI</head><p>Data &amp; Knowledge Engineering, 2025 p. <ref type="bibr" target="#b24">25</ref> The portion of the EER diagram relevant to this use case is highlighted in Figure <ref type="figure" target="#fig_10">8</ref> in white and light gray. The researchers collected a data sample from 852 children. The domain experts (caseworkers) manually verified each child as being on psychotropic medication or not. Next, the researchers collected the case note texts (from the caseworkers) for this sample over six months. Out of the subset of 852 children, 92 cases (10.8%) were of children taking psychotropic medication.</p><p>The original and transformed datasets are described in Table <ref type="table">6</ref>. As the EER shows, the home-visit note reported by the caseworker is at the home level, and a home might have more than one child. Trying to detect evidence of a child taking psychotropic medication is challenging when there is information in a note about several children, some of whom may not be using psychotropic medications. Another challenge is that there are several case notes per home. We applied Guideline 4 by combining all the notes for one child and Guideline 5 by creating separate datasets, including one where there is a oneto-one mapping of a child to their home-visit note (with annotations that are specific to that child, e.g., a child is taking 5 mg of Adderall twice daily, 3-4 hours apart).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Table 6. Dataset Description -Case 2</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Dataset Summary</head><p>Guidelines Applied Dataset: DS0 Row Representation: One home visit note, the lowest grain available for our task Sample Size: 1,545 Guidelines Applied: N/A N/A as this was the original data -the home visit notes from caseworkers for a sample of children verified by them to be taking psychotropic medication, or not taking psychotropic medication, during a period of 6 months (December 1 st -May 30 th ).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Dataset: TDS1 Row Representation:</head><p>All home visit notes about one child Sample Size: 852 Guidelines Applied: Guidelines 4 and 5 Guideline 4: Summarize Entities -The target attribute is at the CHILD level, so the individual home visit notes were aggregated to form one corpus per child. There were multiple cardinalities present in the data. Many of the home visit notes were about one child, while some were about several children. Guideline 5: Create multiple training datasets-These were split into two datasets: (TDS1-Single) homes with one child; and (TDS2-Multiple) homes with more than one child. Due to the nature of the research question (a child taking prescribed psychotropic medication), we dropped TDS2 as these notes were not about a child, but rather many living in one household.</p><p>We applied traditional ML techniques using Python and open source libraries of sci-kit learn and h2o.ai <ref type="bibr" target="#b62">[63]</ref> to convert text into a format amenable for machine learning. Natural language processing (NLP)</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Storey et al. 2025</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Domain Knowledge in AI</head><p>Data &amp; Knowledge Engineering, 2025 p. 26</p><p>techniques (e.g., tf-idf, bi-grams, word embeddings) <ref type="bibr" target="#b25">[26,</ref><ref type="bibr" target="#b55">56]</ref> were applied to the initial unstructured data set to derive DS0 (structured dataset). DS0 was used to extract features prior to applying the CMML method and building the models. TDS1 was processed using the same operations as DS0. The out-ofsample method uses a 5-fold cross-validation. We used common evaluation metrics of recall, precision, and F-measure to evaluate the classification performance results. Table <ref type="table" target="#tab_8">7</ref> shows the results using a popular and efficient machine learning algorithm, Light GBM <ref type="bibr" target="#b39">[40]</ref>. We also applied other machine learning algorithms, such as a random forest and a neural network to the transformed dataset and obtained similar results. Although there was a slight decrease in the precision of the ML models built on the transformed data set, the difference in precision was not statistically significant (p=0.41). The recall metric significantly improved (p = 0.008) with the transformed data set, and the F-measure difference was 5%, indicating that the application of our guideline improved performance, and the improvement was statistically significant <ref type="bibr" target="#b1">[2]</ref>. We are most interested in the recall metric due to the importance of identifying as many positive cases of psychotropic drug use as possible for further evaluation by the organization. Although this emphasis on true positives (identifying more of the children taking psychotropic medication) is desirable in our case, it can also increase the rate of false positives (children wrongfully identified as taking psychotropic medication). This potentially undesirable increase is captured in the precision metric, which was not significantly decreased to achieve our desired results.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Assessment by Data Scientists</head><p>To assess the applicability of CMML, we engaged data scientists who would potentially benefit from using the CMML method using focus groups. Focus groups "can be very informative and lead to better and more relevant management implications" because they provide direct interaction with participants</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Storey et al. 2025</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Domain Knowledge in AI</head><p>Data &amp; Knowledge Engineering, 2025 p. 27 <ref type="bibr" target="#b79">[80]</ref> (p.4). Focus groups allowed us to obtain feedback that might not have surfaced with other evaluation strategies, such as one-on-one interviews, surveys, or lab experiments <ref type="bibr" target="#b46">[47]</ref> and have been used successfully in prior information systems research (e.g., <ref type="bibr" target="#b17">[18,</ref><ref type="bibr" target="#b67">68]</ref>).</p><p>We followed an established approach to focus group design and recruitment <ref type="bibr" target="#b79">[80]</ref>. The goals of the focus group were to: (1) introduce participants to applying conceptual modeling in preparing a dataset for machine learning by applying the CMML method; and (2) evaluate the applicability and potential usefulness of the five guidelines and discuss how CMML can help systematize data preparation for machine learning. We engaged 15 professional data scientists who are potential beneficiaries of applying the CMML method in their organizations. The average age of participants was 34 years old with five years of experience on data-related projects. Participants were divided into three groups to facilitate discussion.</p><p>Each participant received two documents, the first describing the guidelines with the running example adapted from Khatri et al. <ref type="bibr" target="#b41">[42]</ref> and the second containing a summary of the guidelines.</p><p>Appendix A provides an overview of the focus group protocol. Each focus group was recorded and transcribed. The coding was completed in two rounds. Two coders systematically reviewed one-third of the focus groups' transcripts to identify sections relevant to evaluating the potential usefulness of the five guidelines. A Pooled Cohen's Kappa <ref type="bibr" target="#b22">[23]</ref> inter-rater agreement of 0.66 was achieved in the first round, a good agreement between the coders <ref type="bibr" target="#b56">[57]</ref>. After resolving the initial disagreements and completing the coding of the transcripts, an inter-rater agreement of 0.81 was achieved, indicating excellent agreement between coders <ref type="bibr" target="#b56">[57]</ref>.</p><p>Overall, our data analysis offered evidence for the utility of the CMML method. Early in the focus group sessions, participants remarked that although machine learning is a structured process with standard machine learning methods (e.g., Knowledge Discovery in Databases (KDD), CRISP-DM, Sample/Explore/Modify/Model/Assess (SEMMA)), the activities performed within each step are often ad-hoc. One participant stated that understanding the domain using a conceptual model can help create a "checklist that I can sort through as I am preparing the data…" since "it makes these steps more structured, for example, how to aggregate data or to consider null values, which all happens when you</p><p>Storey et al. 2025 Domain Knowledge in AI Data &amp; Knowledge Engineering, 2025 p. 28 are dealing with real-world data." Another participant added "dealing with the domain [data] right upfront will make it easier down the road because you know and understand what you are working with"</p><p>and "having the conceptual model helps you understand the data better. This contextual knowledge helps avoid misrepresenting the domain."</p><p>In general, the better the representation of a domain, the better the performance and transparency of the models. One participant stated, "by getting the structure right and properly reflecting the most robust version of the real-world structure, you get the best working model… avoiding making assumptions of the data prevents bigger issues in the outcome." In highly regulated fields in which complex models can affect lives, having a transparent process is essential. A manager acknowledged this by stating that "a regulator or auditor can ask for the data lineage, so traceability is important and making sure the data was used correctly and the validation they are getting from their models are consistent," providing further evidence that the CMML method improves transparency.</p><p>Participants appreciated how applying Guideline 1 can effectively interpret the model outputs: "as you would not want to accidentally mismatch attributes of one entity to that of another entity." Another participant, referring to Guideline 4, emphasized how common it is to miss relationships between entities in a raw dataset, particularly in a target-bearing entity type. He stated, "the target entity type, whether it is on the one side <ref type="bibr">[and]</ref> exploring ways to aggregate the many side, is a key preparatory step in modeling efforts." Participants also stated the value of understanding entity type specialization in discussions about Guideline 5: "I think it is an interesting point about the difference between a missing value and an optional value; two different things referring to Guideline</p><p>5. You know, if it's blank, I don't know today, but if it is [truly optional], if it's been documented, then imputation is risky. You should be thoughtful and decide if it is appropriate before you impute." Participants identified a few challenges in applying the guidelines. One participant stated, "I feel like I would struggle to find specific instances of things that could cause bias without actually looking straight at the data instead of relationships." Another participant indicated, "there are challenges when you are introducing a competing framework. Some people have already adopted practices [and] if you have never touched SQL, what is an optional attribute and how do you think about it in terms of moving Storey et al. 2025 Domain Knowledge in AI Data &amp; Knowledge Engineering, 2025 p. 29</p><p>forward with that?" Another participant stated that following a conceptual modeling approach to machine learning in some cases "may make your models performance lower because you are being more honest."</p><p>Overall, the focus groups offer compelling evidence of the potential usefulness of the CMML method. Many of the data scientist participants planned to adopt these guidelines early in the machine learning process, with one participant stating that doing so "would clearly save efforts later." The participants confirmed that using the guidelines could result in improved transparency and improved performance.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">DISCUSSION AND IMPLICATIONS</head><p>The main contribution of this research is showing how conceptual models, which are traditionally seen as tools to support database design and information systems development, can be used in preparing data for machine learning to capture and use domain knowledge. Our approach can increase machine learning model performance and process transparency, and has implications for ML theory and practice, conceptual modeling, and information systems research.</p><p>The CMML method provides a mechanism to incorporate domain knowledge from conceptual models into the machine learning process. The empirical analysis demonstrates that incorporating conceptual models in the data preparation process can improve machine learning performance.</p><p>Improvements were shown in both structured and unstructured data in two different real-world applications. Since both cases were aimed at improving case management in a foster care system, the improvement observed in machine learning performance has been shown to have a concrete, real-world impact. Finding ways to improve ML results with limited data has created a push for "small data" research over the past decade <ref type="bibr" target="#b18">[19]</ref>. Although a high level of performance can be attained from an abundance of data, our work demonstrates how conceptual modeling can be effective in improving performance without necessitating more data.</p><p>The application of CMML has further been shown to improve the process transparency of machine learning, a relatively under-studied issue but one that is gaining steady interest <ref type="bibr" target="#b53">[54]</ref>. As</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Storey et al. 2025</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Domain Knowledge in AI</head><p>Data &amp; Knowledge Engineering, 2025 p. 30 machine learning becomes more widespread, so are concerns that the process of building models remains opaque and without sound methodological grounding <ref type="bibr" target="#b36">[37,</ref><ref type="bibr" target="#b37">38]</ref>. Our results show consistent and robust evidence for the benefits of using CMML to improve process transparency.</p><p>This finding is significant as CMML improves performance, thereby showing that it is unnecessary to reduce performance to increase transparency, at least in some settings. They provide a compelling argument for introducing conceptual modeling as an integral component of machine learning projects and in machine learning curriculum. The latter is to better support data scientists in implementing the method, which was a need identified through our focus groups and analogous to the need to understand how to apply conceptual modeling for database design.</p><p>Because our research is applied in the real-world foster care setting, it has organizational implications. Today, many ML projects proceed without any conceptual modeling support. Machine learning projects should be adjusted and include conceptual modeling as a tool to support them.</p><p>Embedding domain knowledge is vital because machine learning projects are increasingly used in societally critical domains, such as foster care, where decisions can dramatically affect people's lives.</p><p>Thus, its deployment should be carried out in a more transparent, repeatable, and systematic manner.</p><p>Our work is also significant for the broader adoption of ML by contributing critically missing elements in automated machine learning (AutoML). The high degree of automation in AutoML allows non-experts to use machine learning models, thereby making ML accessible to many more people <ref type="bibr" target="#b48">[49]</ref>.</p><p>However, with increasing accessibility to ML, new problems emerge as non-expert users rely on algorithmic procedures. They might have little understanding or control needed to build models <ref type="bibr" target="#b26">[27]</ref>.</p><p>Currently, AutoML tools view performance and transparency as tradeoffs.</p><p>Furthermore, AutoML tools lack knowledge of specific business domains, a limitation conceptual models are uniquely positioned to address <ref type="bibr" target="#b75">[76]</ref>. It should be possible to incorporate methods such as CMML into the pre-processing routines of AutoML tools and machine learning interpretability frameworks <ref type="bibr" target="#b19">[20,</ref><ref type="bibr" target="#b65">66]</ref>. Doing so would then permit non-technical users to upload a conceptual model with the corresponding dataset to communicate valuable domain knowledge and constraints to the automated tool. Conceptual models, which are designed to be accessible to non-technical people and</p><p>Storey et al. 2025 Domain Knowledge in AI Data &amp; Knowledge Engineering, 2025 p. 31 serve as a communication tool [48, 58], could, in principle, become a means of better managing data preparation tasks in AutoML. Although we demonstrated several benefits of our method, there can be cases where adding domain knowledge expressed in a conceptual model leads to degraded ML model performance. For example, this could happen if the conceptual model is outdated or incomplete and, therefore, inconsistent with the organization or domain it is intended to represent. A conceptual model represents articulated and agreed-on domain knowledge. However, as business processes are carried out and data collected, there might be deviations from the rules expressed in a conceptual model. The real-world data might not conform to the conceptual model; nor might the model be the best representation of domain knowledge. In addition, the value of conceptual models might be limited to situations where there is insufficient data to extract all relevant domain knowledge. An additional challenge is to convince practitioners to change their current practices to apply the CMML method. A significant assumption in our approach is that there exists an agreed-upon conceptual model for the data describing the domain of interest. This might not be the case, especially if the data come from unstructured sources or include user-generated content. Furthermore, if the available dataset was developed by integrating data from multiple sources, it might reflect inconsistent domain knowledge that must be reconciled before the model can be used effectively. These issues motivate more research in conceptual modeling on view reconciliation and automatic extraction of conceptual models from organizational documentation. The CMML method can extend beyond structured data to support diverse data types commonly integrated within modern data fabric architectures. As demonstrated in Case 2 (Section 4.1.2), CMML can accommodate unstructured textual data and can be applied to other unstructured formats such as images, audio recordings, or video. In data fabric environments, which serve as semantic integration layers across heterogeneous data sources, conceptual models provide contextual domain knowledge. Entity types identified in the conceptual model provide context for feature extraction from unstructured sources, whether through natural language processing, computer vision algorithms, or audio analysis techniques. The integration of data fabric technologies that automate metadata extraction and Storey et al. 2025 Domain Knowledge in AI Data &amp; Knowledge Engineering, 2025 p. 32</p><p>knowledge graph construction across heterogeneous sources can further enhance the CMML method, maintaining conceptual model alignment throughout the ML pipeline while preserving domain semantics. This integration is particularly valuable as organizations adopt AI-powered data fabric solutions that automatically discover relationships and metadata across heterogeneous sources.</p><p>The CMML method complements these technologies by providing methodological guidance for preserving domain semantics throughout increasingly automated data preparation workflows, addressing a critical challenge in contemporary machine learning applications. CMML does not replace existing pipeline tooling. Instead, it grounds data fabric tools in an explicit conceptual schema, ensuring that automated ingestion, transformation, and governance tasks remain transparent and aligned with the domain.</p><p>The substantial promise of infusing conceptual modeling knowledge into ML motivates further investigations into the boundary conditions of this approach and ways to overcome some of its potential limitations for special applications and scenarios. Our intent was to demonstrate that CMML can improve ML process transparency and performance. However, we did not evaluate the entire method.</p><p>Indeed, since not all guidelines apply to a given situation, optimal guideline selection must be specific to each context and the corresponding conceptual model. From our assessments, we conclude that it is possible to improve ML models' process transparency and performance, but more work is required to consider how to prioritize the guidelines for specific use cases and evaluate CMML as a whole.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1">Expansion of Conceptual Modeling</head><p>Using conceptual modeling to improve performance and transparency in machine learning expands conceptual modeling research in information systems. The CMML method is one way to apply conceptual modeling to ML. Further research is needed to apply other conceptual modeling knowledge to different aspects of ML practice. For example, recent advances in generative AI (GenAI)</p><p>technologies have significantly enhanced metadata extraction capabilities relevant to conceptual modeling. Large language models (LLMs) can now automatically identify entities, relationships, and attributes from unstructured text, extracting implicit schema information that aligns with formal conceptual models. These systems can generate candidate entity-relationship diagrams from document</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Storey et al. 2025</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Domain Knowledge in AI</head><p>Data &amp; Knowledge Engineering, 2025 p. 33 collections, identify potential cardinality constraints, and suggest derived attributes-all of which directly support CMML implementation. Current work is considering conceptual modeling and GenAI <ref type="bibr" target="#b76">[77]</ref>. In addition, process modeling might help manage aspects of the overall ML process, from problem identification to deployment.</p><p>Applying conceptual modeling to ML can integrate or complement these two communities to support new interdisciplinary connections <ref type="bibr" target="#b53">[54]</ref>. Our work complements these theoretical foundations by providing specific operational guidelines for incorporating conceptual modeling principles into ML data preparation activities. Our work is also intended to provide practical guidelines and contribute to the adoption of machine learning by providing some elements missing in AutoML <ref type="bibr" target="#b48">[49]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2">Future Work</head><p>Building on the CMML method, we identify several promising research directions for our community.</p><p>First, develop frameworks where conceptual models both inform machine learning processes and evolve based on patterns discovered through ML. Second, develop extensions to current modeling formalisms that better represent ML-specific concepts, such as semantic expressiveness, ontological commitments, and representational completeness. Third, develop automated techniques for extracting conceptual models from existing databases, enabling organizations without formal models to benefit from the performance improvements demonstrated in our empirical studies. Fourth, explore how conceptual models can enhance algorithmic transparency and fairness by formally representing sensitive attributes and domain constraints. Fifth, effectively incorporate CMML and possibly additional methods based on conceptual modeling into the routines used to perform automatic machine learning. These directions position conceptual modeling as a foundational element for responsible AI development. As our foster care applications demonstrate, this integration delivers measurable improvements in societally critical domains.</p><p>6</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Conclusion</head><p>This research developed the Conceptual Modeling for Machine Learning (CMML) method comprised of guidelines for applying conceptual modeling concepts to the input data used for machine learning.</p><p>The method was applied to two real-world cases in foster care management to show how it can improve</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 .</head><label>1</label><figDesc>Figure 1. Extended Entity-Relationship (EER) Constructs Conceptual</figDesc><graphic coords="8,292.10,557.64,164.60,134.93" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Entity-</head><figDesc>Relationship model: entity types, attributes, and relationships. CMML consists of an iterative process and five guidelines for using a conceptual model to prepare a dataset for training and testing machine learning models. An overview of CMML is shown in Figure2. It requires two inputs: a conceptual model of a domain and an original raw dataset (DS0) containing tabular data. After applying CMML, the outputs are one or more new training datasets (TDSn), each used to train and test one or more ML algorithms.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 2 .</head><label>2</label><figDesc>Figure 2. Conceptual Modeling for Machine Learning</figDesc><graphic coords="11,72.00,72.00,451.30,271.95" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 3 .</head><label>3</label><figDesc>Figure 3. Conceptual Model for Customer Ordering (adapted from [42]) 6</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Figure 5</head><label>5</label><figDesc>Figure 5 illustrates data instances of DS0 for the corresponding machine learning flat file based on the conceptual model in Figure 3. Customer 101 (CUST_ID =101) has placed four orders; thus, the customer attributes repeat (the order attributes are unique for each row). In contrast, Customer 400 placed one order. This file structure can over-represent the information from Customer 101 and lead to training case redundancy (Ohno-Machado et al., 1998).</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Figure 5 .</head><label>5</label><figDesc>Figure 5. Sample DS0 Data for Conceptual Model</figDesc><graphic coords="15,72.00,614.89,452.04,89.91" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><head>Figure 6 .</head><label>6</label><figDesc>Figure 6. Sample TDS1 data for nominal attributes</figDesc><graphic coords="16,86.90,274.38,421.05,53.76" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head>Figure 7</head><label>7</label><figDesc>demonstrates an excerpt of DS_1, which includes a new summarized feature, Order_Average. Note that, because of entity summarization, Customer_IDs 101 and 400 are now one row each.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_8"><head>Figure 7 .</head><label>7</label><figDesc>Figure 7. Sample TDS1 Data for numerical attributesGuideline 4 -Summarize Entity. When a one-to-many relationship creates data duplication, create a training dataset that removes training case duplication by summarizing the features on the many side of the relationship, creating counts for categorical variables and numeric summaries for continuous variables.</figDesc><graphic coords="16,161.90,499.14,271.54,57.40" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_9"><head>Guideline 5 -</head><label>5</label><figDesc>, the symbol below the ORDER entity type indicates a generalization of the disjoint subclasses, SMALL_ORDER and LARGE_ORDER, with the former having a surcharge attribute and the latter a discount attribute.Without this domain knowledge, a data scientist might have a dataset that combines SMALL_ORDER and LARGE_ORDER and might impute values for missing data without regard to the subtype. In this example, a value for surcharge may not be applicable because the ORDER with the missing value is a LARGE_ORDER, which makes any data imputation (e.g., using an average) inappropriate. If the missing values are not imputed, this reduces the training sample size for machine learning because some algorithms (e.g., neural networks) cannot handle missing values. However, if missing values are imputed, this creates noise.Create multiple training datasets.For generalization and specialization, build multiple training datasets (TDSn), one for each subtype, to train distinct models.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_10"><head>Figure 8 .</head><label>8</label><figDesc>Figure 8. Application: Conceptual Model of Foster Care Case Management</figDesc><graphic coords="19,80.65,295.88,427.69,146.70" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_11"><head>Figure 9 .</head><label>9</label><figDesc>Figure 9. Snippet of dataset DS0 After creating DS0, we applied the CMML guidelines to transform it and create several training data set (TDSn) versions, as shown in Table3. Each version results from applying one or more CMML</figDesc><graphic coords="21,73.44,123.96,461.88,102.72" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_12"><head>Figure 10 . 4 . 1 . 2 Case 2 -</head><label>104122</label><figDesc>Figure 10. Feature importance after applying Guideline 1 -feature labeling</figDesc><graphic coords="24,77.65,325.48,451.30,153.70" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_3"><head>Table 3 .</head><label>3</label><figDesc>Datasets Description, Case 1 (predicting length of stay)</figDesc><table><row><cell>Dataset Summary</cell><cell>Guidelines Applied</cell></row><row><cell>Dataset: DS0</cell><cell></cell></row><row><cell>Dataset: TDS1</cell><cell></cell></row><row><cell>Row Representation:</cell><cell></cell></row></table><note><p>Row Representation: One placement, the lowest granularity available for the task. Sample Size: 25,462 Target attribute Mean: 704.78 SD: 414.89 Guidelines Applied: N/A N/A -the original raw dataset (DS0) contains the data in tabular format for Case 1: predicting length of stay.</p></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_6"><head>Table 4 .</head><label>4</label><figDesc>Model Comparisons (𝑟𝑟 2 and RMSE)</figDesc><table><row><cell></cell><cell>Deep Learning</cell><cell>Random</cell><cell>Gradient</cell><cell>Light GBM</cell><cell>AutoML</cell></row><row><cell></cell><cell></cell><cell>Forest</cell><cell>Boosting</cell><cell></cell><cell></cell></row><row><cell></cell><cell></cell><cell></cell><cell>Machine</cell><cell></cell><cell></cell></row><row><cell></cell><cell></cell><cell></cell><cell>(GBM)</cell><cell></cell><cell></cell></row><row><cell></cell><cell>RMSE</cell><cell>RMSE</cell><cell>RMSE</cell><cell>RMSE</cell><cell>RMSE</cell></row><row><cell></cell><cell>NRMSE</cell><cell>NRMSE</cell><cell>NRMSE</cell><cell>NRMSE</cell><cell>NRMSE</cell></row><row><cell></cell><cell>(r 2 )</cell><cell>(r 2 )</cell><cell>(r 2 )</cell><cell>(r 2 )</cell><cell>(r 2 )</cell></row><row><cell>DS0</cell><cell>356.31</cell><cell>307.45</cell><cell>316.57</cell><cell>320.38</cell><cell>244.44</cell></row><row><cell></cell><cell>.23</cell><cell>.20</cell><cell>.20</cell><cell>.21</cell><cell>.15</cell></row><row><cell></cell><cell>(0.26)</cell><cell>(0.45)</cell><cell>(0.42)</cell><cell>(0.40)</cell><cell>(0.47)</cell></row><row><cell>TDS1 -</cell><cell>218.06</cell><cell>196.87</cell><cell>208.44</cell><cell>208.22</cell><cell>85.96</cell></row><row><cell>guidelines</cell><cell>.14</cell><cell>.13</cell><cell>.13</cell><cell>.13</cell><cell>.06</cell></row><row><cell>2 and 4</cell><cell>(0.59)</cell><cell>(0.67)</cell><cell>(0.63)</cell><cell>(0.63)</cell><cell>(0.67)</cell></row><row><cell>TDS2 -Younger</cell><cell>322.06</cell><cell>290.52</cell><cell>286.08</cell><cell>305.45</cell><cell>177.83</cell></row><row><cell>Guideline 7</cell><cell>.21</cell><cell>.19</cell><cell>.18</cell><cell>.20</cell><cell>.11</cell></row><row><cell></cell><cell>(0.29)</cell><cell>(0.42)</cell><cell>(0.44)</cell><cell>(0.36)</cell><cell>(0.59)</cell></row><row><cell>TDS3-Older</cell><cell>393.75</cell><cell>342.65</cell><cell>342.31</cell><cell>348.50</cell><cell>101.18</cell></row><row><cell>Guideline 7</cell><cell>.25</cell><cell>.22</cell><cell>.22</cell><cell>.22</cell><cell>.07</cell></row><row><cell></cell><cell>(0.19)</cell><cell>(0.39)</cell><cell>(0.39)</cell><cell>(0.36)</cell><cell>(0.73)</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_7"><head>Table 5 .</head><label>5</label><figDesc>Results of Wilcoxon Signed-Rank Test</figDesc><table><row><cell>Paired Comparison</cell><cell>Sample Size (n)</cell><cell>SD (𝝈𝝈 𝑻𝑻 + )</cell><cell cols="2">z-score p-value</cell></row><row><cell>DS0 vs TDS2-Young + TDS3-Older</cell><cell>25462</cell><cell>1172900</cell><cell>-15.85</cell><cell>&lt;0.01</cell></row><row><cell>DS0 vs TDS1</cell><cell>12438</cell><cell>400462.1</cell><cell>-89.61</cell><cell>&lt;0.01</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_8"><head>Table 7 .</head><label>7</label><figDesc>Unstructured data model comparison (F1-measure)</figDesc><table><row><cell>Data</cell><cell>Precision</cell><cell>Recall</cell><cell>F-measure</cell></row><row><cell>DS0</cell><cell>40.56</cell><cell>59.28</cell><cell>48.17</cell></row><row><cell>TDS1-Single</cell><cell>38.89</cell><cell>84</cell><cell>53.17</cell></row><row><cell>Z-score (one-tailed)</cell><cell>z = 0.2313</cell><cell>z = 2.411**</cell><cell></cell></row></table><note><p>** indicates significance level of p-value &lt; .01</p></note></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="4" xml:id="foot_0"><p>Machine learning requires data in a format similar to a flat file, which we call tabular data.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="5" xml:id="foot_1"><p>CRISP-DM stands for Cross-Industry Standard Process for Data Mining and serves as a method that supports a structured and iterative approach to data mining projects.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_2"><p>Data &amp; Knowledge Engineering, 2025 p. 11</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_3"><p>Data &amp; Knowledge Engineering, 2025 p. 20</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_4"><p>Data &amp; Knowledge Engineering, 2025 p. 21</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_5"><p>Data &amp; Knowledge Engineering, 2025 p. 22</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_6"><p>Data &amp; Knowledge Engineering, 2025 p. 23</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_7"><p>Data &amp; Knowledge Engineering, 2025 p. 36</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_8"><p>Data &amp; Knowledge Engineering, 2025 p. 37</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_9"><p>Data &amp; Knowledge Engineering, 2025 p. 38</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_10"><p>Data &amp; Knowledge Engineering, 2025 p. 39</p></note>
+		</body>
+		<back>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Domain Knowledge in AI</head><p>Data &amp; Knowledge Engineering, 2025 p. <ref type="bibr" target="#b33">34</ref> model performance. CMML was further evaluated to examine its effects on data preparation process transparency using focus groups in which data scientists reviewed the guidelines and assessed their potential usefulness. Collectively, the evidence demonstrates that the method can improve important machine learning outcomes. The CMML method contributes to realizing the full potential of machine learning by supporting organizations in making and justifying data-driven decisions. It also contributes to the need to create socially responsible and effective machine learning initiatives. Since machine learning is increasingly being used in societally important domains, it needs to be deployed transparent, repeatable, and auditable, which can be supported by conceptual modeling. Finally, the research is an attempt to strengthen work between conceptual modeling and machine learning, which is part of the broader artificial intelligence community.</p><p>Appendix A: Focus Group Protocol</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.">Welcome (5 minutes).</head><p>Greet participants and allow each participant and researchers on call to briefly introduce themselves.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.">Describe focus group procedures (5-10 minutes).</head><p>The main difference between a group and a focus group is that a focus group has a specific, focused discussion topic and a trained facilitator. The group's composition is made up of a representative sample of individuals that might use our guidelines. We actively encourage you to express your opinions but stay as much as possible on topic since we have a limited time window.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">Describe the objectives of the study.</head><p>Machine learning faces many challenges to successful implementation and use. This research proposes how some of these challenges can be addressed by applying conceptual modeling concepts to data sets before using the data to build machine learning models.</p><p>We have proposed a series of guidelines that you received with your invitation. The guidelines are centered around the use of extended entity relationship (EER) diagrams to bring domain semantics into consideration and to provide a systematic approach for data preparation. We explained them with a running example.</p><p>These guidelines are based on conceptual modeling and their goal is to that ensure that data used in machine learning algorithms adheres to known domain semantics.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Storey et al. 2025</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Domain Knowledge in AI</head><p>Data &amp; Knowledge Engineering, 2025 p. <ref type="bibr" target="#b34">35</ref> What do we mean by domain semantics (have slides ready with examples)? Sometimes, when we prepare data for ML models, we may miss important information about the underlying structure of the data which can lead to incorrect assumptions about how we should clean the data or interpret the results. This is very important in business data that is often transactional in nature (provide example of one to many -have slide prepared). a) Additionally, when we apply approaches such feature engineering, we often struggle to understand the role that our input data played in our predictions (provide example) b) Often, we have a hard time retracing our steps because data cleaning was not systematic. Our goal is to find evidence of the utility and efficacy of these guidelines.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.">Introduce CM constructs and guidelines (15-20 minutes):</head><p>Initial Impressions of the guidelines <ref type="bibr" target="#b9">(10)</ref><ref type="bibr" target="#b10">(11)</ref><ref type="bibr" target="#b11">(12)</ref><ref type="bibr" target="#b12">(13)</ref><ref type="bibr" target="#b13">(14)</ref><ref type="bibr" target="#b14">(15)</ref> minutes Imagine that you are building a model to predict customer lifetime value (have ERD up). Customer LTV is calculated from their activities (placing orders). The guidelines should help in organizing your data into a file that you would feed into a ML algorithm such as a Regression in R, Python, Rapid Miner. Is there any guideline that you need me to explain? You had a chance to look at the guidelines.</p><p>1. What do you think? 2. Which ones did you find useful for preparing data for ML? 3. Did any guidelines stand out? 4. Were any guidelines confusing? Cover any guidelines that were not mentioned 1. Do you see yourself using these guidelines in the future? 2. What value does conceptual modeling play in our guidelines? 3. How do you think using these guidelines will affect the final outcome (performance? Interpretability/explainability?)</p></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<monogr>
+		<title level="m" type="main">Peeking inside the black-box: A survey on explainable artificial intelligence (XAI)</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Adadi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Berrada</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<publisher>IEEE access</publisher>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="page" from="52138" to="52160" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Incorporating contextual information in recommender systems using a multidimensional approach</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Adomavicius</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM Transactions on Information systems (TOIS)</title>
+		<imprint>
+			<biblScope unit="volume">23</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="103" to="145" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">A deep learning architecture for psychometric natural language processing</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Ahmad</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM Transactions on Information Systems (TOIS)</title>
+		<imprint>
+			<biblScope unit="volume">38</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="29" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Fairness, accountability, transparency in AI at scale: Lessons from national programs</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A</forename><surname>Ahmad</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Teredesai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Eckert</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2020 conference on fairness, accountability, and transparency</title>
+		<meeting>the 2020 conference on fairness, accountability, and transparency</meeting>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Unraveling the foundations and the evolution of conceptual modeling-Intellectual structure, current themes, and trajectories</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Akoka</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Data &amp; Knowledge Engineering</title>
+		<imprint>
+			<biblScope unit="volume">154</biblScope>
+			<biblScope unit="page">102351</biblScope>
+			<date type="published" when="2024">2024</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Brainwash: A data system for feature engineering</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">R</forename><surname>Anderson</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Cidr</title>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Predictors of successful permanency planning and length of stay in foster care: The role of race, diagnosis and place of residence</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A</forename><surname>Becker</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Jordan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Larsen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Children and Youth Services Review</title>
+		<imprint>
+			<biblScope unit="volume">29</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="1102" to="1113" />
+			<date type="published" when="2007">2007</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Deep learning of representations for unsupervised and transfer learning</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of ICML workshop on unsupervised and transfer learning</title>
+		<meeting>ICML workshop on unsupervised and transfer learning</meeting>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+	<note>JMLR Workshop and Conference Proceedings</note>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Representation learning: A review and new perspectives</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Courville</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Vincent</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE transactions on pattern analysis and machine intelligence</title>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="volume">35</biblScope>
+			<biblScope unit="page" from="1798" to="1828" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Data mining by decomposition: Adaptive search for hypothesis generation</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">K</forename><surname>Bhargava</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">INFORMS Journal on Computing</title>
+		<imprint>
+			<biblScope unit="volume">11</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="239" to="247" />
+			<date type="published" when="1999">1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">M</forename><surname>Bishop</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">M</forename><surname>Nasrabadi</surname></persName>
+		</author>
+		<title level="m">Pattern Recognition and Machine Learning</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Deep neural networks and tabular data: A survey</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Borisov</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE transactions on neural networks and learning systems</title>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Three People-Centered Design Principles for Deep Learning</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Bray</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">MIT Sloan Management Review</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Geometric deep learning: Going beyond euclidean data</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">M</forename><surname>Bronstein</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Signal Processing Magazine</title>
+		<imprint>
+			<biblScope unit="volume">34</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="18" to="42" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title level="m" type="main">Grand challenges in model-driven engineering: an analysis of the state of the research. Software and Systems Modeling</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Bucchiarone</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="volume">19</biblScope>
+			<biblScope unit="page" from="5" to="13" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">5th workshop on artificial intelligence and model-driven engineering (mde 2023)</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Burgueño</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2023 ACM/IEEE International Conference on Model Driven Engineering Languages and Systems Companion (MODELS-C)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<biblScope unit="page">2023</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">A</forename><surname>Candel</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>AI Inc</publisher>
+			<biblScope unit="page" from="1" to="21" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Basic classes in conceptual modeling: theory and practical guidelines</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Castellanos</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of the Association for Information Systems</title>
+		<imprint>
+			<biblScope unit="volume">21</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page">3</biblScope>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Small data are also crucial for machine learning</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Chahal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Toner</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Scientific American</title>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<monogr>
+		<title level="m" type="main">Explainability as a non-functional requirement: Challenges and recommendations. Requirements Engineering</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Chazette</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Schneider</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="page" from="493" to="514" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">The entity-relationship model-toward a unified view of data</title>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">P</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">-S</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM transactions on database systems (TODS)</title>
+		<imprint>
+			<biblScope unit="volume">1</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="9" to="36" />
+			<date type="published" when="1976">1976</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Data cleaning: Overview and emerging challenges</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Chu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2016 International Conference on Management of Data</title>
+		<meeting>the 2016 International Conference on Management of Data</meeting>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">A coefficient of agreement for nominal scales</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Cohen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Educational and Psychological Measurement</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="37" to="46" />
+			<date type="published" when="1960">1960</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<monogr>
+		<author>
+			<persName><forename type="first">C</forename><surname>Corea</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Kampik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Montali</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Dmn</forename><surname>Explainable</surname></persName>
+		</author>
+		<title level="m">International Conference on Business Process Management</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2024">2024</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<monogr>
+		<title level="m" type="main">The art of feature engineering: essentials for machine learning</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Duboue</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+			<publisher>Cambridge University Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<monogr>
+		<title level="m" type="main">The text mining handbook: advanced approaches in analyzing unstructured data</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Feldman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Sanger</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2007">2007</date>
+			<publisher>Cambridge university press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<monogr>
+		<title level="m" type="main">Advances in neural information processing systems</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Feurer</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2015">2015. 28</date>
+		</imprint>
+	</monogr>
+	<note>Efficient and robust automated machine learning</note>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Greedy function approximation: a gradient boosting machine</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">H</forename><surname>Friedman</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Annals of Statistics</title>
+		<imprint>
+			<biblScope unit="page" from="1189" to="1232" />
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<monogr>
+		<title level="m" type="main">Big data analytics methods: analytics techniques in data mining, deep learning and natural language processing</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Ghavami</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<publisher>Walter de Gruyter GmbH &amp; Co KG</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<monogr>
+		<title level="m" type="main">Deep learning</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Goodfellow</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>MIT press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title level="a" type="main">On embeddings for numerical features in tabular deep learning</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Gorishniy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Rubachev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Babenko</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+			<biblScope unit="volume">35</biblScope>
+			<biblScope unit="page" from="24991" to="25004" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<monogr>
+		<title level="m" type="main">Explanation, semantics, and ontology. Data &amp; Knowledge Engineering</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Guizzardi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Guarino</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2024">2024</date>
+			<biblScope unit="volume">153</biblScope>
+			<biblScope unit="page">102325</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<monogr>
+		<title level="m" type="main">Broad agency announcement explainable artificial intelligence (XAI)</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Gunning</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">Tech. Rep</note>
+	<note>Defense Advanced Research Projects Agency (DARPA)</note>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<monogr>
+		<title level="m" type="main">The elements of Statistical learning: Data mining, inference, and prediction</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Hastie</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+			<publisher>Springer</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<monogr>
+		<title level="m" type="main">AutoML: A survey of the state-of-the-art. Knowledgebased systems</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Chu</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+			<biblScope unit="volume">212</biblScope>
+			<biblScope unit="page">106622</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Why deep-learning AIs are so easy to fool</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Heaven</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<biblScope unit="volume">574</biblScope>
+			<biblScope unit="issue">7777</biblScope>
+			<biblScope unit="page" from="163" to="166" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<monogr>
+		<title level="m" type="main">Artificial intelligence faces reproducibility crisis</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Hutson</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<publisher>American Association for the Advancement of Science</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">How do we address the reproducibility crisis in Artificial Intelligence</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Jones</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Forbes</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<monogr>
+		<title level="m" type="main">Database systems: Introduction to databases and data warehouses</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Jukic</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Vrbsky</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Nestorov</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>Prospect press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">Lightgbm: A highly efficient gradient boosting decision tree</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Ke</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<date type="published" when="2017">2017. 30</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<monogr>
+		<title level="m" type="main">Information quality: The potential of data and analytics to generate knowledge</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">S</forename><surname>Kenett</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Shmueli</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<publisher>John Wiley &amp; Sons</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title level="a" type="main">Understanding conceptual schemas: Exploring the role of application and IS domain knowledge</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Khatri</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Information Systems Research</title>
+		<imprint>
+			<biblScope unit="volume">17</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="81" to="99" />
+			<date type="published" when="2006">2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b42">
+	<monogr>
+		<title level="m" type="main">Auto-encoding variational bayes</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">P</forename><surname>Kingma</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1312.6114</idno>
+		<imprint>
+			<date type="published" when="2014">2014. 2014</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">in arXiv preprint</note>
+	<note>Presented at ICLR</note>
+</biblStruct>
+
+<biblStruct xml:id="b43">
+	<analytic>
+		<title level="a" type="main">Semi-supervised classification with graph convolutional networks</title>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">N</forename><surname>Kipf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Welling</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ICLR</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b44">
+	<analytic>
+		<title level="a" type="main">DARPA is funding projects that will try to open up AI&apos;s black boxes</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Knight</surname></persName>
+		</author>
+		<ptr target="https://www.technologyreview.com/2017/04/13/152590/thefinancial-world-wants-to-open-ais-black-boxes/" />
+	</analytic>
+	<monogr>
+		<title level="j">MIT Technology Review</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="page">2020</biblScope>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b45">
+	<monogr>
+		<title level="m" type="main">Database Concepts</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">M</forename><surname>Kroenke</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+			<publisher>Prentice Hall Upper</publisher>
+			<pubPlace>Saddle River, NJ</pubPlace>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b46">
+	<monogr>
+		<title level="m" type="main">A practical guide for applied research</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Krueger</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2000">2000</date>
+			<publisher>Sage Publications</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b47">
+	<analytic>
+		<title level="a" type="main">Activity modeling and behavior modeling</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Kung</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Soelvberg</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. of the IFIP WG 8.1 working conference on Information systems design methodologies: improving the practice</title>
+		<meeting>of the IFIP WG 8.1 working conference on Information systems design methodologies: improving the practice</meeting>
+		<imprint>
+			<date type="published" when="1986">1986</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b48">
+	<monogr>
+		<title level="m" type="main">Automated machine learning for business</title>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">R</forename><surname>Larsen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">S</forename><surname>Becker</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+			<publisher>Oxford University Press</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b49">
+	<monogr>
+		<title level="m" type="main">Deep learning. nature</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lecun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Bengio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Hinton</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="volume">521</biblScope>
+			<biblScope unit="page" from="436" to="444" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b50">
+	<analytic>
+		<title level="a" type="main">Using conceptual modeling to support machine learning</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Lukyanenko</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Information Systems Engineering in Responsible Information Systems: CAiSE Forum</title>
+		<meeting><address><addrLine>Rome, Italy</addrLine></address></meeting>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2019-06-03">2019. June 3-7, 2019. 2019</date>
+			<biblScope unit="volume">31</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b51">
+	<analytic>
+		<title level="a" type="main">AI Explainability: A conceptual model embedding</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Maass</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Information Systems</title>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b52">
+	<analytic>
+		<title level="a" type="main">ConceptSuperimposition: Using conceptual modeling method for Explainable AI</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Maass</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">AAAI Spring Symposium: MAKE</title>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b53">
+	<analytic>
+		<title level="a" type="main">Pairing conceptual modeling with machine learning</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Maass</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">C</forename><surname>Storey</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Data &amp; Knowledge Engineering</title>
+		<imprint>
+			<biblScope unit="volume">134</biblScope>
+			<biblScope unit="page">101909</biblScope>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b54">
+	<analytic>
+		<title level="a" type="main">How data scientistswork together with domain experts in scientific collaborations: To find the right answer or to ask the right question?</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Mao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Proceedings of the ACM on Human-Computer Interaction</title>
+		<imprint>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="1" to="23" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b55">
+	<monogr>
+		<author>
+			<persName><forename type="first">T</forename><surname>Mikolov</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1301.3781</idno>
+		<title level="m">Efficient estimation of word representations in vector space</title>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="page">3781</biblScope>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b56">
+	<monogr>
+		<title level="m" type="main">Qualitative data analysis: An expanded sourcebook. Thousand Oaks</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">B</forename><surname>Miles</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1994">1994</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b57">
+	<monogr>
+		<title level="m" type="main">Conceptual modelling and Telos. Conceptual modelling, databases, and CASE: An integrated view of information system development</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Mylopoulos</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1992">1992</date>
+			<biblScope unit="page" from="49" to="68" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b58">
+	<analytic>
+		<title level="a" type="main">Business-driven data analytics: A conceptual modeling framework</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Nalchigar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Yu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Data &amp; Knowledge Engineering</title>
+		<imprint>
+			<biblScope unit="volume">117</biblScope>
+			<biblScope unit="page" from="359" to="372" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b59">
+	<analytic>
+		<title level="a" type="main">Learning Feature Engineering for Classification</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Nargesian</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IJCAI</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b60">
+	<analytic>
+		<title level="a" type="main">Runtime Monitoring of Human-Centric Requirements in Machine Learning Components: A Model-Driven Engineering Approach</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Naveed</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2023 ACM/IEEE International Conference on Model Driven Engineering Languages and Systems Companion (MODELS-C)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<biblScope unit="page">2023</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b61">
+	<analytic>
+		<title level="a" type="main">Scikit-learn: Machine learning in python Fabian</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Pedregosa</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of machine learning research</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page">2825</biblScope>
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b62">
+	<analytic>
+		<title level="a" type="main">Scikit-learn: Machine learning in Python</title>
+		<author>
+			<persName><forename type="first">F</forename><surname>Pedregosa</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Machine Learning Research</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="page" from="2825" to="2830" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b63">
+	<analytic>
+		<title level="a" type="main">Andrew Ng launches a campaign for data-centric AI</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Press</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Forbes</title>
+		<imprint>
+			<biblScope unit="volume">16</biblScope>
+			<biblScope unit="page">2021</biblScope>
+			<date type="published" when="2021-06">2021. June</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b64">
+	<analytic>
+		<title level="a" type="main">Analysis of dimensionality reduction techniques on big data</title>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">T</forename><surname>Reddy</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Ieee Access</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="page" from="54776" to="54788" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b65">
+	<analytic>
+		<title level="a" type="main">Explaining the predictions of any classifier</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">T</forename><surname>Ribeiro</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Singh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Guestrin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 22nd ACM SIGKDD international conference on knowledge discovery and data mining</title>
+		<meeting>the 22nd ACM SIGKDD international conference on knowledge discovery and data mining</meeting>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note>Why should i trust you?</note>
+</biblStruct>
+
+<biblStruct xml:id="b66">
+	<analytic>
+		<title level="a" type="main">Everyone wants to do the model work, not the data work</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Sambasivan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Data Cascades in High-Stakes AI. in proceedings of the 2021 CHI Conference on Human Factors in Computing Systems</title>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b67">
+	<analytic>
+		<title level="a" type="main">Exploring the effects of extensional versus intensional representations on domain understanding</title>
+		<author>
+			<persName><forename type="first">B</forename><forename type="middle">M</forename><surname>Samuel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Khatri</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Ramesh</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">MIS Quarterly</title>
+		<imprint>
+			<biblScope unit="volume">42</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="1187" to="A1203" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b68">
+	<monogr>
+		<author>
+			<persName><forename type="first">A</forename><surname>Sanyal</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2112.07844</idno>
+		<title level="m">Fix your models by fixing your datasets</title>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b69">
+	<analytic>
+		<title level="a" type="main">Toward causal representation learning</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Schölkopf</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the IEEE</title>
+		<meeting>the IEEE</meeting>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+			<biblScope unit="volume">109</biblScope>
+			<biblScope unit="page" from="612" to="634" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b70">
+	<analytic>
+		<title level="a" type="main">A comparative study of data mining process models (KDD, CRISP-DM and SEMMA)</title>
+		<author>
+			<persName><forename type="first">U</forename><surname>Shafique</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Qaiser</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">International Journal of Innovation and Scientific Research</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="217" to="222" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b71">
+	<analytic>
+		<title level="a" type="main">Predictive analytics in information systems research</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Shmueli</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">O</forename><forename type="middle">R</forename><surname>Koppius</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">MIS quarterly</title>
+		<imprint>
+			<biblScope unit="page" from="553" to="572" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b72">
+	<analytic>
+		<title level="a" type="main">Tabular data: Deep learning is not all you need</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Shwartz-Ziv</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Armon</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Information Fusion</title>
+		<imprint>
+			<biblScope unit="volume">81</biblScope>
+			<biblScope unit="page" from="84" to="90" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b73">
+	<monogr>
+		<title level="m" type="main">Text mining with R: A tidy approach</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Silge</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Roginson</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<publisher>O&apos;Reilly Media, Inc</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b74">
+	<analytic>
+		<title level="a" type="main">Mastering the game of Go with deep neural networks and tree search</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Silver</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">nature</title>
+		<imprint>
+			<biblScope unit="volume">529</biblScope>
+			<biblScope unit="issue">7587</biblScope>
+			<biblScope unit="page" from="484" to="489" />
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b75">
+	<monogr>
+		<title level="m" type="main">Growing as a Data Scientist and the Role of Communication</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Statnikov</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+		<respStmt>
+			<orgName>NYC Data Science Academy</orgName>
+		</respStmt>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b76">
+	<monogr>
+		<title level="m" type="main">Large language models for conceptual modeling: Assessment and application potential</title>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">C</forename><surname>Storey</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2025">2025</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">Preprint</note>
+</biblStruct>
+
+<biblStruct xml:id="b77">
+	<analytic>
+		<title level="a" type="main">A logical design methodology for relational databases using the extended entity-relationship model</title>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">J</forename><surname>Teorey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">P</forename><surname>Fry</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM Computing Surveys (CSUR)</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="197" to="222" />
+			<date type="published" when="1986">1986</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b78">
+	<analytic>
+		<title level="a" type="main">Using data mining techniques to discover bias patterns in missing data</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">C</forename><surname>Tremblay</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Dutta</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Vandermeer</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Journal of Data and Information Quality (JDIQ)</title>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="19" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b79">
+	<analytic>
+		<title level="a" type="main">Focus groups for artifact refinement and evaluation in design research</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">C</forename><surname>Tremblay</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">R</forename><surname>Hevner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">J</forename><surname>Berndt</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Communications of the association for information systems</title>
+		<imprint>
+			<biblScope unit="volume">26</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page">27</biblScope>
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b80">
+	<monogr>
+		<title level="m" type="main">Automated machine learning in practice: state of the art and recent results. in 2019 6th Swiss Conference on Data Science (SDS)</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Tuggener</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<publisher>IEEE</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b81">
+	<analytic>
+		<title level="a" type="main">Twenty-five years of Mokum: For 25 years of data and knowledge engineering: Correctness by design in relation to MDE and correct protocols in cyberspace</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">P</forename><surname>Van De Riet</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Data &amp; Knowledge Engineering</title>
+		<imprint>
+			<biblScope unit="volume">67</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="293" to="329" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b82">
+	<analytic>
+		<title level="a" type="main">On the deep structure of information systems</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Wand</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Weber</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Information Systems Journal</title>
+		<imprint>
+			<biblScope unit="volume">5</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="203" to="223" />
+			<date type="published" when="1995">1995</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b83">
+	<analytic>
+		<title level="a" type="main">A comprehensive survey on graph neural networks</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Wu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE transactions on neural networks and learning systems</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="volume">32</biblScope>
+			<biblScope unit="page" from="4" to="24" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b84">
+	<monogr>
+		<title level="m" type="main">Feature engineering for machine learning: principles and techniques for data scientists</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Zheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Casari</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<publisher>O&apos;Reilly Media, Inc</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>
