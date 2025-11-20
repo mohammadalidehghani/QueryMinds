@@ -79,10 +79,10 @@ The classifier directly learns from annotated data and is the most predictive ba
 
 ### Interpretation
 
-- The classifier achieves **strong dev-set performance**, with balanced precision and recall (F1 ≈ 0.65).
+- The classifier achieves **strong dev-set performance**, with balanced precision and recall (F1 = 0.65).
 - It obtains **the best retrieval performance** of all baselines:
-  - Precision@5 = **0.75** → ~3.7 out of 5 chunks are relevant  
-  - Recall@5 = **0.50** → half of all relevant chunks appear in the top-5
+  - Precision@5 = **0.75** : about 3.7 out of 5 chunks are relevant  
+  - Recall@5 = **0.50** : half of all relevant chunks appear in the top-5
 - The model benefits directly from gold labels and learns meaningful relevance cues.
 
 ---
@@ -261,3 +261,4 @@ The ML baselines meaningfully improve relevance ranking compared to rule-based m
 - **Supervised classifier** achieves the strongest top-k retrieval results and the highest dev-set F1.
 
 These baselines establish a robust foundation for the RAG pipeline in the next milestone and demonstrate the value of combining supervised data with semantic modeling.
+
