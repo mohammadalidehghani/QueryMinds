@@ -1,7 +1,8 @@
-# QueryMinds — Milestone 1: Academic PDFs to CoNLL-U Corpus
+# QueryMinds — Milestone 1 & 2  
+## NLP Pipeline + Baseline Retrieval Models
 
-This milestone establishes a complete NLP preprocessing pipeline that transforms **raw academic PDF documents** into linguistically annotated **CoNLL-U files**.  
-The project implements automated text extraction, cleaning, sentence segmentation, tokenization, normalization, lemmatization, and statistical analysis.
+This repository contains implementations for **Milestone 1** (PDF → CoNLL-U NLP pipeline)  
+and **Milestone 2** (baseline retrieval models for RAG systems).
 
 ---
 QueryMinds Team
@@ -10,21 +11,38 @@ QueryMinds Team
 - Amina Kadic 12439016
 - Meliha Kasapovic 12439367
   
-## Overview
+
+#  Milestone 1 — Overview
+
+Milestone 1 develops a full NLP pipeline that transforms **raw academic PDF documents** into linguistically annotated **CoNLL-U** files.
 
 
-
-The developed pipeline enables:
-- Extraction of structured text from scientific PDFs.  
-- Tokenization and sentence segmentation using **NLTK**.  
-- Lemmatization and POS-tagging using **Stanza**.  
-- Conversion into **CoNLL-U** format compliant with Universal Dependencies standards.  
-- Corpus validation, statistical reporting, and visualization.
-
-Final output:  
-A linguistically normalized and validated corpus of **191 CoNLL-U documents**, ready for downstream NLP tasks such as semantic search, clustering, and retrieval-augmented generation (RAG).
+###  Final Output
+A clean, structured corpus of  
+ **191 CoNLL-U files**, ready for downstream NLP tasks such as:
+- semantic search  
+- clustering  
+- feature extraction  
+- RAG dataset creation  
 
 ---
+# Milestone 2 — Overview
+
+Milestone 2 extends the Milestone 1 and introduces a complete RAG baseline framework for evaluating retrieval of relevant text segments in the papers.
+
+
+### Implemented baseline models:
+| Model | Description |
+|-------|-------------|
+| Keyword Overlap | Word-matching heuristic |
+| TF–IDF Cosine | Lexical similarity |
+| Embedding Similarity | MiniLM-L6-v2 embeddings |
+| Supervised Classifier | TF–IDF + Logistic Regression |
+
+
+---
+
+
 
 ## Environment Setup
 
@@ -60,4 +78,18 @@ python scripts/sent_tok.py
 python scripts/normalize_and_conllu.py
 # Extract corpus statistics
 python scripts/corpus_stats.py
+# Select 30 papers for retrieval
+python scripts/select_random_30.py
+# Chunk papers 
+python scripts/build_chunks_30.py
+# Generate candidate chunks for each question
+python scripts/find_candidates.py
+# Label candidates
+python scripts/label_candidates.py
+# Make ML Training File
+python scripts/make_training_data.py
+# Run all the models (individual models can be run by replacing rag_pipeline with name of model)
+python baselines/rag_pipeline.py
+# Get comparison of results
+python scripts/compare_baselines.py
 ```
