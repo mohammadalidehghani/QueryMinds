@@ -11,9 +11,19 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Dict, List, Tuple
-
 import numpy as np
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score
+import sys
+sys.dont_write_bytecode = True
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = SCRIPT_DIR.parent
+BASELINES_DIR = PROJECT_ROOT / "baselines"
+sys.path.append(str(BASELINES_DIR))
+
+DATA_DIR = PROJECT_ROOT / "data"
+RESULTS_DIR = PROJECT_ROOT / "results"
+RESULTS_DIR.mkdir(exist_ok=True)
 
 
 from rule_based import (

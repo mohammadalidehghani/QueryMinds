@@ -1,8 +1,20 @@
 import json
 from pathlib import Path
+import sys
 
 import numpy as np
 from sentence_transformers import SentenceTransformer, util
+
+SCRIPT_DIR = Path(__file__).resolve().parent        
+PROJECT_ROOT = SCRIPT_DIR.parent                     
+DATA_DIR = PROJECT_ROOT / "data"
+RESULTS_DIR = PROJECT_ROOT / "results"
+RESULTS_DIR.mkdir(exist_ok=True)
+BASELINES_DIR = PROJECT_ROOT / "baselines"
+SCRIPTS_DIR = PROJECT_ROOT / "scripts"
+sys.path.append(str(BASELINES_DIR))
+sys.path.append(str(SCRIPTS_DIR))
+
 
 # Reuse evaluation utilities from rule-based evaluation
 from eval_rule_baselines import (
@@ -13,10 +25,6 @@ from eval_rule_baselines import (
 from rule_based import load_data
 
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / "data"
-RESULTS_DIR = BASE_DIR / "results"
-RESULTS_DIR.mkdir(exist_ok=True)
 
 
 def main():
