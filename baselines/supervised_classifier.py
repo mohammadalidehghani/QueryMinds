@@ -6,8 +6,20 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
+import sys
 
-# Reuse evaluation utilities from rule-based baseline
+SCRIPT_DIR = Path(__file__).resolve().parent         
+PROJECT_ROOT = SCRIPT_DIR.parent                   
+DATA_DIR = PROJECT_ROOT / "data"
+RESULTS_DIR = PROJECT_ROOT / "results"
+RESULTS_DIR.mkdir(exist_ok=True)
+BASELINES_DIR = PROJECT_ROOT / "baselines"
+SCRIPTS_DIR = PROJECT_ROOT / "scripts"
+DOCS_DIR = PROJECT_ROOT / "docs"
+sys.path.append(str(BASELINES_DIR))
+sys.path.append(str(SCRIPTS_DIR))
+
+
 from eval_rule_baselines import (
     build_label_matrix,
     evaluate_per_question,
@@ -16,10 +28,6 @@ from eval_rule_baselines import (
 from rule_based import load_data
 
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / "data"
-RESULTS_DIR = BASE_DIR / "results"
-RESULTS_DIR.mkdir(exist_ok=True)
 
 
 def load_ml_pairs():
@@ -122,6 +130,9 @@ def main():
         json.dump({"supervised_classifier": metrics}, f, indent=2, ensure_ascii=False)
 
     print(f"Saved classifier metrics to {metrics_path}")
+    
+
+
 
     # ------------------------------------------------------------
     # Qualitative examples
@@ -144,6 +155,7 @@ def main():
         json.dump({"supervised_classifier": examples}, f, indent=2, ensure_ascii=False)
 
     print(f"Saved qualitative examples to {examples_path}")
+
 
 
 if __name__ == "__main__":
