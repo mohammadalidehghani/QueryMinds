@@ -65,6 +65,7 @@ nltk.download('punkt')
 PY
 ```
 ## Project Pipeline 
+# Milestone 1
 ```bash
 # Download PDFs
 python scripts/download_papers.py
@@ -78,8 +79,12 @@ python scripts/sent_tok.py
 python scripts/normalize_and_conllu.py
 # Extract corpus statistics
 python scripts/corpus_stats.py
+```
+
+# Milestone 2
+```bash
 # Select 30 papers for retrieval
-python scripts/select_random_30.py
+python scripts/select_30.py
 # Chunk papers 
 python scripts/build_chunks_30.py
 # Generate candidate chunks for each question
