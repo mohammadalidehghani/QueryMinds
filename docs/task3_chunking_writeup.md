@@ -97,6 +97,11 @@ Why v2 is better here:
 Simple interpretation:
 - v2 increases the number of potentially relevant candidates in top-20, but for this question the top-5 contained slightly fewer labeled-relevant chunks.
 
-## 4) Cconclusion
+## 4) Short conclusion (ready to paste)
 
 Overall, the v2 chunking strategy improved retrieval quality substantially: Mean **P@5 increased from 0.093 to 0.267**, and Mean **R@5 (within top-20) increased from 0.144 to 0.205**. Qualitative inspection shows that v2 reduces “too short” and “contextually unclear” chunks, and more often surfaces self-contained, question-aligned evidence within the top-5 results.
+
+## Optional: small next improvements (if you have time)
+- Enforce a stricter minimum chunk length to avoid title-only candidates entirely.
+- Add a rule to avoid chunks that start with connective words (“However/Therefore”) unless the previous sentence is included (overlap).
+- Add a lightweight “section bonus” so Abstract/Conclusion chunks rank slightly higher for questions about contributions/limitations.
