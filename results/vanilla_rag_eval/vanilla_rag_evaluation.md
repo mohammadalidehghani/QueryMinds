@@ -1,55 +1,7 @@
-# Guidelines and Evaluation
 
 ---
 
-## Relation to Milestone 2
-
-The Vanilla RAG pipeline **reuses the embedding-based retrieval baseline** described in Milestone 2.
-
-In Milestone 3, **only the embedding-based baseline is integrated into the Vanilla RAG pipeline**.
-
-To run the Vanilla RAG, simply run the `scripts\vanilla_rag_langchain.py` script.
-
----
-
-### Embedding-Based Retrieval
-
-The retriever in the Vanilla RAG pipeline is based on the same embedding approach as in Milestone 2:
-
-- **Model**: `sentence-transformers/all-MiniLM-L6-v2`
-- **Representation**: dense sentence embeddings
-- **Similarity measure**: cosine similarity
-- **Retrieval mechanism**: FAISS approximate nearest neighbor search
-
-FAISS is used **only as an efficiency optimization** and does not alter the underlying retrieval logic.
-
----
-
-## Vanilla RAG Pipeline
-
-The Vanilla RAG pipeline consists of the following steps:
-
-1. Encode the input question using the same embedding model as in Milestone 2.
-2. Retrieve the top-_k_ most similar document chunks using FAISS similarity search.
-3. Concatenate retrieved chunks into a context block.
-4. Pass the context and question to a local generative language model.
-5. Generate a free-form answer without additional constraints.
-
-This design intentionally keeps the generation step unconstrained to expose potential hallucinations.
-
----
-
-## Language Model
-
-- **Model**: `TinyLlama/TinyLlama-1.1B-Chat-v1.0`
-- **Execution**: fully local
-- **Purpose**: answer generation only
-
-The language model does not influence which documents are retrieved.
-
----
-
-## Observed Failure Modes (Vanilla RAG)
+## Observed Failure Modes (Vanilla RAG v1)
 
 The evaluation of the Vanilla RAG outputs revealed several recurring issues:
 
@@ -68,6 +20,7 @@ The evaluation of the Vanilla RAG outputs revealed several recurring issues:
 These issues are characteristic of an unconstrained Vanilla RAG pipeline and are expected at this stage.
 
 ---
+
 
 ## Examples of Hallucinations Observed in Vanilla RAG Output
 
