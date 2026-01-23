@@ -3,7 +3,7 @@ from pathlib import Path
 
 # Paths
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-QUESTIONS_PATH = BASE_DIR / "data" / "chunks" / "questions_v2.json"
+QUESTIONS_PATH = BASE_DIR / "data" / "questions_v2.json"
 CHUNKS_PATH = BASE_DIR / "data" / "chunks" / "chunks_30_v2.jsonl"
 GOLD_PATH = BASE_DIR / "data" / "labels" / "gold_labels_manual.jsonl"
 

@@ -12,6 +12,7 @@ DATA_DIR = PROJECT_ROOT / "data"
 
 CHUNKS_PATH = DATA_DIR / "chunks" / "chunks_30_v2.jsonl"
 FAISS_DIR = DATA_DIR / "faiss_indices" / "faiss_index_v2"
+MODEL_DIR = PROJECT_ROOT / "models" / "finetuned-minilm-onllm"
 
 # Load chunks
 def load_chunks(path: Path):
@@ -40,7 +41,7 @@ def main():
         documents.append(doc)
 
     embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
+        model_name=str(MODEL_DIR)
     )
 
     vectorstore = FAISS.from_documents(documents, embeddings)
