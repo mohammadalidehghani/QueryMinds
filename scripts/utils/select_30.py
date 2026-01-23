@@ -3,7 +3,7 @@ import shutil
 from pathlib import Path
 
 # Base directory = project root (QueryMinds-main)
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Where all processed JSONs are (from Milestone 1)
 SOURCE_DIR = BASE_DIR / "data" / "parsed_tokens"

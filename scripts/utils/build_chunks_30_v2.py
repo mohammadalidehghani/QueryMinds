@@ -26,7 +26,7 @@ import re
 from typing import Dict, List, Tuple, Iterable, Optional
 
 # Project root
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Our 30 selected JSON files
 IN_DIR = BASE_DIR / "data" / "selected_30"

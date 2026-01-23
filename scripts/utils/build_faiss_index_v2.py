@@ -6,8 +6,8 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 
 
 # Config
-SCRIPT_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = SCRIPT_DIR.parent
+SCRIPT_DIR = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = SCRIPT_DIR.parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 
 CHUNKS_PATH = DATA_DIR / "chunks" / "chunks_30_v2.jsonl"

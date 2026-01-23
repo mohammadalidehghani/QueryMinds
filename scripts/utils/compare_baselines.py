@@ -2,8 +2,8 @@ import json
 from pathlib import Path
 import pandas as pd
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = SCRIPT_DIR.parent
+SCRIPT_DIR = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = SCRIPT_DIR.parent.parent
 RESULTS_DIR = PROJECT_ROOT / "results"
 DOCS_DIR = PROJECT_ROOT / "docs"
 DOCS_DIR.mkdir(exist_ok=True)

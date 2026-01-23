@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 QUESTIONS_PATH = BASE_DIR / "data" / "questions.json"
 CANDIDATES_PATH = BASE_DIR / "data" / "chunks" / "candidate_chunks.jsonl"

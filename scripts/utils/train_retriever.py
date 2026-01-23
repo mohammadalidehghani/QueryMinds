@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 # Paths
 # ------------------------------------------------------------------
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 MODEL_OUT_DIR = PROJECT_ROOT / "models" / "finetuned-minilm"
 MODEL_OUT_DIR.mkdir(parents=True, exist_ok=True)

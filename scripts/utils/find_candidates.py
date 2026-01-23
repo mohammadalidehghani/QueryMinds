@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 # Base project folder: .../QueryMinds-main
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Input files
 QUESTIONS_PATH = BASE_DIR / "data" / "questions.json"

@@ -3,7 +3,7 @@ import csv
 import json
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Defaults for Task 3 (v2)
 DEFAULT_QUESTIONS = BASE_DIR / "data" / "questions_v2.json"

@@ -16,8 +16,8 @@ from sklearn.metrics import precision_recall_fscore_support, accuracy_score
 import sys
 sys.dont_write_bytecode = True
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = SCRIPT_DIR.parent
+SCRIPT_DIR = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = SCRIPT_DIR.parent.parent
 BASELINES_DIR = PROJECT_ROOT / "baselines"
 sys.path.append(str(BASELINES_DIR))
 
