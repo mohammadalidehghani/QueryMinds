@@ -51,6 +51,8 @@ FAISS_INDEX_PATH = DATA_DIR / "faiss_indices" / "faiss_index_v2"
 QUESTIONS_PATH = DATA_DIR / "questions_v2.json"
 OUTPUT_PATH = RESULTS_DIR / "constrained_rag_results_v2.json"
 
+MODEL_DIR = PROJECT_ROOT / "models" / "finetuned-minilm"
+
 TOP_K = 5
 
 REFUSAL_TEXT = "The answer is not found in the provided documents."
@@ -74,7 +76,7 @@ questions = [(q["id"], q["question"]) for q in questions_data]
 # ============================================================
 
 embeddings = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2"
+    model_name=str(MODEL_DIR)
 )
 
 vectorstore = FAISS.load_local(

@@ -41,6 +41,8 @@ DATA_DIR = PROJECT_ROOT / "data"
 RESULTS_DIR = PROJECT_ROOT / "results"
 RESULTS_DIR.mkdir(exist_ok=True)
 
+MODEL_DIR = PROJECT_ROOT / "models" / "finetuned-minilm"
+
 FAISS_INDEX_PATH = DATA_DIR / "faiss_indices" / "faiss_index_v2"
 QUESTIONS_PATH = DATA_DIR / "questions_v2.json"
 OUTPUT_PATH = RESULTS_DIR / "vanilla_rag_results_v2.json"
@@ -62,7 +64,7 @@ questions = [(q["id"], q["question"]) for q in questions_data]
 # Embeddings
 
 embeddings = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2"
+    model_name=str(MODEL_DIR)
 )
 
 vectorstore = FAISS.load_local(
