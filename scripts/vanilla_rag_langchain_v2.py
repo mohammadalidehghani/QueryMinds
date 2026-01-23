@@ -41,7 +41,7 @@ DATA_DIR = PROJECT_ROOT / "data"
 RESULTS_DIR = PROJECT_ROOT / "results"
 RESULTS_DIR.mkdir(exist_ok=True)
 
-MODEL_DIR = PROJECT_ROOT / "models" / "finetuned-minilm"
+MODEL_DIR = PROJECT_ROOT / "models" / "finetuned-minilm-onllm"
 
 FAISS_INDEX_PATH = DATA_DIR / "faiss_indices" / "faiss_index_v2"
 QUESTIONS_PATH = DATA_DIR / "questions_v2.json"

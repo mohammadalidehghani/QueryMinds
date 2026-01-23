@@ -51,7 +51,7 @@ FAISS_INDEX_PATH = DATA_DIR / "faiss_indices" / "faiss_index_v2"
 QUESTIONS_PATH = DATA_DIR / "questions_v2.json"
 OUTPUT_PATH = RESULTS_DIR / "constrained_rag_results_v2.json"
 
-MODEL_DIR = PROJECT_ROOT / "models" / "finetuned-minilm"
+MODEL_DIR = PROJECT_ROOT / "models" / "finetuned-minilm-onllm"
 
 TOP_K = 5
 
