@@ -4,10 +4,10 @@ from pathlib import Path
 # Paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 QUESTIONS_PATH = BASE_DIR / "data" / "questions_v2.json"
-CHUNKS_PATH = BASE_DIR / "data" / "chunks_30_v2.jsonl"
-GOLD_PATH = BASE_DIR / "data" / "gold_labels_v2.jsonl"
+CHUNKS_PATH = BASE_DIR / "data" / "labels" / "chunks_30_v2.jsonl"
+GOLD_PATH = BASE_DIR / "data" / "labels" / "gold_labels_v2.jsonl"
 
-OUT_PATH = BASE_DIR / "data" / "ml_pairs_v2.jsonl"
+OUT_PATH = BASE_DIR / "data" / "ml_pairs" / "ml_pairs_v2.jsonl"
 
 
 def load_questions():

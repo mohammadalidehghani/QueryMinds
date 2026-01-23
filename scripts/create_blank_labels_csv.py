@@ -5,8 +5,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 QUESTIONS_PATH = BASE_DIR / "data" / "questions_v2.json"
-CANDIDATES_PATH = BASE_DIR / "data" / "candidate_chunks.jsonl"
-OUT_PATH = BASE_DIR / "data" / "labels_blank_15x20.csv"
+CANDIDATES_PATH = BASE_DIR / "data" / "chunks" / "candidate_chunks.jsonl"
+OUT_PATH = BASE_DIR / "data" / "labels" / "labels_blank_15x20.csv"
 
 MAX_QUESTIONS = 15
 MAX_PER_QUESTION = 20

@@ -7,8 +7,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Defaults for Task 3 (v2)
 DEFAULT_QUESTIONS = BASE_DIR / "data" / "questions_v2.json"
-DEFAULT_CANDIDATES = BASE_DIR / "data" / "candidate_chunks_v2.jsonl"
-DEFAULT_OUT = BASE_DIR / "data" / "labels_blank_15x20_v2.csv"
+DEFAULT_CANDIDATES = BASE_DIR / "data" / "chunks" / "candidate_chunks_v2.jsonl"
+DEFAULT_OUT = BASE_DIR / "data" / "labels" / "labels_blank_15x20_v2.csv"
 
 DEFAULT_MAX_QUESTIONS = 15
 DEFAULT_MAX_PER_QUESTION = 20

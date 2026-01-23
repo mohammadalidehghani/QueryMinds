@@ -14,7 +14,7 @@ DATA_DIR = PROJECT_ROOT / "data"
 MODEL_OUT_DIR = PROJECT_ROOT / "models" / "finetuned-minilm"
 MODEL_OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-ML_PAIRS_PATH = DATA_DIR / "ml_pairs_v3.jsonl"
+ML_PAIRS_PATH = DATA_DIR / "ml_pairs" / "ml_pairs_v3.jsonl"
 
 
 # ------------------------------------------------------------------

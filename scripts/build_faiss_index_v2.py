@@ -10,9 +10,8 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 DATA_DIR = PROJECT_ROOT / "data"
 
-CHUNKS_PATH = DATA_DIR / "chunks_30_v2.jsonl"
-FAISS_DIR = DATA_DIR / "faiss_index_v2"
-
+CHUNKS_PATH = DATA_DIR / "chunks" / "chunks_30_v2.jsonl"
+FAISS_DIR = DATA_DIR / "faiss_indices" / "faiss_index_v2"
 
 # Load chunks
 def load_chunks(path: Path):

@@ -3,11 +3,11 @@ from pathlib import Path
 
 # Paths
 BASE_DIR = Path(__file__).resolve().parent.parent
-QUESTIONS_PATH = BASE_DIR / "data" / "questions_v2.json"
-CHUNKS_PATH = BASE_DIR / "data" / "chunks_30_v2.jsonl"
-GOLD_PATH = BASE_DIR / "data" / "gold_labels_manual.jsonl"
+QUESTIONS_PATH = BASE_DIR / "data" / "chunks" / "questions_v2.json"
+CHUNKS_PATH = BASE_DIR / "data" / "chunks" / "chunks_30_v2.jsonl"
+GOLD_PATH = BASE_DIR / "data" / "labels" / "gold_labels_manual.jsonl"
 
-OUT_PATH = BASE_DIR / "data" / "ml_pairs_v3.jsonl"
+OUT_PATH = BASE_DIR / "data" / "ml_pairs" / "ml_pairs_v3.jsonl"
 
 
 def load_questions():

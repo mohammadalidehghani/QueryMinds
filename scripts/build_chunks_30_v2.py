@@ -13,7 +13,7 @@ Input:
 - data/selected_30/*.json
 
 Output:
-- data/chunks_30_v2.jsonl
+- data/chunks/chunks_30_v2.jsonl
 
 Run:
   python scripts/build_chunks_30_v2.py
@@ -32,7 +32,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 IN_DIR = BASE_DIR / "data" / "selected_30"
 
 # Where we save all chunks (one big JSONL file)
-OUT_PATH = BASE_DIR / "data" / "chunks_30_v2.jsonl"
+OUT_PATH = BASE_DIR / "data" / "chunks" / "chunks_30_v2.jsonl"
 
 # Section-aware chunk settings (tune if needed)
 MAX_TOKENS_ABSTRACT = 160
@@ -203,7 +203,7 @@ def chunk_section(
         tok_count = sum(len(toks) for _, toks in buf)
 
     for sent_text, tokens in sent_items:
-        # If adding this sentence would exceed chunk size → flush current chunk
+        # If adding this sentence would exceed chunk size flush current chunk
         if buf and tok_count + len(tokens) > max_tokens:
             out_text = flush_current()
             if out_text:

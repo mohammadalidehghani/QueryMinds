@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 IN_DIR = BASE_DIR / "data" / "selected_30"
 
 # Where we save all chunks (one big JSONL file)
-OUT_PATH = BASE_DIR / "data" / "chunks_30.jsonl"
+OUT_PATH = BASE_DIR / "data" / "chunks" / "chunks_30.jsonl"
 
 # Chunk settings – you can tune these
 MAX_TOKENS = 200   # target chunk length

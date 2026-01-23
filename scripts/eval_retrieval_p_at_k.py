@@ -93,8 +93,8 @@ def write_single_outputs(metrics_df: pd.DataFrame, outdir: Path, name: str, k: i
 def main():
     ap = argparse.ArgumentParser()
 
-    ap.add_argument("--baseline", default=str(BASE_DIR / "data" / "labels_filled_15x20.csv"))
-    ap.add_argument("--v2", default=str(BASE_DIR / "data" / "labels_filled_15x20_v2.csv"))
+    ap.add_argument("--baseline", default=str(BASE_DIR / "data" / "labels" / "labels_filled_15x20.csv"))
+    ap.add_argument("--v2", default=str(BASE_DIR / "data" / "labels" / "labels_filled_15x20_v2.csv"))
     ap.add_argument("--outdir", default=str(BASE_DIR / "results" / "task3"))
     ap.add_argument("--k", type=int, default=5)
     ap.add_argument("--pool_k", type=int, default=20)

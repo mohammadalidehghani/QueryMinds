@@ -4,8 +4,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 QUESTIONS_PATH = BASE_DIR / "data" / "questions.json"
-CANDIDATES_PATH = BASE_DIR / "data" / "candidate_chunks.jsonl"
-GOLD_PATH = BASE_DIR / "data" / "gold_labels.jsonl"
+CANDIDATES_PATH = BASE_DIR / "data" / "chunks" / "candidate_chunks.jsonl"
+GOLD_PATH = BASE_DIR / "data" / "labels" / "gold_labels.jsonl"
 
 # ---- YOU CAN ADJUST THESE LIMITS ----
 MAX_TOTAL_LABELS = 274      # total labels you want in the end (None = no limit) 

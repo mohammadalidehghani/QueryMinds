@@ -41,7 +41,7 @@ DATA_DIR = PROJECT_ROOT / "data"
 RESULTS_DIR = PROJECT_ROOT / "results"
 RESULTS_DIR.mkdir(exist_ok=True)
 
-FAISS_INDEX_PATH = DATA_DIR / "faiss_index"
+FAISS_INDEX_PATH = DATA_DIR / "faiss_indices" / "faiss_index"
 QUESTIONS_PATH = DATA_DIR / "questions.json"
 OUTPUT_PATH = RESULTS_DIR / "vanilla_rag_results.json"
 

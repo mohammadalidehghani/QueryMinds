@@ -11,8 +11,8 @@ PROJECT_ROOT = SCRIPT_DIR.parent
 DATA_DIR = PROJECT_ROOT / "data"
 MODEL_DIR = PROJECT_ROOT / "models" / "finetuned-minilm"
 
-CHUNKS_PATH = DATA_DIR / "chunks_30_v2.jsonl"
-FAISS_DIR = DATA_DIR / "faiss_index_v3"
+CHUNKS_PATH = DATA_DIR / "chunks" / "chunks_30_v2.jsonl"
+FAISS_DIR = DATA_DIR / "faiss_indices" / "faiss_index_v3"
 
 
 # Load chunks

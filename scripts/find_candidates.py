@@ -6,10 +6,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Input files
 QUESTIONS_PATH = BASE_DIR / "data" / "questions.json"
-CHUNKS_PATH = BASE_DIR / "data" / "chunks_30.jsonl"   # use your subset file
+CHUNKS_PATH = BASE_DIR / "data" / "chunks" / "chunks_30.jsonl"   # use your subset file
 
 # Output file
-OUT_PATH = BASE_DIR / "data" / "candidate_chunks.jsonl"
+OUT_PATH = BASE_DIR / "data" / "chunks" / "candidate_chunks.jsonl"
 
 # Optional: limit how many candidates per question (set to None for no limit)
 MAX_PER_QUESTION = None  # e.g. set to 50 if you want max 50 per question
