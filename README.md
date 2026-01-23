@@ -1,8 +1,5 @@
-# QueryMinds — Milestone 1 & 2  
-## NLP Pipeline + Baseline Retrieval Models
-
-This repository contains implementations for **Milestone 1** (PDF → CoNLL-U NLP pipeline)  
-and **Milestone 2** (baseline retrieval models for RAG systems).
+# QueryMinds
+## Retrieval Augmented Generation for Academic Question Answering
 
 ---
 QueryMinds Team
