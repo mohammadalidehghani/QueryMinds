@@ -42,7 +42,17 @@ Milestone 2 extends the Milestone 1 and introduces a complete RAG baseline frame
 
 ---
 
+#  Final Overview
 
+Final version of the projects builds upon the first two milestones, using the existing embedding retrieval for implementing two RAG (Retrieval Augmented Generation) systems:
+- **Vanilla RAG**, allowing free-form generation
+- **Strict Constrained RAG**, restricting generation to retrieved evidence
+
+The two systems were implemented in three different versions:
+- ***Version 1***: Both systems implemented on the first versions of questions, and one manual labeling
+- ***Version 2***: Both systems implemented on a refined set of questions, and a trained embedding retrieval model with three large language models labeling the golden truth labels
+- ***Version 3***: Both systems implemented on a manually labeled trained embedding retrieval model
+---
 
 ## Environment Setup
 
@@ -63,38 +73,3 @@ except:
     pass
 nltk.download('punkt')
 PY
-```
-## Project Pipeline 
-# Milestone 1
-```bash
-# Download PDFs
-python scripts/download_papers.py
-# Extract and separate sections
-python scripts/extract_sections.py
-# Parse PDFs
-python scripts/parse_pdfs.py
-# Tokenize sentences
-python scripts/sent_tok.py
-# Normalize and convert to CONLL-U
-python scripts/normalize_and_conllu.py
-# Extract corpus statistics
-python scripts/corpus_stats.py
-```
-
-# Milestone 2
-```bash
-# Select 30 papers for retrieval
-python scripts/select_30.py
-# Chunk papers 
-python scripts/build_chunks_30.py
-# Generate candidate chunks for each question
-python scripts/find_candidates.py
-# Label candidates
-python scripts/label_candidates.py
-# Make ML Training File
-python scripts/make_training_data.py
-# Run all the models (individual models can be run by replacing rag_pipeline with name of model)
-python baselines/rag_pipeline.py
-# Get comparison of results
-python scripts/compare_baselines.py
-```
